@@ -166,7 +166,7 @@ Now, the Promgen app is up and running. You can access the Promgen screen throug
 
 > #### Alert rules
 
-Promgen supports Webhook with which you can configure and use the alert and notification features of Prometheus. In Prometheus Alertmanager, specify the Promgen URL using `webhook_configs` as follows. [password] is randomly generated.
+Promgen supports Webhook with which you can configure and use the alert and notification features of Prometheus. In Prometheus Alertmanager, specify the Promgen URL using `webhook_configs` as follows. [password] is randomly generated because of security.
 
 ```
 receivers:
@@ -176,6 +176,8 @@ receivers:
 ```
 
 When you run the Promgen app, a log is created with a random password. In this example, the password is "abcdefg..."
+
+If you restart Promgen, password changes. So, you need to modify alertmanager.yml and restart Alertmanager.
 
 ```
 PASSWORD: abcdefg...
@@ -210,9 +212,9 @@ alert_senders:
 
 * [Ikasan](https://github.com/studio3104/ikasan)
 
-LINE uses the Ikasan tool to send and receive HipChat messages over HTTP. This tool is useful because you don't need to manage HipChat tokens.
+LINE uses the Ikasan tool to send HipChat messages over HTTP. This tool is useful because you don't need to manage HipChat tokens.
 
-Specify the Ikachan module and the URL if you want to receive alert notifications through HipChat.
+Specify the Ikachan(not Ikasan) module and the URL if you want to receive alert notifications through HipChat.
 
 * Mail
 
