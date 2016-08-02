@@ -1,0 +1,36 @@
+<div class="page-header">
+    <h1>Promgen status</h1>
+</div>
+
+<div class="row">
+  <table class="table table-bordered">
+    <tr>
+      <th>Ruby</th>
+      <td><%= RUBY_PLATFORM %> <%= RUBY_VERSION %></td>
+    </tr>
+    <tr>
+      <th>Prometheus</th>
+      <td><a href="<%= @prometheus.url %>"><%= @prometheus.url %></a></td>
+    </tr>
+    <tr>
+      <th>Server loader</th>
+      <td>
+        <ul>
+        <% @server_directories.each do |server_loader| %>
+          <li><%= server_loader.info %></li>
+        <% end %>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>Alert senders</th>
+      <td>
+        <ul>
+        <% @alert_senders.each do |sender| %>
+          <li><%= sender.info %></li>
+        <% end %>
+        </ul>
+      </td>
+    </tr>
+  </table>
+</div>

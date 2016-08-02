@@ -1,0 +1,22 @@
+machine:
+  ruby:
+    version: 2.3.0
+
+  pre:
+    - wget https://s3.amazonaws.com/circle-downloads/circleci-ruby2.3.0_0.0.1_amd64.deb
+    - sudo dpkg -i circleci-ruby2.3.0_0.0.1_amd64.deb
+
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install libmysqlclient-dev
+    - gem install bundler
+
+database:
+  override:
+    - mysqladmin -uroot create promgen
+
+test:
+  override:
+    - TEST_DSN=mysql://localhost/promgen\?user=root bundle exec rake test
+    - COVERAGE=1 bundle exec rake test
+    - bundle exec rake rubocop

@@ -1,0 +1,35 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="<%= to("/project/#{@project.id}") %>"><%= @project.name %></a></li>
+  <li class="active">Register new project exporter</li>
+</ol>
+
+<div class="page-header">
+  <h1>Register new exporter for <%= @project.name %></h1>
+</div>
+
+<div class="row">
+  <% [{job: 'node', port: 9100}, {job: 'nginx', port: 9113}].each do |e| %>
+      <form method="post" action="<%= to("/project/#{@project.id}/exporter/register") %>" style="display: inline">
+        <input type="hidden" name="job" value="<%= e[:job] %>">
+        <input type="hidden" name="port" value="<%= e[:port] %>">
+        <button type="submit" class="btn btn-primary">Register <%= e[:job] %>_exporter(Port: <%= e[:port] %>)</button>
+      </form>
+  <% end %>
+
+  <hr>
+
+  <form method="post" action="<%= to("/project/#{@project.id}/exporter/register") %>">
+    <div class="form-group">
+      <label for="inputPort">Port</label>
+      <input type="text" name="port" class="form-control" id="inputPort" pattern="[0-9]+" required>
+    </div>
+    <div class="form-group">
+      <label for="inputJob">Job</label>
+      <input type="text" name="job" class="form-control" id="inputJob" required>
+      <p class="help-block">nginx, apache, mysqld, node etc.</p>
+    </div>
+
+    <button type="submit" class="btn btn-default">Register</button>
+  </form>
+</div>

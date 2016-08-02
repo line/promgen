@@ -1,0 +1,47 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="<%= to("/project/#{@project.id}") %>"><%= @project.name %></a></li>
+  <li class="active">Link project</li>
+</ol>
+
+<div class="page-header">
+  <h1>Link farm and project: <%= @project.name %></h1>
+  <% if @server_directory.db? %>
+      <a href="<%= to("/project/#{@project.id}/farm/register") %>" class="btn btn-warning">Create farm</a>
+  <% end %>
+</div>
+
+<form>
+  Search: <input type="text" placeholder="keyword" id="inputKeyword">
+</form>
+
+<form method="post" action="<%= to("/project/#{@project.id}/link/#{@server_directory.id}") %>">
+  <table class="table">
+    <tr>
+      <th>Name</th>
+      <th></th>
+    </tr>
+    <% @farm_names.each do |farm_name| %>
+        <tr class="farmRow">
+          <td class="farmName">
+            <button class="btn btn-default" value="<%= farm_name %>" type="submit" name="farm_name">Link <%= farm_name %></button>
+          </td>
+          <td>
+            <a href="<%= to("/server_directory/#{@server_directory.id}/farm_hosts?farm_name=#{farm_name}") %>" target="_blank">Hosts</a>
+          </td>
+        </tr>
+    <% end %>
+  </table>
+</form>
+
+<script type="text/javascript">
+  var inputKeyword = document.getElementById("inputKeyword");
+  inputKeyword.addEventListener('input', function (e) {
+    var keyword = inputKeyword.value;
+    var rows = document.getElementsByClassName("farmRow");
+    Array.prototype.forEach.call(rows, function (row) {
+      var farm = row.getElementsByClassName("farmName")[0].textContent;
+      row.style.display = farm.match(keyword) ? '' : 'none';
+    });
+  }, false);
+</script>

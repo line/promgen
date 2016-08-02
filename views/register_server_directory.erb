@@ -1,0 +1,32 @@
+<ol class="breadcrumb">
+  <li class="active">Home</li>
+</ol>
+
+<div class="page-header">
+  <h1>Register server directory</h1>
+</div>
+
+<div class="row">
+  <% @types.each do |type| %>
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading"><%= type %></div>
+          <div class="panel-body">
+            <form method="post">
+              <input type="hidden" name="type" value="<%= type %>">
+              <% type.properties.each do |prop| %>
+                  <div class="form-group">
+                    <label for="<%= "form-#{type}-#{prop[:name]}" %>">
+                      <%= prop[:name] %>
+                    </label>
+                    <input type="text" class="form-control"  id="<%= "form-#{type}-#{prop[:name]}" %>" name="<%= prop[:name] %>" required>
+                  </div>
+              <% end %>
+              <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+          </div>
+        </div>
+      </div>
+  <% end %>
+</div>
+

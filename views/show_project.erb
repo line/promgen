@@ -1,0 +1,141 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active"><%= @project.name %></li>
+</ol>
+
+<div class="page-header">
+  <h1>
+    Project: <%= @project.name %>
+    <div class="btn-group" role="group">
+      <form method="post" action="<%= to("/project/#{@project.id}/delete") %>" onsubmit="return confirm('Delete this project?')">
+        <button type="submit" class="btn btn-danger">Delete</button>
+      </form>
+    </div>
+  </h1>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">Configuration</div>
+      <table class="table">
+        <tr>
+          <th>Hipchat Channel</th>
+          <td><%= @project.hipchat_channel %></td>
+        </tr>
+        <tr>
+          <th>Mail Address</th>
+          <td><%= @project.mail_address %></td>
+        </tr>
+        <tr>
+          <th>Webhook URL</th>
+          <td><%= @project.webhook_url %></td>
+        </tr>
+      </table>
+      <div class="panel-footer">
+        <a href="<%= to("/project/#{@project.id}/update") %>" class="btn btn-default">Update
+          project</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+
+    <div class="panel panel-default">
+      <div class="panel-heading">Exporters</div>
+      <table class="table">
+        <tr>
+          <th>Job</th>
+          <th>Port</th>
+          <th>&nbsp;</th>
+        </tr>
+        <% @exporters.each do |exporter| %>
+            <tr>
+              <td><%= exporter.job %></td>
+              <td><%= exporter.port %></td>
+              <td>
+                <form method="post" action="<%= to("/project/#{@project.id}/exporter/#{exporter.port}/delete") %>" onsubmit="return confirm('Delete this exporter?')">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </td>
+            </tr>
+        <% end %>
+      </table>
+      <div class="panel-footer">
+        <a href="<%= to("/project/#{@project.id}/exporter/register") %>" class="btn btn-default">
+          Register Exporter</a>
+      </div>
+    </div>
+  </div>
+
+  <% if @project_farm %>
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">Hosts from <%= @project_farm.farm_name %></div>
+          <table class="table">
+            <tr>
+              <th>Name</th>
+              <% if @server_directory.db? %>
+                  <th>&nbsp;</th>
+              <% end %>
+            </tr>
+            <% (@hosts||[]).each do |host| %>
+                <tr>
+                  <td><%= host %></td>
+                  <% if @server_directory.db? %>
+                      <td>
+                        <form method="post" action="<%= to("/project/#{@project.id}/farm/#{@farm.id}/host/#{host}/delete") %>" onsubmit="return confirm('Really delete this host?');">
+                          <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                      </td>
+                  <% end %>
+                </tr>
+            <% end %>
+          </table>
+          <div class="panel-footer">
+            <% if @server_directory.db? %>
+                <a href="<%= to("/project/#{@project.id}/farm/#{@farm.id}/host/add") %>" class="btn btn-primary">
+                  Add new host</a>
+                <a href="<%= to("/project/#{@project.id}/farm/#{@farm.id}/edit") %>" class="btn btn-primary">
+                  Edit farm info</a>
+            <% end %>
+
+            <form method="post" action="<%= to("/project/#{@project.id}/unlink/#{@project_farm.id}") %>" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
+              <button type="submit" class="btn btn-danger">Unlink Farm</button>
+            </form>
+          </div>
+        </div>
+      </div>
+  <% else %>
+      <div class="col-md-6">
+        <div class="panel panel-default">
+          <div class="panel-heading clearfix">Farm</div>
+          <div class="panel-body">
+            <% if @server_directories.length > 0 %>
+                <% @server_directories.each do |dir| %>
+                    <div style="margin-bottom: 8px;">
+                      <% if dir.db? %>
+                          <a href="<%= to("/project/#{@project.id}/farm/register") %>" class="btn btn-default">Create
+                            new farm</a>
+                          <a href="<%= to("/project/#{@project.id}/link/#{dir.id}") %>" class="btn btn-primary">
+                            Link to farm in「DB」
+                          </a>
+                      <% else %>
+                          <a href="<%= to("/project/#{@project.id}/link/#{dir.id}") %>" class="btn btn-primary">Link to
+                            farm
+                            from
+                            「<%= dir.info %>」
+                          </a>
+                      <% end %>
+                    </div>
+                <% end %>
+            <% else %>
+                There's no server directory.
+                <a href="/server_directory/register">Register server directory first.</a>
+            <% end %>
+          </div>
+        </div>
+      </div>
+  <% end %>
+
+</div>

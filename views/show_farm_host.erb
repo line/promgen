@@ -1,0 +1,17 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active"><%= @farm_name %></li>
+</ol>
+
+<div class="page-header">
+  <h1>Hosts of farm: <%= @farm_name %></h1>
+</div>
+
+<table class="table">
+  <ul>
+    <% @hosts.each do |host| %>
+      <li><%= host %></li>
+    <% end %>
+  </ul>
+</table>
+

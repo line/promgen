@@ -1,0 +1,34 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+</ol>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">Rules</div>
+      <table class="table">
+        <thead>
+        <th>ALERT</th>
+        <th>IF</th>
+        <th>FOR</th>
+        <th>LABELS</th>
+        <th>ANNOTATIONS</th>
+        <th>service</th>
+        </thead>
+        <tbody>
+        <% @rules.each do |rule| %>
+            <tr>
+              <td><%= rule[:alert_clause] %></td>
+              <td><%= rule[:if_clause] %></td>
+              <td><%= rule[:for_clause] %></td>
+              <td><%= rule[:labels_clause] %></td>
+              <td><%= rule[:annotations_clause] %></td>
+              <td><a href="<%= to("/service/#{rule[:service_id]}/rule") %>"><%= rule[:service_name] %></a></td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

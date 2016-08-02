@@ -1,0 +1,32 @@
+AllCops:
+  TargetRubyVersion: 2.2
+
+ParameterLists:
+  Max: 5
+  CountKeywordArgs: false
+
+LineLength:
+  Max: 240
+
+MethodLength:
+  Max: 40
+
+Documentation:
+  Enabled: false
+
+# Assignment Branch Condition size
+Metrics/AbcSize:
+  Max: 40
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+# Allow `inject`
+Style/EachWithObject:
+  Enabled: false
+
+Metrics/ClassLength:
+  Max: 200
+
+Metrics/ModuleLength:
+  Max: 200

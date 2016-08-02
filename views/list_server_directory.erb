@@ -1,0 +1,50 @@
+<ol class="breadcrumb">
+  <li class="active">Home</li>
+</ol>
+
+<div class="page-header">
+  <h1>Server directory</h1>
+  <div class="btn-group" role="group">
+    <a href="/server_directory/register" class="btn btn-default">Register</a>
+  </div>
+</div>
+
+<div class="row">
+  <table class="table">
+    <tr>
+      <th>Type</th>
+      <th>Params</th>
+      <th>&nbsp;</th>
+      <th>&nbsp;</th>
+    </tr>
+    <% @server_directories.each do |server_directory| %>
+        <tr>
+          <td><%= server_directory.class.name %></td>
+          <td>
+            <table class="table">
+              <% server_directory.values.each do |k, v| %>
+                  <tr>
+                    <th><%= k %></th>
+                    <td><%= v %></td>
+                  </tr>
+              <% end %>
+            </table>
+          </td>
+          <% unless server_directory.db? %>
+              <td>
+                <a href="<%= to("/server_directory/#{server_directory.id}/update") %>" class="btn btn-primary">Update</a>
+              </td>
+              <td>
+                <form method="post" action="<%= to("/server_directory/#{server_directory.id}/delete") %>" onsubmit="return confirm('Could you remove server directory?')">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </td>
+          <% else %>
+              <td></td>
+              <td></td>
+          <% end %>
+        </tr>
+    <% end %>
+  </table>
+</div>
+

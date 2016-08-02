@@ -1,0 +1,44 @@
+@startuml
+
+left to right direction
+
+hide circle
+
+class project {
+  - id
+  name
+  hipchat_channel
+}
+note bottom: promgen project
+
+class farm {
+  - id
+  name
+}
+note bottom: Promgen::ServerDirectory::DB farm
+
+class project_farm {
+  - id
+  farm_id
+  project_id
+}
+
+class project_exporter {
+  - id
+  project_id
+  name
+  port
+}
+
+class host {
+  - id
+  farm_id
+  name
+}
+
+project --o project_exporter
+project --o project_farm
+project_farm ..o farm
+farm --o host
+
+@enduml

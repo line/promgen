@@ -1,0 +1,19 @@
+---
+prometheus:
+  url: http://prometheus.localhost/
+db:
+  dsn: sqlite://./db
+  logging: false
+config_writer:
+  path: /tmp/prom.json
+rule_writer:
+  rule_path: /tmp/prom.rule
+  promtool_path: /path/to/promtool
+alert_senders:
+  - module: Ikachan
+    url: http://ikachan.localhost/
+  - module: MailNotify
+    smtp_server: smtp.localhost
+  - module: Webhook
+  - module: Alerta
+    alerta_url: http://alerta.localhost

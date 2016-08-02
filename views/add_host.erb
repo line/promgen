@@ -1,0 +1,24 @@
+<ol class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a href="<%= to("/project/#{@project.id}") %>"><%= @project.name %></a></li>
+    <li class="active">Register new Host</li>
+</ol>
+
+<div class="page-header">
+    <h1>Register new host to <i><%= @farm.name %></i></h1>
+</div>
+
+<div class="row">
+<div class="col-md-4">
+  <form method="post" action="<%= to("/project/#{@project.id}/farm/#{@farm.id}/host/add") %>">
+    <div class="form-group">
+      <label for="inputName">Name</label>
+      <textarea name="names" class="form-control" id="inputName" rows="15"></textarea>
+      <p class="help-block">Paste list of host names here. Put 1 host name per line.</p>
+    </div>
+
+    <button type="submit" class="btn btn-default">Register</button>
+  </form>
+</div>
+</div>
+

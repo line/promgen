@@ -1,0 +1,53 @@
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active"><%= @service.name %></li>
+</ol>
+
+<div class="page-header">
+  <h1>
+    Service: <%= @service.name %>
+  </h1>
+</div>
+
+<div class="row">
+
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">Rules</div>
+      <table class="table">
+        <thead>
+        <th>ALERT</th>
+        <th>IF</th>
+        <th>FOR</th>
+        <th>LABELS</th>
+        <th>ANNOTATIONS</th>
+        <th></th>
+        </thead>
+        <tbody>
+        <% @rules.each do |rule| %>
+            <tr>
+              <td><%= rule.alert_clause %></td>
+              <td><%= rule.if_clause %></td>
+              <td><%= rule.for_clause %></td>
+              <td><%= rule.labels_clause %></td>
+              <td><%= rule.annotations_clause %></td>
+              <td>
+                <form method="post" action="<%= to("/service/#{@service.id}/rule/#{rule.id}/delete") %>" onsubmit="return confirm('Delete this rule?')">
+                  <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+              </td>
+              <td>
+                <a href="<%= to("/service/#{@service.id}/rule/#{rule.id}/update") %>" class="btn btn-default">Update</a>
+              </td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+      <div class="panel-footer">
+        <a href="<%= to("/service/#{@service.id}/rule/register") %>" class="btn btn-primary">
+          Register new Rule</a>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,19 @@
+<ol class="breadcrumb">
+  <li class="active">Home</li>
+</ol>
+
+<div class="page-header">
+  <h1>Register service</h1>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <form method="post" action="<%= to("/service/register") %>">
+      <div class="form-group">
+        <label for="inputName">Name</label>
+        <input type="text" name="name" class="form-control" id="inputName" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+  </div>
+</div>
