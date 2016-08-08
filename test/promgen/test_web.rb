@@ -34,7 +34,7 @@ class TestWeb < Promgen::Test
 
   def test_top
     get '/'
-    assert_equal 302, last_response.status
+    assert_equal 301, last_response.status
     assert_equal 'http://example.org/service/', last_response.headers['Location']
   end
 end
