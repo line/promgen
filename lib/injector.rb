@@ -20,9 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+# frozen_string_literal: true
 require 'yaml'
 
-# frozen_string_literal: true
 module Injector
   def self.extended(obj)
     obj.class_eval do

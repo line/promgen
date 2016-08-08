@@ -1,5 +1,6 @@
 /db
 /hoge.rb
+/.bundle/
 /.idea/
 /coverage/
 /vendor/
