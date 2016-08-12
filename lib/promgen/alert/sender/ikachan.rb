@@ -44,15 +44,19 @@ class Promgen
             if project && project.hipchat_channel
               subject = "#{alert['labels']['alertname']} #{alert['labels']['farm']} #{alert['labels']['instance']} #{alert['labels']['job']} #{alert['status']}"
               body = "#{alert['annotations']['summary']}\n#{alert['annotations']['description']}"
-              ikasan(project.hipchat_channel, subject + "\n" + body)
+              if alert['status'] == 'resolved'
+                ikasan(project.hipchat_channel, subject + "\n" + body, 'yellow')
+              else
+                ikasan(project.hipchat_channel, subject + "\n" + body, 'red')
+              end
             else
               @logger.info "project:'#{labels['project']}' doesn't have a hipchat channel configuration"
             end
           end
         end
 
-        def ikasan(channel, message)
-          @logger.info "Sending ikachan message: #{channel} #{message}"
+        def ikasan(channel, message, color)
+          @logger.info "Sending ikachan message: #{channel} #{message} #{color}"
 
           uri = URI.parse(@url)
           request = Net::HTTP::Post.new(uri.path)
@@ -60,7 +64,7 @@ class Promgen
             channel: channel,
             message: message,
             nickname: 'promgen',
-            color: 'red'
+            color: color
           )
           Net::HTTP.new(uri.host, uri.port).start do |http|
             resp = http.request(request)
