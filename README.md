@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/line/promgen.svg?branch=master)](https://travis-ci.org/line/promgen)
+
 # What is Promgen?
 
 Promgen is a configuration file generator for [Prometheus](http://prometheus.io). Promgen is a web application written in Ruby and can help you do the following jobs.
