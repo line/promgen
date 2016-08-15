@@ -69,7 +69,7 @@ class TestAlert < Promgen::Test
     assert_requested :post, 'http://ikachan.localhost/notice',
                      body: { 'channel' => '#foo',
                              'message' => 'InstanceDown foo-web testhost.localhost:9100 node resolved' + "\n" + 'Instance testhost.localhost:9100 down' + "\n" + 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
-                             'nickname' => 'promgen', 'color' => 'yellow' },
+                             'nickname' => 'promgen', 'color' => 'green' },
                      times: 1
   end
 
@@ -104,7 +104,7 @@ class TestAlert < Promgen::Test
     assert_requested :post, 'http://ikachan.localhost/privmsg',
                      body: { 'channel' => '#foo',
                              'message' => 'InstanceDown foo-web testhost.localhost:9100 node resolved' + "\n" + 'Instance testhost.localhost:9100 down' + "\n" + 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
-                             'nickname' => 'promgen', 'color' => 'yellow' },
+                             'nickname' => 'promgen', 'color' => 'green' },
                      times: 1
   end
 
