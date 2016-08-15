@@ -45,7 +45,7 @@ class Promgen
               subject = "#{alert['labels']['alertname']} #{alert['labels']['farm']} #{alert['labels']['instance']} #{alert['labels']['job']} #{alert['status']}"
               body = "#{alert['annotations']['summary']}\n#{alert['annotations']['description']}"
               if alert['status'] == 'resolved'
-                ikasan(project.hipchat_channel, subject + "\n" + body, 'yellow')
+                ikasan(project.hipchat_channel, subject + "\n" + body, 'green')
               else
                 ikasan(project.hipchat_channel, subject + "\n" + body, 'red')
               end
