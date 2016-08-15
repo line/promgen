@@ -218,6 +218,8 @@ LINE uses the Ikasan tool to send HipChat messages over HTTP. This tool is usefu
 
 Specify the Ikachan(not Ikasan) module and the URL if you want to receive alert notifications through HipChat.
 
+If you want to use `/privmsg` API endpoint, please set the environment variable `HIPCHAT_PRIVMSG` (`/privmsg` endpoint can fire the mentioned message like `Alert: @you`).
+
 * Mail
 
 Specify the MailNotify module and the SMPT server if you want to receive alert notifications through email.

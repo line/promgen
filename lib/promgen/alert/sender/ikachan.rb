@@ -28,7 +28,7 @@ class Promgen
     class Sender
       class Ikachan
         def initialize(url:, logger:, project_repo:)
-          @url = url.gsub(%r{/$}, '') + '/notice'
+          @url = url.gsub(%r{/$}, '') + '/' + (ENV['HIPCHAT_PRIVMSG'] ? 'privmsg' : 'notice')
           @logger = logger
           @project_repo = project_repo
         end

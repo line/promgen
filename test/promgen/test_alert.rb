@@ -73,6 +73,41 @@ class TestAlert < Promgen::Test
                      times: 1
   end
 
+  def test_ikachan_alert_with_hipchat_privmsg
+    ENV['HIPCHAT_PRIVMSG'] = '1'
+    @app.project_repo.insert(service_id: @factory.service.id, name: 'mywebapp', hipchat_channel: '#foo')
+
+    stub_request(:post, 'http://ikachan.localhost/privmsg')
+      .to_return(status: 200, body: '', headers: {})
+
+    post '/', JSON.generate(alerts: [
+                              {
+                                status: 'resolved',
+                                labels: {
+                                  alertname: 'InstanceDown',
+                                  service: 'myservice',
+                                  project: 'mywebapp',
+                                  job: 'node',
+                                  instance: 'testhost.localhost:9100',
+                                  farm: 'foo-web'
+                                },
+                                generatorURL: 'http://prom.localhost/',
+                                annotations: {
+                                  description: 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
+                                  summary: 'Instance testhost.localhost:9100 down'
+                                }
+                              }
+                            ])
+
+    @app.logger.info("response: #{last_response}")
+    assert_equal 200, last_response.status
+    assert_requested :post, 'http://ikachan.localhost/privmsg',
+                     body: { 'channel' => '#foo',
+                             'message' => 'InstanceDown foo-web testhost.localhost:9100 node resolved' + "\n" + 'Instance testhost.localhost:9100 down' + "\n" + 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
+                             'nickname' => 'promgen', 'color' => 'yellow' },
+                     times: 1
+  end
+
   def test_webhook_alert
     @app.project_repo.insert(service_id: @factory.service.id, name: 'mywebapp', webhook_url: 'http://webhook.localhost')
 
