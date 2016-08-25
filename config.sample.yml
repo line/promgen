@@ -17,3 +17,7 @@ alert_senders:
   - module: Webhook
   - module: Alerta
     alerta_url: http://alerta.localhost
+# Default Exporter Settings
+default_exporters:
+    node: 9100
+    nginx: 9113
