@@ -9,11 +9,11 @@
 </div>
 
 <div class="row">
-  <% [{job: 'node', port: 9100}, {job: 'nginx', port: 9113}].each do |e| %>
+  <% @default_exporters.each do |job, port| %>
       <form method="post" action="<%= to("/project/#{@project.id}/exporter/register") %>" style="display: inline">
-        <input type="hidden" name="job" value="<%= e[:job] %>">
-        <input type="hidden" name="port" value="<%= e[:port] %>">
-        <button type="submit" class="btn btn-primary">Register <%= e[:job] %>_exporter(Port: <%= e[:port] %>)</button>
+        <input type="hidden" name="job" value="<%= job %>">
+        <input type="hidden" name="port" value="<%= port %>">
+        <button type="submit" class="btn btn-primary">Register <%= job %>_exporter(Port: <%= port %>)</button>
       </form>
   <% end %>
 
