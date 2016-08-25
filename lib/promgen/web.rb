@@ -69,7 +69,8 @@ class Promgen
       @server_directory_service = server_directory_service
       @logger = logger
       @service_service = service_service
-      @default_exporters = config['default_exporters']
+
+      @default_exporters = config.fetch('default_exporters', {:node => 9100, :nginx => 9113})
     end
 
     set :erb, escape_html: true
