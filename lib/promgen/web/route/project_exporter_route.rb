@@ -27,10 +27,6 @@ require 'sinatra/json'
 class Promgen
   class Web < Sinatra::Base
     get '/project/:project_id/exporter/register' do
-      @default_exporters = {
-        :node => 9100,
-        :nginx => 9113,
-      }
       erb :register_project_exporter
     end
 

@@ -52,7 +52,8 @@ class Promgen
         alert_senders:,
         server_directory_service:,
         logger:,
-        service_service:
+        service_service:,
+        config:
     )
       super()
       @farm_service = farm_service
@@ -68,6 +69,7 @@ class Promgen
       @server_directory_service = server_directory_service
       @logger = logger
       @service_service = service_service
+      @default_exporters = config['default_exporters']
     end
 
     set :erb, escape_html: true
