@@ -13,7 +13,7 @@
   <% @services.each do |service| %>
       <div class="col-md-12">
         <div class="panel panel-default">
-          <div class="panel-heading"><%= service.name %></div>
+          <div class="panel-heading"><a href="<%= to("/service/#{service.id}") %>"><%= service.name %></a></div>
           <table class="table table-bordered">
             <tr>
               <th>Name</th>

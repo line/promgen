@@ -1,5 +1,6 @@
 <ol class="breadcrumb">
   <li><a href="/">Home</a></li>
+  <li><a href="<%= to("/service/#{@service.id}") %>"><%= @service.name %></a></li>
   <li class="active"><%= @project.name %></li>
 </ol>
 

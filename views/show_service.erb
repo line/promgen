@@ -1,0 +1,45 @@
+<div class="page-header">
+  <h1>Service - <%= @service.name %></h1>
+  <div class="btn-group" role="group">
+    <a href="/service/register" class="btn btn-default">Register New Service</a>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading"><%= @service.name %></div>
+  <table class="table table-bordered">
+    <tr>
+      <th>Name</th>
+      <th>Channel</th>
+      <th>Mail Address</th>
+      <th>Webhook URL</th>
+      <th>Exporters</th>
+      <th>Farm</th>
+    </tr>
+    <% (@service_id2projects[@service.id]||[]).map do |project| %>
+    <tr>
+      <td><a href="<%= to("/project/#{project.id}") %>"><%= project.name %></a></td>
+      <td><%= project.hipchat_channel %></td>
+      <td><%= project.mail_address %></td>
+      <td><%= project.webhook_url %></td>
+      <td>
+        <table style="width: 100%">
+          <% (@project_id2exporters[project.id]||[]).each do |exporter| %>
+          <tr>
+            <th><%= exporter.job %></th>
+            <td><%= exporter.port %></td>
+          </tr>
+          <% end %>
+        </table>
+      </td>
+      <td><%= @project_id2farm_name[project.id] %></td>
+    </tr>
+    <% end %>
+  </table>
+<div class="panel-footer">
+  <a href="<%= to("/service/#{@service.id}/rule") %>" class="btn btn-primary">Rules</a>
+  <a href="<%= to("/service/#{@service.id}/project/create") %>" class="btn btn-primary">Register project</a>
+  <form method="post" action="<%= to("/service/#{@service.id}/delete") %>" onsubmit="return confirm('Delete this service?')" style="display: inline">
+    <button class="btn btn-danger">Delete service</button>
+  </form>
+</div>
