@@ -36,10 +36,12 @@
     </tr>
     <% end %>
   </table>
-<div class="panel-footer">
-  <a href="<%= to("/service/#{@service.id}/rule") %>" class="btn btn-primary">Rules</a>
-  <a href="<%= to("/service/#{@service.id}/project/create") %>" class="btn btn-primary">Register project</a>
-  <form method="post" action="<%= to("/service/#{@service.id}/delete") %>" onsubmit="return confirm('Delete this service?')" style="display: inline">
-    <button class="btn btn-danger">Delete service</button>
-  </form>
+
+  <div class="panel-footer">
+    <a href="<%= to("/service/#{@service.id}/rule") %>" class="btn btn-primary">Rules</a>
+    <a href="<%= to("/service/#{@service.id}/project/create") %>" class="btn btn-primary">Register project</a>
+    <form method="post" action="<%= to("/service/#{@service.id}/delete") %>" onsubmit="return confirm('Delete this service?')" style="display: inline">
+      <button class="btn btn-danger">Delete service</button>
+    </form>
+  </div>
 </div>
