@@ -52,7 +52,7 @@ class Promgen
         webhook_url: empty_to_nil(params[:webhook_url])
       )
 
-      redirect to('/service/')
+      redirect to('/service/' + params[:service_id])
     end
 
     get '/project/:project_id' do
@@ -71,6 +71,8 @@ class Promgen
       @exporters = @project_exporter_service.find_by_project_id(project_id: @project.id)
 
       @server_directories = @server_directory_service.all
+
+      @service = @service_service.find(id: @project.service_id)
 
       erb :show_project
     end

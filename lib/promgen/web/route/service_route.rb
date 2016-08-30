@@ -41,7 +41,7 @@ class Promgen
         memo[project_farm.project_id] = project_farm.farm_name
       end
 
-      erb :list_service
+      erb :list_services
     end
 
     get '/service/register' do
@@ -51,6 +51,22 @@ class Promgen
     post '/service/register' do
       @service_service.insert(name: params[:name])
       redirect '/service/'
+    end
+
+    get '/service/:service_id' do
+      @service = @service_service.find(id: params[:service_id])
+      @service_id2projects = @project_service.all.group_by(&:service_id).each_with_object({}) do |row, memo|
+        memo[row[0]] = row[1]
+      end
+
+      @project_id2exporters = @project_exporter_service.all.group_by(&:project_id).each_with_object({}) do |row, memo|
+        memo[row[0]] = row[1]
+      end
+
+      @project_id2farm_name = @project_farm_service.all.each_with_object({}) do |project_farm, memo|
+        memo[project_farm.project_id] = project_farm.farm_name
+      end
+      erb :show_service
     end
 
     post '/service/:service_id/delete' do

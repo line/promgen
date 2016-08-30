@@ -17,7 +17,7 @@ alert_senders:
   - module: Webhook
   - module: Alerta
     alerta_url: http://alerta.localhost
-
+password: foobar
 # Default Exporter Settings
 # Examples from https://github.com/prometheus/prometheus/wiki/Default-port-allocations
 default_exporters:
