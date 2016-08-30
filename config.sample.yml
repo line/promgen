@@ -17,3 +17,4 @@ alert_senders:
   - module: Webhook
   - module: Alerta
     alerta_url: http://alerta.localhost
+password: foobar

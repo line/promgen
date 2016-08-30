@@ -12,12 +12,9 @@ app = Promgen.build
 
 use Rack::Static, urls: ['/css'], root: File.join(File.dirname(__FILE__), 'public')
 
-pass = SecureRandom.hex
-print "PASSWORD: #{pass}\n"
-
 run Rack::URLMap.new(
   '/alert/' => Rack::Auth::Basic.new(app.alert) do |username, password|
-    username == 'promgen' && password == pass
+    username == 'promgen' && password == app.config['password']
   end,
   '/' => Rack::Protection::RemoteReferrer.new(app.web, allow_empty_referrer: false)
 )
