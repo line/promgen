@@ -51,6 +51,7 @@ alert_senders:
   - module: Webhook
   - module: Alerta
     alerta_url: http://alerta.localhost
+password: abcdefg123456
 ```
 * `prometheus`
   * You must specify a URL for Promgen. For example:
@@ -168,21 +169,13 @@ Now, the Promgen app is up and running. You can access the Promgen screen throug
 
 > #### Alert rules
 
-Promgen supports Webhook with which you can configure and use the alert and notification features of Prometheus. In Prometheus Alertmanager, specify the Promgen URL using `webhook_configs` as follows. [password] is randomly generated because of security.
+Promgen supports Webhook with which you can configure and use the alert and notification features of Prometheus. In Prometheus Alertmanager, specify the Promgen URL using `webhook_configs` as follows.
 
 ```
 receivers:
 - name: "promgen-webhook"
   webhook_configs:
   - url: 'http://promgen@[password]:localhost:9292/alert'
-```
-
-When you run the Promgen app, a log is created with a random password. In this example, the password is "abcdefg..."
-
-If you restart Promgen, password changes. So, you need to modify alertmanager.yml and restart Alertmanager.
-
-```
-PASSWORD: abcdefg...
 ```
 
 You can create and manage the alert rules in Promgen. Rules you create are added in /tmp/prom.rule and applied in Prometheus.
