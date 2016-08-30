@@ -21,7 +21,7 @@ password: foobar
 # Default Exporter Settings
 # Examples from https://github.com/prometheus/prometheus/wiki/Default-port-allocations
 default_exporters:
-    node: 9100
-    nginx: 9113
-    mysqld: 9104
-    apache: 9117
+  node: 9100
+  nginx: 9113
+  mysqld: 9104
+  apache: 9117
