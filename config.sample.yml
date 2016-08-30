@@ -18,3 +18,10 @@ alert_senders:
   - module: Alerta
     alerta_url: http://alerta.localhost
 password: foobar
+# Default Exporter Settings
+# Examples from https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+default_exporters:
+  node: 9100
+  nginx: 9113
+  mysqld: 9104
+  apache: 9117
