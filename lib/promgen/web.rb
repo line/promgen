@@ -70,7 +70,7 @@ class Promgen
       @logger = logger
       @service_service = service_service
 
-      @default_exporters = config.fetch('default_exporters', {:node => 9100, :nginx => 9113})
+      @default_exporters = config.fetch('default_exporters', node: 9100, nginx: 9113)
     end
 
     set :erb, escape_html: true
