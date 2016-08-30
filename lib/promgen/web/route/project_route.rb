@@ -52,7 +52,7 @@ class Promgen
         webhook_url: empty_to_nil(params[:webhook_url])
       )
 
-      redirect to('/service/' + params[:service_id] )
+      redirect to('/service/' + params[:service_id])
     end
 
     get '/project/:project_id' do
