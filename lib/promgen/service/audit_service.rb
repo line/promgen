@@ -33,7 +33,7 @@ class Promgen
         @audit_log_repo = audit_log_repo
       end
 
-      def_delegators :@audit_log_repo, :log, :all
+      def_delegators :@audit_log_repo, :log, :all, :last
     end
   end
 end

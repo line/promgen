@@ -42,7 +42,13 @@ class Promgen
       end
 
       def all
-        @db[:audit_log].order(:id).map do |entry|
+        @db[:audit_log].order(Sequel.desc(:id)).map do |entry|
+          entry
+        end
+      end
+
+      def last(limit=20)
+        @db[:audit_log].order(Sequel.desc(:id)).limit(limit).map do |entry|
           entry
         end
       end
