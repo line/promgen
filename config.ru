@@ -14,7 +14,7 @@ use Rack::Static, urls: ['/css'], root: File.join(File.dirname(__FILE__), 'publi
 
 run Rack::URLMap.new(
   # /metrics stub to allow prometheus to check 'up' status
-  '/metrics' => lambda { |env| [200, {'Content-Type' => 'text/plain'}, ['']] },
+  '/metrics' => proc { [200, { 'Content-Type' => 'text/plain' }, ['']] },
   '/alert/' => Rack::Auth::Basic.new(app.alert) do |username, password|
     username == 'promgen' && password == app.config['password']
   end,
