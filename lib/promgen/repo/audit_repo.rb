@@ -47,7 +47,7 @@ class Promgen
         end
       end
 
-      def last(limit=20)
+      def last(limit = 20)
         @db[:audit_log].order(Sequel.desc(:id)).limit(limit).map do |entry|
           entry
         end
