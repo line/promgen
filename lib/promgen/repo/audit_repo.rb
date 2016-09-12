@@ -36,14 +36,14 @@ class Promgen
         raise ArgumentError, 'entry must not be null' if entry.nil?
 
         @db[:audit_log].insert(
-          entry: entry
+          entry: entry,
+          timestamp: Time.now.getutc.to_i
         )
       end
 
       def all
-        @db[:rule].order(:id).map do |e|
-          e
-          #Promgen::Rule.new(e)
+        @db[:audit_log].order(:id).map do |entry|
+          entry
         end
       end
     end

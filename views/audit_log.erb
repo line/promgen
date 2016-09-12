@@ -10,8 +10,8 @@
     <tr />
 <% @logs.each do |log| %>
     <tr>
-      <td><%= log.entry %></td>
-      <td><%= log.timestamp %></td>
+      <td><%= log[:entry] %></td>
+      <td><%= DateTime.strptime(log[:timestamp].to_s,'%s') %></td>
     </tr>
 <% end %>
   </table>

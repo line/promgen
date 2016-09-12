@@ -51,7 +51,7 @@ class Promgen
         mail_address: empty_to_nil(params[:mail_address]),
         webhook_url: empty_to_nil(params[:webhook_url])
       )
-
+      @audit_log_service.log(entry: "Created project #{params[:name]}")
       redirect to('/service/' + params[:service_id])
     end
 
@@ -90,6 +90,7 @@ class Promgen
         webhook_url: empty_to_nil(params['webhook_url'])
       )
       @config_writer.write
+      @audit_log_service.log(entry: "Updated project #{params[:name]}")
       redirect "/project/#{@project.id}"
     end
 
@@ -113,6 +114,7 @@ class Promgen
         server_directory_id: params[:server_directory_id],
         farm_name: farm_name
       )
+      @audit_log_service.log(entry: "Linked project #{params[:name]} to farm #{params['farm_name']}")
       @config_writer.write
       redirect "/project/#{@project.id}"
     end
@@ -123,6 +125,7 @@ class Promgen
       halt 404, "Unknown project_farm_id: #{params[:project_farm_id]}" unless project_farm
 
       @project_farm_service.unlink(project_id: project_farm.project_id, farm_name: project_farm.farm_name)
+      @audit_log_service.log(entry: "Unlinked project #{params[:name]} from farm #{params['farm_name']}")
       @config_writer.write
 
       redirect "/project/#{project_farm.project_id}"

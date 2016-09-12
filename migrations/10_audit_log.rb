@@ -26,7 +26,7 @@ Sequel.migration do
       primary_key :id
 
       String :entry, null: false
-      String :timestamp, null: false
+      Integer :timestamp
     end
   end
 end

@@ -35,6 +35,7 @@ class Promgen
       job = params['job']
 
       @project_exporter_service.register(project_id: @project.id, port: port, job: job)
+      @audit_log_service.log(entry: "Registered exporter #{job}:#{port} to #{@project.id}")
       @config_writer.write
 
       redirect "/project/#{@project.id}"
@@ -44,6 +45,7 @@ class Promgen
       port = params['port']
 
       @project_exporter_service.delete(project_id: @project.id, port: port)
+      @audit_log_service.log(entry: "Removed exporter #{job}:#{port} from #{@project.id}")
       @config_writer.write
 
       redirect "/project/#{@project.id}"
