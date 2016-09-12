@@ -51,7 +51,9 @@ class Promgen
         mail_address: empty_to_nil(params[:mail_address]),
         webhook_url: empty_to_nil(params[:webhook_url])
       )
-      @audit_log_service.log(entry: "Created project #{params[:name]}")
+
+      @service = @service_service.find(id: params[:service_id])
+      @audit_log_service.log(entry: "Created project #{@service.name}:#{params[:name]}")
       redirect to('/service/' + params[:service_id])
     end
 
