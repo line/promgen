@@ -33,6 +33,7 @@ require 'promgen/web/route/host_route'
 require 'promgen/web/route/service_route'
 require 'promgen/web/route/project_exporter_route'
 require 'promgen/web/route/rule_route'
+require 'promgen/web/route/audit_route'
 
 require 'erubis'
 require 'tilt/erubis'
@@ -53,6 +54,8 @@ class Promgen
         server_directory_service:,
         logger:,
         service_service:,
+        audit_log_service:,
+
         config:
     )
       super()
@@ -69,6 +72,7 @@ class Promgen
       @server_directory_service = server_directory_service
       @logger = logger
       @service_service = service_service
+      @audit_log_service = audit_log_service
 
       @default_exporters = config.fetch('default_exporters', node: 9100, nginx: 9113)
     end
