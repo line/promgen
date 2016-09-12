@@ -71,9 +71,9 @@ class Promgen
     end
 
     post '/service/:service_id/delete' do
-      @service = @service_service.find(id: params[:service_id])
+      service = @service_service.find(id: params[:service_id])
       @service_service.delete(id: params[:service_id])
-      @audit_log_service.log(entry: "Deleted service #{@service[:name]}")
+      @audit_log_service.log(entry: "Deleted service #{service.name}")
       redirect back
     end
 
