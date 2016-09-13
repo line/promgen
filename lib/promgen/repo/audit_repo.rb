@@ -23,6 +23,9 @@
 # frozen_string_literal: true
 # configuration for prometheus
 
+require 'will_paginate'
+require 'will_paginate/sequel'
+
 class Promgen
   class Repo
     class AuditRepo
@@ -47,10 +50,8 @@ class Promgen
         end
       end
 
-      def last(limit = 20)
-        @db[:audit_log].order(Sequel.desc(:id)).limit(limit).map do |entry|
-          entry
-        end
+      def paginate(page:, per_page:)
+        @db[:audit_log].order(Sequel.desc(:id)).extension(:pagination).paginate(page.to_i, per_page.to_i)
       end
     end
   end

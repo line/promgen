@@ -22,12 +22,16 @@
 
 # frozen_string_literal: true
 require 'sinatra/base'
+require 'will_paginate'
 require 'promgen/service/audit_service'
+
 
 class Promgen
   class Web < Sinatra::Base
+    include WillPaginate::Sinatra::Helpers
+
     get '/log' do
-      @logs = @audit_log_service.last 50
+      @logs = @audit_log_service.paginate(:page => params[:page] ||= 1, :per_page => 20)
       erb :audit_log
     end
   end
