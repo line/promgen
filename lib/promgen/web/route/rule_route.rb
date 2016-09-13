@@ -51,7 +51,7 @@ class Promgen
         @rule_writer.write
 
         @service = @service_service.find(id: params[:service_id])
-        @audit_log_service.log(entry: "Registered rules for #{@service.name}")
+        @audit_log_service.log(entry: "Registered rule #{alert_clause} for #{@service.name}")
 
         redirect "/service/#{params[:service_id]}/rule"
       end
@@ -81,7 +81,7 @@ class Promgen
         @rule_writer.write
 
         @service = @service_service.find(id: params[:service_id])
-        @audit_log_service.log(entry: "Updated rules for #{@service.name}")
+        @audit_log_service.log(entry: "Updated rule #{alert_clause} for #{@service.name}")
 
         redirect "/service/#{params[:service_id]}/rule"
       end
