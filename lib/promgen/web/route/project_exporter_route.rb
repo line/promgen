@@ -38,7 +38,7 @@ class Promgen
 
       @project = @project_service.find(id: @project.id)
       @service = @service_service.find(id: @project.service_id)
-      @audit_log_service.log(entry: "Registered exporter #{job}:#{port} to #{@service.name}:#{@project.name}")
+      @audit_log_service.log(entry: "Registered exporter #{job}:#{port} to Service:#{@service.name}/Project:#{@project.name}")
 
       @config_writer.write
 
@@ -52,7 +52,7 @@ class Promgen
 
       @project = @project_service.find(id: @project.id)
       @service = @service_service.find(id: @project.service_id)
-      @audit_log_service.log(entry: "Removed exporter #{port} from #{@service.name}:#{@project.name}")
+      @audit_log_service.log(entry: "Removed exporter #{port} from Service:#{@service.name}/Project:#{@project.name}")
 
       @config_writer.write
 

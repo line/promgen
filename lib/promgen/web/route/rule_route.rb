@@ -95,7 +95,7 @@ class Promgen
       @rule_writer.write
 
       @service = @service_service.find(id: params[:service_id])
-      @audit_log_service.log(entry: "Deleted rule for #{@service.name}")
+      @audit_log_service.log(entry: "Deleted rule for service #{@service.name}")
 
       redirect back
     end
