@@ -50,6 +50,9 @@ class Promgen
         @rule_service.register(service_id: params[:service_id], alert_clause: alert_clause, if_clause: if_clause, for_clause: for_clause, labels_clause: labels_clause, annotations_clause: annotations_clause)
         @rule_writer.write
 
+        @service = @service_service.find(id: params[:service_id])
+        @audit_log_service.log(entry: "Registered rule #{alert_clause} for #{@service.name}")
+
         redirect "/service/#{params[:service_id]}/rule"
       end
     end
@@ -77,6 +80,9 @@ class Promgen
         @rule_service.update(id: rule.id, service_id: params[:service_id], alert_clause: alert_clause, if_clause: if_clause, for_clause: for_clause, labels_clause: labels_clause, annotations_clause: annotations_clause)
         @rule_writer.write
 
+        @service = @service_service.find(id: params[:service_id])
+        @audit_log_service.log(entry: "Updated rule #{alert_clause} for #{@service.name}")
+
         redirect "/service/#{params[:service_id]}/rule"
       end
     end
@@ -87,6 +93,9 @@ class Promgen
 
       @rule_service.delete(rule_id: rule_id)
       @rule_writer.write
+
+      @service = @service_service.find(id: params[:service_id])
+      @audit_log_service.log(entry: "Deleted rule for service #{@service.name}")
 
       redirect back
     end

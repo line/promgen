@@ -12,6 +12,7 @@ gem 'mysql', require: false
 gem 'chronic_duration'
 gem 'mail'
 gem 'unicorn'
+gem 'will_paginate', '~> 3.0.5'
 
 group :test do
   gem 'rake'

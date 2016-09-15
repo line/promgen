@@ -22,41 +22,16 @@
 
 # frozen_string_literal: true
 require 'sinatra/base'
-require 'sinatra/json'
+require 'will_paginate'
+require 'promgen/service/audit_service'
 
 class Promgen
   class Web < Sinatra::Base
-    get '/project/:project_id/exporter/register' do
-      erb :register_project_exporter
-    end
+    include WillPaginate::Sinatra::Helpers
 
-    post '/project/:project_id/exporter/register' do
-      port = params['port']
-      job = params['job']
-
-      @project_exporter_service.register(project_id: @project.id, port: port, job: job)
-
-      @project = @project_service.find(id: @project.id)
-      @service = @service_service.find(id: @project.service_id)
-      @audit_log_service.log(entry: "Registered exporter #{job}:#{port} to Service:#{@service.name}/Project:#{@project.name}")
-
-      @config_writer.write
-
-      redirect "/project/#{@project.id}"
-    end
-
-    post '/project/:project_id/exporter/:port/delete' do
-      port = params['port']
-
-      @project_exporter_service.delete(project_id: @project.id, port: port)
-
-      @project = @project_service.find(id: @project.id)
-      @service = @service_service.find(id: @project.service_id)
-      @audit_log_service.log(entry: "Removed exporter #{port} from Service:#{@service.name}/Project:#{@project.name}")
-
-      @config_writer.write
-
-      redirect "/project/#{@project.id}"
+    get '/log' do
+      @logs = @audit_log_service.paginate(page: params[:page] ||= 1, per_page: 20)
+      erb :audit_log
     end
   end
 end

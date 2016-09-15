@@ -50,6 +50,7 @@ class Promgen
 
     post '/service/register' do
       @service_service.insert(name: params[:name])
+      @audit_log_service.log(entry: "Created service #{params[:name]}")
       redirect '/service/'
     end
 
@@ -70,7 +71,9 @@ class Promgen
     end
 
     post '/service/:service_id/delete' do
+      service = @service_service.find(id: params[:service_id])
       @service_service.delete(id: params[:service_id])
+      @audit_log_service.log(entry: "Deleted service #{service.name}")
       redirect back
     end
 

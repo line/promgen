@@ -41,7 +41,9 @@ require 'promgen/repo/project_repo'
 require 'promgen/repo/service_repo'
 require 'promgen/repo/project_farm_repo'
 require 'promgen/repo/server_directory_repo'
+require 'promgen/repo/audit_repo'
 
+require 'promgen/service/audit_service'
 require 'promgen/service/farm_service'
 require 'promgen/service/host_service'
 require 'promgen/service/project_exporter_service'
@@ -79,6 +81,7 @@ class Promgen
   register :project_repo,         Promgen::Repo::ProjectRepo
   register :project_farm_repo,    Promgen::Repo::ProjectFarmRepo
   register :server_directory_repo, Promgen::Repo::ServerDirectoryRepo
+  register :audit_log_repo, Promgen::Repo::AuditRepo
 
   register :farm_service, Promgen::Service::FarmService
   register :host_service, Promgen::Service::HostService
@@ -88,6 +91,7 @@ class Promgen
   register :rule_service, Promgen::Service::RuleService
   register :server_directory_service, Promgen::Service::ServerDirectoryService
   register :service_service, Promgen::Service::ServiceService
+  register :audit_log_service, Promgen::Service::AuditService
 
   register :web,                  Promgen::Web
   register :config_writer,        Promgen::ConfigWriter

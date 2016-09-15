@@ -72,6 +72,7 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
+    will_paginate (3.0.7)
 
 PLATFORMS
   ruby
@@ -92,6 +93,7 @@ DEPENDENCIES
   test-unit
   unicorn
   webmock
+  will_paginate (~> 3.0.5)
 
 BUNDLED WITH
-   1.12.4
+   1.12.5
