@@ -18,7 +18,14 @@
     <div class="form-group">
       <label for="inputIf">IF</label>
       <input type="text" name="if" class="form-control" id="inputIf" required>
-      <p class="help-block">Prometheus query. Example: <code>node_load1{...} > 5</code></p>
+      <p class="help-block">Prometheus query to alert on</p>
+      <p class="help-block">
+        Examples
+        <ul>
+          <li><code>node_load1{service="<%= @service.name %>"} > 5</code></li>
+          <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
+        </ul>
+      </p>
     </div>
     <div class="form-group">
       <label for="inputFor">FOR</label>
@@ -33,11 +40,23 @@
       <label for="inputLabels">LABELS</label>
       <input type="text" name="labels" class="form-control" id="inputLabels">
       <p class="help-block">A set of additional labels to be attached to the alert. Any existing conflicting labels will be overwritten. The label values can be templated.</p>
+      <p class="help-block">
+        Examples
+        <ul>
+          <li><code>{severity="major"}</code></li>
+        </ul>
+      </p>
     </div>
     <div class="form-group">
       <label for="inputAnnotations">ANNOTATIONS</label>
       <input type="text" name="annotations" class="form-control" id="inputAnnotations">
       <p class="help-block">Another set of labels that are not identifying for an alert instance. They are used to store longer additional information such as alert descriptions or runbook links. The annotation values can be templated.</p>
+      <p class="help-block">
+        Examples
+        <ul>
+          <li><code>{summary="High load on {{ $labels.instance }}", description="..."}</code></li>
+        </ul>
+      </p>
     </div>
 
     <button type="submit" class="btn btn-default">Register</button>
