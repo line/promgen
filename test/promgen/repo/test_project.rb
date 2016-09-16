@@ -59,13 +59,14 @@ class TestProject < Promgen::Test
     project_name = 'project-test'
     service = @app.service_repo.insert(name: 'foo')
     inserted_project_id = @repo.insert(service_id: service.id, name: project_name)
-    @app.project_exporter_repo.register(project_id: inserted_project_id, port: 9100, job: 'node')
+    @app.project_exporter_repo.register(project_id: inserted_project_id, port: 9100, job: 'node', path: '/foo')
 
     @repo.find_exporters.map do |row|
       assert_equal 'foo', row[:service]
       assert_equal 'project-test', row[:project]
       assert_equal 9100, row[:port]
       assert_equal 'node', row[:job]
+      assert_equal '/foo', row[:path]
     end
   end
 end

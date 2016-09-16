@@ -78,6 +78,7 @@ class Promgen
         @db['
             SELECT project_exporter.port
               , project_exporter.job
+              , project_exporter.path
               , project.name project
               , project_farm.farm_name farm
               , project_farm.server_directory_id server_directory_id

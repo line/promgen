@@ -21,20 +21,12 @@
 # THE SOFTWARE.
 
 # frozen_string_literal: true
-class Promgen
-  class ProjectExporter
-    attr_reader :id, :project_id, :port, :job, :path
-
-    def initialize(id:, project_id:, port:, job:, path:)
-      @id = id
-      @project_id = project_id
-      @port = port.to_i
-      @job = job
-      @path = path
-    end
-
-    def values
-      { port: port, job: job, path: path }
+Sequel.migration do
+  change do
+    alter_table(:project_exporter) do
+      add_column :path, String
+      drop_constraint(:unique_project_id_port, :type => :unique)
+      add_unique_constraint([:project_id, :port, :path], :name => :unique_project_id_port_path)
     end
   end
 end

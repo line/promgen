@@ -54,7 +54,7 @@ class Promgen
         end
       end
 
-      def register(project_id:, port:, job:)
+      def register(project_id:, port:, job:, path: nil)
         raise ArgumentError, 'port must not be null' if port.nil?
         raise ArgumentError, 'port must not be empty' if port == ''
         raise ArgumentError, 'job must not be null' if job.nil?
@@ -62,18 +62,19 @@ class Promgen
 
         port = port.to_i
 
-        @logger.info "Registering #{project_id}, #{port}, #{job}"
-        if @db[:project_exporter].where(project_id: project_id, port: port).count == 0
+        @logger.info "Registering #{project_id}, #{port}, #{job}, #{path}"
+        if @db[:project_exporter].where(project_id: project_id, port: port, path:path).count == 0
           @db[:project_exporter].insert(project_id: project_id,
                                         port: port,
-                                        job: job)
+                                        job: job,
+                                        path: path)
         end
       end
 
-      def delete(project_id:, port:)
-        @logger.info "removing #{port} from #{project_id}"
+      def delete(project_id:, port:, path:)
+        @logger.info "removing #{port}, #{path} from #{project_id}"
 
-        @db[:project_exporter].where('project_id=? AND port=?', project_id, port).delete
+        @db[:project_exporter].where(project_id: project_id, port: port, path: path).delete
       end
 
       def delete_by_project_id(project_id:)

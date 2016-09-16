@@ -37,12 +37,18 @@ class TestProjectExporter < Promgen::Test
 
   def test_register
     @repo.register(project_id: project('hoge-RELEASE'), port: 9100, job: 'node')
+
     assert_equal [9100], project_exporter_ports_by_project('hoge-RELEASE')
+    assert_equal [nil], project_exporter_metrics_paths_by_project('hoge-RELEASE')
+
+    @repo.register(project_id: project('hoge-RELEASE'), port: 9100, job: 'node', path: '/foo')
+    assert_equal [9100, 9100], project_exporter_ports_by_project('hoge-RELEASE')
+    assert_equal [nil, '/foo'], project_exporter_metrics_paths_by_project('hoge-RELEASE')
   end
 
   def test_find_by_farm
     @repo.register(project_id: project('aaa-RELEASE'), port: 9100, job: 'node')
-    @repo.register(project_id: project('aaa-RELEASE'), port: 9200, job: 'nginx')
+    @repo.register(project_id: project('aaa-RELEASE'), port: 9200, job: 'nginx', path: '/foo')
     @repo.register(project_id: project('bbb-RELEASE'), port: 9300, job: 'node')
 
     assert_equal [9100, 9200], project_exporter_ports_by_project('aaa-RELEASE')
@@ -50,10 +56,10 @@ class TestProjectExporter < Promgen::Test
 
   def test_delete
     @repo.register(project_id: project('aaa-RELEASE'), port: 9100, job: 'node')
-    @repo.register(project_id: project('aaa-RELEASE'), port: 9200, job: 'nginx')
+    @repo.register(project_id: project('aaa-RELEASE'), port: 9200, job: 'nginx', path: '/foo')
     @repo.register(project_id: project('bbb-RELEASE'), port: 9100, job: 'node')
 
-    @repo.delete(project_id: project('aaa-RELEASE'), port: 9100)
+    @repo.delete(project_id: project('aaa-RELEASE'), port: 9100, path: nil)
 
     assert_equal [9200], project_exporter_ports_by_project('aaa-RELEASE')
     assert_equal [9100], project_exporter_ports_by_project('bbb-RELEASE')
@@ -61,7 +67,7 @@ class TestProjectExporter < Promgen::Test
 
   def test_delete_by_farm_id
     @repo.register(project_id: project('aaa-RELEASE'), port: 9100, job: 'node')
-    @repo.register(project_id: project('aaa-RELEASE'), port: 9200, job: 'nginx')
+    @repo.register(project_id: project('aaa-RELEASE'), port: 9200, job: 'nginx', path: '/foo')
     @repo.register(project_id: project('bbb-RELEASE'), port: 9100, job: 'node')
 
     @repo.delete_by_project_id(project_id: project('aaa-RELEASE'))
@@ -76,6 +82,13 @@ class TestProjectExporter < Promgen::Test
                           .map { |x| x[:port] }
   end
   private :project_exporter_ports_by_project
+
+  def project_exporter_metrics_paths_by_project(farm_name)
+    @db[:project_exporter].where(project_id: project(farm_name))
+                          .order(:path)
+                          .map { |x| x[:path] }
+  end
+  private :project_exporter_metrics_paths_by_project
 
   def project(name)
     if @db[:project].where(name: name).count == 0
