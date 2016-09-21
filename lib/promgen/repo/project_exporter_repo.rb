@@ -63,7 +63,7 @@ class Promgen
         port = port.to_i
 
         @logger.info "Registering #{project_id}, #{port}, #{job}, #{path}"
-        if @db[:project_exporter].where(project_id: project_id, port: port, path:path).count == 0
+        if @db[:project_exporter].where(project_id: project_id, port: port, path: path).count == 0
           @db[:project_exporter].insert(project_id: project_id,
                                         port: port,
                                         job: job,

@@ -25,8 +25,8 @@ Sequel.migration do
   change do
     alter_table(:project_exporter) do
       add_column :path, String
-      drop_constraint(:unique_project_id_port, :type => :unique)
-      add_unique_constraint([:project_id, :port, :path], :name => :unique_project_id_port_path)
+      drop_constraint(:unique_project_id_port, type: :unique)
+      add_unique_constraint([:project_id, :port, :path], name: :unique_project_id_port_path)
     end
   end
 end
