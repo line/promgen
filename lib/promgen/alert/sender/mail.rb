@@ -43,7 +43,13 @@ class Promgen
             project = @project_repo.find_by_name(name: labels['project'])
             if project && project.mail_address
               subject = "#{alert['labels']['alertname']} #{alert['labels']['farm']} #{alert['labels']['instance']} #{alert['labels']['job']} #{alert['status']}"
-              body = "#{alert['annotations']['summary']}\n#{alert['annotations']['description']}"
+              body = %(
+#{alert['annotations']['summary']}
+#{alert['annotations']['description']}
+
+Prometheus: #{alert['generatorURL']}
+Alert Manager: #{data['externalURL']}
+)
               send_mail(project.mail_address, subject, body)
             else
               @logger.info "project:'#{labels['project']}' doesn't have a mail address configuration"

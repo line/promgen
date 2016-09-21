@@ -43,7 +43,13 @@ class Promgen
             project = @project_repo.find_by_name(name: labels['project'])
             if project && project.hipchat_channel
               subject = "#{alert['labels']['alertname']} #{alert['labels']['farm']} #{alert['labels']['instance']} #{alert['labels']['job']} #{alert['status']}"
-              body = "#{alert['annotations']['summary']}\n#{alert['annotations']['description']}"
+              body = %(
+#{alert['annotations']['summary']}
+#{alert['annotations']['description']}
+
+Prometheus: #{alert['generatorURL']}
+Alert Manager: #{data['externalURL']}
+)
               if alert['status'] == 'resolved'
                 ikasan(project.hipchat_channel, subject + "\n" + body, 'green')
               else
