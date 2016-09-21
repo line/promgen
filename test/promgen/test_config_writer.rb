@@ -48,6 +48,7 @@ class TestConfigWriter < Promgen::Test
       server_directory_id: @app.server_directory_repo.find_db.id
     )
     @app.project_exporter_repo.register(project_id: project_id, port: 9010, job: 'node')
+    @app.project_exporter_repo.register(project_id: project_id, port: 9020, job: 'nginx', path: '/foo')
 
     data = @app.config_writer.render_data
     assert_equal [
@@ -59,6 +60,16 @@ class TestConfigWriter < Promgen::Test
           project: 'TestProj'
         },
         targets: ['MYHOST1:9010', 'MYHOST2:9010']
+      },
+      {
+        labels: {
+          __metrics_path__: '/foo',
+          service: 'foo',
+          farm: 'MyFarm',
+          job: 'nginx',
+          project: 'TestProj'
+        },
+        targets: ['MYHOST1:9020', 'MYHOST2:9020']
       }
     ], data
   end

@@ -54,7 +54,7 @@ class Promgen
           project: row[:project],
           farm: row[:farm],
           job: row[:job]
-        }
+        }.merge(row[:path] ? { __metrics_path__: row[:path] } : {})
       end.map do |row|
         {
           targets: row[1].map do |r|

@@ -51,13 +51,32 @@ class TestProjectExporterRoute < Promgen::Test
     assert_equal 1, exporters.length
     assert_equal 'node', exporters[0].job
     assert_equal 9010, exporters[0].port
+    assert_nil exporters[0].path
+  end
+
+  def test_register_with_path_post
+    project = @factory.project
+
+    post "/project/#{project.id}/exporter/register",
+         port: 9010,
+         job: 'node',
+         path: '/foo'
+
+    assert_equal 302, last_response.status
+
+    exporters = @app.project_exporter_service.all
+    assert_equal 1, exporters.length
+    assert_equal 'node', exporters[0].job
+    assert_equal 9010, exporters[0].port
+    assert_equal '/foo', exporters[0].path
   end
 
   def test_delete
     project = @factory.project
     project_exporter = @factory.project_exporter(project_id: project.id)
 
-    post "/project/#{project.id}/exporter/#{project_exporter.port}/delete"
+    post "/project/#{project.id}/exporter/#{project_exporter.port}/delete",
+         path: project_exporter.path
 
     assert_equal 302, last_response.status
     assert_equal 0, @app.db[:project_exporter].where(id: project_exporter.id).count

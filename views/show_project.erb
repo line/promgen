@@ -48,14 +48,17 @@
         <tr>
           <th>Job</th>
           <th>Port</th>
+          <th>Metrics Path</th>
           <th>&nbsp;</th>
         </tr>
         <% @exporters.each do |exporter| %>
             <tr>
               <td><%= exporter.job %></td>
               <td><%= exporter.port %></td>
+              <td><%= exporter.path %></td>
               <td>
                 <form method="post" action="<%= to("/project/#{@project.id}/exporter/#{exporter.port}/delete") %>" onsubmit="return confirm('Delete this exporter?')">
+                  <input type="hidden" name="path" value="<%= exporter.path %>"/>
                   <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
               </td>

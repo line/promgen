@@ -33,12 +33,13 @@ class Promgen
     post '/project/:project_id/exporter/register' do
       port = params['port']
       job = params['job']
+      path = empty_to_nil(params[:path])
 
-      @project_exporter_service.register(project_id: @project.id, port: port, job: job)
+      @project_exporter_service.register(project_id: @project.id, port: port, job: job, path: path)
 
       @project = @project_service.find(id: @project.id)
       @service = @service_service.find(id: @project.service_id)
-      @audit_log_service.log(entry: "Registered exporter #{job}:#{port} to Service:#{@service.name}/Project:#{@project.name}")
+      @audit_log_service.log(entry: "Registered exporter #{job}:#{port}/#{path} to Service:#{@service.name}/Project:#{@project.name}")
 
       @config_writer.write
 
@@ -47,12 +48,13 @@ class Promgen
 
     post '/project/:project_id/exporter/:port/delete' do
       port = params['port']
+      path = empty_to_nil(params[:path])
 
-      @project_exporter_service.delete(project_id: @project.id, port: port)
+      @project_exporter_service.delete(project_id: @project.id, port: port, path: path)
 
       @project = @project_service.find(id: @project.id)
       @service = @service_service.find(id: @project.service_id)
-      @audit_log_service.log(entry: "Removed exporter #{port} from Service:#{@service.name}/Project:#{@project.name}")
+      @audit_log_service.log(entry: "Removed exporter #{port}/#{path} from Service:#{@service.name}/Project:#{@project.name}")
 
       @config_writer.write
 
