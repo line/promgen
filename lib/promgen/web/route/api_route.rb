@@ -74,7 +74,8 @@ class Promgen
     end
 
     get '/api/v1/rule/' do
-      json(rules: @rule_service.all.map(&:values))
+      content_type 'text/plain'
+      @rule_writer.render
     end
 
     get '/api/v1/server_directory/' do
