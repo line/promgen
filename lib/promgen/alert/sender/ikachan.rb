@@ -44,12 +44,12 @@ class Promgen
             if project && project.hipchat_channel
               subject = "#{alert['labels']['alertname']} #{alert['labels']['farm']} #{alert['labels']['instance']} #{alert['labels']['job']} #{alert['status']}"
               body = %(
-#{alert['annotations']['summary']}
-#{alert['annotations']['description']}
+                #{alert['annotations']['summary']}
+                #{alert['annotations']['description']}
 
-Prometheus: #{alert['generatorURL']}
-Alert Manager: #{data['externalURL']}
-).strip
+                Prometheus: #{alert['generatorURL']}
+                Alert Manager: #{data['externalURL']}
+                ).strip.gsub(/^ +/, '')
               if alert['status'] == 'resolved'
                 ikasan(project.hipchat_channel, subject + "\n" + body, 'green')
               else

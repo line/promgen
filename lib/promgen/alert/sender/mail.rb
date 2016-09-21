@@ -44,12 +44,12 @@ class Promgen
             if project && project.mail_address
               subject = "#{alert['labels']['alertname']} #{alert['labels']['farm']} #{alert['labels']['instance']} #{alert['labels']['job']} #{alert['status']}"
               body = %(
-#{alert['annotations']['summary']}
-#{alert['annotations']['description']}
+                #{alert['annotations']['summary']}
+                #{alert['annotations']['description']}
 
-Prometheus: #{alert['generatorURL']}
-Alert Manager: #{data['externalURL']}
-).strip
+                Prometheus: #{alert['generatorURL']}
+                Alert Manager: #{data['externalURL']}
+                ).strip.gsub(/^ +/, '')
               send_mail(project.mail_address, subject, body)
             else
               @logger.info "project:'#{labels['project']}' doesn't have a mail address configuration"

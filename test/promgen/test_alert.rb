@@ -68,14 +68,14 @@ class TestAlert < Promgen::Test
     assert_equal 200, last_response.status
     assert_requested :post, 'http://ikachan.localhost/notice',
                      body: { 'channel' => '#foo',
-                             'message' => %q(
-InstanceDown foo-web testhost.localhost:9100 node resolved
-Instance testhost.localhost:9100 down
-testhost.localhost:9100 of job node has been down for more than 5 minutes.
+                             'message' => %(
+                                InstanceDown foo-web testhost.localhost:9100 node resolved
+                                Instance testhost.localhost:9100 down
+                                testhost.localhost:9100 of job node has been down for more than 5 minutes.
 
-Prometheus: http://prom.localhost/
-Alert Manager:
-).strip,
+                                Prometheus: http://prom.localhost/
+                                Alert Manager:
+                                ).strip.gsub(/^ +/, ''),
                              'nickname' => 'promgen', 'color' => 'green' },
                      times: 1
   end
@@ -110,14 +110,14 @@ Alert Manager:
     assert_equal 200, last_response.status
     assert_requested :post, 'http://ikachan.localhost/privmsg',
                      body: { 'channel' => '#foo',
-                             'message' => %q(
-InstanceDown foo-web testhost.localhost:9100 node resolved
-Instance testhost.localhost:9100 down
-testhost.localhost:9100 of job node has been down for more than 5 minutes.
+                             'message' => %(
+                                InstanceDown foo-web testhost.localhost:9100 node resolved
+                                Instance testhost.localhost:9100 down
+                                testhost.localhost:9100 of job node has been down for more than 5 minutes.
 
-Prometheus: http://prom.localhost/
-Alert Manager:
-).strip,
+                                Prometheus: http://prom.localhost/
+                                Alert Manager:
+                                ).strip.gsub(/^ +/, ''),
                              'nickname' => 'promgen', 'color' => 'green' },
                      times: 1
   end
