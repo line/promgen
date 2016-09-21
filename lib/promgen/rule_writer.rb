@@ -55,23 +55,23 @@ class Promgen
       end
     end
 
+    def render
+      sio = StringIO.new
+      @rule_repo.all.each do |row|
+        sio.puts('ALERT ' + row.values[:alert_clause])
+        sio.puts('IF ' + row.values[:if_clause])
+        sio.puts('FOR ' + row.values[:for_clause]) unless row.values[:for_clause].empty?
+        sio.puts('LABELS ' + row.values[:labels_clause]) unless row.values[:labels_clause].empty?
+        sio.puts('ANNOTATIONS ' + row.values[:annotations_clause]) unless row.values[:annotations_clause].empty?
+      end
+      sio.string
+    end
+
     def write
       @logger.info("Writing #{@rule_path}")
       tmp = @rule_path + '.tmp'
       File.open(tmp, 'w') do |file|
-        @rule_repo.all.each do |row|
-          file.puts('ALERT ' + row.values[:alert_clause])
-          file.puts('IF ' + row.values[:if_clause])
-          unless row.values[:for_clause].empty?
-            file.puts('FOR ' + row.values[:for_clause])
-          end
-          unless row.values[:labels_clause].empty?
-            file.puts('LABELS ' + row.values[:labels_clause])
-          end
-          unless row.values[:annotations_clause].empty?
-            file.puts('ANNOTATIONS ' + row.values[:annotations_clause])
-          end
-        end
+        file.puts(render)
       end
       File.rename(tmp, @rule_path)
 
