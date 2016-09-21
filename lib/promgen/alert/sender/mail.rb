@@ -49,7 +49,7 @@ class Promgen
 
 Prometheus: #{alert['generatorURL']}
 Alert Manager: #{data['externalURL']}
-)
+).strip
               send_mail(project.mail_address, subject, body)
             else
               @logger.info "project:'#{labels['project']}' doesn't have a mail address configuration"

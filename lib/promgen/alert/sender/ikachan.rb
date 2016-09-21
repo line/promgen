@@ -49,7 +49,7 @@ class Promgen
 
 Prometheus: #{alert['generatorURL']}
 Alert Manager: #{data['externalURL']}
-)
+).strip
               if alert['status'] == 'resolved'
                 ikasan(project.hipchat_channel, subject + "\n" + body, 'green')
               else
