@@ -29,16 +29,35 @@ require 'erubis'
 class Promgen
   class API < Sinatra::Base
     def initialize(
-        rule_service:,
         config_writer:,
         rule_writer:,
+
+        farm_service:,
+        host_service:,
+        project_exporter_service:,
+        project_farm_service:,
+        project_service:,
+        rule_service:,
+        server_directory_service:,
+
         logger:
     )
       super()
       @config_writer = config_writer
       @rule_writer = rule_writer
+
+      @farm_service = farm_service
+      @host_service = host_service
+      @project_exporter_service = project_exporter_service
+      @project_farm_service = project_farm_service
+      @project_service = project_service
+      @server_directory_service = server_directory_service
+
       @logger = logger
     end
+
+    set :erb, escape_html: true
+    set :root, File.join(File.dirname(__FILE__), '..', '..')
 
     get '/' do
       erb :api
