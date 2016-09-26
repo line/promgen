@@ -23,7 +23,9 @@
 # frozen_string_literal: true
 require 'promgen/test'
 
-class TestStatus < Promgen::Test
+require 'promgen'
+
+class TestAPI < Promgen::Test
   include Rack::Test::Methods
 
   def app

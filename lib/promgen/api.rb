@@ -37,7 +37,6 @@ class Promgen
         project_exporter_service:,
         project_farm_service:,
         project_service:,
-        rule_service:,
         server_directory_service:,
 
         logger:
