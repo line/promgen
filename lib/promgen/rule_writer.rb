@@ -34,7 +34,7 @@ class Promgen
       @promtool_path = promtool_path
       @rule_repo = rule_repo
       @prometheus = prometheus
-      @notify = config[:rule_writer][:notify]
+      @notify = config[:rule_writer][:notify] ||= []
     end
 
     def nil_or_empty?(s)

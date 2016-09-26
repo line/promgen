@@ -34,7 +34,7 @@ class Promgen
       @prometheus = prometheus
       @project_repo = project_repo
       @server_directory_repo = server_directory_repo
-      @notify = config[:config_writer][:notify]
+      @notify = config[:config_writer][:notify] ||= []
     end
 
     def render
