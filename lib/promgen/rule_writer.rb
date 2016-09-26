@@ -27,13 +27,14 @@ require 'open3'
 
 class Promgen
   class RuleWriter
-    def initialize(logger:, rule_path:, promtool_path:, rule_repo:, prometheus:)
+    def initialize(logger:, rule_path:, promtool_path:, rule_repo:, prometheus:, config:)
       raise ArgumentError, 'Destination path must not be null' unless rule_path
       @logger = logger
       @rule_path = rule_path
       @promtool_path = promtool_path
       @rule_repo = rule_repo
       @prometheus = prometheus
+      @notify = config[:rule_writer][:notify]
     end
 
     def nil_or_empty?(s)
@@ -67,13 +68,21 @@ class Promgen
       sio.string
     end
 
-    def write
+    def write(notify: true)
       @logger.info("Writing #{@rule_path}")
       tmp = @rule_path + '.tmp'
       File.open(tmp, 'w') do |file|
         file.puts(render)
       end
       File.rename(tmp, @rule_path)
+
+      if notify
+        @notify.each do |url|
+          uri = URI(url)
+          res = Net::HTTP.post_form(uri, {})
+          @logger.info("Posted notification to: #{uri}: #{res.body}")
+        end
+      end
 
       @prometheus.reload
     end

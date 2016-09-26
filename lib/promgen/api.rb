@@ -49,7 +49,7 @@ class Promgen
     end
 
     post '/v1/config' do
-      @config_writer.write
+      @config_writer.write(notify: false)
       'ok'
     end
 
@@ -96,7 +96,7 @@ class Promgen
     end
 
     post '/v1/rule/' do
-      @rule_writer.write
+      @rule_writer.write(notify: false)
       'ok'
     end
 
