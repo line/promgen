@@ -48,6 +48,11 @@ class Promgen
       @config_writer.render
     end
 
+    post '/v1/config' do
+      @config_writer.write
+      'ok'
+    end
+
     get '/v1/project/' do
       json(projects: @project_service.all.map(&:values))
     end
@@ -88,6 +93,11 @@ class Promgen
     get '/v1/rule/' do
       content_type 'text/plain'
       @rule_writer.render
+    end
+
+    post '/v1/rule/' do
+      @rule_writer.write
+      'ok'
     end
 
     get '/v1/server_directory/' do
