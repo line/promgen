@@ -27,20 +27,32 @@ require 'sinatra/json'
 require 'erubis'
 
 class Promgen
-  class Web < Sinatra::Base
-    get '/api/' do
+  class API < Sinatra::Base
+    def initialize(
+        rule_service:,
+        config_writer:,
+        rule_writer:,
+        logger:
+    )
+      super()
+      @config_writer = config_writer
+      @rule_writer = rule_writer
+      @logger = logger
+    end
+
+    get '/' do
       erb :api
     end
 
-    get '/api/v1/config' do
+    get '/v1/config' do
       @config_writer.render
     end
 
-    get '/api/v1/project/' do
+    get '/v1/project/' do
       json(projects: @project_service.all.map(&:values))
     end
 
-    get '/api/v1/project/:project_id' do
+    get '/v1/project/:project_id' do
       project = @project_service.find(id: params[:project_id])
       halt 404 unless project
       val = { project: project.values }
@@ -58,11 +70,11 @@ class Promgen
       json(val)
     end
 
-    get '/api/v1/farm/' do
+    get '/v1/farm/' do
       json(farms: @farm_service.all.map(&:values))
     end
 
-    get '/api/v1/farm/:farm_id' do
+    get '/v1/farm/:farm_id' do
       farm_id = params['farm_id'].to_i
       farm = @farm_service.find(id: farm_id)
       halt 404 unless farm
@@ -73,16 +85,16 @@ class Promgen
       json(val)
     end
 
-    get '/api/v1/rule/' do
+    get '/v1/rule/' do
       content_type 'text/plain'
       @rule_writer.render
     end
 
-    get '/api/v1/server_directory/' do
+    get '/v1/server_directory/' do
       json(server_directories: @server_directory_service.all.map(&:values))
     end
 
-    get '/api/v1/server_directory/type/' do
+    get '/v1/server_directory/type/' do
       types = @server_directory_service.types
                                        .map(&:values)
       json(types: types)

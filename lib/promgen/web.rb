@@ -24,7 +24,6 @@
 require 'sinatra/base'
 require 'sinatra/json'
 
-require 'promgen/web/route/api_route'
 require 'promgen/web/route/farm_route'
 require 'promgen/web/route/project_route'
 require 'promgen/web/route/status_route'

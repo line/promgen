@@ -54,6 +54,7 @@ require 'promgen/service/server_directory_service'
 require 'promgen/service/service_service'
 
 require 'promgen/web'
+require 'promgen/api'
 require 'promgen/prometheus'
 require 'promgen/server_directory/db'
 
@@ -94,6 +95,7 @@ class Promgen
   register :audit_log_service, Promgen::Service::AuditService
 
   register :web,                  Promgen::Web
+  register :api,                  Promgen::API
   register :config_writer,        Promgen::ConfigWriter
   register :rule_writer,          Promgen::RuleWriter
   register :alert,                Promgen::Alert
