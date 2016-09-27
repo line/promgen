@@ -56,6 +56,13 @@ class Promgen
       end
 
       def insert_multi(farm_id:, names:)
+        hosts = @db[:host].where(farm_id: farm_id).map do |e|
+          e[:name]
+        end
+
+        # Filter out existing hosts and duplicates
+        names = names.reject { |name| hosts.include? name }.to_set
+
         @db[:host].import(
           [:farm_id, :name],
           names.map { |name| [farm_id, name] }

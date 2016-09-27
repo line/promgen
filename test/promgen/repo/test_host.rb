@@ -38,6 +38,18 @@ class TestHostRepo < Promgen::Test
     ], @app.host_repo.all.map { |row| { farm_id: row.farm_id, name: row.name } }
   end
 
+  def test_insert_multi
+    farm = @factory.farm
+    @app.host_repo.insert_multi(farm_id: farm.id, names: %w(aaa bbb))
+    @app.host_repo.insert_multi(farm_id: farm.id, names: %w(aaa aaa bbb ccc ccc))
+
+    assert_equal [
+      { farm_id: farm.id, name: 'aaa' },
+      { farm_id: farm.id, name: 'bbb' },
+      { farm_id: farm.id, name: 'ccc' }
+    ], @app.host_repo.all.map { |row| { farm_id: row.farm_id, name: row.name } }
+  end
+
   def test_find
     host = @factory.host
     host2 = @app.host_repo.find(id: host.id)
