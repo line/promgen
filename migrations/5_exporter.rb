@@ -46,7 +46,7 @@ Sequel.migration do
       Integer :port, null: false
       String :job, null: false
 
-      unique([:project_id, :port], :name => :unique_project_id_port)
+      unique([:project_id, :port], name: :unique_project_id_port)
     end
 
     alter_table(:rule) do

@@ -9,7 +9,7 @@ LineLength:
   Max: 240
 
 MethodLength:
-  Max: 40
+  Max: 50
 
 Documentation:
   Enabled: false
