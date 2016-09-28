@@ -18,5 +18,6 @@ run Rack::URLMap.new(
   '/alert/' => Rack::Auth::Basic.new(app.alert) do |username, password|
     username == 'promgen' && password == app.config['password']
   end,
+  '/api' => app.api,
   '/' => Rack::Protection::RemoteReferrer.new(app.web, allow_empty_referrer: false)
 )

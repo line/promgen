@@ -23,52 +23,54 @@
 # frozen_string_literal: true
 require 'promgen/test'
 
-class TestStatus < Promgen::Test
+require 'promgen'
+
+class TestAPI < Promgen::Test
   include Rack::Test::Methods
 
   def app
-    @app.web
+    @app.api
   end
 
   def test_api
-    get '/api/'
+    get '/'
     assert_equal 200, last_response.status
   end
 
   def test_api_config
-    get '/api/v1/config'
+    get '/v1/config'
     assert_equal 200, last_response.status
   end
 
   def test_api_project
-    get '/api/v1/project/'
+    get '/v1/project/'
     assert_equal 200, last_response.status
   end
 
   def test_api_project_show
     project_id = @factory.project.id
-    get "/api/v1/project/#{project_id}"
+    get "/v1/project/#{project_id}"
     assert_equal 200, last_response.status
   end
 
   def test_api_farm
-    get '/api/v1/farm/'
+    get '/v1/farm/'
     assert_equal 200, last_response.status
   end
 
   def test_api_farm_show
     farm = @factory.farm(name: 'iii-ALPHA')
-    get "/api/v1/farm/#{farm.id}"
+    get "/v1/farm/#{farm.id}"
     assert_equal 200, last_response.status
   end
 
   def test_api_server_directory_list
-    get '/api/v1/server_directory/'
+    get '/v1/server_directory/'
     assert_equal 200, last_response.status
   end
 
   def test_api_server_directory_types
-    get '/api/v1/server_directory/type/'
+    get '/v1/server_directory/type/'
     assert_equal 200, last_response.status
   end
 end

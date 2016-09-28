@@ -65,11 +65,13 @@ class Promgen
           'level' => ENV['LOG_LEVEL'] || 'warn'
         },
         'config_writer' => {
-          'path' => '/tmp/xxx.json'
+          'path' => '/tmp/xxx.json',
+          'notify' => ['http://promgen.localhost/api/v1/config']
         },
         'rule_writer' => {
           'rule_path' => '/tmp/xxx.rule',
-          'promtool_path' => '/tmp/promtool'
+          'promtool_path' => '/tmp/promtool',
+          'notify' => ['http://promgen.localhost/api/v1/rules/']
         },
         'prometheus' => {
           'url' => 'http://prom.localhost'
@@ -92,6 +94,8 @@ class Promgen
       @app.migrator.run
 
       stub_request(:post, 'http://prom.localhost/-/reload').to_return(status: 200)
+      stub_request(:post, 'http://promgen.localhost/api/v1/config').to_return(status: 200)
+      stub_request(:post, 'http://promgen.localhost/api/v1/rules/').to_return(status: 200)
 
       @factory = @app.get_bean(Promgen::Factory)
     end

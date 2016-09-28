@@ -16,19 +16,31 @@
       <th>Description</th>
     </tr>
     <tr>
-      <td>/api/v1/config</td>
-      <td>config.json</td>
+      <td><span class="label label-get">GET</span> /api/v1/config</td>
+      <td>Retrieve Prometheus target configuration</td>
     </tr>
     <tr>
-      <td>/api/v1/project/</td>
+      <td><span class="label label-post">POST</span> /api/v1/config</td>
+      <td>Trigger Promgen to write Prometheus target configuration to disk</td>
+    </tr>
+    <tr>
+      <td><span class="label label-get">GET</span> /api/v1/rule/</td>
+      <td>Retrieve Prometheus alerting Rules</td>
+    </tr>
+    <tr>
+      <td><span class="label label-post">POST</span> /api/v1/rule/</td>
+      <td>Trigger Promgen to write Prometheus alerting rules to disk</td>
+    </tr>
+    <tr>
+      <td><span class="label label-get">GET</span> /api/v1/project/</td>
       <td>List of projects</td>
     </tr>
     <tr>
-      <td>/api/v1/farm/</td>
+      <td><span class="label label-get">GET</span> /api/v1/farm/</td>
       <td>List of farms</td>
     </tr>
     <tr>
-      <td>/api/v1/farm/:farm_id</td>
+      <td><span class="label label-get">GET</span> /api/v1/farm/:farm_id</td>
       <td>Get farm information</td>
     </tr>
   </table>

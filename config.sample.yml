@@ -6,9 +6,13 @@ db:
   logging: false
 config_writer:
   path: /tmp/prom.json
+  notify:
+    - http://promgen.other/api/v1/config
 rule_writer:
   rule_path: /tmp/prom.rule
   promtool_path: /path/to/promtool
+  notify:
+    - http://promgen.other/api/v1/rule/
 alert_senders:
   - module: Ikachan
     url: http://ikachan.localhost/

@@ -225,6 +225,26 @@ When you specify the Webhook module, you need to specify the URL for each projec
 
 Specify the Alerta module and the URL set in your environment.
 
+### 6. Notification Hooks
+
+When Promgen writes it's target configuration file or alerting rules file, it can optionally post a notification to an external service.
+This is primarily useful for keeping configuration files in sync while running multiple Prometheus+Promgen servers in parallel
+
+```yaml
+config_writer:
+  path: /tmp/prom.json
+  notify:
+    - http://promgen.other/api/v1/config
+rule_writer:
+  rule_path: /tmp/prom.rule
+  promtool_path: /path/to/promtool
+  notify:
+    - http://promgen.other/api/v1/rule/
+```
+
+In this example, our Promgen instance will POST a notification to another Promgen instance to trigger it to output it's configuration
+file to keep things in sync.
+
 ## The MIT License
 
 Copyright (c) 2016 LINE Corporation

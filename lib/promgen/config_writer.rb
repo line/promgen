@@ -26,7 +26,7 @@ require 'json'
 class Promgen
   class ConfigWriter
     # @param [Promgen::ServerLoader::Base] server_directory_repo
-    def initialize(logger:, path:, host_repo:, prometheus:, project_repo:, server_directory_repo:)
+    def initialize(logger:, path:, host_repo:, prometheus:, project_repo:, server_directory_repo:, config:)
       raise ArgumentError, 'Destination path must not be null' unless path
       @logger = logger
       @destpath = path
@@ -34,6 +34,7 @@ class Promgen
       @prometheus = prometheus
       @project_repo = project_repo
       @server_directory_repo = server_directory_repo
+      @notify = config[:config_writer][:notify] ||= []
     end
 
     def render
@@ -67,11 +68,19 @@ class Promgen
       end
     end
 
-    def write
+    def write(notify: true)
       @logger.info("Writing #{@destpath}")
       tmp = @destpath + '.tmp'
       File.write(tmp, render)
       File.rename(tmp, @destpath)
+
+      if notify
+        @notify.each do |url|
+          uri = URI(url)
+          res = Net::HTTP.post_form(uri, {})
+          @logger.info("Posted notification to: #{uri}: #{res.body}")
+        end
+      end
 
       @prometheus.reload
     end
