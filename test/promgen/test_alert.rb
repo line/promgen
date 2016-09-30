@@ -158,4 +158,48 @@ class TestAlert < Promgen::Test
                      },
                      times: 1
   end
+
+  def test_linenotify_alert
+    @app.project_repo.insert(service_id: @factory.service.id, name: 'mywebapp', access_token: 'test_access_token')
+
+    stub_request(:post, 'https://linenotify.localhost')
+      .to_return(status: 200, body: '', headers: {})
+
+    post '/', JSON.generate(alerts: [
+                              {
+                                status: 'resolved',
+                                labels: {
+                                  alertname: 'InstanceDown',
+                                  service: 'myservice',
+                                  project: 'mywebapp',
+                                  job: 'node',
+                                  instance: 'testhost.localhost:9100',
+                                  farm: 'foo-web'
+                                },
+                                generatorURL: 'http://prom.localhost/',
+                                annotations: {
+                                  description: 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
+                                  summary: 'Instance testhost.localhost:9100 down'
+                                }
+                              }
+                            ])
+
+    @app.logger.info("response: #{last_response}")
+    assert_equal 200, last_response.status
+    assert_requested :post, 'https://linenotify.localhost',
+                     body: {
+                             'message' => %(
+                                InstanceDown foo-web testhost.localhost:9100 node resolved
+                                Instance testhost.localhost:9100 down
+                                testhost.localhost:9100 of job node has been down for more than 5 minutes.
+
+                                Prometheus: http://prom.localhost/
+                                Alert Manager:
+                                ).strip.gsub(/^ +/, ''),
+                            },
+                            headers: {
+                              'Authorization' => 'Bearer test_access_token'
+                            },
+                     times: 1
+  end
 end

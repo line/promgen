@@ -32,6 +32,10 @@
           <th>Webhook URL</th>
           <td><%= @project.webhook_url %></td>
         </tr>
+        <tr>
+          <th>Access Token</th>
+          <td>***</td>
+        </tr>
       </table>
       <div class="panel-footer">
         <a href="<%= to("/project/#{@project.id}/update") %>" class="btn btn-default">Update

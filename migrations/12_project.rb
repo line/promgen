@@ -21,30 +21,10 @@
 # THE SOFTWARE.
 
 # frozen_string_literal: true
-class Promgen
-  class Project
-    attr_reader :id, :service_id, :name, :hipchat_channel, :mail_address, :webhook_url, :access_token
-
-    def initialize(id:, service_id:, name:, hipchat_channel:, mail_address:, webhook_url:, access_token:)
-      @id = id
-      @service_id = service_id
-      @name = name
-      @hipchat_channel = hipchat_channel
-      @mail_address = mail_address
-      @webhook_url = webhook_url
-      @access_token = access_token
-    end
-
-    def values
-      {
-        id: id,
-        service_id: service_id,
-        name: name,
-        hipchat_channel: hipchat_channel,
-        mail_address: mail_address,
-        webhook_url: webhook_url,
-        access_token: access_token
-      }
+Sequel.migration do
+  change do
+    alter_table(:project) do
+      add_column :access_token, String
     end
   end
 end

@@ -49,7 +49,8 @@ class Promgen
         name: params[:name],
         hipchat_channel: empty_to_nil(params[:hipchat_channel]),
         mail_address: empty_to_nil(params[:mail_address]),
-        webhook_url: empty_to_nil(params[:webhook_url])
+        webhook_url: empty_to_nil(params[:webhook_url]),
+        access_token: empty_to_nil(params[:access_token])
       )
 
       @service = @service_service.find(id: params[:service_id])
@@ -89,7 +90,8 @@ class Promgen
         name: params['name'],
         hipchat_channel: empty_to_nil(params['hipchat_channel']),
         mail_address: empty_to_nil(params['mail_address']),
-        webhook_url: empty_to_nil(params['webhook_url'])
+        webhook_url: empty_to_nil(params['webhook_url']),
+        access_token: empty_to_nil(params[:access_token])
       )
       @config_writer.write
       @audit_log_service.log(entry: "Updated project #{params[:name]}")

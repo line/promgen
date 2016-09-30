@@ -83,6 +83,10 @@ class Promgen
           },
           {
             'module' => 'Webhook'
+          },
+          {
+            'module' => 'LineNotify',
+            'url' => 'https://linenotify.localhost/'
           }
         ]
       )

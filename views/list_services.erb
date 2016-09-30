@@ -20,6 +20,7 @@
               <th>Channel</th>
               <th>Mail Address</th>
               <th>Webhook URL</th>
+              <th>Access Token</th>
               <th>Exporters</th>
               <th>Farm</th>
             </tr>
@@ -29,6 +30,7 @@
                   <td><%= project.hipchat_channel %></td>
                   <td><%= project.mail_address %></td>
                   <td><%= project.webhook_url %></td>
+                  <td>***</td>
                   <td>
                     <table style="width: 100%">
                       <% (@project_id2exporters[project.id]||[]).each do |exporter| %>

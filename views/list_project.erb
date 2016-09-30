@@ -16,6 +16,7 @@
       <th>Hipchat Channel</th>
       <th>Mail Address</th>
       <th>Webhook URL</th>
+      <th>Access Token</th>
     </tr>
     <% @projects.each do |project| %>
       <tr>
@@ -23,6 +24,7 @@
         <td><%= project.hipchat_channel %></td>
         <td><%= project.mail_address %></td>
         <td><%= project.webhook_url %></td>
+        <td>***</td>
       </tr>
     <% end %>
   </table>
