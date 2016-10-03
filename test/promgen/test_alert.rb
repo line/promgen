@@ -187,19 +187,15 @@ class TestAlert < Promgen::Test
     @app.logger.info("response: #{last_response}")
     assert_equal 200, last_response.status
     assert_requested :post, 'https://linenotify.localhost',
-                     body: {
-                             'message' => %(
+                     body: { 'message' => %(
                                 InstanceDown foo-web testhost.localhost:9100 node resolved
                                 Instance testhost.localhost:9100 down
                                 testhost.localhost:9100 of job node has been down for more than 5 minutes.
 
                                 Prometheus: http://prom.localhost/
                                 Alert Manager:
-                                ).strip.gsub(/^ +/, ''),
-                            },
-                            headers: {
-                              'Authorization' => 'Bearer test_access_token'
-                            },
+                                ).strip.gsub(/^ +/, '') },
+                     headers: { 'Authorization' => 'Bearer test_line_notify_access_token' },
                      times: 1
   end
 end
