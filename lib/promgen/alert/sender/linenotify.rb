@@ -63,7 +63,7 @@ class Promgen
           uri = URI.parse(@url)
           request = Net::HTTP::Post.new(uri.path)
           request['Authorization'] = "Bearer #{line_notify_access_token}"
-          request['Content­Type'] = 'application/x-www-form-urlencoded'
+          request['Content­-Type'] = 'application/x-www-form-urlencoded'
           request.set_form_data(
             message: message
           )
