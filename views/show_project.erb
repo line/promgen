@@ -32,14 +32,22 @@
           <th>Webhook URL</th>
           <td><%= @project.webhook_url %></td>
         </tr>
+      </table>
+      <div class="panel-footer">
+        <a href="<%= to("/project/#{@project.id}/update") %>" class="btn btn-default">Update
+          project</a>
+      </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">LINE Notify Access Token Configuration</div>
+      <table class="table">
         <tr>
           <th>LINE Notify Access Token</th>
           <td><% if @project.line_notify_access_token %>***<% end %></td>
         </tr>
       </table>
       <div class="panel-footer">
-        <a href="<%= to("/project/#{@project.id}/update") %>" class="btn btn-default">Update
-          project</a>
+        <a href="<%= to("/project/#{@project.id}/update_line_notify_access_token") %>" class="btn btn-default">Update LINE Notify Access Token</a>
       </div>
     </div>
   </div>

@@ -90,10 +90,22 @@ class Promgen
         name: params['name'],
         hipchat_channel: empty_to_nil(params['hipchat_channel']),
         mail_address: empty_to_nil(params['mail_address']),
-        webhook_url: empty_to_nil(params['webhook_url']),
-        line_notify_access_token: empty_to_nil(params[:line_notify_access_token])
+        webhook_url: empty_to_nil(params['webhook_url'])
       )
       @config_writer.write
+      @audit_log_service.log(entry: "Updated project #{params[:name]}")
+      redirect "/project/#{@project.id}"
+    end
+
+    get '/project/:project_id/update_line_notify_access_token' do
+      erb :update_line_notify_access_token
+    end
+
+    post '/project/:project_id/update_line_notify_access_token' do
+      @project_service.update_line_notify_access_token(
+        project_id: @project.id,
+        line_notify_access_token: empty_to_nil(params['line_notify_access_token'])
+      )
       @audit_log_service.log(entry: "Updated project #{params[:name]}")
       redirect "/project/#{@project.id}"
     end

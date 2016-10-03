@@ -49,12 +49,17 @@ class Promgen
         )
       end
 
-      def update(project_id:, name:, hipchat_channel:, mail_address:, webhook_url:, line_notify_access_token:)
+      def update(project_id:, name:, hipchat_channel:, mail_address:, webhook_url:)
         @db[:project].where(id: project_id).update(
           name: name,
           hipchat_channel: hipchat_channel,
           mail_address: mail_address,
-          webhook_url: webhook_url,
+          webhook_url: webhook_url
+        )
+      end
+
+      def update_line_notify_access_token(project_id:, line_notify_access_token:)
+        @db[:project].where(id: project_id).update(
           line_notify_access_token: line_notify_access_token
         )
       end

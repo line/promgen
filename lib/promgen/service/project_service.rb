@@ -37,7 +37,7 @@ class Promgen
         @rule_writer = rule_writer
       end
 
-      def_delegators :@project_repo, :all, :insert, :update, :find, :find_by_name, :find_exporters
+      def_delegators :@project_repo, :all, :insert, :update, :find, :find_by_name, :find_exporters, :update_line_notify_access_token
 
       def delete(*args)
         @project_repo.delete(*args)
