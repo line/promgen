@@ -195,7 +195,8 @@ class TestAlert < Promgen::Test
                                 Prometheus: http://prom.localhost/
                                 Alert Manager:
                                 ).strip.gsub(/^ +/, '') },
-                     headers: { 'Authorization' => 'Bearer test_line_notify_access_token' },
+                     headers: { 'Authorization' => 'Bearer test_line_notify_access_token',
+                                'Content­Type' => 'application/x-www-form-urlencoded' },
                      times: 1
   end
 end
