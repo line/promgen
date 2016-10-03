@@ -27,6 +27,7 @@ require 'sinatra/json'
 class Promgen
   class Web < Sinatra::Base
     get '/project/:project_id/exporter/register' do
+      @service = @service_service.find(id: @project.service_id)
       erb :register_project_exporter
     end
 
