@@ -24,7 +24,7 @@
         <td><%= project.hipchat_channel %></td>
         <td><%= project.mail_address %></td>
         <td><%= project.webhook_url %></td>
-        <td>***</td>
+        <td><% if project.line_notify_access_token %>***<% end %></td>
       </tr>
     <% end %>
   </table>
