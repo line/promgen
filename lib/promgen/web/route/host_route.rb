@@ -28,6 +28,7 @@ class Promgen
   class Web < Sinatra::Base
     # Add new host to the farm
     get '/project/:project_id/farm/:farm_id/host/add' do
+      @service = @service_service.find(id: @project.service_id)
       @farm = @farm_service.find(id: params[:farm_id])
       erb :add_host
     end

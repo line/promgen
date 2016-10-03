@@ -80,6 +80,7 @@ class Promgen
     end
 
     get '/project/:project_id/update' do
+      @service = @service_service.find(id: @project.service_id)
       erb :update_project
     end
 
