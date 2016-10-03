@@ -37,7 +37,7 @@ class Promgen
         end
       end
 
-      def insert(service_id:, name:, hipchat_channel: nil, mail_address: nil, webhook_url: nil, access_token: nil)
+      def insert(service_id:, name:, hipchat_channel: nil, mail_address: nil, webhook_url: nil, line_notify_access_token: nil)
         raise ArgumentError, 'service_id must not be null' if service_id.nil?
         @db[:project].insert(
           service_id: service_id,
@@ -45,17 +45,17 @@ class Promgen
           hipchat_channel: hipchat_channel,
           mail_address: mail_address,
           webhook_url: webhook_url,
-          access_token: access_token
+          line_notify_access_token: line_notify_access_token
         )
       end
 
-      def update(project_id:, name:, hipchat_channel:, mail_address:, webhook_url:, access_token:)
+      def update(project_id:, name:, hipchat_channel:, mail_address:, webhook_url:, line_notify_access_token:)
         @db[:project].where(id: project_id).update(
           name: name,
           hipchat_channel: hipchat_channel,
           mail_address: mail_address,
           webhook_url: webhook_url,
-          access_token: access_token
+          line_notify_access_token: line_notify_access_token
         )
       end
 

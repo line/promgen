@@ -44,7 +44,7 @@ class TestProjectRoute < Promgen::Test
          'hipchat_channel' => '#foo',
          'mail_address' => 'a@a.localhost',
          'webhook_url' => 'http://webhook.localhost',
-         'access_token' => 'test_access_token'
+         'line_notify_access_token' => 'test_line_notify_access_token'
 
     assert_equal [
       { id: 1,
@@ -53,7 +53,7 @@ class TestProjectRoute < Promgen::Test
         hipchat_channel: '#foo',
         mail_address: 'a@a.localhost',
         webhook_url: 'http://webhook.localhost',
-        access_token: 'test_access_token' }
+        line_notify_access_token: 'test_line_notify_access_token' }
     ], @app.project_repo.all.map(&:values)
 
     assert_equal 302, last_response.status
@@ -90,10 +90,10 @@ class TestProjectRoute < Promgen::Test
          'hipchat_channel' => '#foo',
          'mail_address' => 'a@a.localhost',
          'webhook_url' => 'http://webhook.localhost',
-         'access_token' => 'test_access_token'
+         'line_notify_access_token' => 'test_line_notify_access_token'
 
     assert_equal [
-      { id: 1, name: 'hoge', hipchat_channel: '#foo', mail_address: 'a@a.localhost', service_id: service.id, webhook_url: 'http://webhook.localhost', access_token: 'test_access_token' }
+      { id: 1, name: 'hoge', hipchat_channel: '#foo', mail_address: 'a@a.localhost', service_id: service.id, webhook_url: 'http://webhook.localhost', line_notify_access_token: 'test_line_notify_access_token' }
     ], @app.project_repo.all.map(&:values)
 
     assert_equal 302, last_response.status

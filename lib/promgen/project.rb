@@ -23,16 +23,16 @@
 # frozen_string_literal: true
 class Promgen
   class Project
-    attr_reader :id, :service_id, :name, :hipchat_channel, :mail_address, :webhook_url, :access_token
+    attr_reader :id, :service_id, :name, :hipchat_channel, :mail_address, :webhook_url, :line_notify_access_token
 
-    def initialize(id:, service_id:, name:, hipchat_channel:, mail_address:, webhook_url:, access_token:)
+    def initialize(id:, service_id:, name:, hipchat_channel:, mail_address:, webhook_url:, line_notify_access_token:)
       @id = id
       @service_id = service_id
       @name = name
       @hipchat_channel = hipchat_channel
       @mail_address = mail_address
       @webhook_url = webhook_url
-      @access_token = access_token
+      @line_notify_access_token = line_notify_access_token
     end
 
     def values
@@ -43,7 +43,7 @@ class Promgen
         hipchat_channel: hipchat_channel,
         mail_address: mail_address,
         webhook_url: webhook_url,
-        access_token: access_token
+        line_notify_access_token: line_notify_access_token
       }
     end
   end

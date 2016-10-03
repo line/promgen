@@ -34,14 +34,14 @@ class Promgen
         end
 
         def info
-          "LineNotify: #{@access_token}"
+          "LineNotify: #{@line_notify_access_token}"
         end
 
         def send(data)
           data['alerts'].each do |alert|
             labels = alert['labels']
             project = @project_repo.find_by_name(name: labels['project'])
-            if project && project.access_token
+            if project && project.line_notify_access_token
               subject = "#{alert['labels']['alertname']} #{alert['labels']['farm']} #{alert['labels']['instance']} #{alert['labels']['job']} #{alert['status']}"
               body = %(
                 #{alert['annotations']['summary']}
@@ -50,19 +50,19 @@ class Promgen
                 Prometheus: #{alert['generatorURL']}
                 Alert Manager: #{data['externalURL']}
                 ).strip.gsub(/^ +/, '')
-              send_linenotify(project.access_token, subject + "\n" + body)
+              send_linenotify(project.line_notify_access_token, subject + "\n" + body)
             else
               @logger.info "project:'#{labels['project']}' doesn't have a access token configuration"
             end
           end
         end
 
-        def send_linenotify(access_token, message)
-          @logger.info "Sending line message: #{access_token} #{message}"
+        def send_linenotify(line_notify_access_token, message)
+          @logger.info "Sending line message: #{line_notify_access_token} #{message}"
 
           uri = URI.parse(@url)
           request = Net::HTTP::Post.new(uri.path)
-          request['Authorization'] = "Bearer #{access_token}"
+          request['Authorization'] = "Bearer #{line_notify_access_token}"
           request.set_form_data(
             message: message
           )
@@ -70,7 +70,7 @@ class Promgen
           http.use_ssl = true
           http.verify_mode = OpenSSL::SSL::VERIFY_NONE
           resp = http.request(request)
-          @logger.info("Sent request: #{access_token} #{message}: #{resp}")
+          @logger.info("Sent request: #{line_notify_access_token} #{message}: #{resp}")
         end
       end
     end

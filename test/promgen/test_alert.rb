@@ -160,7 +160,7 @@ class TestAlert < Promgen::Test
   end
 
   def test_linenotify_alert
-    @app.project_repo.insert(service_id: @factory.service.id, name: 'mywebapp', access_token: 'test_access_token')
+    @app.project_repo.insert(service_id: @factory.service.id, name: 'mywebapp', line_notify_access_token: 'test_line_notify_access_token')
 
     stub_request(:post, 'https://linenotify.localhost')
       .to_return(status: 200, body: '', headers: {})

@@ -24,7 +24,7 @@
 Sequel.migration do
   change do
     alter_table(:project) do
-      add_column :access_token, String
+      add_column :line_notify_access_token, String
     end
   end
 end
