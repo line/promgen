@@ -20,30 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-require 'promgen/host'
-require 'promgen/farm'
-
-require 'forwardable'
-
-class Promgen
-  class Service
-    class ProjectService
-      extend Forwardable
-
-      def initialize(logger:, project_repo:, config_writer:, rule_writer:)
-        @logger = logger
-        @project_repo = project_repo
-        @config_writer = config_writer
-        @rule_writer = rule_writer
-      end
-
-      def_delegators :@project_repo, :all, :insert, :update, :find, :find_by_name, :find_exporters, :update_line_notify_access_token
-
-      def delete(*args)
-        @project_repo.delete(*args)
-        @config_writer.write
-        @rule_writer.write
-      end
+# frozen_string_literal: true
+Sequel.migration do
+  change do
+    alter_table(:project) do
+      add_column :line_notify_access_token, String
     end
   end
 end

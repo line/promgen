@@ -43,7 +43,8 @@ class TestProjectRoute < Promgen::Test
          'name' => 'hoge',
          'hipchat_channel' => '#foo',
          'mail_address' => 'a@a.localhost',
-         'webhook_url' => 'http://webhook.localhost'
+         'webhook_url' => 'http://webhook.localhost',
+         'line_notify_access_token' => 'test_line_notify_access_token'
 
     assert_equal [
       { id: 1,
@@ -51,7 +52,8 @@ class TestProjectRoute < Promgen::Test
         name: 'hoge',
         hipchat_channel: '#foo',
         mail_address: 'a@a.localhost',
-        webhook_url: 'http://webhook.localhost' }
+        webhook_url: 'http://webhook.localhost',
+        line_notify_access_token: 'test_line_notify_access_token' }
     ], @app.project_repo.all.map(&:values)
 
     assert_equal 302, last_response.status
@@ -90,7 +92,20 @@ class TestProjectRoute < Promgen::Test
          'webhook_url' => 'http://webhook.localhost'
 
     assert_equal [
-      { id: 1, name: 'hoge', hipchat_channel: '#foo', mail_address: 'a@a.localhost', service_id: service.id, webhook_url: 'http://webhook.localhost' }
+      { id: 1, name: 'hoge', hipchat_channel: '#foo', mail_address: 'a@a.localhost', service_id: service.id, webhook_url: 'http://webhook.localhost', line_notify_access_token: nil }
+    ], @app.project_repo.all.map(&:values)
+
+    assert_equal 302, last_response.status
+  end
+
+  def test_project_update_line_notify_access_token_post
+    service = @factory.service
+    project_id = @app.project_repo.insert(service_id: service.id, name: 'foo')
+    post "/project/#{project_id}/update_line_notify_access_token",
+         'line_notify_access_token' => 'test_line_notify_access_token'
+
+    assert_equal [
+      { id: 1, name: 'foo', hipchat_channel: nil, mail_address: nil, service_id: service.id, webhook_url: nil, line_notify_access_token: 'test_line_notify_access_token' }
     ], @app.project_repo.all.map(&:values)
 
     assert_equal 302, last_response.status

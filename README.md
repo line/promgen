@@ -203,6 +203,8 @@ alert_senders:
   - module: Webhook
   - module: Alerta
     alerta_url: http://alerta.localhost
+  - module: LineNotify
+    url: http://linenotify.localhost
 ```
 
 * [Ikasan](https://github.com/studio3104/ikasan)
@@ -224,6 +226,10 @@ When you specify the Webhook module, you need to specify the URL for each projec
 * [Alerta](http://alerta.io/)
 
 Specify the Alerta module and the URL set in your environment.
+
+* LineNotify
+
+Specify the LineNotify module and url if you want to receive alert notifications through LINE Notify(https://notify-bot.line.me/).
 
 ### 6. Notification Hooks
 
