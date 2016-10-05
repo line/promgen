@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% for service in service_list %}
+<div class="panel panel-default">
+  <div class="panel-heading"><a href="/service/{{ service.id }}">{{ service.name }}</a></div>
+<table class="table table-bordered">
+  <tr>
+    <th>Project</th>
+    <th>Farm</th>
+    <th>Exporters</th>
+  </tr>
+{% for project in service.project_set.all %}
+  <tr>
+    <td>{{ project.name }}</td>
+    <td>{{ project.farm }}</td>
+    <td>
+      <table style="width: 100%">
+{% for exporter in project.exporter_set.all %}
+        <tr>
+          <td>{{ exporter.job }}</td>
+          <td>{{ exporter.port }}</td>
+          <td>{{ exporter.path }}</td>
+        </tr>
+{% endfor %}
+      </table>
+    </td>
+  </tr>
+{% endfor %}
+</table>
+</div>
+{% endfor %}
+
+{% endblock %}
