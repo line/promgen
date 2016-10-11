@@ -17,7 +17,7 @@
     </div>
     <div class="form-group">
       <label for="inputIf">IF</label>
-      <input type="text" name="if" class="form-control" id="inputIf" value="<%= @rule.if_clause %>" required>
+      <textarea type="text" name="if" class="form-control" id="inputIf" required><%= @rule.if_clause %></textarea>
       <p class="help-block">Prometheus query. Example: <code>node_load1{...} > 5</code></p>
     </div>
     <div class="form-group">
@@ -31,12 +31,12 @@
     </div>
     <div class="form-group">
       <label for="inputLabels">LABELS</label>
-      <input type="text" name="labels" class="form-control" id="inputLabels" value="<%= @rule.labels_clause %>">
+      <textarea type="text" name="labels" class="form-control" id="inputLabels"><%= @rule.labels_clause %></textarea>
       <p class="help-block">A set of additional labels to be attached to the alert. Any existing conflicting labels will be overwritten. The label values can be templated.</p>
     </div>
     <div class="form-group">
       <label for="inputAnnotations">ANNOTATIONS</label>
-      <input type="text" name="annotations" class="form-control" id="inputAnnotations" value="<%= @rule.annotations_clause %>">
+      <textarea type="text" name="annotations" class="form-control" id="inputAnnotations"><%= @rule.annotations_clause %></textarea>
       <p class="help-block">Another set of labels that are not identifying for an alert instance. They are used to store longer additional information such as alert descriptions or runbook links. The annotation values can be templated.</p>
     </div>
 
