@@ -61,9 +61,9 @@ class Promgen
       @rule_repo.all.each do |row|
         sio.puts('ALERT ' + row.values[:alert_clause])
         sio.puts('IF ' + row.values[:if_clause])
-        sio.puts('FOR ' + row.values[:for_clause]) unless row.values[:for_clause].empty?
-        sio.puts('LABELS ' + row.values[:labels_clause]) unless row.values[:labels_clause].empty?
-        sio.puts('ANNOTATIONS ' + row.values[:annotations_clause]) unless row.values[:annotations_clause].empty?
+        sio.puts('FOR ' + row.values[:for_clause]) unless nil_or_empty?(row.values[:for_clause])
+        sio.puts('LABELS ' + row.values[:labels_clause]) unless nil_or_empty?(row.values[:labels_clause])
+        sio.puts('ANNOTATIONS ' + row.values[:annotations_clause]) unless nil_or_empty?(row.values[:annotations_clause])
       end
       sio.string
     end
