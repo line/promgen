@@ -33,6 +33,7 @@ class Promgen
 
     get '/service/:service_id/rule/register' do
       @service = @service_service.find(id: params[:service_id])
+      @rule = Promgen::Rule.new()
       erb :register_rule
     end
 
@@ -61,7 +62,7 @@ class Promgen
       @service = @service_service.find(id: params[:service_id])
       @rule = @rule_service.find(id: params[:rule_id])
       halt 404 unless @rule
-      erb :update_rule
+      erb :register_rule
     end
 
     post '/service/:service_id/rule/:rule_id/update' do

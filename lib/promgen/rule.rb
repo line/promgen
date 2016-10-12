@@ -25,7 +25,7 @@ class Promgen
   class Rule
     attr_reader :id, :service_id, :alert_clause, :if_clause, :for_clause, :labels_clause, :annotations_clause
 
-    def initialize(id:, service_id:, alert_clause:, if_clause:, for_clause:, labels_clause:, annotations_clause:)
+    def initialize(id: nil, service_id: '', alert_clause: '', if_clause: '', for_clause: '', labels_clause: '', annotations_clause: '')
       @id = id
       @service_id = service_id
       @alert_clause = alert_clause
