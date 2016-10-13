@@ -33,7 +33,7 @@ class Promgen
 
     get '/service/:service_id/rule/register' do
       @service = @service_service.find(id: params[:service_id])
-      @rule = Promgen::Rule.new()
+      @rule = Promgen::Rule.new
       erb :register_rule
     end
 

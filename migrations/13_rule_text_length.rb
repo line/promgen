@@ -23,9 +23,9 @@
 Sequel.migration do
   change do
     alter_table :rule do
-      set_column_type :if_clause, String, :text=>true
-      set_column_type :labels_clause, String, :text=>true
-      set_column_type :annotations_clause, String, :text=>true
+      set_column_type :if_clause, String, text: true
+      set_column_type :labels_clause, String, text: true
+      set_column_type :annotations_clause, String, text: true
     end
   end
 end
