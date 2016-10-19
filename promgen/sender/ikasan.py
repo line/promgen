@@ -27,7 +27,6 @@ def _send(channel, message, color):
 
     if color is not None:
         params['color'] = color
-
     requests.post(url.value, params).raise_for_status()
 
 
