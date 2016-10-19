@@ -90,7 +90,7 @@ class Audit(models.Model):
 
 
 class Setting(models.Model):
-    key = models.CharField(max_length=128)
+    key = models.CharField(max_length=128, primary_key=True)
     value = models.CharField(max_length=128)
 
 

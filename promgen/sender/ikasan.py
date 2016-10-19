@@ -17,7 +17,7 @@ Alert Manager: {_alertmanager}
 def _send(channel, message, color):
     url, _ = Setting.objects.get_or_create(
         key=__name__,
-        value='http://ikachan.example/notice'
+        defaults={'value':'http://ikachan.example/notice'}
     )
 
     params = {
