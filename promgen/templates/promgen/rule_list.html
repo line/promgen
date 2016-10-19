@@ -21,7 +21,7 @@
         <td>{{ rule.duration }}</td>
         <td>{{ rule.labels }}</td>
         <td>{{ rule.annotations }}</td>
-        <td>{{ rule.service }}</td>
+        <td><a href="{% url 'service-rules' rule.service.id %}">{{ rule.service }}</a></td>
       </tr>
 {% endfor %}
     </table>

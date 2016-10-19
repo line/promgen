@@ -26,9 +26,8 @@
                 </div>
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
-                        <li><a href="/">Services</a></li>
-                        <li><a href="/">Rules</a></li>
-                        <li><a href="/">Services</a></li>
+                        <li><a href="{% url 'service-list' %}">Services</a></li>
+                        <li><a href="{% url 'rules-list' %}">Rules</a></li>
                         <li><a href="/">Status</a></li>
                         <li><a href="/">Log</a></li>
                         <li><a href="/api">Api</a></li>

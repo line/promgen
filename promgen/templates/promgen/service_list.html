@@ -30,10 +30,9 @@
 {% endfor %}
 </table>
   <div class="panel-footer">
-    <a href="/service/25/rule" class="btn btn-primary">Rules</a>
-    <a href="/service/25/project/create" class="btn btn-primary">Register
-    project</a>
-    <form method="post" action="/service/25/delete" onsubmit="return confirm('Delete this service?')" style="display: inline">
+    <a href="{% url 'service-rules' service.id %}" class="btn btn-primary">Rules</a>
+    <a href="{% url 'service-new' %}" class="btn btn-primary">Register project</a>
+    <form method="post" action="{% url 'service-detail' service.id %}" onsubmit="return confirm('Delete this service?')" style="display: inline">
       <button class="btn btn-danger">Delete service</button>
     </form>
   </div>
