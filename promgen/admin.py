@@ -16,6 +16,11 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'service', 'farm')
 
 
+@admin.register(models.Sender)
+class SenderAdmin(admin.ModelAdmin):
+    list_display = ('project', 'sender', 'value')
+
+
 @admin.register(models.Farm)
 class FarmAdmin(admin.ModelAdmin):
     list_display = ('name',)

@@ -1,7 +1,8 @@
+import logging
+
 import requests
 
 from promgen.models import Project, Setting
-
 
 TEMPLATE = '''
 {alertname} {farm} {instance} {job} {_status}
@@ -12,6 +13,9 @@ TEMPLATE = '''
 Prometheus: {_prometheus}
 Alert Manager: {_alertmanager}
 '''.strip()
+
+
+logger = logging.getLogger(__name__)
 
 
 def _send(channel, message, color):
@@ -33,16 +37,23 @@ def _send(channel, message, color):
 def send(data):
     for alert in data['alerts']:
         for project in Project.objects.filter(name=alert['labels'].get('project')):
-            channel = 'alertmanager'
-            color = 'green' if alert['status'] == 'resolved' else 'red'
+            logger.debug('Sending %s for %s', __name__, project.name)
+            for sender in project.sender_set.filter(sender=__name__):
+                color = 'green' if alert['status'] == 'resolved' else 'red'
 
-            params = {
-                '_prometheus': alert['generatorURL'],
-                '_status': alert['status'],
-                '_alertmanager': data['externalURL']
-            }
-            params.update(alert['labels'])
-            params.update(alert['annotations'])
-            message = TEMPLATE.format(**params)
+                params = {
+                    '_prometheus': alert['generatorURL'],
+                    '_status': alert['status'],
+                    '_alertmanager': data['externalURL']
+                }
+                params.update(alert['labels'])
+                params.update(alert['annotations'])
+                message = TEMPLATE.format(**params)
 
-            _send(channel, message, color)
+                _send(sender.value, message, color)
+                break
+            else:
+                logger.debug('No senders configured for %s->%s', project,  __name__)
+            break
+        else:
+            logger.debug('No senders configured for project', )

@@ -24,6 +24,14 @@ class Project(models.Model):
         return '{} [{}]'.format(self.name, self.service.name)
 
 
+class Sender(models.Model):
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    sender = models.CharField(max_length=128, choices=[
+        (entry.module_name, entry.module_name) for entry in working_set.iter_entry_points('promgen.sender')
+    ])
+    value = models.CharField(max_length=128)
+
+
 class Farm(models.Model):
     name = models.CharField(max_length=128, unique=True)
     source = models.CharField(max_length=128)
