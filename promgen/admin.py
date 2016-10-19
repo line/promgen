@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from promgen import models
 
 admin.site.register(models.Service)
