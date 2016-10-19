@@ -31,7 +31,12 @@ class AuditList(ListView):
 
 
 class ServiceDetail(DetailView):
-    model = models.Service
+    queryset = models.Service.objects\
+        .prefetch_related(
+            'project_set',
+            'project_set__farm',
+            'project_set__exporter_set',
+            'project_set__sender_set')
 
 
 class ProjectDetail(DetailView):
