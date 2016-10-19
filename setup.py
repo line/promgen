@@ -5,7 +5,7 @@ setup(
     author='Paul Traylor',
     packages=find_packages(exclude=['test']),
     install_requires=[
-        'Django >= 1.9, < 1.10',
+        'Django',
     ],
     entry_points={
         'console_scripts': [
