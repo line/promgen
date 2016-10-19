@@ -1,5 +1,7 @@
 import requests
-from promgen.models import Project
+
+from promgen.models import Project, Setting
+
 
 TEMPLATE = '''
 {alertname} {farm} {instance} {job} {_status}
@@ -13,7 +15,11 @@ Alert Manager: {_alertmanager}
 
 
 def _send(channel, message, color):
-    url = 'http://ikachan.cub.dev.livedoor.com/notice'
+    url, _ = Setting.objects.get_or_create(
+        key=__name__,
+        value='http://ikachan.example/notice'
+    )
+
     params = {
         'channel': channel,
         'message': message,
@@ -22,7 +28,7 @@ def _send(channel, message, color):
     if color is not None:
         params['color'] = color
 
-    requests.post(url, params).raise_for_status()
+    requests.post(url.value, params).raise_for_status()
 
 
 def send(data):

@@ -89,6 +89,11 @@ class Audit(models.Model):
         return cls.objects.create(body=body, created=datetime.datetime.utcnow())
 
 
+class Setting(models.Model):
+    key = models.CharField(max_length=128)
+    value = models.CharField(max_length=128)
+
+
 @receiver(post_save)
 def my_handler(sender, instance, created, **kwargs):
     if sender is not Audit:
