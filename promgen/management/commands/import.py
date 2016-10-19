@@ -37,4 +37,5 @@ class Command(BaseCommand):
                 job=entry['labels']['job'],
                 port=port,
                 project=project,
+                path=entry['labels'].get('__metrics_path__', '')
             )
