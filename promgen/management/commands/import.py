@@ -15,21 +15,26 @@ class Command(BaseCommand):
                 name=entry['labels']['service'],
             )
 
-            project, _ = models.Project.objects.get_or_create(
-                name=entry['labels']['project'],
-                defaults={'service': service}
-            )
-
             farm, _ = models.Farm.objects.get_or_create(
                 name=entry['labels']['farm'],
                 defaults={'source': 'DB'}
             )
 
-            project.farm = farm
-            project.save()
+            project, _ = models.Project.objects.get_or_create(
+                name=entry['labels']['project'],
+                service=service,
+                farm=farm,
+            )
 
             for target in entry['targets']:
+                target, port = target.split(':')
                 host, _ = models.Host.objects.get_or_create(
                     name=target,
                     defaults={'farm': farm}
                 )
+
+            exporter = models.Exporter.objects.get_or_create(
+                job=entry['labels']['job'],
+                port=port,
+                project=project,
+            )
