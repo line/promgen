@@ -18,7 +18,7 @@ class Project(models.Model):
     farm = models.ForeignKey('Farm', blank=True, null=True)
 
     def __str__(self):
-        return '{}:{}'.format(self.service.name, self.name)
+        return '{} [{}]'.format(self.name, self.service.name)
 
 
 class Farm(models.Model):
@@ -52,6 +52,9 @@ class Host(models.Model):
     farm = models.ForeignKey('Farm', on_delete=models.CASCADE)
 
     unique_together = ('name', 'farm')
+
+    def __str__(self):
+        return '{} [{}]'.format(self.name, self.farm.name)
 
 
 class Exporter(models.Model):

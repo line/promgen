@@ -44,7 +44,6 @@ class FarmRefresh(SingleObjectMixin, View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-
 class ApiConfig(View):
     def get(self, request):
         data = []
