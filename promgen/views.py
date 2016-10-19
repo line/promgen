@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.views.generic import ListView, View
 from django.views.generic import DetailView
 from promgen import models
-
+from django.shortcuts import get_object_or_404
 
 class ServiceList(ListView):
     model = models.Service
@@ -18,6 +18,18 @@ class ProjectDetail(DetailView):
 
 class RulesList(ListView):
     model = models.Rule
+
+    def get_queryset(self):
+        if 'pk' in self.kwargs:
+            self.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+            return models.Rule.objects.filter(service=self.service)
+        return models.Rule.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(RulesList, self).get_context_data(**kwargs)
+        if 'pk' in self.kwargs:
+            context['service'] = self.service
+        return context
 
 
 class ApiConfig(View):

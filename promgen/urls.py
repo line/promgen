@@ -20,10 +20,12 @@ from promgen import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+
     url(r'^$', views.ServiceList.as_view(), name='service-list'),
     url(r'^service/new$', views.ServiceList.as_view(), name='service-new'),
     url(r'^service/(?P<pk>[0-9]+)/$', views.ServiceDetail.as_view(), name='service-detail'),
-    url(r'^service/(?P<pk>[0-9]+)/rules$', views.ServiceDetail.as_view(), name='service-rules'),
+    url(r'^service/(?P<pk>[0-9]+)/rules$', views.RulesList.as_view(), name='service-rules'),
+    url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RulesList.as_view(), name='service-rules-new'),
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^api/v1/config', views.ApiConfig.as_view()),
