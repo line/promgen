@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^api/v1/config', views.ApiConfig.as_view()),
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
+    url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
 ]
 
 if settings.DEBUG:

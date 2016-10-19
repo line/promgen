@@ -11,5 +11,12 @@ setup(
         'console_scripts': [
             'promgen = promgen.manage:main',
         ],
+        'promgen.server': [],
+        'promgen.sender': [
+            'ikasan = promgen.sender.ikasan',
+            'email = promgen.sender.email',
+            'linenotify = promgen.sender.linenotify',
+            'webhook = promgen.sender.webhook',
+        ],
     }
 )

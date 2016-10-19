@@ -1,0 +1,2 @@
+def send(data):
+    pass

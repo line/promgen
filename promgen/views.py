@@ -1,9 +1,16 @@
-from django.http import HttpResponseRedirect, JsonResponse
+import json
+import logging
+
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.detail import SingleObjectMixin
+from pkg_resources import working_set
+
 from promgen import models
+
+logger = logging.getLogger(__name__)
 
 
 class ServiceList(ListView):
@@ -80,3 +87,13 @@ class ApiConfig(View):
             })
 
         return JsonResponse(data, safe=False)
+
+
+class Alert(View):
+    def post(self, request, *args, **kwargs):
+        body = json.loads(request.body.decode('utf-8'))
+
+        for entry in working_set.iter_entry_points('promgen.sender'):
+            logging.debug('Sending notification to %s', entry.name)
+            entry.load().send(body)
+        return HttpResponse('OK')
