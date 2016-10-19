@@ -21,6 +21,8 @@ from promgen import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.ServiceList.as_view()),
+    url(r'^service/(?P<pk>[0-9]+)/$', views.ServiceDetail.as_view(), name='service-detail'),
+    url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^rules/$', views.RulesList.as_view()),
     url(r'^api/v1/config', views.ApiConfig.as_view()),
 ]

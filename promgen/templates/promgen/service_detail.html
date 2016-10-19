@@ -2,7 +2,6 @@
 
 {% block content %}
 
-{% for service in service_list %}
 <div class="panel panel-default">
   <div class="panel-heading"><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></div>
 <table class="table table-bordered">
@@ -38,6 +37,5 @@
     </form>
   </div>
 </div>
-{% endfor %}
 
 {% endblock %}

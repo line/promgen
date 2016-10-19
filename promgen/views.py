@@ -1,10 +1,19 @@
 from django.http import JsonResponse
 from django.views.generic import ListView, View
+from django.views.generic import DetailView
 from promgen import models
 
 
 class ServiceList(ListView):
     model = models.Service
+
+
+class ServiceDetail(DetailView):
+    model = models.Service
+
+
+class ProjectDetail(DetailView):
+    model = models.Project
 
 
 class RulesList(ListView):
