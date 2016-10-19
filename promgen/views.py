@@ -94,6 +94,6 @@ class Alert(View):
         body = json.loads(request.body.decode('utf-8'))
 
         for entry in working_set.iter_entry_points('promgen.sender'):
-            logging.debug('Sending notification to %s', entry.name)
+            logger.debug('Sending notification to %s', entry.name)
             entry.load().send(body)
         return HttpResponse('OK')
