@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}PyPromgen{% endblock %}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+            integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+            integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/css/font-awesome.min.css">
+        <link rel="stylesheet" href="/static/css/bootstrap-social.css">
+    </head>
+    <body>
+        <header class="navbar navbar-inverse navbar-static-top" role="navigation">
+            <nav class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#">Promgen</a>
+                </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="/">Services</a></li>
+                        <li><a href="/">Rules</a></li>
+                        <li><a href="/">Services</a></li>
+                        <li><a href="/">Status</a></li>
+                        <li><a href="/">Log</a></li>
+                        <li><a href="/api">Api</a></li>
+
+                        {% for header, links in subnav.items %}
+                        <li class="dropown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ header }} <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                            {% for title, link in links %}
+                                {% if title == '-' %}
+                                <li role="separator" class="divider"></li>
+                                {% else %}
+                                <li><a href="{{ link }}">{{ title }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+
+                        {% if user.is_superuser %}
+                        <li><a href="/admin">Admin</a></li>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                        <li><a href="/logout">Logout</a></li>
+                        {% else %}
+                        <li><a href="{% url 'login' %}?next={{request.path}}">Login</a></li>
+                        {% endif %}
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </nav><!-- /.container-fluid -->
+        </header>
+        <div class="container">
+            <div>
+{% block content %}{% endblock %}
+            </div>
+        </div>
+        <footer class="container" id="footer">
+
+        </footer>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+            integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+{% block javascript %}{% endblock %}
+    </body>
+</html>
