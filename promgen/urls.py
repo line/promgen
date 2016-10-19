@@ -20,5 +20,6 @@ from promgen import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.ServiceList.as_view())
+    url(r'^$', views.ServiceList.as_view()),
+    url(r'^api/v1/config', views.ApiConfig.as_view()),
 ]
