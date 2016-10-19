@@ -10,6 +10,10 @@ class ServiceList(ListView):
     model = models.Service
 
 
+class HostList(ListView):
+    model = models.Host
+
+
 class ServiceDetail(DetailView):
     model = models.Service
 

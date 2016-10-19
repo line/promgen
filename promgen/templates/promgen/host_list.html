@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="panel panel-default">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Host</th>
+          <th>Farm</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+{% for host in host_list %}
+      <tr>
+        <td>{{ host.name }}</td>
+        <td>{{ host.farm.name }}</td>
+        <td>{{ host.farm.source }}</td>
+      </tr>
+{% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}

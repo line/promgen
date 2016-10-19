@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^farm/(?P<pk>[0-9]+)/$', csrf_exempt(views.FarmRefresh.as_view()), name='farm-refresh'),
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^api/v1/config', views.ApiConfig.as_view()),
+    url(r'^host/$', views.HostList.as_view(), name='host-list'),
 ]
