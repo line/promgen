@@ -50,11 +50,6 @@
                         {% if user.is_superuser %}
                         <li><a href="/admin">Admin</a></li>
                         {% endif %}
-                        {% if user.is_authenticated %}
-                        <li><a href="/logout">Logout</a></li>
-                        {% else %}
-                        <li><a href="{% url 'login' %}?next={{request.path}}">Login</a></li>
-                        {% endif %}
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </nav><!-- /.container-fluid -->
