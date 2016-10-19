@@ -120,8 +120,8 @@
     <form method="post" action="{% url 'project-detail' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
       <button type="submit" class="btn btn-danger">Unlink Farm</button>
     </form>
-    <form method="post" action="{% url 'project-detail' project.id %}" style="display: inline">
-      <button type="submit" class="btn btn-danger">Refresh Farm</button>
+    <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
+      <button type="submit" class="btn btn-warning">Refresh Farm</button>
     </form>
   {% endif %}
     </div>

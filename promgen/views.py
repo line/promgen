@@ -1,8 +1,10 @@
-from django.http import JsonResponse
-from django.views.generic import ListView, View
-from django.views.generic import DetailView
-from promgen import models
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from django.views.generic import DetailView, ListView, View
+from django.views.generic.detail import SingleObjectMixin
+from promgen import models
+
 
 class ServiceList(ListView):
     model = models.Service
@@ -30,6 +32,17 @@ class RulesList(ListView):
         if 'pk' in self.kwargs:
             context['service'] = self.service
         return context
+
+
+class FarmRefresh(SingleObjectMixin, View):
+    model = models.Farm
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.refresh()
+        project = self.object.project_set.get()
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+
 
 
 class ApiConfig(View):

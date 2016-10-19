@@ -13,6 +13,7 @@ class ProjectAdmin(admin.ModelAdmin):
 @admin.register(models.Farm)
 class FarmAdmin(admin.ModelAdmin):
     list_display = ('name',)
+    list_filter = ('source',)
 
 
 @admin.register(models.Exporter)

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-
+from django.views.decorators.csrf import csrf_exempt
 from promgen import views
 
 urlpatterns = [
@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/rules$', views.RulesList.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RulesList.as_view(), name='service-rules-new'),
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
+    url(r'^farm/(?P<pk>[0-9]+)/$', csrf_exempt(views.FarmRefresh.as_view()), name='farm-refresh'),
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^api/v1/config', views.ApiConfig.as_view()),
 ]
