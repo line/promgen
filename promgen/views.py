@@ -18,7 +18,8 @@ class ServiceList(ListView):
         .prefetch_related(
             'project_set',
             'project_set__farm',
-            'project_set__exporter_set')
+            'project_set__exporter_set',
+            'project_set__sender_set')
 
 
 class HostList(ListView):

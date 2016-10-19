@@ -10,6 +10,7 @@
     <th>Project</th>
     <th>Farm</th>
     <th>Exporters</th>
+    <th>Senders</th>
   </tr>
 {% for project in service.project_set.all %}
   <tr>
@@ -22,6 +23,16 @@
           <td>{{ exporter.job }}</td>
           <td>{{ exporter.port }}</td>
           <td>{{ exporter.path }}</td>
+        </tr>
+{% endfor %}
+      </table>
+    </td>
+    <td>
+      <table style="width: 100%">
+{% for sender in project.sender_set.all %}
+        <tr>
+          <td>{{ sender.sender }}</td>
+          <td>{{ sender.value }}</td>
         </tr>
 {% endfor %}
       </table>

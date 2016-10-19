@@ -26,18 +26,12 @@
   <div class="panel panel-default">
     <div class="panel-heading">Configuration</div>
     <table class="table">
+      {% for sender in project.sender_set.all %}
       <tr>
-        <th>Hipchat Channel</th>
-        <td><%= @project.hipchat_channel %></td>
+        <th>{{ sender.sender }}</th>
+        <td>{{ sender.value }}</td>
       </tr>
-      <tr>
-        <th>Mail Address</th>
-        <td><%= @project.mail_address %></td>
-      </tr>
-      <tr>
-        <th>Webhook URL</th>
-        <td><%= @project.webhook_url %></td>
-      </tr>
+      {% endfor %}
     </table>
     <div class="panel-footer">
       <a href="{% url 'project-detail' project.id %}" class="btn btn-default">Update project</a>
