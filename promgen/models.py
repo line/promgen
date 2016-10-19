@@ -1,8 +1,9 @@
 from __future__ import unicode_literals
-
+from django.dispatch import receiver
 from pkg_resources import working_set
-
+import datetime
 from django.db import models
+from django.db.models.signals import post_save
 
 
 class Service(models.Model):
@@ -77,3 +78,21 @@ class Rule(models.Model):
     labels = models.CharField(max_length=128)
     annotations = models.CharField(max_length=128)
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
+
+
+class Audit(models.Model):
+    body = models.TextField()
+    created = models.DateTimeField()
+
+    @classmethod
+    def log(cls, body):
+        return cls.objects.create(body=body, created=datetime.datetime.utcnow())
+
+
+@receiver(post_save)
+def my_handler(sender, instance, created, **kwargs):
+    if sender is not Audit:
+        if created:
+            Audit.log('Updating instance of %s' % instance)
+        else:
+            Audit.log('Created instance of %s' % instance)

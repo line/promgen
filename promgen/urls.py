@@ -31,4 +31,5 @@ urlpatterns = [
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^api/v1/config', views.ApiConfig.as_view()),
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
+    url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
 ]

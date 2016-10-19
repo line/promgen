@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div class="panel panel-default">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Body</th>
+        </tr>
+      </thead>
+{% for entry in audit_list %}
+      <tr>
+        <td>{{ entry.created }}</td>
+        <td>{{ entry.body }}</td>
+      </tr>
+{% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}

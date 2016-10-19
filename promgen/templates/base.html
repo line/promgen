@@ -29,7 +29,7 @@
                         <li><a href="{% url 'service-list' %}">Services</a></li>
                         <li><a href="{% url 'rules-list' %}">Rules</a></li>
                         <li><a href="/">Status</a></li>
-                        <li><a href="/">Log</a></li>
+                        <li><a href="{% url 'audit-list' %}">Log</a></li>
                         <li><a href="/api">Api</a></li>
 
                         {% for header, links in subnav.items %}

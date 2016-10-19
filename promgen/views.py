@@ -14,6 +14,10 @@ class HostList(ListView):
     model = models.Host
 
 
+class AuditList(ListView):
+    model = models.Audit
+
+
 class ServiceDetail(DetailView):
     model = models.Service
 
@@ -45,6 +49,7 @@ class FarmRefresh(SingleObjectMixin, View):
         self.object = self.get_object()
         self.object.refresh()
         project = self.object.project_set.get()
+        models.Audit.log('Refreshed Farm')
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
