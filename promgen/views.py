@@ -7,6 +7,10 @@ class ServiceList(ListView):
     model = models.Service
 
 
+class RulesList(ListView):
+    model = models.Rule
+
+
 class ApiConfig(View):
     def get(self, request):
         data = []

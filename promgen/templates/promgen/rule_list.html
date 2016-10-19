@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="panel panel-default">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Clause</th>
+          <th>Duration</th>
+          <th>Labels</th>
+          <th>Annotations</th>
+          <th>Service</th>
+        </tr>
+      </thead>
+{% for rule in rule_list %}
+      <tr>
+        <td>{{ rule.name }}</td>
+        <td>{{ rule.clause }}</td>
+        <td>{{ rule.duration }}</td>
+        <td>{{ rule.labels }}</td>
+        <td>{{ rule.annotations }}</td>
+        <td>{{ rule.service }}</td>
+      </tr>
+{% endfor %}
+    </table>
+</div>
+
+{% endblock %}
