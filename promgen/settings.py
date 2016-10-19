@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'olama(t83*sqscqkm(km2=6)64@w$=2@up-fnyz+i#z&^q=+3+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.path.exists(os.path.expanduser('~/.config/promgen/DEBUG'))
 
 ALLOWED_HOSTS = []
 
