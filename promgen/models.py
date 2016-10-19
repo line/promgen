@@ -1,7 +1,9 @@
 from __future__ import unicode_literals
 
 import datetime
+import json
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -77,6 +79,15 @@ class Exporter(models.Model):
     unique_together = ('port', 'path', 'project')
 
 
+def validate_json_or_empty(value):
+    if value == '':
+        return
+    try:
+        json.loads(value)
+    except:
+        raise ValidationError('Requires json value')
+
+
 class Rule(models.Model):
     name = models.CharField(max_length=128, unique=True)
     clause = models.CharField(max_length=128)
@@ -85,8 +96,8 @@ class Rule(models.Model):
         ('1m', '1m'),
         ('5m', '5m'),
     ])
-    labels = models.CharField(max_length=128)
-    annotations = models.CharField(max_length=128)
+    labels = models.TextField(validators=[validate_json_or_empty])
+    annotations = models.TextField(validators=[validate_json_or_empty])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
 
 
