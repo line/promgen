@@ -7,7 +7,11 @@ from promgen import models
 
 
 class ServiceList(ListView):
-    model = models.Service
+    queryset = models.Service.objects\
+        .prefetch_related(
+            'project_set',
+            'project_set__farm',
+            'project_set__exporter_set')
 
 
 class HostList(ListView):
