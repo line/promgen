@@ -176,6 +176,16 @@ class RegisterProject(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
+class RegisterService(FormView):
+    model = models.Service
+    template_name = 'promgen/service_form.html'
+    form_class = forms.ProjectForm
+
+    def form_valid(self, form):
+        service, _ = models.Service.objects.get_or_create(**form.clean())
+        return HttpResponseRedirect(reverse('service-detail', args=[service.id]))
+
+
 class ApiConfig(View):
     def get(self, request):
         data = []
