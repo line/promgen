@@ -1,7 +1,7 @@
 import json
 import logging
 
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView, View
@@ -267,27 +267,7 @@ class RegisterHost(FormView):
 
 class ApiConfig(View):
     def get(self, request):
-        data = []
-        for exporter in models.Exporter.objects.all():
-            labels = {
-                'project': exporter.project.name,
-                'service': exporter.project.service.name,
-                'farm': exporter.project.farm.name,
-                'job': exporter.job,
-            }
-            if exporter.path:
-                labels['__metrics_path__'] = exporter.path
-
-            hosts = []
-            for host in models.Host.objects.filter(farm=exporter.project.farm):
-                hosts.append('{}:{}'.format(host.name, exporter.port))
-
-            data.append({
-                'labels': labels,
-                'targets': hosts,
-            })
-
-        return JsonResponse(data, safe=False)
+        return HttpResponse(prometheus.render_config(), content_type='application/json')
 
 
 class RulesConfig(View):

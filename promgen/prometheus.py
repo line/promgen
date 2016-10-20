@@ -1,3 +1,4 @@
+import json
 import logging
 import subprocess
 import tempfile
@@ -25,3 +26,29 @@ def check_rules(rules):
 
 def render_rules():
     return render_to_string('promgen/rules.txt', {'rules': models.Rule.objects.all()})
+
+
+def render_config():
+    data = []
+    for exporter in models.Exporter.objects.all():
+        if not exporter.project.farm:
+            continue
+
+        labels = {
+            'project': exporter.project.name,
+            'service': exporter.project.service.name,
+            'farm': exporter.project.farm.name,
+            'job': exporter.job,
+        }
+        if exporter.path:
+            labels['__metrics_path__'] = exporter.path
+
+        hosts = []
+        for host in models.Host.objects.filter(farm=exporter.project.farm):
+            hosts.append('{}:{}'.format(host.name, exporter.port))
+
+        data.append({
+            'labels': labels,
+            'targets': hosts,
+        })
+    return json.dumps(data, indent=2, sort_keys=True)
