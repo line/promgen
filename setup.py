@@ -6,6 +6,7 @@ setup(
     packages=find_packages(exclude=['test']),
     install_requires=[
         'Django',
+        'pyyaml',
         'requests',
     ],
     entry_points={

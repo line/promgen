@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import yaml
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +25,13 @@ SECRET_KEY = 'olama(t83*sqscqkm(km2=6)64@w$=2@up-fnyz+i#z&^q=+3+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.path.exists(os.path.expanduser('~/.config/promgen/DEBUG'))
+PROMGEN_CONFIG = os.path.expanduser('~/.config/promgen/settings.yaml')
+
+if os.path.exists(PROMGEN_CONFIG):
+    with open(PROMGEN_CONFIG) as fp:
+        PROMGEN = yaml.load(fp)
+else:
+    PROMGEN = {}
 
 ALLOWED_HOSTS = ['*']
 
