@@ -290,6 +290,14 @@ class ApiConfig(View):
         return JsonResponse(data, safe=False)
 
 
+class RulesConfig(View):
+    def get(self, request):
+        context ={
+            'rules': models.Rule.objects.all()
+        }
+        return render(request, 'promgen/rules.txt', context, content_type='text/plain')
+
+
 class Alert(View):
     def post(self, request, *args, **kwargs):
         body = json.loads(request.body.decode('utf-8'))

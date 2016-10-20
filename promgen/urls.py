@@ -49,7 +49,9 @@ urlpatterns = [
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
 
 
-    url(r'^api/v1/config', views.ApiConfig.as_view()),
+    url(r'^api/v1/config', views.ApiConfig.as_view(), name='config-targets'),
+    url(r'^api/v1/rules', views.RulesConfig.as_view(), name='config-rules'),
+
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
 

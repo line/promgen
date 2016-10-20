@@ -30,7 +30,8 @@
                         <li><a href="{% url 'rules-list' %}">Rules</a></li>
                         <li><a href="/">Status</a></li>
                         <li><a href="{% url 'audit-list' %}">Log</a></li>
-                        <li><a href="/api">Api</a></li>
+                        <li><a href="{% url 'config-targets' %}">Target</a></li>
+                        <li><a href="{% url 'config-rules' %}">Rules</a></li>
 
                         {% for header, links in subnav.items %}
                         <li class="dropown">

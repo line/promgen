@@ -1,0 +1,8 @@
+{% load promgen %}{% autoescape off %}{% for rule in rules %}ALERT {{ rule.name }}
+  IF {{ rule.clause }}
+  FOR {{ rule.duration}}
+{% if rule.labels %}  LABELS {{ rule.labels|json_to_prom }}
+{% endif %}{% if rule.annotations %}  ANNOTATIONS {{ rule.annotations|json_to_prom }}
+{% endif %}
+{% endfor %}
+{% endautoescape %}
