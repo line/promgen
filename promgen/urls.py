@@ -42,6 +42,7 @@ urlpatterns = [
 
     url(r'^farm/(?P<pk>[0-9]+)/$', views.FarmRefresh.as_view(), name='farm-refresh'),
     url(r'^farm/(?P<pk>[0-9]+)/hosts$', views.RegisterHost.as_view(), name='hosts-add'),
+    url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),

@@ -67,6 +67,13 @@ class RuleDelete(DeleteView):
         return reverse('service-rules', args=[self.object.service_id])
 
 
+class HostDelete(DeleteView):
+    model = models.Host
+
+    def get_success_url(self):
+        return reverse('project-detail', args=[self.object.farm.project_set.first().id])
+
+
 class ProjectDetail(DetailView):
     model = models.Project
 
@@ -243,10 +250,14 @@ class RegisterHost(FormView):
 
     def form_valid(self, form):
         farm = get_object_or_404(models.Farm, id=self.kwargs['pk'])
-        for hostname in form.clean()['hosts'].strip().split('\n'):
+        for hostname in form.clean()['hosts'].split('\n'):
+            hostname = hostname.strip()
+            if hostname == '':
+                continue
+
             host, created = models.Host.objects.get_or_create(
                 name=hostname,
-                farm=farm,
+                farm_id=farm.id,
             )
             if created:
                 logger.debug('Added %s to %s', host.name, farm.name)

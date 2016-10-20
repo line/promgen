@@ -89,16 +89,17 @@
     <table class="table">
       <tr>
         <th>Name</th>
-      {% if project.farm.source == 'DB' %}
+      {% if project.farm.source == 'default' %}
         <th>&nbsp;</th>
       {% endif %}
       </tr>
     {% for host in project.farm.host_set.all %}
       <tr>
         <td>{{ host.name }}</td>
-        {% if project.farm.source == 'DB' %}
+        {% if project.farm.source == 'default' %}
         <td>
-          <form method="post" action="{% url 'project-detail' project.id %}" onsubmit="return confirm('Really delete this host?');">
+          <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
+            {% csrf_token %}
           <button name="delete" type="submit" class="btn btn-danger">Delete</button>
           </form>
         </td>
