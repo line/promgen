@@ -176,6 +176,25 @@ class RegisterProject(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
+class RegisterRule(FormView):
+    model = models.Rule
+    template_name = 'promgen/rule_form.html'
+    form_class = forms.RuleForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RegisterRule, self).get_context_data(**kwargs)
+        if 'pk' in self.kwargs:
+            context['service'] = \
+                get_object_or_404(models.Service, id=self.kwargs['pk'])
+
+        return context
+
+    def form_valid(self, form):
+        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        rule, _ = models.Rule.objects.get_or_create(service=service, **form.clean())
+        return HttpResponseRedirect(reverse('service-rules', args=[service.id]))
+
+
 class RegisterService(FormView):
     model = models.Service
     template_name = 'promgen/service_form.html'

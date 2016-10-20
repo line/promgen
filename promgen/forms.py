@@ -1,5 +1,7 @@
 from django import forms
 
+from promgen import models
+
 
 class ExporterForm(forms.Form):
     job = forms.CharField()
@@ -11,3 +13,11 @@ class ExporterForm(forms.Form):
 class ProjectForm(forms.Form):
     name = forms.CharField()
     service_id = forms.HiddenInput()
+
+
+class RuleForm(forms.ModelForm):
+    #name = forms.CharField()
+    #service_id = forms.HiddenInput()
+    class Meta:
+        model = models.Rule
+        exclude = ['service']
