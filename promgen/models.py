@@ -139,6 +139,7 @@ def write_rules(sender, instance, **kwargs):
     from promgen import prometheus
     prometheus.check_rules([instance])
     prometheus.write_rules()
+    prometheus.reload_prometheus()
 
 
 @receiver(post_save)
@@ -146,3 +147,4 @@ def write_config(sender, instance, **kwargs):
     if sender in [Exporter, Host, Farm, Project]:
         from promgen import prometheus
         prometheus.write_config()
+        prometheus.reload_prometheus()

@@ -3,6 +3,7 @@ import logging
 import subprocess
 import tempfile
 
+import requests
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -62,3 +63,8 @@ def write_config():
 def write_rules():
     with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+b') as fp:
         fp.write(render_config())
+
+
+def reload_prometheus():
+    response = requests.post('{}/-/reload'.format(settings.PROMGEN['prometheus']['url']))
+    response.raise_for_status()
