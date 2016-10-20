@@ -15,7 +15,7 @@
 {% for project in service.project_set.all %}
   <tr>
     <td><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td>
-    <td>{{ project.farm }}</td>
+    <td>{% if project.farm %}{{ project.farm }}{% endif %}</td>
     <td>
       <table style="width: 100%">
 {% for exporter in project.exporter_set.all %}

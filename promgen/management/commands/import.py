@@ -23,16 +23,17 @@ class Command(BaseCommand):
             project, _ = models.Project.objects.get_or_create(
                 name=entry['labels']['project'],
                 service=service,
-                defaults={
-                    'farm': farm,
-                }
+                defaults={'farm': farm,}
             )
+            if not project.farm:
+                project.farm = farm
+                project.save()
 
             for target in entry['targets']:
                 target, port = target.split(':')
                 host, _ = models.Host.objects.get_or_create(
                     name=target,
-                    defaults={'farm': farm}
+                    farm_id=farm.id,
                 )
 
             exporter = models.Exporter.objects.get_or_create(

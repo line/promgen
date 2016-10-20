@@ -64,7 +64,7 @@ class Farm(models.Model):
                     yield farm
 
     def __str__(self):
-        return self.name
+        return '{} ({})'.format(self.name, self.source)
 
 
 class Host(models.Model):
