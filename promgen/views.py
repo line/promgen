@@ -3,9 +3,10 @@ import logging
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.edit import DeleteView
 from pkg_resources import working_set
 
 from promgen import models
@@ -38,6 +39,11 @@ class ServiceDetail(DetailView):
             'project_set__farm',
             'project_set__exporter_set',
             'project_set__sender_set')
+
+
+class ServiceDelete(DeleteView):
+    model = models.Service
+    success_url = reverse_lazy('service-list')
 
 
 class ProjectDetail(DetailView):
