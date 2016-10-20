@@ -27,7 +27,8 @@ class HostList(ListView):
 
 
 class AuditList(ListView):
-    model = models.Audit
+    queryset = models.Audit.objects.order_by('-created')
+    paginate_by = 50
 
 
 class ServiceDetail(DetailView):
