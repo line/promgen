@@ -78,6 +78,7 @@ class UnlinkFarm(View):
         project.save()
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
+
 class RulesList(ListView):
     model = models.Rule
 
@@ -112,14 +113,22 @@ class FarmNew(View):
 class FarmLink(View):
     def get(self, request, pk, source):
         context = {
+            'source': source,
             'project': get_object_or_404(models.Project, id=pk),
-            'farms': models.Farm.objects.filter(source=source),
+            'farms': models.Farm.fetch(source=source),
         }
         return render(request, 'promgen/link_farm.html', context)
 
     def post(self, request, pk, source):
         project = get_object_or_404(models.Project, id=pk)
-        project.farm_id = request.POST['farm_id']
+        farm, created = models.Farm.objects.get_or_create(
+            name=request.POST['farm'],
+            source=source,
+        )
+        if created:
+            logger.info('Importing %s from %s', farm.name, source)
+            farm.refresh()
+        project.farm = farm
         project.save()
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 

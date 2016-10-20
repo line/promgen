@@ -14,10 +14,10 @@
 
 {% for farm in farms %}
 
-<form action="{% url 'farm-link' project.id farm.source %}" method="post">
+<form action="{% url 'farm-link' project.id source %}" method="post">
     {% csrf_token %}
-    <input type="hidden" name="farm_id" value="{{ farm.id }}" />
-    <button type="submit" class="btn btn-danger" />{{ farm.name }}</button>
+    <input type="hidden" name="farm" value="{{ farm }}" />
+    <button type="submit" class="btn btn-danger" />{{ farm }}</button>
 </form>
 
 {% endfor %}

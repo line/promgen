@@ -56,6 +56,14 @@ class Farm(models.Model):
             remove = Host.objects.get(farm=self, name__in=remaining)
             remove.delete()
 
+    @classmethod
+    def fetch(cls, source):
+        for entry in working_set.iter_entry_points('promgen.server'):
+            if entry.name == source:
+                for farm in entry.load().farms():
+                    yield farm
+
+
     def __str__(self):
         return self.name
 
