@@ -9,7 +9,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 from pkg_resources import working_set
 
-from promgen import forms, models
+from promgen import forms, models, prometheus
 
 logger = logging.getLogger(__name__)
 
@@ -292,10 +292,7 @@ class ApiConfig(View):
 
 class RulesConfig(View):
     def get(self, request):
-        context ={
-            'rules': models.Rule.objects.all()
-        }
-        return render(request, 'promgen/rules.txt', context, content_type='text/plain')
+        return HttpResponse(prometheus.render_rules(), content_type='text/plain')
 
 
 class Alert(View):
