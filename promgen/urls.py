@@ -40,7 +40,12 @@ urlpatterns = [
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
     url(r'^farm/(?P<pk>[0-9]+)/$', views.FarmRefresh.as_view(), name='farm-refresh'),
+
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
+    url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
+    url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
+
+
     url(r'^api/v1/config', views.ApiConfig.as_view()),
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),

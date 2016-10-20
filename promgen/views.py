@@ -60,6 +60,13 @@ class ExporterDelete(DeleteView):
         return reverse('project-detail', args=[self.object.project_id])
 
 
+class RuleDelete(DeleteView):
+    model = models.Rule
+
+    def get_success_url(self):
+        return reverse('service-rules', args=[self.object.service_id])
+
+
 class ProjectDetail(DetailView):
     model = models.Project
 
@@ -107,6 +114,10 @@ class FarmRefresh(SingleObjectMixin, View):
 
 
 class FarmNew(View):
+    pass
+
+
+class RuleUpdate(View):
     pass
 
 

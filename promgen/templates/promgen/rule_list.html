@@ -18,7 +18,12 @@
           <th>Duration</th>
           <th>Labels</th>
           <th>Annotations</th>
+          {% if service %}
+          <th>&nbsp;</th>
+          <th>&nbsp;</th>
+          {% else %}
           <th>Service</th>
+          {% endif %}
         </tr>
       </thead>
 {% for rule in rule_list %}
@@ -28,7 +33,16 @@
         <td>{{ rule.duration }}</td>
         <td>{{ rule.labels }}</td>
         <td>{{ rule.annotations }}</td>
+        {% if service %}
+        <td><a href="{% url 'rule-edit' rule.id %}" class="btn btn-primary">Edit</a></td>
+        <td><form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('Delete this rule?')" style="display: inline">
+          {% csrf_token %}
+          <button class="btn btn-danger">Delete</button>
+        </form>
+      </td>
+        {% else %}
         <td><a href="{% url 'service-rules' rule.service.id %}">{{ rule.service }}</a></td>
+        {% endif %}
       </tr>
 {% endfor %}
     </table>
