@@ -23,7 +23,9 @@ class Command(BaseCommand):
             project, _ = models.Project.objects.get_or_create(
                 name=entry['labels']['project'],
                 service=service,
-                farm=farm,
+                defaults={
+                    'farm': farm,
+                }
             )
 
             for target in entry['targets']:
