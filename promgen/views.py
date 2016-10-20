@@ -157,6 +157,25 @@ class RegisterExporter(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
+class RegisterProject(FormView):
+    model = models.Project
+    template_name = 'promgen/project_form.html'
+    form_class = forms.ProjectForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RegisterProject, self).get_context_data(**kwargs)
+        if 'pk' in self.kwargs:
+            context['service'] = \
+                get_object_or_404(models.Service, id=self.kwargs['pk'])
+
+        return context
+
+    def form_valid(self, form):
+        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        project, _ = models.Project.objects.get_or_create(service=service, **form.clean())
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+
+
 class ApiConfig(View):
     def get(self, request):
         data = []
