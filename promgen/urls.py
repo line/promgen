@@ -39,7 +39,9 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.RegisterExporter.as_view(), name='project-exporter'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
+
     url(r'^farm/(?P<pk>[0-9]+)/$', views.FarmRefresh.as_view(), name='farm-refresh'),
+    url(r'^farm/(?P<pk>[0-9]+)/hosts$', views.RegisterHost.as_view(), name='hosts-add'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),

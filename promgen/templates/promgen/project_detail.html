@@ -109,7 +109,7 @@
 
     <div class="panel-footer">
   {% if project.farm.source == 'default' %}
-      <a href="{% url 'project-detail' project.id %}" class="btn btn-primary">Add new host</a>
+      <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">Add new host</a>
       <a href="{% url 'project-detail' project.id %}" class="btn btn-primary">Edit farm info</a>
       <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
         {% csrf_token %}

@@ -25,3 +25,7 @@ class FarmForm(forms.ModelForm):
     class Meta:
         model = models.Farm
         exclude = ['source']
+
+
+class HostForm(forms.Form):
+    hosts = forms.CharField(widget=forms.Textarea)

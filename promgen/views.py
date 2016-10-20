@@ -230,6 +230,30 @@ class RegisterFarm(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
+class RegisterHost(FormView):
+    model = models.Host
+    template_name = 'promgen/host_form.html'
+    form_class = forms.HostForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RegisterHost, self).get_context_data(**kwargs)
+        context['farm'] = get_object_or_404(models.Farm, id=self.kwargs['pk'])
+        context['project'] = context['farm'].project_set.first()
+        return context
+
+    def form_valid(self, form):
+        farm = get_object_or_404(models.Farm, id=self.kwargs['pk'])
+        for hostname in form.clean()['hosts'].strip().split('\n'):
+            host, created = models.Host.objects.get_or_create(
+                name=hostname,
+                farm=farm,
+            )
+            if created:
+                logger.debug('Added %s to %s', host.name, farm.name)
+
+        return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
+
+
 class ApiConfig(View):
     def get(self, request):
         data = []
