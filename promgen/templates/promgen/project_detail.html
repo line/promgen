@@ -77,7 +77,7 @@
     {% endfor %}
     </table>
     <div class="panel-footer">
-      <a href="{% url 'project-detail' project.id %}" class="btn btn-default">Register Exporter</a>
+      <a href="{% url 'project-exporter' project.id %}" class="btn btn-default">Register Exporter</a>
     </div>
   </div>
 </div>
@@ -111,14 +111,18 @@
   {% if project.farm.source == 'DB' %}
       <a href="{% url 'project-detail' project.id %}" class="btn btn-primary">Add new host</a>
       <a href="{% url 'project-detail' project.id %}" class="btn btn-primary">Edit farm info</a>
+  {% elif project.farm %}
+      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Unlink Farm</button>
+      </form>
+      <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning">Refresh Farm</button>
+      </form>
   {% else %}
-
-    <form method="post" action="{% url 'project-detail' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
-      <button type="submit" class="btn btn-danger">Unlink Farm</button>
-    </form>
-    <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
-      <button type="submit" class="btn btn-warning">Refresh Farm</button>
-    </form>
+      <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">New Farm</a>
+      <a href="{% url 'farm-link' project.id %}" class="btn btn-primary">Link Farm</a>
   {% endif %}
     </div>
   </div>

@@ -29,14 +29,21 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/delete$', views.ServiceDelete.as_view(), name='service-delete'),
     url(r'^service/(?P<pk>[0-9]+)/rules$', views.RulesList.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RulesList.as_view(), name='service-rules-new'),
+
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),
+    url(r'^project/(?P<pk>[0-9]+)/unlink$', views.UnlinkFarm.as_view(), name='farm-unlink'),
+    url(r'^project/(?P<pk>[0-9]+)/link$', views.FarmLink.as_view(), name='farm-link'),
+    url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.FarmNew.as_view(), name='farm-new'),
+    url(r'^project/(?P<pk>[0-9]+)/exporter$', views.FarmNew.as_view(), name='project-exporter'),
+
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
-    url(r'^farm/(?P<pk>[0-9]+)/$', csrf_exempt(views.FarmRefresh.as_view()), name='farm-refresh'),
+    url(r'^farm/(?P<pk>[0-9]+)/$', views.FarmRefresh.as_view(), name='farm-refresh'),
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^api/v1/config', views.ApiConfig.as_view()),
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
+
     url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
 ]
 

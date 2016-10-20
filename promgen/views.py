@@ -64,6 +64,13 @@ class ProjectDetail(DetailView):
     model = models.Project
 
 
+class UnlinkFarm(View):
+    def post(self, request, pk):
+        project = get_object_or_404(models.Project, id=pk)
+        project.farm = None
+        project.save()
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+
 class RulesList(ListView):
     model = models.Rule
 
@@ -89,6 +96,18 @@ class FarmRefresh(SingleObjectMixin, View):
         project = self.object.project_set.get()
         models.Audit.log('Refreshed Farm')
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+
+
+class FarmNew(View):
+    pass
+
+
+class FarmLink(View):
+    pass
+
+
+class RegisterExporter(View):
+    pass
 
 
 class ApiConfig(View):
