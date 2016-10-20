@@ -52,3 +52,13 @@ def render_config():
             'targets': hosts,
         })
     return json.dumps(data, indent=2, sort_keys=True)
+
+
+def write_config():
+    with open(settings.PROMGEN['config_writer']['path'], 'w+b') as fp:
+        fp.write(render_config())
+
+
+def write_rules():
+    with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+b') as fp:
+        fp.write(render_config())

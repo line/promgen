@@ -10,6 +10,7 @@ from django.dispatch import receiver
 from pkg_resources import working_set
 
 
+
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
@@ -131,3 +132,10 @@ def my_handler(sender, instance, created, **kwargs):
             Audit.log('Updating instance of %s' % instance)
         else:
             Audit.log('Created instance of %s' % instance)
+
+
+@receiver(post_save, sender=Rule)
+def write_rules(sender, instance, **kwargs):
+    from promgen import prometheus
+    prometheus.check_rules([instance])
+    prometheus.write_rules()
