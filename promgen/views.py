@@ -113,10 +113,6 @@ class FarmRefresh(SingleObjectMixin, View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class FarmNew(View):
-    pass
-
-
 class RuleUpdate(View):
     pass
 
@@ -214,6 +210,24 @@ class RegisterService(FormView):
     def form_valid(self, form):
         service, _ = models.Service.objects.get_or_create(**form.clean())
         return HttpResponseRedirect(reverse('service-detail', args=[service.id]))
+
+
+class RegisterFarm(FormView):
+    model = models.Farm
+    template_name = 'promgen/farm_form.html'
+    form_class = forms.FarmForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RegisterFarm, self).get_context_data(**kwargs)
+        context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        project = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        farm, _ = models.Farm.objects.get_or_create(source='default', **form.clean())
+        project.farm = farm
+        project.save()
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
 class ApiConfig(View):

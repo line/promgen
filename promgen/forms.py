@@ -16,8 +16,12 @@ class ProjectForm(forms.Form):
 
 
 class RuleForm(forms.ModelForm):
-    #name = forms.CharField()
-    #service_id = forms.HiddenInput()
     class Meta:
         model = models.Rule
         exclude = ['service']
+
+
+class FarmForm(forms.ModelForm):
+    class Meta:
+        model = models.Farm
+        exclude = ['source']
