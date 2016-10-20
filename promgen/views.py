@@ -6,7 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import DeleteView
+from django.views.generic.edit import DeleteView, FormView, CreateView
+from promgen import forms
 from pkg_resources import working_set
 
 from promgen import models
@@ -106,8 +107,30 @@ class FarmLink(View):
     pass
 
 
-class RegisterExporter(View):
-    pass
+class RegisterExporter(FormView):
+    model = models.Exporter
+    template_name = 'promgen/exporter_form.html'
+    form_class = forms.ExporterForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RegisterExporter, self).get_context_data(**kwargs)
+        if 'pk' in self.kwargs:
+            context['project'] = \
+                get_object_or_404(models.Project, id=self.kwargs['pk'])
+
+        context['exporters'] = [
+            ('node', '9100', ''),
+            ('nginx', '9113', ''),
+        ]
+
+        return context
+
+    def form_valid(self, form):
+        project = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        exporter = models.Exporter(**form.clean())
+        exporter.project = project
+        exporter.save()
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
 class ApiConfig(View):
