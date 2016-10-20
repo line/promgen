@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
             farm, _ = models.Farm.objects.get_or_create(
                 name=entry['labels']['farm'],
-                defaults={'source': 'DB'}
+                defaults={'source': 'pmc'}
             )
 
             project, _ = models.Project.objects.get_or_create(

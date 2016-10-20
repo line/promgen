@@ -2,15 +2,14 @@ import json
 import logging
 
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import DeleteView, FormView, CreateView
-from promgen import forms
+from django.views.generic.edit import DeleteView, FormView
 from pkg_resources import working_set
 
-from promgen import models
+from promgen import forms, models
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +63,13 @@ class ExporterDelete(DeleteView):
 class ProjectDetail(DetailView):
     model = models.Project
 
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetail, self).get_context_data(**kwargs)
+        context['sources'] = [
+            entry.name for entry in working_set.iter_entry_points('promgen.server')
+        ]
+        return context
+
 
 class UnlinkFarm(View):
     def post(self, request, pk):
@@ -104,7 +110,18 @@ class FarmNew(View):
 
 
 class FarmLink(View):
-    pass
+    def get(self, request, pk, source):
+        context = {
+            'project': get_object_or_404(models.Project, id=pk),
+            'farms': models.Farm.objects.filter(source=source),
+        }
+        return render(request, 'promgen/link_farm.html', context)
+
+    def post(self, request, pk, source):
+        project = get_object_or_404(models.Project, id=pk)
+        project.farm_id = request.POST['farm_id']
+        project.save()
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
 class RegisterExporter(FormView):
@@ -127,9 +144,7 @@ class RegisterExporter(FormView):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        exporter = models.Exporter(**form.clean())
-        exporter.project = project
-        exporter.save()
+        exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 

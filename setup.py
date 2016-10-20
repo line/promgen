@@ -12,7 +12,9 @@ setup(
         'console_scripts': [
             'promgen = promgen.manage:main',
         ],
-        'promgen.server': [],
+        'promgen.server': [
+            'default = promgen.server',
+        ],
         'promgen.sender': [
             'ikasan = promgen.sender.ikasan',
             'email = promgen.sender.email',

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
+  <li class="active"><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+</ol>
+
+<div class="page-header">
+  <h1>Project: {{ project.name }}</h1>
+</div>
+
+{% for farm in farms %}
+
+<form action="{% url 'farm-link' project.id farm.source %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="farm_id" value="{{ farm.id }}" />
+    <button type="submit" class="btn btn-danger" />{{ farm.name }}</button>
+</form>
+
+{% endfor %}
+
+{% endblock %}

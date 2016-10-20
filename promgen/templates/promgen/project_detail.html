@@ -108,9 +108,13 @@
     </table>
 
     <div class="panel-footer">
-  {% if project.farm.source == 'DB' %}
+  {% if project.farm.source == 'default' %}
       <a href="{% url 'project-detail' project.id %}" class="btn btn-primary">Add new host</a>
       <a href="{% url 'project-detail' project.id %}" class="btn btn-primary">Edit farm info</a>
+      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Unlink Farm</button>
+      </form>
   {% elif project.farm %}
       <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
         {% csrf_token %}
@@ -122,7 +126,9 @@
       </form>
   {% else %}
       <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">New Farm</a>
-      <a href="{% url 'farm-link' project.id %}" class="btn btn-primary">Link Farm</a>
+{% for source in sources %}
+      <a href="{% url 'farm-link' project.id source %}" class="btn btn-primary">Link Farm {{ source }}</a>
+{% endfor %}
   {% endif %}
     </div>
   </div>

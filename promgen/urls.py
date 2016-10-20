@@ -33,7 +33,7 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),
     url(r'^project/(?P<pk>[0-9]+)/unlink$', views.UnlinkFarm.as_view(), name='farm-unlink'),
-    url(r'^project/(?P<pk>[0-9]+)/link$', views.FarmLink.as_view(), name='farm-link'),
+    url(r'^project/(?P<pk>[0-9]+)/link/(?P<source>\w+)$', views.FarmLink.as_view(), name='farm-link'),
     url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.FarmNew.as_view(), name='farm-new'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.RegisterExporter.as_view(), name='project-exporter'),
 
