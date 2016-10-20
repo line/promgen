@@ -64,7 +64,8 @@ class Host(models.Model):
     name = models.CharField(max_length=128)
     farm = models.ForeignKey('Farm', on_delete=models.CASCADE)
 
-    unique_together = ('name', 'farm')
+    class Meta:
+        unique_together = (('name', 'farm'))
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.farm.name)
@@ -76,7 +77,8 @@ class Exporter(models.Model):
     path = models.CharField(max_length=128)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
-    unique_together = ('port', 'path', 'project')
+    class Meta:
+        unique_together = (('job', 'port', 'project'))
 
 
 def validate_json_or_empty(value):
