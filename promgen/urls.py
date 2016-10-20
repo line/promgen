@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/rules$', views.RulesList.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RulesList.as_view(), name='service-rules-new'),
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
+    url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),
     url(r'^farm/(?P<pk>[0-9]+)/$', csrf_exempt(views.FarmRefresh.as_view()), name='farm-refresh'),
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^api/v1/config', views.ApiConfig.as_view()),

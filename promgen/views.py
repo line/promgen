@@ -46,6 +46,11 @@ class ServiceDelete(DeleteView):
     success_url = reverse_lazy('service-list')
 
 
+class ProjectDelete(DeleteView):
+    model = models.Project
+    success_url = reverse_lazy('service-list')
+
+
 class ProjectDetail(DetailView):
     model = models.Project
 
