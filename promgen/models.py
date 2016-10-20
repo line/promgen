@@ -63,7 +63,6 @@ class Farm(models.Model):
                 for farm in entry.load().farms():
                     yield farm
 
-
     def __str__(self):
         return self.name
 
