@@ -68,8 +68,9 @@
         <td>{{ exporter.port }}</td>
         <td>{{ exporter.path }}</td>
         <td>
-          <form method="post" action="{% url 'project-detail' project.id %}" onsubmit="return confirm('Delete this exporter?')">
-            <button type="submit" class="btn btn-danger">Delete</button>
+          <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete</button>
           </form>
         </td>
       </tr>
