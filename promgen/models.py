@@ -127,7 +127,7 @@ class Setting(models.Model):
 
 @receiver(post_save)
 def my_handler(sender, instance, created, **kwargs):
-    if sender is not Audit:
+    if sender in [Exporter, Host, Farm, Project]:
         if created:
             Audit.log('Updating instance of %s' % instance)
         else:
@@ -139,3 +139,10 @@ def write_rules(sender, instance, **kwargs):
     from promgen import prometheus
     prometheus.check_rules([instance])
     prometheus.write_rules()
+
+
+@receiver(post_save)
+def write_config(sender, instance, **kwargs):
+    if sender in [Exporter, Host, Farm, Project]:
+        from promgen import prometheus
+        prometheus.write_config()
