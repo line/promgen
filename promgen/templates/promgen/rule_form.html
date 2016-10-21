@@ -12,9 +12,56 @@
   <li class="active">New Rule</li>
 </ol>
 
+<div class="row">
 <form action="{% url 'rule-new' service.id %}" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-primary">Register Rule</button>
+  <div class="form-group">
+    {{ form.name.errors }}
+    {{ form.name.label_tag }}
+    {{ form.name }}
+  </div>
+  <div class="form-group">
+    {{ form.clause.errors }}
+    {{ form.clause.label_tag }}
+    {{ form.clause }}
+    <p class="help-block">Prometheus query to alert on</p>
+    <p class="help-block">
+      Examples
+      <ul>
+        <li><code>node_load1{service="analysis"} > 5</code></li>
+        <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
+      </ul>
+    </p>
+  </div>
+  <div class="form-group">
+    {{ form.duration.errors }}
+    {{ form.duration.label_tag }}
+    {{ form.duration }}
+    <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
+  </div>
+  <div class="form-group">
+    {{ form.labels.errors }}
+    {{ form.labels.label_tag }}
+    {{ form.labels }}
+    <p class="help-block">
+      Examples
+      <ul>
+        <li><code>{severity="major"}</code></li>
+      </ul>
+    </p>
+  </div>
+  <div class="form-group">
+    {{ form.annotations.errors }}
+    {{ form.annotations.label_tag }}
+    {{ form.annotations }}
+  </div>
+  <p class="help-block">
+    Examples
+    <ul>
+      <li><code>{summary="High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}", description="..."}</code></li>
+    </ul>
+  </p>
+  <button class="btn btn-primary">Register Rule</button>
 </form>
+</div>
 
 {% endblock %}
