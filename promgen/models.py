@@ -5,10 +5,7 @@ import json
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from pkg_resources import working_set
-
 
 
 class Service(models.Model):
@@ -88,6 +85,9 @@ class Exporter(models.Model):
     class Meta:
         unique_together = (('job', 'port', 'project'))
 
+    def __str__(self):
+        return '{}:{}:{} ({})'.format(self.job, self.port, self.path, self.project)
+
 
 def validate_json_or_empty(value):
     if value == '':
@@ -123,28 +123,3 @@ class Audit(models.Model):
 class Setting(models.Model):
     key = models.CharField(max_length=128, primary_key=True)
     value = models.CharField(max_length=128)
-
-
-@receiver(post_save)
-def my_handler(sender, instance, created, **kwargs):
-    if sender in [Exporter, Host, Farm, Project]:
-        if created:
-            Audit.log('Updating instance of %s' % instance)
-        else:
-            Audit.log('Created instance of %s' % instance)
-
-
-@receiver(post_save, sender=Rule)
-def write_rules(sender, instance, **kwargs):
-    from promgen import prometheus
-    prometheus.check_rules([instance])
-    prometheus.write_rules()
-    prometheus.reload_prometheus()
-
-
-@receiver(post_save)
-def write_config(sender, instance, **kwargs):
-    if sender in [Exporter, Host, Farm, Project]:
-        from promgen import prometheus
-        prometheus.write_config()
-        prometheus.reload_prometheus()
