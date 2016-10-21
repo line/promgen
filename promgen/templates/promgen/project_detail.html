@@ -34,9 +34,18 @@
       <tr>
         <th>{{ sender.sender }}</th>
         <td>{% if sender.password %}***{% else %}{{ sender.value }}{% endif %}</td>
+        <td>
+          <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('Delete this Notification?')" style="display: inline">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </table>
+    <div class="panel-footer">
+      <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">Register Sender</a>
+    </div>
   </div>
 </div>
 

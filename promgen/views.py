@@ -54,6 +54,13 @@ class ProjectDelete(DeleteView):
         return reverse('service-detail', args=[self.object.service_id])
 
 
+class SenderDelete(DeleteView):
+    model = models.Sender
+
+    def get_success_url(self):
+        return reverse('project-detail', args=[self.object.project_id])
+
+
 class ExporterDelete(DeleteView):
     model = models.Exporter
 
@@ -237,6 +244,22 @@ class RegisterFarm(FormView):
         farm, _ = models.Farm.objects.get_or_create(source='default', **form.clean())
         project.farm = farm
         project.save()
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+
+
+class RegisterSender(FormView):
+    model = models.Sender
+    template_name = 'promgen/sender_form.html'
+    form_class = forms.SenderForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RegisterSender, self).get_context_data(**kwargs)
+        context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        return context
+
+    def form_valid(self, form):
+        project = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        sender, _ = models.Sender.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
