@@ -39,6 +39,7 @@ class Farm(models.Model):
     def refresh(self):
         remaining = [host.name for host in self.host_set.all()]
         keep = []
+        create = []
 
         for entry in working_set.iter_entry_points('promgen.server'):
             if self.source == entry.name:
@@ -48,11 +49,11 @@ class Farm(models.Model):
                         remaining.remove(host)
                     else:
                         keep.append(host)
+                        create.append(host)
                         Host.objects.create(name=host, farm=self)
 
         if remaining:
-            remove = Host.objects.get(farm=self, name__in=remaining)
-            remove.delete()
+            Host.objects.filter(farm=self, name__in=remaining).delete()
 
     @classmethod
     def fetch(cls, source):
