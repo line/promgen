@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/rules$', views.RulesList.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RegisterRule.as_view(), name='rule-new'),
     url(r'^service/(?P<pk>[0-9]+)/new$', views.RegisterProject.as_view(), name='project-new'),
+    url(r'^service/(?P<pk>[0-9]+)/export$', views.ServiceExport.as_view(), name='service-export'),
 
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),
@@ -37,6 +38,7 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/link/(?P<source>\w+)$', views.FarmLink.as_view(), name='farm-link'),
     url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.RegisterFarm.as_view(), name='farm-new'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.RegisterExporter.as_view(), name='project-exporter'),
+    url(r'^project/(?P<pk>[0-9]+)/export$', views.ProjectExport.as_view(), name='project-export'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
 

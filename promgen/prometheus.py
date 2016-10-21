@@ -29,10 +29,14 @@ def render_rules():
     return render_to_string('promgen/rules.txt', {'rules': models.Rule.objects.all()})
 
 
-def render_config():
+def render_config(service=None, project=None):
     data = []
     for exporter in models.Exporter.objects.all():
         if not exporter.project.farm:
+            continue
+        if service and exporter.project.service.name != service.name:
+            continue
+        if project and exporter.project.name != project.name:
             continue
 
         labels = {

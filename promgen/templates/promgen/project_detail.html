@@ -12,6 +12,7 @@
   <h1>
   Project: {{ project.name }}
     <span class="btn-group" role="group">
+      <a href="{% url 'project-export' project.id %}" class="btn btn-default">Export project</a>
       <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('Delete this project?')" style="display: inline">
         {% csrf_token %}
         <button class="btn btn-danger">Delete project</button>
