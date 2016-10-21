@@ -10,9 +10,10 @@ class ExporterForm(forms.Form):
     project_id = forms.HiddenInput()
 
 
-class ProjectForm(forms.Form):
-    name = forms.CharField()
-    service_id = forms.HiddenInput()
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        exclude = ['service', 'farm']
 
 
 class RuleForm(forms.ModelForm):

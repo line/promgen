@@ -5,7 +5,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
-from django.views.generic import DetailView, ListView, View
+from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 from pkg_resources import working_set
@@ -198,6 +198,17 @@ class RegisterProject(FormView):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         project, _ = models.Project.objects.get_or_create(service=service, **form.clean())
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+
+
+class ProjectUpdate(UpdateView):
+    model = models.Project
+    template_name = 'promgen/project_form.html'
+    form_class = forms.ProjectForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectUpdate, self).get_context_data(**kwargs)
+        context['service'] = self.object.service
+        return context
 
 
 class RegisterRule(FormView):

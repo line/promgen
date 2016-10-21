@@ -5,6 +5,7 @@ import json
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from pkg_resources import working_set
 
 
@@ -19,6 +20,9 @@ class Project(models.Model):
     name = models.CharField(max_length=128, unique=True)
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
+
+    def get_absolute_url(self):
+        return reverse('project-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.service.name)

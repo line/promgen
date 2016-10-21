@@ -17,7 +17,7 @@
 <div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Configuration</div>
-    <a href="{% url 'project-detail' project.id %}" class="btn btn-default">Update project</a>
+    <a href="{% url 'project-update' project.id %}" class="btn btn-default">Update project</a>
     <a href="{% url 'project-export' project.id %}" class="btn btn-default">Export project</a>
     <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('Delete this project?')" style="display: inline">
       {% csrf_token %}
