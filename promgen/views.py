@@ -1,6 +1,7 @@
 import json
 import logging
 
+from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
@@ -158,10 +159,12 @@ class RegisterExporter(FormView):
             context['project'] = \
                 get_object_or_404(models.Project, id=self.kwargs['pk'])
 
-        context['exporters'] = [
-            ('node', '9100', ''),
-            ('nginx', '9113', ''),
-        ]
+        context['exporters'] = settings.PROMGEN.get('default_exporters', {
+            'node': 9100,
+            'nginx': 9113,
+            'mysqld': 9104,
+            'apache': 9117,
+        })
 
         return context
 
