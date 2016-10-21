@@ -30,6 +30,7 @@ class Sender(models.Model):
         (entry.module_name, entry.module_name) for entry in working_set.iter_entry_points('promgen.sender')
     ])
     value = models.CharField(max_length=128)
+    password = models.BooleanField(default=False)
 
 
 class Farm(models.Model):
