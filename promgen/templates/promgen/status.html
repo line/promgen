@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<h1>Promgen Status</h1>
+
+<table>
+  <tr>
+    <td>Remote Plugins</td>
+    <td>
+      <ul>
+{% for remote in remotes %}
+      <li>{{ remote.name }} - {{ remote.module_name }}</li>
+{% endfor %}
+    </td>
+  </tr>
+  <tr>
+    <td>Sender Plugins</td>
+    <td>
+      <ul>
+{% for sender in senders %}
+      <li>{{ sender.name }} - {{ sender.module_name }}</li>
+{% endfor %}
+    </td>
+  </tr>
+</table>
+{% endblock %}

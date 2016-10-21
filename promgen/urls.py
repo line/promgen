@@ -56,6 +56,7 @@ urlpatterns = [
 
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
+    url(r'^status/$', views.Status.as_view(), name='status'),
 
     url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
 ]

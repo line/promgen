@@ -298,3 +298,11 @@ class Alert(View):
             logger.debug('Sending notification to %s', entry.name)
             entry.load().send(body)
         return HttpResponse('OK')
+
+
+class Status(View):
+    def get(self, request):
+        return render(request, 'promgen/status.html', {
+            'remotes': [entry for entry in working_set.iter_entry_points('promgen.server')],
+            'senders': [entry for entry in working_set.iter_entry_points('promgen.sender')],
+        })
