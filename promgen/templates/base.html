@@ -28,26 +28,9 @@
                     <ul class="nav navbar-nav">
                         <li><a href="{% url 'service-list' %}">Services</a></li>
                         <li><a href="{% url 'rules-list' %}">Rules</a></li>
-                        <li><a href="/">Status</a></li>
                         <li><a href="{% url 'audit-list' %}">Log</a></li>
-                        <li><a href="{% url 'config-targets' %}">Target</a></li>
-                        <li><a href="{% url 'config-rules' %}">Rules</a></li>
-
-                        {% for header, links in subnav.items %}
-                        <li class="dropown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ header }} <span class="caret"></span></a>
-                            <ul class="dropdown-menu">
-                            {% for title, link in links %}
-                                {% if title == '-' %}
-                                <li role="separator" class="divider"></li>
-                                {% else %}
-                                <li><a href="{{ link }}">{{ title }}</a></li>
-                                {% endif %}
-                            {% endfor %}
-                            </ul>
-                        </li>
-                        {% endfor %}
-
+                        <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
+                        <li><a href="{% url 'config-rules' %}">Export Rules</a></li>
                         {% if user.is_superuser %}
                         <li><a href="/admin">Admin</a></li>
                         {% endif %}
