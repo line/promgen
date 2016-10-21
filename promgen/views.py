@@ -128,10 +128,6 @@ class FarmRefresh(SingleObjectMixin, View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RuleUpdate(View):
-    pass
-
-
 class FarmLink(View):
     def get(self, request, pk, source):
         context = {
@@ -215,6 +211,20 @@ class ServiceUpdate(UpdateView):
     model = models.Service
     template_name = 'promgen/service_form.html'
     form_class = forms.ServiceForm
+
+
+class RuleUpdate(UpdateView):
+    model = models.Rule
+    template_name = 'promgen/rule_form.html'
+    form_class = forms.RuleForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RuleUpdate, self).get_context_data(**kwargs)
+        context['service'] = self.object.service
+        return context
+
+    def get_success_url(self):
+        return reverse('service-rules', args=[self.object.service_id])
 
 
 class RegisterRule(FormView):

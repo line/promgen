@@ -12,7 +12,7 @@
   <li class="active">New Rule</li>
 </ol>
 
-<form action="{% url 'rule-new' service.id %}" class="input-group" method="post">{% csrf_token %}
+<form action="" class="input-group" method="post">{% csrf_token %}
 <div class="panel panel-default">
   <div class="panel-heading">{{ form.name.label_tag }}</div>
   <div class="panel-body">
@@ -68,7 +68,9 @@
       </ul>
     </div>
   </div>
-  <button class="btn btn-primary">Register Rule</button>
+  <div class="panel-footer">
+    <button class="btn btn-primary">Register Rule</button>
+  </div>
 </div>
 </form>
 
