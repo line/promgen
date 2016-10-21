@@ -62,13 +62,26 @@ def render_config(service=None, project=None):
 def write_config():
     with open(settings.PROMGEN['config_writer']['path'], 'w+b') as fp:
         fp.write(render_config())
+    for target in settings.PROMGEN['config_writer'].get('notify', []):
+        try:
+            requests.post(target).raise_for_status()
+        except Exception, e:
+            logger.error('%s while notifying %s', e, target)
 
 
 def write_rules():
     with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+b') as fp:
         fp.write(render_rules())
+    for target in settings.PROMGEN['rule_writer'].get('notify', []):
+        try:
+            requests.post(target).raise_for_status()
+        except Exception, e:
+            logger.error('%s while notifying %s', e, target)
 
 
 def reload_prometheus():
-    response = requests.post('{}/-/reload'.format(settings.PROMGEN['prometheus']['url']))
-    response.raise_for_status()
+    target = '{}/-/reload'.format(settings.PROMGEN['prometheus']['url'])
+    try:
+        requests.post(target).raise_for_status()
+    except Exception, e:
+        logger.error('%s while notifying %s', e, target)
