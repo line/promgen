@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
     'promgen',
 ]
@@ -128,6 +129,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.expanduser('~/.cache/promgen')
+
+SITE_ID = 1
 
 if DEBUG:
     try:
