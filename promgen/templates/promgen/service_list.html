@@ -2,6 +2,12 @@
 
 {% block content %}
 
+<div class="page-header">
+  <h1>Services</h1>
+  <a href="{% url 'service-new' %}" class="btn btn-primary">New Service</a>
+</div>
+
+
 {% for service in service_list %}
 <div class="panel panel-default">
   <div class="panel-heading"><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></div>
