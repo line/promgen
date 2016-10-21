@@ -3,9 +3,23 @@
 {% block content %}
 
 {% if service %}
+<div class="page-header">
+  <h1>Service: {{ service.name }}</h1>
+</div>
+
 <ol class="breadcrumb">
-  <li><a href="/">Home</a></li>
+  <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
+  <li class="active">List Rules</li>
+</ol>
+{% else %}
+<div class="page-header">
+  <h1>Rules</h1>
+</div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active">List Rules</li>
 </ol>
 {% endif %}
 

@@ -2,31 +2,33 @@
 
 {% block content %}
 
+<div class="page-header">
+  <h1>Project: {{ project.name }}</h1>
+</div>
+
 <ol class="breadcrumb">
-  <li><a href="/">Home</a></li>
+  <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
   <li class="active"><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
 </ol>
-
-<div class="page-header">
-  <h1>
-  Project: {{ project.name }}
-    <span class="btn-group" role="group">
-      <a href="{% url 'project-export' project.id %}" class="btn btn-default">Export project</a>
-      <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('Delete this project?')" style="display: inline">
-        {% csrf_token %}
-        <button class="btn btn-danger">Delete project</button>
-      </form>
-    </span>
-  </h1>
-</div>
-
 
 <div class="row">
 
 <div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Configuration</div>
+    <a href="{% url 'project-detail' project.id %}" class="btn btn-default">Update project</a>
+    <a href="{% url 'project-export' project.id %}" class="btn btn-default">Export project</a>
+    <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('Delete this project?')" style="display: inline">
+      {% csrf_token %}
+      <button class="btn btn-danger">Delete project</button>
+    </form>
+  </div>
+</div>
+
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">Notifications</div>
     <table class="table">
       {% for sender in project.sender_set.all %}
       <tr>
@@ -35,9 +37,6 @@
       </tr>
       {% endfor %}
     </table>
-    <div class="panel-footer">
-      <a href="{% url 'project-detail' project.id %}" class="btn btn-default">Update project</a>
-    </div>
   </div>
   <div class="panel panel-default">
     <div class="panel-heading">LINE Notify Access Token Configuration</div>

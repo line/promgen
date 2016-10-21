@@ -2,8 +2,16 @@
 
 {% block content %}
 
+<div class="page-header">
+  <h1>Service: {{ service.name }}</h1>
+</div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active"><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
+</ol>
+
 <div class="panel panel-default">
-  <div class="panel-heading"><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></div>
   <table class="table table-bordered">
     <tr>
       <th>Project</th>

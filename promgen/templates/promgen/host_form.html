@@ -2,16 +2,16 @@
 
 {% block content %}
 
-<ol class="breadcrumb">
-  <li><a href="/">Home</a></li>
-  <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
-  <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
-  <li class="active"><a href="{% url 'project-detail' project.id %}">{{ farm.name }}</a></li>
-</ol>
-
 <div class="page-header">
   <h1>Farm: {{ farm.name }}</h1>
 </div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
+  <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+  <li class="active">Add hosts to {{ farm.name }}</li>
+</ol>
 
 <form action="{% url 'hosts-add' farm.id %}" method="post">{% csrf_token %}
   <table>
