@@ -211,6 +211,12 @@ class ProjectUpdate(UpdateView):
         return context
 
 
+class ServiceUpdate(UpdateView):
+    model = models.Service
+    template_name = 'promgen/service_form.html'
+    form_class = forms.ServiceForm
+
+
 class RegisterRule(FormView):
     model = models.Rule
     template_name = 'promgen/rule_form.html'

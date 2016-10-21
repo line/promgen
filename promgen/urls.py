@@ -31,6 +31,7 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RegisterRule.as_view(), name='rule-new'),
     url(r'^service/(?P<pk>[0-9]+)/new$', views.RegisterProject.as_view(), name='project-new'),
     url(r'^service/(?P<pk>[0-9]+)/export$', views.ServiceExport.as_view(), name='service-export'),
+    url(r'^service/(?P<pk>[0-9]+)/update$', views.ServiceUpdate.as_view(), name='service-update'),
 
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),

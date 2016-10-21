@@ -10,6 +10,12 @@ class ExporterForm(forms.Form):
     project_id = forms.HiddenInput()
 
 
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = models.Service
+        exclude = []
+
+
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = models.Project

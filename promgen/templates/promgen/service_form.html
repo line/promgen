@@ -11,7 +11,7 @@
   <li class="active">New Service</li>
 </ol>
 
-<form action="{% url 'service-new' %}" method="post">{% csrf_token %}
+<form action="" method="post">{% csrf_token %}
     {{ form.as_p }}
     <button class="btn btn-primary">Register Service</button>
 </form>

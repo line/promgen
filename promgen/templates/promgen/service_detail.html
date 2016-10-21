@@ -48,6 +48,7 @@
   {% endfor %}
   </table>
   <div class="panel-footer">
+    <a href="{% url 'service-update' service.id %}" class="btn btn-primary">Update Project</a>
     <a href="{% url 'project-new' service.id %}" class="btn btn-primary">Register project</a>
     <a href="{% url 'service-rules' service.id %}" class="btn btn-default">Rules</a>
     <a href="{% url 'service-export' service.id %}" class="btn btn-default">Export Service</a>

@@ -12,6 +12,9 @@ from pkg_resources import working_set
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
+    def get_absolute_url(self):
+        return reverse('service-detail', kwargs={'pk': self.pk})
+
     def __str__(self):
         return self.name
 
