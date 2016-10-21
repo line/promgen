@@ -62,7 +62,7 @@ def write_config():
 
 def write_rules():
     with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+b') as fp:
-        fp.write(render_config())
+        fp.write(render_rules())
 
 
 def reload_prometheus():
