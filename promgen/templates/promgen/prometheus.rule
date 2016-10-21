@@ -1,8 +1,9 @@
-{% load promgen %}{% autoescape off %}{% for rule in rules %}ALERT {{ rule.name }}
+{% load promgen %}{% for rule in rules %}# Service: {{ rule.service.name }}
+# Service URL: {% url 'service-detail' rule.service.id %}
+{% autoescape off %}ALERT {{ rule.name }}
   IF {{ rule.clause }}
   FOR {{ rule.duration}}
 {% if rule.labels %}  LABELS {{ rule.labels|tag_service:rule.service|to_prom }}
 {% endif %}{% if rule.annotations %}  ANNOTATIONS {{ rule.annotations|service_url:rule.service|to_prom }}
-{% endif %}
+{% endif %}{% endautoescape %}
 {% endfor %}
-{% endautoescape %}
