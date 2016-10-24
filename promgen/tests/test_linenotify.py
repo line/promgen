@@ -2,7 +2,7 @@ import mock
 from django.test import TestCase, override_settings
 
 from promgen import models
-from promgen.sender.ikasan import send
+from promgen.sender.linenotify import send
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
@@ -15,23 +15,23 @@ Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22
 Alert Manager: https://am.promehteus.localhost'''
 
 
-class IkasanTest(TestCase):
+class LineNotifyTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.sender = models.Sender.objects.create(
             project=self.project,
-            sender='promgen.sender.ikasan',
-            value='#',
+            sender='promgen.sender.linenotify',
+            value='hogehoge',
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('requests.post')
     def test_project(self, mock_post):
         send(TEST_ALERT)
-        mock_post.assert_called_once_with('http://ikasan.example', {
-            'color':'green',
-            'channel': '#',
-            'message':_MESSAGE}
-            )
+        mock_post.assert_called_once_with(
+            'https://notify.example',
+            {'message':_MESSAGE},
+            {'Authorization': u'Bearer hogehoge'},
+        )
