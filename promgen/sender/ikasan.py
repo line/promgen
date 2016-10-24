@@ -1,8 +1,9 @@
 import logging
 
 import requests
+from django.conf import settings
 
-from promgen.models import Project, Setting
+from promgen.models import Project
 
 TEMPLATE = '''
 {alertname} {farm} {instance} {job} {_status}
@@ -18,11 +19,17 @@ Alert Manager: {_alertmanager}
 logger = logging.getLogger(__name__)
 
 
-def _send(channel, message, color):
-    url, _ = Setting.objects.get_or_create(
-        key=__name__,
-        defaults={'value':'http://ikachan.example/notice'}
-    )
+def _send(channel, alert, data, color):
+    url = settings.PROMGEN[__name__]['server']
+
+    context = {
+        '_prometheus': alert['generatorURL'],
+        '_status': alert['status'],
+        '_alertmanager': data['externalURL']
+    }
+    context.update(alert['labels'])
+    context.update(alert['annotations'])
+    message = TEMPLATE.format(**context)
 
     params = {
         'channel': channel,
@@ -31,7 +38,7 @@ def _send(channel, message, color):
 
     if color is not None:
         params['color'] = color
-    requests.post(url.value, params).raise_for_status()
+    requests.post(url, params).raise_for_status()
 
 
 def send(data):
@@ -40,17 +47,7 @@ def send(data):
             logger.debug('Sending %s for %s', __name__, project.name)
             for sender in project.sender_set.filter(sender=__name__):
                 color = 'green' if alert['status'] == 'resolved' else 'red'
-
-                params = {
-                    '_prometheus': alert['generatorURL'],
-                    '_status': alert['status'],
-                    '_alertmanager': data['externalURL']
-                }
-                params.update(alert['labels'])
-                params.update(alert['annotations'])
-                message = TEMPLATE.format(**params)
-
-                _send(sender.value, message, color)
+                _send(sender.value, alert, data, color)
                 break
             else:
                 logger.debug('No senders configured for %s->%s', project,  __name__)
