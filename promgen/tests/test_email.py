@@ -21,15 +21,21 @@ class LineNotifyTest(TestCase):
     def setUp(self):
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
+        self.project2 = models.Project.objects.create(name='Project 2', service=self.service)
         self.sender = models.Sender.objects.create(
             project=self.project,
             sender='promgen.sender.email',
             value='example@example.com',
         )
-        self.sender2 = models.Sender.objects.create(
+        models.Sender.objects.create(
             project=self.project,
             sender='promgen.sender.email',
             value='foo@example.com',
+        )
+        models.Sender.objects.create(
+            project=self.project2,
+            sender='promgen.sender.email',
+            value='bar@example.com',
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
@@ -50,3 +56,5 @@ class LineNotifyTest(TestCase):
                 ['foo@example.com']
             )
         ])
+        # Three senders are registered but only two should trigger
+        self.assertTrue(mock_email.call_count == 2)
