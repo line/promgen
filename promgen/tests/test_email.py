@@ -26,14 +26,27 @@ class LineNotifyTest(TestCase):
             sender='promgen.sender.email',
             value='example@example.com',
         )
+        self.sender2 = models.Sender.objects.create(
+            project=self.project,
+            sender='promgen.sender.email',
+            value='foo@example.com',
+        )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.sender.email.send_mail')
     def test_project(self, mock_email):
         self.assertTrue(send(TEST_ALERT))
-        mock_email.assert_called_once_with(
-            _SUBJECT,
-            _MESSAGE,
-            'promgen@example.com',
-            ['example@example.com']
-        )
+        mock_email.assert_has_calls([
+            mock.call(
+                _SUBJECT,
+                _MESSAGE,
+                'promgen@example.com',
+                ['example@example.com']
+            ),
+            mock.call(
+                _SUBJECT,
+                _MESSAGE,
+                'promgen@example.com',
+                ['foo@example.com']
+            )
+        ])
