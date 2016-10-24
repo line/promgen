@@ -3,7 +3,7 @@ import logging
 import requests
 from django.conf import settings
 
-from promgen.models import Project
+from promgen.models import Sender
 
 TEMPLATE = '''
 {alertname} {farm} {instance} {job} {_status}
@@ -44,13 +44,10 @@ def _send(token, alert, data):
 
 def send(data):
     for alert in data['alerts']:
-        for project in Project.objects.filter(name=alert['labels'].get('project')):
-            logger.debug('Sending %s for %s', __name__, project.name)
-            for sender in project.sender_set.filter(sender=__name__):
-                _send(sender.value, alert, data)
-                break
-            else:
-                logger.debug('No senders configured for %s->%s', project,  __name__)
+        project = alert['labels'].get('project')
+        for sender in Sender.objects.filter(sender=__name__, project__name=project):
+            logger.debug('Sending %s for %s', __name__, project)
+            _send(sender.value, alert, data)
             break
         else:
-            logger.debug('No senders configured for project', )
+            logger.debug('No senders configured for %s->%s', project,  __name__)
