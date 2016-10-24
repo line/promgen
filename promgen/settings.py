@@ -132,6 +132,8 @@ STATIC_ROOT = os.path.expanduser('~/.cache/promgen')
 
 SITE_ID = 1
 
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
 if DEBUG:
     try:
         import debug_toolbar

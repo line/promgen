@@ -9,6 +9,10 @@ setup(
         'pyyaml',
         'requests',
     ],
+    test_requires=[
+        'nose-cov',
+        'django-nose'
+    ]
     entry_points={
         'console_scripts': [
             'promgen = promgen.manage:main',

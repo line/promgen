@@ -1,3 +1,5 @@
+.coverage
+*.egg-info
 *.pyc
 *.sqlite3
-*.egg-info
+dist
