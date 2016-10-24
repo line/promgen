@@ -44,9 +44,12 @@ def _send(address, alert, data):
 def send(data):
     for alert in data['alerts']:
         project = alert['labels'].get('project')
-        for sender in Sender.objects.filter(sender=__name__, project__name=project):
-            logger.debug('Sending %s for %s', __name__, project)
-            _send(sender.value, alert, data)
-            break
+        senders = Sender.objects.filter(sender=__name__, project__name=project)
+        if senders:
+            for sender in senders:
+                logger.debug('Sending %s for %s', __name__, project)
+                _send(sender.value, alert, data)
+            return True
         else:
             logger.debug('No senders configured for %s->%s', project,  __name__)
+            return None

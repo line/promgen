@@ -30,7 +30,7 @@ class LineNotifyTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.sender.email.send_mail')
     def test_project(self, mock_email):
-        send(TEST_ALERT)
+        self.assertTrue(send(TEST_ALERT))
         mock_email.assert_called_once_with(
             _SUBJECT,
             _MESSAGE,

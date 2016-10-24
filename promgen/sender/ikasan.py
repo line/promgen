@@ -44,10 +44,13 @@ def _send(channel, alert, data, color):
 def send(data):
     for alert in data['alerts']:
         project = alert['labels'].get('project')
-        for sender in Sender.objects.filter(sender=__name__, project__name=project):
-            logger.debug('Sending %s for %s', __name__, project)
-            color = 'green' if alert['status'] == 'resolved' else 'red'
-            _send(sender.value, alert, data, color)
-            break
+        senders = Sender.objects.filter(sender=__name__, project__name=project)
+        if senders:
+            for sender in senders:
+                logger.debug('Sending %s for %s', __name__, project)
+                color = 'green' if alert['status'] == 'resolved' else 'red'
+                _send(sender.value, alert, data, color)
+            return True
         else:
             logger.debug('No senders configured for %s->%s', project,  __name__)
+            return None

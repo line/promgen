@@ -29,7 +29,7 @@ class LineNotifyTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('requests.post')
     def test_project(self, mock_post):
-        send(TEST_ALERT)
+        self.assertTrue(send(TEST_ALERT))
         mock_post.assert_called_once_with(
             'https://notify.example',
             {'message':_MESSAGE},
