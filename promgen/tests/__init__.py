@@ -10,5 +10,8 @@ TEST_SETTINGS = {
     },
     'promgen.sender.linenotify': {
         'server': 'https://notify.example'
+    },
+    'promgen.sender.email': {
+        'sender': 'promgen@example.com'
     }
 }
