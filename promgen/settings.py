@@ -11,22 +11,30 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+
+import envdir
 import yaml
+
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_DIR = os.path.expanduser('~/.config/promgen')
 
+if os.path.exists(CONFIG_DIR):
+    envdir.open(CONFIG_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'olama(t83*sqscqkm(km2=6)64@w$=2@up-fnyz+i#z&^q=+3+'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.path.exists(os.path.expanduser('~/.config/promgen/DEBUG'))
-PROMGEN_CONFIG = os.path.expanduser('~/.config/promgen/settings.yaml')
+DEBUG = os.path.exists(os.path.join(CONFIG_DIR, 'DEBUG'))
 
+# Settings for Prometheus paths and such
+PROMGEN_CONFIG = os.path.join(CONFIG_DIR, 'settings.yaml')
 if os.path.exists(PROMGEN_CONFIG):
     with open(PROMGEN_CONFIG) as fp:
         PROMGEN = yaml.load(fp)
@@ -83,12 +91,10 @@ WSGI_APPLICATION = 'promgen.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+DATABASES = {'default': dj_database_url.config(
+    env='DATABASE_URL',
+    default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+)}
 
 
 # Password validation

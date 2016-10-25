@@ -5,7 +5,9 @@ setup(
     author='Paul Traylor',
     packages=find_packages(exclude=['test']),
     install_requires=[
+        'dj_database_url',
         'Django',
+        'envdir',
         'pyyaml',
         'requests',
     ],
