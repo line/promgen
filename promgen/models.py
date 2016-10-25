@@ -127,8 +127,3 @@ class Audit(models.Model):
     @classmethod
     def log(cls, body):
         return cls.objects.create(body=body, created=datetime.datetime.utcnow())
-
-
-class Setting(models.Model):
-    key = models.CharField(max_length=128, primary_key=True)
-    value = models.CharField(max_length=128)

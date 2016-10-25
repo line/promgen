@@ -6,11 +6,6 @@ admin.site.register(models.Service)
 admin.site.register(models.Host)
 
 
-@admin.register(models.Setting)
-class SettingAdmin(admin.ModelAdmin):
-    list_display = ('key', 'value')
-
-
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'service', 'farm')
