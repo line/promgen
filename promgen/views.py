@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import DetailView, ListView, UpdateView, View
+from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 from pkg_resources import working_set
@@ -13,6 +14,20 @@ from pkg_resources import working_set
 from promgen import forms, models, prometheus
 
 logger = logging.getLogger(__name__)
+
+
+class ProjectMixin(ContextMixin):
+    def get_context_data(self, **kwargs):
+        context = super(ProjectMixin, self).get_context_data(**kwargs)
+        context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        return context
+
+
+class ServiceMixin(ContextMixin):
+    def get_context_data(self, **kwargs):
+        context = super(ServiceMixin, self).get_context_data(**kwargs)
+        context['service'] = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        return context
 
 
 class ServiceList(ListView):
@@ -101,7 +116,7 @@ class UnlinkFarm(View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RulesList(ListView):
+class RulesList(ListView, ServiceMixin):
     model = models.Rule
 
     def get_queryset(self):
@@ -109,12 +124,6 @@ class RulesList(ListView):
             self.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
             return models.Rule.objects.filter(service=self.service)
         return models.Rule.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super(RulesList, self).get_context_data(**kwargs)
-        if 'pk' in self.kwargs:
-            context['service'] = self.service
-        return context
 
 
 class FarmRefresh(SingleObjectMixin, View):
@@ -151,17 +160,13 @@ class FarmLink(View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ExporterRegister(FormView):
+class ExporterRegister(FormView, ProjectMixin):
     model = models.Exporter
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
 
     def get_context_data(self, **kwargs):
         context = super(ExporterRegister, self).get_context_data(**kwargs)
-        if 'pk' in self.kwargs:
-            context['project'] = \
-                get_object_or_404(models.Project, id=self.kwargs['pk'])
-
         context['exporters'] = settings.PROMGEN.get('default_exporters', {
             'node': 9100,
             'nginx': 9113,
@@ -177,18 +182,10 @@ class ExporterRegister(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ProjectRegister(FormView):
+class ProjectRegister(FormView, ServiceMixin):
     model = models.Project
     template_name = 'promgen/project_form.html'
     form_class = forms.ProjectForm
-
-    def get_context_data(self, **kwargs):
-        context = super(ProjectRegister, self).get_context_data(**kwargs)
-        if 'pk' in self.kwargs:
-            context['service'] = \
-                get_object_or_404(models.Service, id=self.kwargs['pk'])
-
-        return context
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
@@ -227,18 +224,10 @@ class RuleUpdate(UpdateView):
         return reverse('service-rules', args=[self.object.service_id])
 
 
-class RuleRegister(FormView):
+class RuleRegister(FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
-
-    def get_context_data(self, **kwargs):
-        context = super(RuleRegister, self).get_context_data(**kwargs)
-        if 'pk' in self.kwargs:
-            context['service'] = \
-                get_object_or_404(models.Service, id=self.kwargs['pk'])
-
-        return context
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
@@ -256,15 +245,10 @@ class ServiceRegister(FormView):
         return HttpResponseRedirect(reverse('service-detail', args=[service.id]))
 
 
-class FarmRegsiter(FormView):
+class FarmRegsiter(FormView, ProjectMixin):
     model = models.Farm
     template_name = 'promgen/farm_form.html'
     form_class = forms.FarmForm
-
-    def get_context_data(self, **kwargs):
-        context = super(FarmRegsiter, self).get_context_data(**kwargs)
-        context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        return context
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
@@ -274,15 +258,10 @@ class FarmRegsiter(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class SenderRegister(FormView):
+class SenderRegister(FormView, ProjectMixin):
     model = models.Sender
     template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm
-
-    def get_context_data(self, **kwargs):
-        context = super(SenderRegister, self).get_context_data(**kwargs)
-        context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        return context
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
