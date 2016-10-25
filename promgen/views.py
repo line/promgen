@@ -151,13 +151,13 @@ class FarmLink(View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RegisterExporter(FormView):
+class ExporterRegister(FormView):
     model = models.Exporter
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
 
     def get_context_data(self, **kwargs):
-        context = super(RegisterExporter, self).get_context_data(**kwargs)
+        context = super(ExporterRegister, self).get_context_data(**kwargs)
         if 'pk' in self.kwargs:
             context['project'] = \
                 get_object_or_404(models.Project, id=self.kwargs['pk'])
@@ -177,13 +177,13 @@ class RegisterExporter(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RegisterProject(FormView):
+class ProjectRegister(FormView):
     model = models.Project
     template_name = 'promgen/project_form.html'
     form_class = forms.ProjectForm
 
     def get_context_data(self, **kwargs):
-        context = super(RegisterProject, self).get_context_data(**kwargs)
+        context = super(ProjectRegister, self).get_context_data(**kwargs)
         if 'pk' in self.kwargs:
             context['service'] = \
                 get_object_or_404(models.Service, id=self.kwargs['pk'])
@@ -227,13 +227,13 @@ class RuleUpdate(UpdateView):
         return reverse('service-rules', args=[self.object.service_id])
 
 
-class RegisterRule(FormView):
+class RuleRegister(FormView):
     model = models.Rule
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
 
     def get_context_data(self, **kwargs):
-        context = super(RegisterRule, self).get_context_data(**kwargs)
+        context = super(RuleRegister, self).get_context_data(**kwargs)
         if 'pk' in self.kwargs:
             context['service'] = \
                 get_object_or_404(models.Service, id=self.kwargs['pk'])
@@ -246,7 +246,7 @@ class RegisterRule(FormView):
         return HttpResponseRedirect(reverse('service-rules', args=[service.id]))
 
 
-class RegisterService(FormView):
+class ServiceRegister(FormView):
     model = models.Service
     template_name = 'promgen/service_form.html'
     form_class = forms.ProjectForm
@@ -256,13 +256,13 @@ class RegisterService(FormView):
         return HttpResponseRedirect(reverse('service-detail', args=[service.id]))
 
 
-class RegisterFarm(FormView):
+class FarmRegsiter(FormView):
     model = models.Farm
     template_name = 'promgen/farm_form.html'
     form_class = forms.FarmForm
 
     def get_context_data(self, **kwargs):
-        context = super(RegisterFarm, self).get_context_data(**kwargs)
+        context = super(FarmRegsiter, self).get_context_data(**kwargs)
         context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
         return context
 
@@ -274,13 +274,13 @@ class RegisterFarm(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RegisterSender(FormView):
+class SenderRegister(FormView):
     model = models.Sender
     template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm
 
     def get_context_data(self, **kwargs):
-        context = super(RegisterSender, self).get_context_data(**kwargs)
+        context = super(SenderRegister, self).get_context_data(**kwargs)
         context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
         return context
 
@@ -290,13 +290,13 @@ class RegisterSender(FormView):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RegisterHost(FormView):
+class HostRegister(FormView):
     model = models.Host
     template_name = 'promgen/host_form.html'
     form_class = forms.HostForm
 
     def get_context_data(self, **kwargs):
-        context = super(RegisterHost, self).get_context_data(**kwargs)
+        context = super(HostRegister, self).get_context_data(**kwargs)
         context['farm'] = get_object_or_404(models.Farm, id=self.kwargs['pk'])
         context['project'] = context['farm'].project_set.first()
         return context
