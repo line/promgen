@@ -1,3 +1,10 @@
+'''
+Simple webhook bridge
+
+Accepts alert json from Alert Manager and then POSTs individual alerts to
+configured webhook destinations
+'''
+
 import logging
 import requests
 from promgen.models import Sender

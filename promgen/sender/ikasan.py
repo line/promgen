@@ -1,3 +1,9 @@
+'''
+Ikasan Hipchat bridge
+
+https://github.com/studio3104/ikasan
+'''
+
 import logging
 
 import requests
