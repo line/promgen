@@ -31,7 +31,7 @@ class IkasanTest(TestCase):
     def test_project(self, mock_post):
         self.assertTrue(send(TEST_ALERT))
         mock_post.assert_called_once_with('http://ikasan.example', {
-            'color':'green',
+            'color': 'green',
             'channel': '#',
-            'message':_MESSAGE}
-            )
+            'message': _MESSAGE}
+        )

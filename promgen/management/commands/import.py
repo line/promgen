@@ -23,7 +23,7 @@ class Command(BaseCommand):
             project, _ = models.Project.objects.get_or_create(
                 name=entry['labels']['project'],
                 service=service,
-                defaults={'farm': farm,}
+                defaults={'farm': farm}
             )
             if not project.farm:
                 project.farm = farm
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     farm_id=farm.id,
                 )
 
-            exporter = models.Exporter.objects.get_or_create(
+            models.Exporter.objects.get_or_create(
                 job=entry['labels']['job'],
                 port=port,
                 project=project,

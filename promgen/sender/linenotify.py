@@ -52,5 +52,5 @@ def send(data):
                 _send(sender.value, alert, data)
             return True
         else:
-            logger.debug('No senders configured for %s->%s', project,  __name__)
+            logger.debug('No senders configured for %s->%s', project, __name__)
             return None

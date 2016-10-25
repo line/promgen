@@ -32,6 +32,6 @@ class LineNotifyTest(TestCase):
         self.assertTrue(send(TEST_ALERT))
         mock_post.assert_called_once_with(
             'https://notify.example',
-            {'message':_MESSAGE},
+            {'message': _MESSAGE},
             {'Authorization': u'Bearer hogehoge'},
         )

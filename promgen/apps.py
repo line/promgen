@@ -11,4 +11,4 @@ class PromgenConfig(AppConfig):
     name = 'promgen'
 
     def ready(self):
-        from promgen import signals
+        from promgen import signals  # NOQA

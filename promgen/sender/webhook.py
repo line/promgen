@@ -24,5 +24,5 @@ def send(data):
                 requests.post(sender.value, data).raise_for_status()
             return True
         else:
-            logger.debug('No senders configured for %s->%s', project,  __name__)
+            logger.debug('No senders configured for %s->%s', project, __name__)
             return None
