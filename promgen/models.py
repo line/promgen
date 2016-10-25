@@ -86,7 +86,7 @@ class Host(models.Model):
 class Exporter(models.Model):
     job = models.CharField(max_length=128)
     port = models.IntegerField()
-    path = models.CharField(max_length=128)
+    path = models.CharField(max_length=128, blank=True)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
     class Meta:

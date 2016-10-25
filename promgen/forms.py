@@ -4,11 +4,10 @@ from pkg_resources import working_set
 from promgen import models
 
 
-class ExporterForm(forms.Form):
-    job = forms.CharField()
-    port = forms.IntegerField()
-    path = forms.CharField(required=False)
-    project_id = forms.HiddenInput()
+class ExporterForm(forms.ModelForm):
+    class Meta:
+        model = models.Exporter
+        exclude = ['project']
 
 
 class ServiceForm(forms.ModelForm):
