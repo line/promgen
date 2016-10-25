@@ -301,6 +301,10 @@ class ApiConfig(View):
     def get(self, request):
         return HttpResponse(prometheus.render_config(), content_type='application/json')
 
+    def post(self, request):
+        prometheus.write_config()
+        return HttpResponse('OK', status=202)
+
 
 class ServiceExport(View):
     def get(self, request, pk):
@@ -317,6 +321,10 @@ class ProjectExport(View):
 class RulesConfig(View):
     def get(self, request):
         return HttpResponse(prometheus.render_rules(), content_type='text/plain')
+
+    def post(self, request):
+        prometheus.write_rules()
+        return HttpResponse('OK', status=202)
 
 
 class Alert(View):
