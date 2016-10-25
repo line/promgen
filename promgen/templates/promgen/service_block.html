@@ -1,0 +1,50 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
+  </div>
+<table class="table table-bordered">
+  <tr>
+    <th>Project</th>
+    <th>Farm</th>
+    <th>Exporters</th>
+    <th>Senders</th>
+  </tr>
+{% for project in service.project_set.all %}
+  <tr>
+    <td><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td>
+    <td>{% if project.farm %}{{ project.farm }}{% endif %}</td>
+    <td>
+      <table style="width: 100%">
+{% for exporter in project.exporter_set.all %}
+        <tr>
+          <td>{{ exporter.job }}</td>
+          <td>{{ exporter.port }}</td>
+          <td>{{ exporter.path }}</td>
+        </tr>
+{% endfor %}
+      </table>
+    </td>
+    <td>
+      <table style="width: 100%">
+{% for sender in project.sender_set.all %}
+        <tr>
+          <td>{{ sender.sender }}</td>
+          <td>{{ sender.value }}</td>
+        </tr>
+{% endfor %}
+      </table>
+    </td>
+  </tr>
+{% endfor %}
+</table>
+  <div class="panel-footer">
+    <a href="{% url 'project-new' service.id %}" class="btn btn-primary">Register project</a>
+    <a href="{% url 'service-update' service.id %}" class="btn btn-primary">Update Project</a>
+    <a href="{% url 'service-rules' service.id %}" class="btn btn-default">Rules</a>
+    <a href="{% url 'service-export' service.id %}" class="btn btn-default">Export Service</a>
+    <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('Delete this service?')" style="display: inline">
+      {% csrf_token %}
+      <button class="btn btn-danger">Delete service</button>
+    </form>
+  </div>
+</div>
