@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from promgen import models
+from promgen import forms, models
 
 admin.site.register(models.Service)
 admin.site.register(models.Host)
@@ -14,6 +14,7 @@ class ProjectAdmin(admin.ModelAdmin):
 @admin.register(models.Sender)
 class SenderAdmin(admin.ModelAdmin):
     list_display = ('project', 'sender', 'value')
+    form = forms.SenderForm
 
 
 @admin.register(models.Farm)

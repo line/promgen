@@ -33,9 +33,7 @@ class Project(models.Model):
 
 class Sender(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    sender = models.CharField(max_length=128, choices=[
-        (entry.module_name, entry.module_name) for entry in working_set.iter_entry_points('promgen.sender')
-    ])
+    sender = models.CharField(max_length=128)
     value = models.CharField(max_length=128)
     password = models.BooleanField(default=False)
 
