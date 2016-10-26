@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
@@ -113,6 +114,9 @@ class UnlinkFarm(View):
         project = get_object_or_404(models.Project, id=pk)
         project.farm = None
         project.save()
+        # We manually set write_config here since our project.farm will be set
+        # to null
+        cache.set('write_config', 1)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
