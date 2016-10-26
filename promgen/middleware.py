@@ -7,7 +7,6 @@ caching system to set a key and then triggering the actual event from middleware
 '''
 
 from django.contrib import messages
-from django.core.cache import cache
 
 from promgen.signals import write_config, write_rules
 
@@ -18,15 +17,11 @@ class RemoteTriggerMiddleware(object):
 
     def __call__(self, request):
         response = self.get_response(request)
-
-        if cache.get('write_config'):
-            write_config.send(self)
-            messages.info(request, 'Wrote Config')
-            cache.delete('write_config')
-
-        if cache.get('write_rules'):
-            write_rules.send(self)
-            messages.info(request, 'Wrote Rules')
-            cache.delete('write_rules')
+        for (receiver, status) in write_config.send(self, force=True):
+            if status:
+                messages.info(request, 'Wrote Config')
+        for (receiver, status) in write_rules.send(self, force=True):
+            if status:
+                messages.info(request, 'Wrote Rules')
 
         return response
