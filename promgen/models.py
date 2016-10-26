@@ -12,6 +12,9 @@ from pkg_resources import working_set
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
 
+    class Meta:
+        ordering = ['name']
+
     def get_absolute_url(self):
         return reverse('service-detail', kwargs={'pk': self.pk})
 
@@ -23,6 +26,9 @@ class Project(models.Model):
     name = models.CharField(max_length=128, unique=True)
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        ordering = ['name']
 
     def get_absolute_url(self):
         return reverse('project-detail', kwargs={'pk': self.pk})
@@ -41,6 +47,9 @@ class Sender(models.Model):
 class Farm(models.Model):
     name = models.CharField(max_length=128, unique=True)
     source = models.CharField(max_length=128)
+
+    class Meta:
+        ordering = ['name']
 
     def refresh(self):
         remaining = [host.name for host in self.host_set.all()]
@@ -77,6 +86,7 @@ class Host(models.Model):
     farm = models.ForeignKey('Farm', on_delete=models.CASCADE)
 
     class Meta:
+        ordering = ['name']
         unique_together = (('name', 'farm'))
 
     def __str__(self):
@@ -90,6 +100,7 @@ class Exporter(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
     class Meta:
+        ordering = ['job']
         unique_together = (('job', 'port', 'project'))
 
     def __str__(self):
@@ -116,6 +127,9 @@ class Rule(models.Model):
     labels = models.TextField(validators=[validate_json_or_empty])
     annotations = models.TextField(validators=[validate_json_or_empty])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['name']
 
 
 class Audit(models.Model):
