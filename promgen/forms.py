@@ -4,6 +4,11 @@ from pkg_resources import working_set
 from promgen import models
 
 
+class ImportForm(forms.Form):
+    config = forms.CharField(widget=forms.Textarea, required=False)
+    file_field = forms.FileField(required=False)
+
+
 class ExporterForm(forms.ModelForm):
     class Meta:
         model = models.Exporter

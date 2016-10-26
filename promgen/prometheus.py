@@ -85,3 +85,38 @@ def reload_prometheus():
         requests.post(target).raise_for_status()
     except Exception, e:
         logger.error('%s while notifying %s', e, target)
+
+
+def import_config(config):
+    for entry in config:
+        service, _ = models.Service.objects.get_or_create(
+            name=entry['labels']['service'],
+        )
+
+        farm, _ = models.Farm.objects.get_or_create(
+            name=entry['labels']['farm'],
+            defaults={'source': 'pmc'}
+        )
+
+        project, _ = models.Project.objects.get_or_create(
+            name=entry['labels']['project'],
+            service=service,
+            defaults={'farm': farm}
+        )
+        if not project.farm:
+            project.farm = farm
+            project.save()
+
+        for target in entry['targets']:
+            target, port = target.split(':')
+            host, _ = models.Host.objects.get_or_create(
+                name=target,
+                farm_id=farm.id,
+            )
+
+        models.Exporter.objects.get_or_create(
+            job=entry['labels']['job'],
+            port=port,
+            project=project,
+            path=entry['labels'].get('__metrics_path__', '')
+        )

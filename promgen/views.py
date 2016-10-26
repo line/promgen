@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -349,3 +350,27 @@ class Status(View):
             'remotes': [entry for entry in working_set.iter_entry_points('promgen.server')],
             'senders': [entry for entry in working_set.iter_entry_points('promgen.sender')],
         })
+
+
+class Import(FormView):
+    template_name = 'promgen/import_form.html'
+    form_class = forms.ImportForm
+    success_url = reverse_lazy('service-list')
+
+    def post(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        form = form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            data = form.clean()
+            if data.get('file_field'):
+                config = data['file_field'].read()
+            else:
+                config = data['config']
+
+            prometheus.import_config(json.loads(config))
+            messages.info(request, 'Imported config')
+
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)

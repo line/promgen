@@ -27,6 +27,7 @@
                         <li><a href="{% url 'rules-list' %}">Rules</a></li>
                         <li><a href="{% url 'status' %}">Status</a></li>
                         <li><a href="{% url 'audit-list' %}">Log</a></li>
+                        <li><a href="{% url 'import' %}">Import Config</a></li>
                         <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
                         <li><a href="{% url 'config-rules' %}">Export Rules</a></li>
                         {% for title, link in EXTERNAL_LINKS.iteritems %}
