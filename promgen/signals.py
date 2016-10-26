@@ -100,7 +100,7 @@ def save_host(sender, instance, **kwargs):
 def delete_host(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.farm.project_set.all():
-        if project.exporter_set:
+        if project.exporter_set.exists():
             write_config.send(instance)
 
 
