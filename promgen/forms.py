@@ -6,6 +6,7 @@ from promgen import models
 
 class ImportForm(forms.Form):
     config = forms.CharField(widget=forms.Textarea, required=False)
+    url = forms.CharField(required=False)
     file_field = forms.FileField(required=False)
 
 

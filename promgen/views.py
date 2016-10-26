@@ -1,6 +1,7 @@
 import json
 import logging
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.cache import cache
@@ -364,12 +365,19 @@ class Import(FormView):
         if form.is_valid():
             data = form.clean()
             if data.get('file_field'):
+                messages.info(request, 'Importing config from file')
                 config = data['file_field'].read()
+            elif data.get('url'):
+                messages.info(request, 'Importing config from url')
+                response = requests.get(data['url'])
+                response.raise_for_status()
+                config = response.text
             else:
+                messages.info(request, 'Importing config')
                 config = data['config']
 
-            prometheus.import_config(json.loads(config))
-            messages.info(request, 'Imported config')
+            counters = prometheus.import_config(json.loads(config))
+            messages.info(request, 'Imported %s' % counters)
 
             return self.form_valid(form)
         else:

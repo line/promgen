@@ -1,3 +1,4 @@
+import collections
 import json
 import logging
 import subprocess
@@ -88,35 +89,51 @@ def reload_prometheus():
 
 
 def import_config(config):
+    counters = collections.defaultdict(int)
     for entry in config:
-        service, _ = models.Service.objects.get_or_create(
+        service, created = models.Service.objects.get_or_create(
             name=entry['labels']['service'],
         )
+        if created:
+            counters['Service'] += 1
 
-        farm, _ = models.Farm.objects.get_or_create(
+        farm, created = models.Farm.objects.get_or_create(
             name=entry['labels']['farm'],
             defaults={'source': 'pmc'}
         )
+        if created:
+            counters['Farm'] += 1
 
-        project, _ = models.Project.objects.get_or_create(
+        project, created = models.Project.objects.get_or_create(
             name=entry['labels']['project'],
             service=service,
             defaults={'farm': farm}
         )
+        if created:
+            counters['Project'] += 1
+
         if not project.farm:
             project.farm = farm
             project.save()
 
         for target in entry['targets']:
             target, port = target.split(':')
-            host, _ = models.Host.objects.get_or_create(
+            host, created = models.Host.objects.get_or_create(
                 name=target,
                 farm_id=farm.id,
             )
 
-        models.Exporter.objects.get_or_create(
+            if created:
+                counters['Host'] += 1
+
+        exporter, created = models.Exporter.objects.get_or_create(
             job=entry['labels']['job'],
             port=port,
             project=project,
             path=entry['labels'].get('__metrics_path__', '')
         )
+
+        if created:
+            counters['Exporter'] += 1
+
+    return dict(counters)
