@@ -47,8 +47,13 @@ def delete_log(sender, instance, **kwargs):
 
 @receiver(post_save, sender=models.Rule)
 def save_rule(sender, instance, **kwargs):
-    cache.set('write_rule', 1)
+    cache.set('write_rules', 1)
     prometheus.check_rules([instance])
+
+
+@receiver(post_delete, sender=models.Rule)
+def delete_rule(sender, instance, **kwargs):
+    cache.set('write_rules', 1)
 
 
 @receiver(post_save, sender=models.Host)

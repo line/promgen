@@ -20,14 +20,16 @@ logger = logging.getLogger(__name__)
 class ProjectMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super(ProjectMixin, self).get_context_data(**kwargs)
-        context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        if 'pk' in self.kwargs:
+            context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
         return context
 
 
 class ServiceMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super(ServiceMixin, self).get_context_data(**kwargs)
-        context['service'] = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        if 'pk' in self.kwargs:
+            context['service'] = get_object_or_404(models.Service, id=self.kwargs['pk'])
         return context
 
 
