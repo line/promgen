@@ -4,7 +4,6 @@ import logging
 import requests
 from django.conf import settings
 from django.contrib import messages
-from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
@@ -14,7 +13,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 from pkg_resources import working_set
 
-from promgen import forms, models, prometheus
+from promgen import forms, models, prometheus, signals
 
 logger = logging.getLogger(__name__)
 
@@ -118,9 +117,7 @@ class UnlinkFarm(View):
         project = get_object_or_404(models.Project, id=pk)
         project.farm = None
         project.save()
-        # We manually set write_config here since our project.farm will be set
-        # to null
-        cache.set('write_config', 1)
+        signals.write_config(self)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
