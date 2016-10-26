@@ -21,32 +21,43 @@ def multi_receiver(signal, senders, **kwargs):
     return _decorator
 
 
-def run_once(func):
-    @wraps(func)
-    def _wrapper(*args, **kwargs):
-        key = '{}.{}'.format(func.__module__, func.__name__)
-        if 'force' in kwargs:
-            logger.debug('Running %s for %s', key, kwargs['sender'])
-            kwargs.pop('force')
-            if cache.get(key):
-                cache.delete(key)
-                return func(*args, **kwargs)
-        else:
-            logger.debug('Queueing %s for %s', key, kwargs['sender'])
-            cache.set(key, 1)
-    return _wrapper
+def run_once(signal):
+    '''
+    Run a signal only once
+
+    Certain actions we want to run only once, at the end of
+    processing so we wrap our function in a special decorator
+    that uses Django's caching system to set wheather we
+    want to run it or not, and trigger the actual run with
+    a force keyword at the end of the request when we run to run it
+    '''
+    def _decorator(func):
+        @wraps(func)
+        def _wrapper(*args, **kwargs):
+            key = '{}.{}'.format(func.__module__, func.__name__)
+            if 'force' in kwargs:
+                logger.debug('Checking %s for %s', key, kwargs['sender'])
+                kwargs.pop('force')
+                if cache.get(key):
+                    cache.delete(key)
+                    logger.debug('Running %s for %s', key, kwargs['sender'])
+                    return func(*args, **kwargs)
+            else:
+                logger.debug('Queueing %s for %s', key, kwargs['sender'])
+                cache.set(key, 1)
+        signal.connect(_wrapper)
+        return _wrapper
+    return _decorator
 
 
-@receiver(write_config)
-@run_once
+@run_once(write_config)
 def _write_config(signal, **kwargs):
     prometheus.write_config()
     prometheus.reload_prometheus()
     return True
 
 
-@receiver(write_rules)
-@run_once
+@run_once(write_rules)
 def _write_rules(signal, **kwargs):
     prometheus.write_rules()
     prometheus.reload_prometheus()
