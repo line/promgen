@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
 
@@ -17,11 +18,11 @@
 <div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Configuration</div>
-    <a href="{% url 'project-update' project.id %}" class="btn btn-default">Update project</a>
-    <a href="{% url 'project-export' project.id %}" class="btn btn-default">Export project</a>
-    <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('Delete this project?')" style="display: inline">
+    <a href="{% url 'project-update' project.id %}" class="btn btn-default">{% trans "Update Project" %}</a>
+    <a href="{% url 'project-export' project.id %}" class="btn btn-default">{% trans "Export Project" %}</a>
+    <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('{% trans "Delete this Project?" %}')" style="display: inline">
       {% csrf_token %}
-      <button class="btn btn-danger">Delete project</button>
+      <button class="btn btn-danger">{% trans "Delete Project" %}</button>
     </form>
   </div>
 </div>
@@ -35,16 +36,16 @@
         <th>{{ sender.sender }}</th>
         <td>{% if sender.password %}***{% else %}{{ sender.value }}{% endif %}</td>
         <td>
-          <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('Delete this Notification?')" style="display: inline">
+          <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
             {% csrf_token %}
-            <button class="btn btn-danger">Delete</button>
+            <button class="btn btn-danger">{% trans "Delete" %}</button>
           </form>
         </td>
       </tr>
       {% endfor %}
     </table>
     <div class="panel-footer">
-      <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">Register Sender</a>
+      <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
     </div>
   </div>
 </div>
@@ -67,14 +68,14 @@
         <td>
           <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">
             {% csrf_token %}
-            <button class="btn btn-danger">Delete</button>
+            <button class="btn btn-danger">{% trans "Delete" %}</button>
           </form>
         </td>
       </tr>
     {% endfor %}
     </table>
     <div class="panel-footer">
-      <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary">Register Exporter</a>
+      <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary">{% trans "Register Exporter" %}</a>
     </div>
   </div>
 </div>
@@ -95,9 +96,9 @@
         <td>{{ host.name }}</td>
         {% if project.farm.source == FARM_DEFAULT %}
         <td>
-          <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
+          <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
             {% csrf_token %}
-          <button name="delete" type="submit" class="btn btn-danger">Delete</button>
+          <button name="delete" type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
           </form>
         </td>
         {% endif %}
@@ -107,35 +108,34 @@
 
     <div class="panel-footer">
   {% if project.farm.source == FARM_DEFAULT %}
-      <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">Add new host</a>
-      <a href="{% url 'project-detail' project.id %}" class="btn btn-default">Edit farm info</a>
-      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
+      <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">{% trans "Add new host" %}</a>
+      <a href="{% url 'project-detail' project.id %}" class="btn btn-default">{% trans "Edit Farm" %}</a>
+      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Unlink Farm</button>
+        <button type="submit" class="btn btn-danger">{% trans "Unlink Farm" %}</button>
       </form>
   {% elif project.farm %}
-      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('Unlink this farm?')" style="display: inline">
+      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
         {% csrf_token %}
-        <button type="submit" class="btn btn-warning">Unlink Farm</button>
+        <button type="submit" class="btn btn-warning">{% trans "Unlink Farm" %}m</button>
       </form>
       <form method="post" action="{% url 'farm-convert' project.farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
         {% csrf_token %}
-        <button class="btn btn-warning">Convert Farm</button>
+        <button class="btn btn-warning">{% trans "Convert Farm" %}</button>
       </form>
       <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
         {% csrf_token %}
-        <button type="submit" class="btn btn-warning">Refresh Farm</button>
+        <button type="submit" class="btn btn-warning">{% trans "Refresh Farm" %}</button>
       </form>
   {% else %}
-      <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">New Farm</a>
+      <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "New Farm" %}</a>
 {% for source in sources %}
-      <a href="{% url 'farm-link' project.id source %}" class="btn btn-default">Link Farm {{ source }}</a>
+      <a href="{% url 'farm-link' project.id source %}" class="btn btn-default">{% trans "Link Farm" %} {{ source }}</a>
 {% endfor %}
   {% endif %}
     </div>
   </div>
 </div>
-
 
 </div>
 

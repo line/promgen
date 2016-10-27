@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="panel panel-default">
   <div class="panel-heading">
     <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
@@ -38,13 +39,13 @@
 {% endfor %}
 </table>
   <div class="panel-footer">
-    <a href="{% url 'project-new' service.id %}" class="btn btn-primary">Register project</a>
-    <a href="{% url 'service-update' service.id %}" class="btn btn-primary">Update Project</a>
-    <a href="{% url 'service-rules' service.id %}" class="btn btn-default">Rules</a>
-    <a href="{% url 'service-export' service.id %}" class="btn btn-default">Export Service</a>
-    <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('Delete this service?')" style="display: inline">
+    <a href="{% url 'project-new' service.id %}" class="btn btn-primary">{% trans "Register Project" %}</a>
+    <a href="{% url 'service-update' service.id %}" class="btn btn-primary">{% trans "Update Project" %}</a>
+    <a href="{% url 'service-rules' service.id %}" class="btn btn-default">{% trans "Rules" %}</a>
+    <a href="{% url 'service-export' service.id %}" class="btn btn-default">{% trans "Export Service" %}</a>
+    <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
       {% csrf_token %}
-      <button class="btn btn-danger">Delete service</button>
+      <button class="btn btn-danger">{% trans "Delete Service" %}</button>
     </form>
   </div>
 </div>
