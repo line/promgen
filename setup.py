@@ -20,7 +20,7 @@ setup(
             'promgen = promgen.manage:main',
         ],
         'promgen.server': [
-            'default = promgen.server',
+            'default = promgen.plugins',
         ],
         'promgen.sender': [
             'ikasan = promgen.sender.ikasan',

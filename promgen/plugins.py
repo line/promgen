@@ -1,10 +1,19 @@
 import logging
 
 from django.shortcuts import get_object_or_404
+from pkg_resources import working_set
 
-import promgen.models as models
+from promgen import models
 
 logger = logging.getLogger(__name__)
+
+
+def remotes():
+    return working_set.iter_entry_points('promgen.server')
+
+
+def senders():
+    return working_set.iter_entry_points('promgen.sender')
 
 
 def fetch(farm_name):

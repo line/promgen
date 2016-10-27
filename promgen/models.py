@@ -4,7 +4,8 @@ import json
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from pkg_resources import working_set
+
+from promgen import plugins
 
 FARM_DEFAULT = 'default'
 
@@ -56,7 +57,7 @@ class Farm(models.Model):
         keep = []
         create = []
 
-        for entry in working_set.iter_entry_points('promgen.server'):
+        for entry in plugins.remotes():
             if self.source == entry.name:
                 for host in entry.load().fetch(self.name):
                     if host in remaining:
@@ -72,7 +73,7 @@ class Farm(models.Model):
 
     @classmethod
     def fetch(cls, source):
-        for entry in working_set.iter_entry_points('promgen.server'):
+        for entry in plugins.remotes():
             if entry.name == source:
                 for farm in entry.load().farms():
                     yield farm

@@ -1,8 +1,7 @@
 from django import forms
 from django.contrib import admin
-from pkg_resources import working_set
 
-from promgen import models
+from promgen import models, plugins
 
 admin.site.register(models.Service)
 admin.site.register(models.Host)
@@ -15,7 +14,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 class SenderForm(forms.ModelForm):
     sender = forms.ChoiceField(choices=[
-        (entry.module_name, entry.module_name) for entry in working_set.iter_entry_points('promgen.sender')
+        (entry.module_name, entry.module_name) for entry in plugins.senders()
     ])
 
     class Meta:

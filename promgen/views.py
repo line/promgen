@@ -11,9 +11,8 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
-from pkg_resources import working_set
 
-from promgen import forms, models, prometheus, signals
+from promgen import forms, models, plugins, prometheus, signals
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +109,7 @@ class ProjectDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
         context['sources'] = [
-            entry.name for entry in working_set.iter_entry_points('promgen.server')
+            entry.name for entry in plugins.remotes()
         ]
         return context
 
@@ -367,7 +366,7 @@ class Alert(View):
     def post(self, request, *args, **kwargs):
         body = json.loads(request.body.decode('utf-8'))
 
-        for entry in working_set.iter_entry_points('promgen.sender'):
+        for entry in plugins.senders():
             logger.debug('Sending notification to %s', entry.name)
             entry.load().send(body)
         return HttpResponse('OK')
@@ -376,8 +375,8 @@ class Alert(View):
 class Status(View):
     def get(self, request):
         return render(request, 'promgen/status.html', {
-            'remotes': [entry for entry in working_set.iter_entry_points('promgen.server')],
-            'senders': [entry for entry in working_set.iter_entry_points('promgen.sender')],
+            'remotes': [entry for entry in plugins.remotes()],
+            'senders': [entry for entry in plugins.senders()],
         })
 
 
