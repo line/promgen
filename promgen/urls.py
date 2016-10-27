@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^farm/(?P<pk>[0-9]+)/refresh$', views.FarmRefresh.as_view(), name='farm-refresh'),
     url(r'^farm/(?P<pk>[0-9]+)/hosts$', views.HostRegister.as_view(), name='hosts-add'),
     url(r'^farm/(?P<pk>[0-9]+)/delete$', views.FarmDelete.as_view(), name='farm-delete'),
+    url(r'^farm/(?P<pk>[0-9]+)/convert$', views.FarmConvert.as_view(), name='farm-convert'),
 
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),

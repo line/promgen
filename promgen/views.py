@@ -163,6 +163,16 @@ class FarmRefresh(SingleObjectMixin, View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
+class FarmConvert(SingleObjectMixin, View):
+    model = models.Farm
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.source = 'default'
+        self.object.save()
+        return HttpResponseRedirect(reverse('farm-detail', args=[self.object.id]))
+
+
 class FarmLink(View):
     def get(self, request, pk, source):
         context = {
