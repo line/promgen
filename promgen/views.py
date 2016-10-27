@@ -126,6 +126,13 @@ class FarmDetail(DetailView):
     model = models.Farm
 
 
+class FarmDelete(DeleteView):
+    model = models.Farm
+
+    def get_success_url(self):
+        return reverse('service-list')
+
+
 class UnlinkFarm(View):
     def post(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)

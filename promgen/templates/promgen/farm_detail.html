@@ -40,12 +40,11 @@
     <div class="panel-footer">
   {% if farm.source == 'default' %}
       <a href="{% url 'hosts-add' farm.id %}" class="btn btn-primary">Add new host</a>
-  {% else  %}
-      <form method="post" action="{% url 'farm-refresh' farm.project_set.first.id %}" style="display: inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-warning">Refresh Farm</button>
-      </form>
   {% endif %}
+    <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
+      {% csrf_token %}
+      <button class="btn btn-danger">Delete Farm</button>
+    </form>
     </div>
   </div>
 </div>

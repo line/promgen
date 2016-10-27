@@ -18,6 +18,7 @@
           <th>Farm</th>
           <th>Source</th>
           <th>Project</th>
+          <th>&nbsp;</th>
         </tr>
       </thead>
 {% for farm in farm_list %}
@@ -28,6 +29,12 @@
           {% if farm.project_set.exists %}
             <a href="{% url 'project-detail' farm.project_set.first.id %}">{{ farm.project_set.first.name }}</a></td>
           {% endif %}
+        </td>
+        <td>
+          <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete</button>
+          </form>
         </td>
       </tr>
 {% endfor %}
