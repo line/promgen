@@ -68,7 +68,7 @@ def write_config():
     for target in settings.PROMGEN['config_writer'].get('notify', []):
         try:
             requests.post(target).raise_for_status()
-        except Exception, e:
+        except Exception as e:
             logger.error('%s while notifying %s', e, target)
 
 
@@ -78,7 +78,7 @@ def write_rules():
     for target in settings.PROMGEN['rule_writer'].get('notify', []):
         try:
             requests.post(target).raise_for_status()
-        except Exception, e:
+        except Exception as e:
             logger.error('%s while notifying %s', e, target)
 
 
@@ -86,7 +86,7 @@ def reload_prometheus():
     target = '{}/-/reload'.format(settings.PROMGEN['prometheus']['url'])
     try:
         requests.post(target).raise_for_status()
-    except Exception, e:
+    except Exception as e:
         logger.error('%s while notifying %s', e, target)
 
 
