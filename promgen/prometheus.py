@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 def check_rules(rules):
     with tempfile.NamedTemporaryFile() as fp:
         logger.debug('Rendering to %s', fp.name)
-        fp.write(render_to_string('promgen/prometheus.rule', {'rules': rules}))
+        fp.write(render_rules(rules).encode('utf8'))
         fp.flush()
 
         subprocess.check_call([
@@ -26,8 +26,10 @@ def check_rules(rules):
         ])
 
 
-def render_rules():
-    return render_to_string('promgen/prometheus.rule', {'rules': models.Rule.objects.all()})
+def render_rules(rules=None):
+    if rules is None:
+        rules = models.Rule.objects.all()
+    return render_to_string('promgen/prometheus.rule', {'rules': rules})
 
 
 def render_config(service=None, project=None):
@@ -72,7 +74,7 @@ def write_config():
 
 def write_rules():
     with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+b') as fp:
-        fp.write(render_rules())
+        fp.write(render_rules().encode('utf8'))
     for target in settings.PROMGEN['rule_writer'].get('notify', []):
         try:
             requests.post(target).raise_for_status()

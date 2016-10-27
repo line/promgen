@@ -11,7 +11,7 @@ register = template.Library()
 def to_prom(value):
     value = json.loads(value)
     values = [
-        '{}="{}"'.format(k, v) for k, v in value.iteritems()
+        u'{}="{}"'.format(k, v) for k, v in value.iteritems()
     ]
 
     return '{' + ', '.join(values) + '}'
