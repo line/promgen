@@ -44,7 +44,10 @@ class ServiceList(ListView):
 
 
 class HostList(ListView):
-    model = models.Host
+    queryset = models.Host.objects\
+        .prefetch_related(
+            'farm',
+        )
 
 
 class AuditList(ListView):
@@ -110,6 +113,17 @@ class ProjectDetail(DetailView):
             entry.name for entry in working_set.iter_entry_points('promgen.server')
         ]
         return context
+
+
+class FarmList(ListView):
+    queryset = models.Farm.objects\
+        .prefetch_related(
+            'project_set',
+        )
+
+
+class FarmDetail(DetailView):
+    model = models.Farm
 
 
 class UnlinkFarm(View):

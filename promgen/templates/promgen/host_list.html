@@ -23,7 +23,7 @@
 {% for host in host_list %}
       <tr>
         <td>{{ host.name }}</td>
-        <td>{{ host.farm.name }}</td>
+        <td><a href="{% url 'farm-detail' host.farm.id %}">{{ host.farm.name }}</a></td>
         <td>{{ host.farm.source }}</td>
       </tr>
 {% endfor %}

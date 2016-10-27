@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>Farms</h1>
+</div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active">All Farms</li>
+</ol>
+
+<div class="panel panel-default">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Farm</th>
+          <th>Source</th>
+          <th>Project</th>
+        </tr>
+      </thead>
+{% for farm in farm_list %}
+      <tr>
+        <td><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></td>
+        <td>{{ farm.source }}</td>
+        <td>
+          {% if farm.project_set.exists %}
+            <a href="{% url 'project-detail' farm.project_set.first.id %}">{{ farm.project_set.first.name }}</a></td>
+          {% endif %}
+        </td>
+      </tr>
+{% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}

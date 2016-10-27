@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>Farm: {{ farm.name }} ({{ farm.source }})</h1>
+</div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active"><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></li>
+</ol>
+
+<div class="row">
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">Hosts from {{ farm.name }} ({{ farm.source }})</div>
+    <table class="table">
+      <tr>
+        <th>Name</th>
+      {% if farm.source == 'default' %}
+        <th>&nbsp;</th>
+      {% endif %}
+      </tr>
+    {% for host in farm.host_set.all %}
+      <tr>
+        <td>{{ host.name }}</td>
+        {% if farm.source == 'default' %}
+        <td>
+          <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
+            {% csrf_token %}
+          <button name="delete" type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+
+    <div class="panel-footer">
+  {% if farm.source == 'default' %}
+      <a href="{% url 'hosts-add' farm.id %}" class="btn btn-primary">Add new host</a>
+  {% else  %}
+      <form method="post" action="{% url 'farm-refresh' farm.project_set.first.id %}" style="display: inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning">Refresh Farm</button>
+      </form>
+  {% endif %}
+    </div>
+  </div>
+</div>
+
+</div>
+
+{% endblock %}

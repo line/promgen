@@ -45,20 +45,23 @@ urlpatterns = [
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
 
-    url(r'^farm/(?P<pk>[0-9]+)/$', views.FarmRefresh.as_view(), name='farm-refresh'),
+    url(r'^farm/$', views.FarmList.as_view(), name='farm-list'),
+    url(r'^farm/(?P<pk>[0-9]+)$', views.FarmDetail.as_view(), name='farm-detail'),
+    url(r'^farm/(?P<pk>[0-9]+)/refresh$', views.FarmRefresh.as_view(), name='farm-refresh'),
     url(r'^farm/(?P<pk>[0-9]+)/hosts$', views.HostRegister.as_view(), name='hosts-add'),
+
+    url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
+
     url(r'^sender/(?P<pk>[0-9]+)/delete$', views.SenderDelete.as_view(), name='sender-delete'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
 
-
     url(r'^api/v1/config', views.ApiConfig.as_view(), name='config-targets'),
     url(r'^api/v1/rules', views.RulesConfig.as_view(), name='config-rules'),
 
-    url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
     url(r'^status/$', views.Status.as_view(), name='status'),
     url(r'^import/$', views.Import.as_view(), name='import'),
