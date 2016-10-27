@@ -138,7 +138,7 @@ class UnlinkFarm(View):
         project = get_object_or_404(models.Project, id=pk)
         project.farm = None
         project.save()
-        signals.write_config(self)
+        signals.write_config.send(self)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -168,7 +168,7 @@ class FarmConvert(SingleObjectMixin, View):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        self.object.source = 'default'
+        self.object.source = models.FARM_DEFAULT
         self.object.save()
         return HttpResponseRedirect(reverse('farm-detail', args=[self.object.id]))
 
@@ -288,7 +288,7 @@ class FarmRegsiter(FormView, ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        farm, _ = models.Farm.objects.get_or_create(source='default', **form.clean())
+        farm, _ = models.Farm.objects.get_or_create(source=models.FARM_DEFAULT, **form.clean())
         project.farm = farm
         project.save()
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))

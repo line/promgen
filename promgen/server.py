@@ -14,5 +14,5 @@ def fetch(farm_name):
 
 
 def farms():
-    for farm in models.Farm.objects.filter(source='default'):
+    for farm in models.Farm.objects.filter(source=models.FARM_DEFAULT):
         yield farm.name

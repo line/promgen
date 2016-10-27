@@ -31,7 +31,7 @@
           {% endif %}
         </td>
         <td>
-          {% if farm.source != 'default' %}
+          {% if farm.source != FARM_DEFAULT %}
           <form method="post" action="{% url 'farm-convert' farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
             {% csrf_token %}
             <button class="btn btn-warning">Convert</button>

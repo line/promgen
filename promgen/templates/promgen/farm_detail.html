@@ -18,14 +18,14 @@
     <table class="table">
       <tr>
         <th>Name</th>
-      {% if farm.source == 'default' %}
+      {% if farm.source == FARM_DEFAULT %}
         <th>&nbsp;</th>
       {% endif %}
       </tr>
     {% for host in farm.host_set.all %}
       <tr>
         <td>{{ host.name }}</td>
-        {% if farm.source == 'default' %}
+        {% if farm.source == FARM_DEFAULT %}
         <td>
           <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
             {% csrf_token %}
@@ -38,7 +38,7 @@
     </table>
 
     <div class="panel-footer">
-  {% if farm.source == 'default' %}
+  {% if farm.source == FARM_DEFAULT %}
       <a href="{% url 'hosts-add' farm.id %}" class="btn btn-primary">Add new host</a>
   {% endif %}
     <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
