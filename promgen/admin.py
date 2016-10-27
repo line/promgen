@@ -1,6 +1,8 @@
+from django import forms
 from django.contrib import admin
+from pkg_resources import working_set
 
-from promgen import forms, models
+from promgen import models
 
 admin.site.register(models.Service)
 admin.site.register(models.Host)
@@ -11,10 +13,21 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'service', 'farm')
 
 
+class SenderForm(forms.ModelForm):
+    sender = forms.ChoiceField(choices=[
+        (entry.module_name, entry.module_name) for entry in working_set.iter_entry_points('promgen.sender')
+    ])
+
+    class Meta:
+        model = models.Sender
+        exclude = []
+
+
 @admin.register(models.Sender)
 class SenderAdmin(admin.ModelAdmin):
     list_display = ('project', 'sender', 'value')
-    form = forms.SenderForm
+    form = SenderForm
+    list_filter = ('project', 'sender')
 
 
 @admin.register(models.Farm)
