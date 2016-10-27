@@ -116,7 +116,7 @@ def validate_json_or_empty(value):
 
 class Rule(models.Model):
     name = models.CharField(max_length=128, unique=True)
-    clause = models.CharField(max_length=128)
+    clause = models.TextField()
     duration = models.CharField(max_length=128, choices=[
         ('1s', '1s'),
         ('1m', '1m'),
