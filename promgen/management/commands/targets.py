@@ -9,4 +9,4 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def handle(self, **kwargs):
-        print prometheus.render_config()
+        print(prometheus.render_config())

@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 from django.test import TestCase, override_settings
 
 from promgen import models
@@ -33,5 +33,5 @@ class LineNotifyTest(TestCase):
         mock_post.assert_called_once_with(
             'https://notify.example',
             {'message': _MESSAGE},
-            {'Authorization': u'Bearer hogehoge'},
+            {'Authorization': 'Bearer hogehoge'},
         )
