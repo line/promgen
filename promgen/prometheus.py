@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 
 
 def check_rules(rules):
-    with tempfile.NamedTemporaryFile() as fp:
+    with tempfile.NamedTemporaryFile(mode='w', encoding='utf8') as fp:
         logger.debug('Rendering to %s', fp.name)
-        fp.write(render_rules(rules).encode('utf8'))
+        fp.write(render_rules(rules))
         fp.flush()
 
         subprocess.check_call([
@@ -63,7 +63,7 @@ def render_config(service=None, project=None):
 
 
 def write_config():
-    with open(settings.PROMGEN['config_writer']['path'], 'w+b') as fp:
+    with open(settings.PROMGEN['config_writer']['path'], 'w+', encoding='utf8') as fp:
         fp.write(render_config())
     for target in settings.PROMGEN['config_writer'].get('notify', []):
         try:
@@ -73,8 +73,8 @@ def write_config():
 
 
 def write_rules():
-    with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+b') as fp:
-        fp.write(render_rules().encode('utf8'))
+    with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+', encoding='utf8') as fp:
+        fp.write(render_rules())
     for target in settings.PROMGEN['rule_writer'].get('notify', []):
         try:
             requests.post(target).raise_for_status()
