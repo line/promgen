@@ -144,8 +144,24 @@ SITE_ID = 1
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 if 'SENTRY_DSN' in os.environ:
+    from django.utils.log import DEFAULT_LOGGING
+    LOGGING = DEFAULT_LOGGING
     INSTALLED_APPS += ['raven.contrib.django.raven_compat']
     RAVEN_CONFIG = {'dsn': os.environ['SENTRY_DSN']}
+
+    # Log all ERRORs to Sentry
+    LOGGING['handlers'].update({
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+        }
+    })
+    LOGGING['loggers'].update({
+        'root': {
+            'handlers': ['sentry'],
+            'level': 'WARNING',
+        }
+    })
 
 if DEBUG:
     try:
