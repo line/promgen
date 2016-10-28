@@ -12,10 +12,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
+import dj_database_url
 import envdir
 import yaml
-
-import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -144,24 +143,27 @@ SITE_ID = 1
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 if 'SENTRY_DSN' in os.environ:
-    from django.utils.log import DEFAULT_LOGGING
-    LOGGING = DEFAULT_LOGGING
     INSTALLED_APPS += ['raven.contrib.django.raven_compat']
     RAVEN_CONFIG = {'dsn': os.environ['SENTRY_DSN']}
 
-    # Log all ERRORs to Sentry
-    LOGGING['handlers'].update({
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-        }
-    })
-    LOGGING['loggers'].update({
-        'root': {
-            'handlers': ['sentry'],
-            'level': 'WARNING',
-        }
-    })
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'sentry': {
+                'level': 'WARNING',
+                'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+                'dsn': os.environ['SENTRY_DSN'],
+            },
+        },
+        'loggers': {
+            '': {
+                'handlers': ['sentry'],
+                'level': 'WARNING',
+                'propagate': True,
+            },
+        },
+    }
 
 if DEBUG:
     try:
