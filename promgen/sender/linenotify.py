@@ -41,7 +41,7 @@ def _send(token, alert, data):
         'Authorization': 'Bearer %s' % token
     }
 
-    requests.post(url, params, headers).raise_for_status()
+    requests.post(url, data=params, headers=headers).raise_for_status()
 
 
 def send(data):
