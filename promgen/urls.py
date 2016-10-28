@@ -69,7 +69,7 @@ urlpatterns = [
     url(r'^import/$', views.Import.as_view(), name='import'),
 
     url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
-    url(r'^metrics/$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
+    url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
 ]
 
 if settings.DEBUG:
