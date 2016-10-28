@@ -368,7 +368,10 @@ class Alert(View):
 
         for entry in plugins.senders():
             logger.debug('Sending notification to %s', entry.name)
-            entry.load().send(body)
+            try:
+                entry.load().send(body)
+            except Exception:
+                logger.exception('Error sending alert')
         return HttpResponse('OK')
 
 
