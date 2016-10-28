@@ -30,7 +30,7 @@
 {% for sender in project.sender_set.all %}
         <tr>
           <td>{{ sender.sender }}</td>
-          <td>{{ sender.value }}</td>
+          <td>{{ sender.show_value }}</td>
         </tr>
 {% endfor %}
       </table>

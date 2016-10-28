@@ -44,6 +44,11 @@ class Sender(models.Model):
     value = models.CharField(max_length=128)
     password = models.BooleanField(default=False)
 
+    def show_value(self):
+        if self.password:
+            return '***'
+        return self.value
+
 
 class Farm(models.Model):
     name = models.CharField(max_length=128, unique=True)
