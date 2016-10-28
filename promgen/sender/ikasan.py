@@ -31,7 +31,9 @@ def _send(channel, alert, data, color):
     context = {
         '_prometheus': alert['generatorURL'],
         '_status': alert['status'],
-        '_alertmanager': data['externalURL']
+        '_alertmanager': data['externalURL'],
+        'summary': 'No Summary',
+        'description': 'No Description',
     }
     context.update(alert['labels'])
     context.update(alert['annotations'])
