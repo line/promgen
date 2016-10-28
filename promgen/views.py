@@ -375,6 +375,11 @@ class Alert(View):
         return HttpResponse('OK')
 
 
+class Metrics(View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse('')
+
+
 class Status(View):
     def get(self, request):
         return render(request, 'promgen/status.html', {
