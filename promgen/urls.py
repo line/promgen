@@ -61,8 +61,8 @@ urlpatterns = [
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
 
-    url(r'^api/v1/config', views.ApiConfig.as_view(), name='config-targets'),
-    url(r'^api/v1/rules', views.RulesConfig.as_view(), name='config-rules'),
+    url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
+    url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
 
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
     url(r'^status/$', views.Status.as_view(), name='status'),
