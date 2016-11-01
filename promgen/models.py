@@ -1,9 +1,9 @@
-import datetime
 import json
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 from promgen import plugins
 
@@ -144,4 +144,4 @@ class Audit(models.Model):
 
     @classmethod
     def log(cls, body):
-        return cls.objects.create(body=body, created=datetime.datetime.utcnow())
+        return cls.objects.create(body=body, created=timezone.now())
