@@ -122,6 +122,7 @@ class FarmList(ListView):
     queryset = models.Farm.objects\
         .prefetch_related(
             'project_set',
+            'host_set',
         )
 
 
