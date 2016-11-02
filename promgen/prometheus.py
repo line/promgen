@@ -65,6 +65,7 @@ def render_config(service=None, project=None):
 def write_config(notify=True):
     with open(settings.PROMGEN['config_writer']['path'], 'w+', encoding='utf8') as fp:
         fp.write(render_config())
+    reload_prometheus()
     if notify:
         for target in settings.PROMGEN['config_writer'].get('notify', []):
             try:
@@ -76,6 +77,7 @@ def write_config(notify=True):
 def write_rules(notify=True):
     with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+', encoding='utf8') as fp:
         fp.write(render_rules())
+    reload_prometheus()
     if notify:
         for target in settings.PROMGEN['rule_writer'].get('notify', []):
             try:
