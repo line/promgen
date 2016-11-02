@@ -53,6 +53,7 @@ urlpatterns = [
     url(r'^farm/(?P<pk>[0-9]+)/convert$', views.FarmConvert.as_view(), name='farm-convert'),
 
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
+    url(r'^host/(?P<pk>[0-9]+)/$', views.HostDetail.as_view(), name='host-detail'),
     url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
 
     url(r'^sender/(?P<pk>[0-9]+)/delete$', views.SenderDelete.as_view(), name='sender-delete'),

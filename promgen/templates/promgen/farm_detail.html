@@ -24,7 +24,7 @@
       </tr>
     {% for host in farm.host_set.all %}
       <tr>
-        <td>{{ host.name }}</td>
+        <td><a href="{% url 'host-detail' host.id %}">{{ host.name }}</a></td>
         {% if farm.source == FARM_DEFAULT %}
         <td>
           <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
