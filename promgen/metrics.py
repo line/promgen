@@ -21,7 +21,7 @@ class Counter(object):
 
     @property
     def samples(self):
-        for stat in self.collect:
+        for stat in models.Stat.objects.filter(key=self.name):
             yield self.name, json.loads(stat.labels), stat.value
 
     @classmethod
@@ -80,19 +80,16 @@ class Exporters(Gauge):
 class AlertsSent(Counter):
     name = 'promgen_alerts_sent'
     documentation = ''
-    collect = models.Stat.objects.filter(key='alerts_sent')
 
 
 class AlertsReceived(Counter):
     name = 'promgen_alerts_received'
     documentation = ''
-    collect = models.Stat.objects.filter(key='alerts_received')
 
 
 class AlertsError(Counter):
     name = 'promgen_alerts_error'
     documentation = ''
-    collect = models.Stat.objects.filter(key='alerts_error')
 
 
 class MetricsRegistry(object):
