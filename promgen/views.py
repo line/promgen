@@ -11,8 +11,9 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
+from prometheus_client import generate_latest
 
-from promgen import forms, models, plugins, prometheus, signals
+from promgen import forms, metrics, models, plugins, prometheus, signals
 
 logger = logging.getLogger(__name__)
 
@@ -382,7 +383,7 @@ class Alert(View):
 
 class Metrics(View):
     def get(self, request, *args, **kwargs):
-        return HttpResponse('')
+        return HttpResponse(generate_latest(metrics.MetricsRegistry), content_type='text/plain')
 
 
 class Status(View):

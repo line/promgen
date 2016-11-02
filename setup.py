@@ -8,6 +8,7 @@ setup(
         'dj_database_url',
         'Django',
         'envdir',
+        'prometheus_client',
         'pyyaml',
         'requests',
     ],
