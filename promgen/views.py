@@ -374,10 +374,19 @@ class Alert(View):
 
         for entry in plugins.senders():
             logger.debug('Sending notification to %s', entry.name)
+            sent = 0
+            error = 0
             try:
-                entry.load().send(body)
+                if entry.load().send(body):
+                    sent += 1
             except Exception:
                 logger.exception('Error sending alert')
+                error += 1
+
+            if sent:
+                metrics.AlertsSent.inc({'sender': entry.name}, sent)
+            if error:
+                metrics.AlertsError.inc({'sender': entry.name}, error)
         return HttpResponse('OK')
 
 

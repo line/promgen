@@ -145,3 +145,9 @@ class Audit(models.Model):
     @classmethod
     def log(cls, body):
         return cls.objects.create(body=body, created=timezone.now())
+
+
+class Stat(models.Model):
+    key = models.CharField(max_length=128)
+    labels = models.CharField(max_length=128)
+    value = models.FloatField()
