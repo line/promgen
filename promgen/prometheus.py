@@ -63,8 +63,11 @@ def render_config(service=None, project=None):
 
 
 def write_config():
+    print(settings.PROMGEN)
+    print('write config')
     with open(settings.PROMGEN['config_writer']['path'], 'w+', encoding='utf8') as fp:
         fp.write(render_config())
+    print('send notification')
     for target in settings.PROMGEN['config_writer'].get('notify', []):
         try:
             requests.post(target).raise_for_status()
