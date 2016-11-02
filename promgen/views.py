@@ -371,6 +371,7 @@ class RulesConfig(View):
 class Alert(View):
     def post(self, request, *args, **kwargs):
         body = json.loads(request.body.decode('utf-8'))
+        metrics.AlertsReceived.inc({}, 1)
 
         for entry in plugins.senders():
             logger.debug('Sending notification to %s', entry.name)

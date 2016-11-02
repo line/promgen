@@ -83,6 +83,12 @@ class AlertsSent(Counter):
     collect = models.Stat.objects.filter(key='alerts_sent')
 
 
+class AlertsReceived(Counter):
+    name = 'promgen_alerts_received'
+    documentation = ''
+    collect = models.Stat.objects.filter(key='alerts_received')
+
+
 class AlertsError(Counter):
     name = 'promgen_alerts_error'
     documentation = ''
@@ -99,3 +105,4 @@ class MetricsRegistry(object):
         yield Exporters()
         yield AlertsSent()
         yield AlertsError()
+        yield AlertsReceived()
