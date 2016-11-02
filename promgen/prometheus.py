@@ -62,27 +62,26 @@ def render_config(service=None, project=None):
     return json.dumps(data, indent=2, sort_keys=True)
 
 
-def write_config():
-    print(settings.PROMGEN)
-    print('write config')
+def write_config(notify=True):
     with open(settings.PROMGEN['config_writer']['path'], 'w+', encoding='utf8') as fp:
         fp.write(render_config())
-    print('send notification')
-    for target in settings.PROMGEN['config_writer'].get('notify', []):
-        try:
-            requests.post(target).raise_for_status()
-        except Exception as e:
-            logger.error('%s while notifying %s', e, target)
+    if notify:
+        for target in settings.PROMGEN['config_writer'].get('notify', []):
+            try:
+                requests.post(target).raise_for_status()
+            except Exception as e:
+                logger.error('%s while notifying %s', e, target)
 
 
-def write_rules():
+def write_rules(notify=True):
     with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+', encoding='utf8') as fp:
         fp.write(render_rules())
-    for target in settings.PROMGEN['rule_writer'].get('notify', []):
-        try:
-            requests.post(target).raise_for_status()
-        except Exception as e:
-            logger.error('%s while notifying %s', e, target)
+    if notify:
+        for target in settings.PROMGEN['rule_writer'].get('notify', []):
+            try:
+                requests.post(target).raise_for_status()
+            except Exception as e:
+                logger.error('%s while notifying %s', e, target)
 
 
 def reload_prometheus():

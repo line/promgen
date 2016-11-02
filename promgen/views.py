@@ -337,7 +337,7 @@ class ApiConfig(View):
         return HttpResponse(prometheus.render_config(), content_type='application/json')
 
     def post(self, request):
-        prometheus.write_config()
+        prometheus.write_config(notify=False)
         return HttpResponse('OK', status=202)
 
 
@@ -358,7 +358,7 @@ class RulesConfig(View):
         return HttpResponse(prometheus.render_rules(), content_type='text/plain')
 
     def post(self, request):
-        prometheus.write_rules()
+        prometheus.write_rules(notify=False)
         return HttpResponse('OK', status=202)
 
 
