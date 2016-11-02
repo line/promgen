@@ -13,7 +13,7 @@ class Gauge(object):
 
     @property
     def samples(self):
-        yield 'promgen_' + self.name, [], float(self.collect())
+        yield self.name, [], float(self.collect())
 
 
 class Counter(object):
@@ -22,7 +22,7 @@ class Counter(object):
     @property
     def samples(self):
         for stat in self.collect:
-            yield 'promgen_' + self.name, json.loads(stat.labels), stat.value
+            yield self.name, json.loads(stat.labels), stat.value
 
     @classmethod
     def inc(cls, labels, value=1):
@@ -42,49 +42,49 @@ class Counter(object):
 
 
 class Farms(Gauge):
-    name = 'farms'
+    name = 'promgen_farms'
     documentation = 'Number of registered farms'
     collect = models.Farm.objects.count
 
 
 class Rules(Gauge):
-    name = 'rules'
+    name = 'promgen_rules'
     documentation = 'Number of registered rules'
     collect = models.Rule.objects.count
 
 
 class Projects(Gauge):
-    name = 'projects'
+    name = 'promgen_projects'
     documentation = 'Number of registered projects'
     collect = models.Project.objects.count
 
 
 class Services(Gauge):
-    name = 'services'
+    name = 'promgen_services'
     documentation = 'Number of registered services'
     collect = models.Service.objects.count
 
 
 class Senders(Gauge):
-    name = 'senders'
+    name = 'promgen_senders'
     documentation = 'Number of registered senders'
     collect = models.Sender.objects.count
 
 
 class Exporters(Gauge):
-    name = 'exporters'
+    name = 'promgen_exporters'
     documentation = 'Number of registered exporters'
     collect = models.Exporter.objects.count
 
 
 class AlertsSent(Counter):
-    name = 'alerts_sent'
+    name = 'promgen_alerts_sent'
     documentation = ''
     collect = models.Stat.objects.filter(key='alerts_sent')
 
 
 class AlertsError(Counter):
-    name = 'alerts_error'
+    name = 'promgen_alerts_error'
     documentation = ''
     collect = models.Stat.objects.filter(key='alerts_error')
 
