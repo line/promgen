@@ -34,9 +34,11 @@
           </ul>
         </td>
         <td>
-          {% if farm.project_set.exists %}
-            <a href="{% url 'project-detail' farm.project_set.first.id %}">{{ farm.project_set.first.name }}</a></td>
-          {% endif %}
+          <ul>
+          {% for project in farm.project_set.all %}
+            <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td></li>
+          {% endfor %}
+          </ul>
         </td>
         <td>
           {% if farm.source != FARM_DEFAULT %}
