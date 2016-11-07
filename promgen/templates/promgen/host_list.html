@@ -17,15 +17,26 @@
         <tr>
           <th>Host</th>
           <th>Farm</th>
-          <th>Source</th>
         </tr>
       </thead>
-{% for host in host_list %}
-      <tr>
-        <td><a href="{% url 'host-detail' host.id %}">{{ host.name }}</a></td>
-        <td><a href="{% url 'farm-detail' host.farm.id %}">{{ host.farm.name }}</a></td>
-        <td>{{ host.farm.source }}</td>
-      </tr>
+{% for name, hosts in host_groups.items %}
+<tr>
+  <td>{{ name }}</td>
+  <td>
+    <ul>
+    {% for host in hosts %}
+      <li>
+        <a href="{% url 'farm-detail' host.farm.id %}">{{ host.farm }}</a>
+        <ul>
+          {% for project in host.farm.project_set.all %}
+          <li><a href="{% url 'project-detail' project.id  %}">{{ project.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% endfor %}
+    </ul>
+  </td>
+</tr>
 {% endfor %}
     </table>
 

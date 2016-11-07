@@ -8,10 +8,12 @@
 
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li><a href="{% url 'farm-list' %}">Farms</a></li>
   <li class="active"><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></li>
 </ol>
 
 <div class="row">
+
 <div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Hosts from {{ farm.name }} ({{ farm.source }})</div>
@@ -46,6 +48,19 @@
       <button class="btn btn-danger">Delete Farm</button>
     </form>
     </div>
+  </div>
+</div>
+
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">Projects using {{ farm.name }} ({{ farm.source }})</div>
+    <table class="table">
+{% for project in farm.project_set.all %}
+      <tr>
+        <td><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td>
+      </tr>
+{% endfor %}
+    </table>
   </div>
 </div>
 
