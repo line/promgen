@@ -54,6 +54,17 @@ class HostDetail(DetailView):
     model = models.Host
 
 
+class HostSearch(ListView):
+    template_name = 'promgen/host_search.html'
+
+    def get_queryset(self):
+        return models.Host.objects\
+            .filter(name__contains=self.kwargs['name'])\
+            .prefetch_related(
+                'farm',
+            )
+
+
 class AuditList(ListView):
     queryset = models.Audit.objects.order_by('-created')
     paginate_by = 50

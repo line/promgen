@@ -1,0 +1,54 @@
+<div class="row">
+
+{% for project in host.farm.project_set.all %}
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">Exporters from <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></div>
+    <div>
+      <table class="table">
+{% for exporter in project.exporter_set.all %}
+        <tr>
+          <td>{{ exporter.job }}</td>
+          <td>{{ exporter.port }}</td>
+          <td>{{ exporter.path }}</td>
+        </tr>
+{% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">Senders from <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></div>
+    <div>
+      <table class="table">
+{% for sender in project.sender_set.all %}
+        <tr>
+          <th>{{ sender.sender }}</th>
+          <td>{{ sender.show_value }}</td>
+        </tr>
+{% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-12">
+  <div class="panel panel-default">
+    <div class="panel-heading">Rules from <a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></div>
+    <div>
+      <table class="table">
+{% for rule in project.service.rule_set.all %}
+        <tr>
+          <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
+          <td>{{ rule.clause }}</td>
+        </tr>
+{% endfor %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+</div>
