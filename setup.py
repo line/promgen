@@ -5,6 +5,7 @@ setup(
     author='Paul Traylor',
     packages=find_packages(exclude=['test']),
     install_requires=[
+        'atomicwrites',
         'dj_database_url',
         'Django',
         'envdir',

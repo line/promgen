@@ -5,12 +5,14 @@ import subprocess
 import tempfile
 
 import requests
+from atomicwrites import atomic_write
 from django.conf import settings
 from django.template.loader import render_to_string
 
 from promgen import models
 
 logger = logging.getLogger(__name__)
+
 
 
 def check_rules(rules):
@@ -63,7 +65,7 @@ def render_config(service=None, project=None):
 
 
 def write_config(notify=True):
-    with open(settings.PROMGEN['config_writer']['path'], 'w+', encoding='utf8') as fp:
+    with atomic_write(settings.PROMGEN['config_writer']['path'], overwrite=True) as fp:
         fp.write(render_config())
     reload_prometheus()
     if notify:
@@ -75,7 +77,7 @@ def write_config(notify=True):
 
 
 def write_rules(notify=True):
-    with open(settings.PROMGEN['rule_writer']['rule_path'], 'w+', encoding='utf8') as fp:
+    with atomic_write(settings.PROMGEN['rule_writer']['rule_path'], overwrite=True) as fp:
         fp.write(render_rules())
     reload_prometheus()
     if notify:
