@@ -21,7 +21,7 @@
       </thead>
 {% for name, hosts in host_groups.items %}
 <tr>
-  <td>{{ name }}</td>
+  <td><a href="{% url 'host-search' name %}">{{ name }}</a></td>
   <td>
     <ul>
     {% for host in hosts %}

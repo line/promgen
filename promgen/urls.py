@@ -54,7 +54,7 @@ urlpatterns = [
 
     url(r'^host/$', views.HostList.as_view(), name='host-list'),
     url(r'^host/(?P<pk>[0-9]+)/$', views.HostDetail.as_view(), name='host-detail'),
-    url(r'^host/(?P<name>\w+)/$', views.HostSearch.as_view(), name='host-search'),
+    url(r'^host/(?P<name>\S+)/$', views.HostSearch.as_view(), name='host-search'),
     url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
 
     url(r'^sender/(?P<pk>[0-9]+)/delete$', views.SenderDelete.as_view(), name='sender-delete'),

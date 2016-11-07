@@ -1,3 +1,4 @@
+import collections
 import json
 import logging
 
@@ -47,7 +48,17 @@ class HostList(ListView):
     queryset = models.Host.objects\
         .prefetch_related(
             'farm',
+            'farm__project_set',
+            'farm__project_set__service',
         )
+
+    def get_context_data(self, **kwargs):
+        context = super(HostList, self).get_context_data(**kwargs)
+        context['host_groups'] = collections.defaultdict(list)
+        for host in context['object_list']:
+            context['host_groups'][host.name].append(host)
+        context['host_groups'] = dict(context['host_groups'])
+        return context
 
 
 class HostDetail(DetailView):
