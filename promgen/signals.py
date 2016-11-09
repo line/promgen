@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 from django.core.cache import cache
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import Signal, receiver
 
 from promgen import models, prometheus
@@ -96,12 +96,19 @@ def save_host(sender, instance, **kwargs):
             write_config.send(instance)
 
 
-@receiver(post_delete, sender=models.Host)
+@receiver(pre_delete, sender=models.Host)
 def delete_host(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.farm.project_set.all():
         if project.exporter_set.exists():
             write_config.send(instance)
+
+
+@receiver(pre_delete, sender=models.Farm)
+def delete_farm(sender, instance, **kwargs):
+    '''Only trigger write if parent project also has exporters'''
+    for project in instance.project_set.all():
+        write_config.send(instance)
 
 
 @receiver(post_save, sender=models.Exporter)
@@ -112,7 +119,7 @@ def save_exporter(sender, instance, **kwargs):
             write_config.send(instance)
 
 
-@receiver(post_delete, sender=models.Exporter)
+@receiver(pre_delete, sender=models.Exporter)
 def delete_exporter(sender, instance, **kwargs):
     '''Only trigger write if parent project also has hosts'''
     if instance.project.farm:
@@ -121,12 +128,12 @@ def delete_exporter(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=models.Project)
-def save_project(sender, instance, update_fields, **kwargs):
+def save_project(sender, instance, **kwargs):
     if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
         write_config.send(instance)
 
 
-@receiver(post_delete, sender=models.Project)
+@receiver(pre_delete, sender=models.Project)
 def delete_project(sender, instance, **kwargs):
     if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
         write_config.send(instance)

@@ -48,12 +48,12 @@ class SignalTest(TestCase):
         self.assertEqual(write_mock.call_count, 1, 'Should be called after creating exporter')
 
         farm.delete()
-        # Delete our farm and there should be one more call
-        self.assertEqual(write_mock.call_count, 2, 'Should be called after deleting exporter')
+        # Deleting our farm will call pre_delete on Farm and post_save on project
+        self.assertEqual(write_mock.call_count, 3, 'Should be called after deleting farm')
 
         models.Exporter.objects.create(
             job='Exporter 2', port=1234, project=project,
         )
         # Deleting our farm means our config is inactive, so no additional calls
         # from creating exporter
-        self.assertEqual(write_mock.call_count, 2, 'No farms, so should not be called after deleting exporter')
+        self.assertEqual(write_mock.call_count, 3, 'No farms, so should not be called after deleting exporter')
