@@ -14,7 +14,7 @@ def to_prom(value):
         '{}="{}"'.format(k, v) for k, v in value.items()
     ]
 
-    return '{' + ', '.join(values) + '}'
+    return '{' + ', '.join(sorted(values)) + '}'
 
 
 @register.filter()
