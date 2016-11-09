@@ -20,7 +20,7 @@ ALERT RuleName
 class RuleTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
-        self.service = models.Service.objects.create(name='Service 1')
+        self.service = models.Service.objects.create(id=1, name='Service 1')
         models.Rule.objects.create(
             name='RuleName',
             clause='up==0',
