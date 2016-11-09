@@ -26,3 +26,22 @@ class RouteTests(TestCase):
         self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')
         self.assertEqual(models.Exporter.objects.count(), 2, 'Import two exporters')
         self.assertEqual(models.Host.objects.count(), 3, 'Import three hosts')
+
+    def test_service(self):
+        response = self.client.get(reverse('service-list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_project(self):
+        service = models.Service.objects.create(name='Service Test')
+        project = models.Project.objects.create(name='Project Test', service=service)
+
+        response = self.client.get(reverse('project-detail', kwargs={'pk': project.pk}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_farms(self):
+        response = self.client.get(reverse('farm-list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_hosts(self):
+        response = self.client.get(reverse('host-list'))
+        self.assertEqual(response.status_code, 200)
