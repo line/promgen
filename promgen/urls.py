@@ -70,6 +70,7 @@ urlpatterns = [
     url(r'^status/$', views.Status.as_view(), name='status'),
     url(r'^import/$', views.Import.as_view(), name='import'),
 
+    url(r'^search/$', views.Search.as_view(), name='search'),
     url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
     url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
 ]

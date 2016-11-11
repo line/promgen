@@ -426,6 +426,15 @@ class Status(View):
         })
 
 
+class Search(View):
+    def get(self, request):
+        return render(request, 'promgen/search.html', {
+            'farm_list': models.Farm.objects.filter(name__contains=request.GET.get('search')),
+            'service_list': models.Service.objects.filter(name__contains=request.GET.get('search')),
+            'project_list': models.Project.objects.filter(name__contains=request.GET.get('search')),
+        })
+
+
 class Import(FormView):
     template_name = 'promgen/import_form.html'
     form_class = forms.ImportForm

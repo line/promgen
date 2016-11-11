@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Hosts</h1>
+</div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active">Search</li>
+</ol>
+
+{% if service_list %}
+<div class="panel panel-default">
+  <div class="panel-heading">Services</div>
+  <div class="panel-body">
+    <ul>
+    {% for service in service_list %}
+    <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
+    {% endfor %}
+  </ul>
+  </div>
+</div>
+{% endif %}
+
+{% if project_list %}
+<div class="panel panel-default">
+  <div class="panel-heading">Projects</div>
+  <div class="panel-body">
+    <ul>
+    {% for project in project_list %}
+    <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+    {% endfor %}
+  </ul>
+  </div>
+</div>
+{% endif %}
+
+{% if farm_list %}
+<div class="panel panel-default">
+  <div class="panel-heading">Farms</div>
+  <div class="panel-body">
+    <ul>
+    {% for farm in farm_list %}
+    <li><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></li>
+    {% endfor %}
+  </ul>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
