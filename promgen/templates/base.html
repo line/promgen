@@ -27,11 +27,16 @@
                         <li><a href="{% url 'rules-list' %}">Rules</a></li>
                         <li><a href="{% url 'farm-list' %}">Farms</a></li>
                         <li><a href="{% url 'host-list' %}">Hosts</a></li>
-                        <li><a href="{% url 'status' %}">Status</a></li>
-                        <li><a href="{% url 'audit-list' %}">Log</a></li>
-                        <li><a href="{% url 'import' %}">Import Config</a></li>
-                        <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
-                        <li><a href="{% url 'config-rules' %}">Export Rules</a></li>
+                        <li class="dropdown">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Misc <span class="caret"></span></a>
+                          <ul class="dropdown-menu">
+                            <li><a href="{% url 'status' %}">Status</a></li>
+                            <li><a href="{% url 'audit-list' %}">Log</a></li>
+                            <li><a href="{% url 'import' %}">Import Config</a></li>
+                            <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
+                            <li><a href="{% url 'config-rules' %}">Export Rules</a></li>
+                          </ul>
+                        </li>
                         {% for title, link in EXTERNAL_LINKS.iteritems %}
                         <li><a href="{{ link }}">{{ title }}</a></li>
                         {% endfor %}
