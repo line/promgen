@@ -1,11 +1,11 @@
 # What is Promgen?
 
-Promgen is a configuration file generator for [Prometheus](http://prometheus.io). Promgen is a web application written in Ruby and can help you do the following jobs.
+Promgen is a configuration file generator for [Prometheus](http://prometheus.io). Promgen is a web application written with [Django] and can help you do the following jobs.
 
 * Create and manage Prometheus configuration files
 * Configure alert rules and notification options
 
-See the [Promgen introduction slides](http://www.slideshare.net/tokuhirom/promgen-prometheus-managemnet-tool-simpleclientjava-hacks-prometheus-casual) for more details.
+See the [Promgen introduction slides][Slides] for more details.
 
 ## Promgen screenshots
 
@@ -92,6 +92,8 @@ When you add a host on the browser, Promgen automatically generates a /tmp/prom.
 ```
 
 
-[XDG]: https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html
 [12factor]: https://12factor.net/
+[Django]: https://docs.djangoproject.com/en/1.10/
 [Settings]: promgen/tests/examples/settings.yaml
+[Slides]: http://www.slideshare.net/tokuhirom/promgen-prometheus-managemnet-tool-simpleclientjava-hacks-prometheus-casual
+[XDG]: https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html
