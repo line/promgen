@@ -14,7 +14,6 @@ from promgen import models
 logger = logging.getLogger(__name__)
 
 
-
 def check_rules(rules):
     with tempfile.NamedTemporaryFile(mode='w', encoding='utf8') as fp:
         logger.debug('Rendering to %s', fp.name)
