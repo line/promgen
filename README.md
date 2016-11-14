@@ -41,6 +41,8 @@ pip install -e .[dev]
 pip install mysqlclient # psycopg or another database driver
 # Setup database and update tables
 promgen migrate
+# Run tests
+promgen test
 # Run development server
 promgen runserver
 ```
