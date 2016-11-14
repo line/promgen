@@ -4,19 +4,32 @@ setup(
     name='Promgen',
     author='Paul Traylor',
     packages=find_packages(exclude=['test']),
+    classifiers=[
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Internet :: WWW/HTTP',
+    ],
     install_requires=[
         'atomicwrites',
         'dj_database_url',
-        'Django',
+        'Django >= 1.10, < 1.11',
         'envdir',
         'prometheus_client',
         'pyyaml',
         'requests',
     ],
-    test_requires=[
-        'nose-cov',
-        'django-nose'
-    ],
+    extras_require={
+        'dev': [
+            'django-nose',
+            'nose-cov',
+        ]
+    },
     entry_points={
         'console_scripts': [
             'promgen = promgen.manage:main',
