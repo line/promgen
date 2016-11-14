@@ -63,4 +63,33 @@
 </div>
 {% endif %}
 
+{% if rule_list %}
+<div class="panel panel-default">
+  <div class="panel-heading">Rules</div>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Clause</th>
+        <th>Duration</th>
+        <th>Labels</th>
+        <th>Annotations</th>
+        <th>Service</th>
+      </tr>
+    </thead>
+    {% for rule in rule_list %}
+    <tr>
+      <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
+      <td>{{ rule.clause }}</td>
+      <td>{{ rule.duration }}</td>
+      <td>{{ rule.labels }}</td>
+      <td>{{ rule.annotations }}</td>
+      <td>{{ rule.service }}</td>
+    </tr>
+    {% endfor %}
+  </ul>
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}

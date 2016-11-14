@@ -438,6 +438,7 @@ class Search(View):
             'farm_list': models.Farm.objects.filter(name__contains=request.GET.get('search')),
             'host_list': models.Host.objects.filter(name__contains=request.GET.get('search')),
             'project_list': models.Project.objects.filter(name__contains=request.GET.get('search')),
+            'rule_list': models.Rule.objects.filter(name__contains=request.GET.get('search')),
             'service_list': models.Service.objects.filter(name__contains=request.GET.get('search')),
         })
 
