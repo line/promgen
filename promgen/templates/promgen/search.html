@@ -27,12 +27,41 @@
 {% if project_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Projects</div>
-  <div class="panel-body">
-    <ul>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Exporters</th>
+        <th>Notifications</th>
+      </tr>
+    </thead>
     {% for project in project_list %}
-    <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+    <tr>
+      <td><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td>
+      <td>
+        <table style="width: 100%">
+  {% for exporter in project.exporter_set.all %}
+          <tr>
+            <td>{{ exporter.job }}</td>
+            <td>{{ exporter.port }}</td>
+            <td>{{ exporter.path }}</td>
+          </tr>
+  {% endfor %}
+        </table>
+      </td>
+      <td>
+        <table style="width: 100%">
+  {% for sender in project.sender_set.all %}
+          <tr>
+            <td>{{ sender.sender }}</td>
+            <td>{{ sender.show_value }}</td>
+          </tr>
+  {% endfor %}
+        </table>
+      </td>
+    </tr>
     {% endfor %}
-  </ul>
+  </table>
   </div>
 </div>
 {% endif %}
