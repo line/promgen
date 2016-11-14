@@ -178,6 +178,12 @@ class RulesList(ListView, ServiceMixin):
             return models.Rule.objects.filter(service=self.service)
         return models.Rule.objects.all()
 
+    def get_context_data(self, **kwargs):
+        context = super(RulesList, self).get_context_data(**kwargs)
+        context['all_rules'] = models.Rule.objects.all()
+        print(context)
+        return context
+
 
 class FarmRefresh(SingleObjectMixin, View):
     model = models.Farm
@@ -430,8 +436,9 @@ class Search(View):
     def get(self, request):
         return render(request, 'promgen/search.html', {
             'farm_list': models.Farm.objects.filter(name__contains=request.GET.get('search')),
-            'service_list': models.Service.objects.filter(name__contains=request.GET.get('search')),
+            'host_list': models.Host.objects.filter(name__contains=request.GET.get('search')),
             'project_list': models.Project.objects.filter(name__contains=request.GET.get('search')),
+            'service_list': models.Service.objects.filter(name__contains=request.GET.get('search')),
         })
 
 

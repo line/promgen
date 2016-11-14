@@ -50,4 +50,17 @@
 </div>
 {% endif %}
 
+{% if host_list %}
+<div class="panel panel-default">
+  <div class="panel-heading">Hosts</div>
+  <div class="panel-body">
+    <ul>
+    {% for host in host_list %}
+    <li><a href="{% url 'host-detail' host.id %}">{{ host.name }}</a></li>
+    {% endfor %}
+  </ul>
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}
