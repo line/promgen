@@ -20,7 +20,6 @@ setup(
         'dj_database_url',
         'Django >= 1.10, < 1.11',
         'envdir',
-        'prometheus_client',
         'pyyaml',
         'requests',
     ],

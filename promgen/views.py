@@ -14,7 +14,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 from prometheus_client import generate_latest
 
-from promgen import forms, metrics, models, plugins, prometheus, signals
+from promgen import forms, models, plugins, prometheus, signals
 
 logger = logging.getLogger(__name__)
 
@@ -399,7 +399,6 @@ class RulesConfig(View):
 class Alert(View):
     def post(self, request, *args, **kwargs):
         body = json.loads(request.body.decode('utf-8'))
-        metrics.AlertsReceived.inc({}, 1)
 
         for entry in plugins.senders():
             logger.debug('Sending notification to %s', entry.name)
@@ -411,17 +410,12 @@ class Alert(View):
             except Exception:
                 logger.exception('Error sending alert')
                 error += 1
-
-            if sent:
-                metrics.AlertsSent.inc({'sender': entry.name}, sent)
-            if error:
-                metrics.AlertsError.inc({'sender': entry.name}, error)
         return HttpResponse('OK')
 
 
 class Metrics(View):
     def get(self, request, *args, **kwargs):
-        return HttpResponse(generate_latest(metrics.MetricsRegistry), content_type='text/plain')
+        return HttpResponse('', content_type='text/plain')
 
 
 class Status(View):
