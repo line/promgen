@@ -12,7 +12,6 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
-from prometheus_client import generate_latest
 
 from promgen import forms, models, plugins, prometheus, signals
 
