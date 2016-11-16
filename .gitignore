@@ -3,3 +3,6 @@
 *.pyc
 *.sqlite3
 dist
+.idea
+*.iml
+.python-version
