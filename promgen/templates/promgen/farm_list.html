@@ -36,7 +36,7 @@
         <td>
           <ul>
           {% for project in farm.project_set.all %}
-            <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td></li>
+            <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
           {% endfor %}
           </ul>
         </td>
