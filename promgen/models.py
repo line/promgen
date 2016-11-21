@@ -51,11 +51,12 @@ class Sender(models.Model):
 
 
 class Farm(models.Model):
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=128)
     source = models.CharField(max_length=128)
 
     class Meta:
         ordering = ['name']
+        unique_together = (('name', 'source',))
 
     def refresh(self):
         remaining = [host.name for host in self.host_set.all()]
