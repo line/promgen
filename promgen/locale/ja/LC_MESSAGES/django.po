@@ -78,8 +78,8 @@ msgid "Unlink Farm"
 msgstr ""
 
 #: templates/promgen/project_detail.html:124
-msgid "Convert Farm"
-msgstr "Farmを変更"
+msgid "Convert to Local Farm"
+msgstr "FarmをLocalに変更"
 
 #: templates/promgen/project_detail.html:128
 msgid "Refresh Farm"
