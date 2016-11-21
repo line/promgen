@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Error Loading Page{% endblock %}
+
+{% block content %}
+<h1>Internal Error!</h1>
+<p>You've encountered an error, please try again in some time or file an
+error report if the problem persists.
+{% if request.sentry.id %}
+You may reference this error as <strong>{{ request.sentry.id }}</strong>.
+{% endif %}
+</p>
+{% endblock %}
