@@ -34,6 +34,9 @@ def _send(channel, alert, data, color):
         '_alertmanager': data['externalURL'],
         'summary': 'No Summary',
         'description': 'No Description',
+        'instance': '',
+        'farm': '',
+        'job': '',
     }
     context.update(alert['labels'])
     context.update(alert['annotations'])
