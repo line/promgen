@@ -117,7 +117,7 @@
   {% elif project.farm %}
       <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
         {% csrf_token %}
-        <button type="submit" class="btn btn-warning">{% trans "Unlink Farm" %}m</button>
+        <button type="submit" class="btn btn-warning">{% trans "Unlink Farm" %}</button>
       </form>
       <form method="post" action="{% url 'farm-convert' project.farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
         {% csrf_token %}
