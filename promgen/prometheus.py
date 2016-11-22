@@ -133,14 +133,14 @@ def import_config(config):
             if created:
                 counters['Host'] += 1
 
-        exporter, created = models.Exporter.objects.get_or_create(
-            job=entry['labels']['job'],
-            port=port,
-            project=project,
-            path=entry['labels'].get('__metrics_path__', '')
-        )
+            exporter, created = models.Exporter.objects.get_or_create(
+                job=entry['labels']['job'],
+                port=port,
+                project=project,
+                path=entry['labels'].get('__metrics_path__', '')
+            )
 
-        if created:
-            counters['Exporter'] += 1
+            if created:
+                counters['Exporter'] += 1
 
     return dict(counters)

@@ -107,7 +107,7 @@ class Exporter(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['job']
+        ordering = ['job', 'port']
         unique_together = (('job', 'port', 'project'))
 
     def __str__(self):
