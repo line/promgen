@@ -25,7 +25,7 @@ msgstr "Projectを更新する"
 
 #: templates/promgen/project_detail.html:22
 msgid "Export Project"
-msgstr "Projectを更新する"
+msgstr "Projectをエクスポートする"
 
 #: templates/promgen/project_detail.html:23
 msgid "Delete this Project?"
