@@ -26,6 +26,8 @@ class RouteTests(TestCase):
         self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')
         self.assertEqual(models.Exporter.objects.count(), 2, 'Import two exporters')
         self.assertEqual(models.Host.objects.count(), 3, 'Import three hosts')
+        self.assertEqual(models.Farm.objects.filter(source='pmc').count(), 1, 'One PMC Farm')
+        self.assertEqual(models.Farm.objects.filter(source='other').count(), 1, 'One other Farm')
 
     def test_service(self):
         response = self.client.get(reverse('service-list'))

@@ -2,6 +2,7 @@
   {
     "labels": {
       "farm": "Farm 2",
+      "__farm_source": "other",
       "job": "mysqld",
       "project": "Test 2",
       "service": "Test Service"

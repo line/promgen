@@ -47,6 +47,7 @@ def render_config(service=None, project=None):
             'project': exporter.project.name,
             'service': exporter.project.service.name,
             'farm': exporter.project.farm.name,
+            '__farm_source': exporter.project.farm.source,
             'job': exporter.job,
         }
         if exporter.path:
@@ -106,7 +107,7 @@ def import_config(config):
 
         farm, created = models.Farm.objects.get_or_create(
             name=entry['labels']['farm'],
-            defaults={'source': 'pmc'}
+            defaults={'source': entry['labels'].get('__farm_source', 'pmc')}
         )
         if created:
             counters['Farm'] += 1
