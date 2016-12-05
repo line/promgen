@@ -10,5 +10,5 @@ class Command(BaseCommand):
         parser.add_argument('target_file')
 
     def handle(self, target_file, **kwargs):
-        config = json.load(open(target_file))
+        config = json.load(open(target_file), encoding='utf8')
         prometheus.import_config(config)

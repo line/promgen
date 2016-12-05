@@ -449,7 +449,7 @@ class Import(FormView):
             data = form.clean()
             if data.get('file_field'):
                 messages.info(request, 'Importing config from file')
-                config = data['file_field'].read()
+                config = data['file_field'].read().decode('utf8')
             elif data.get('url'):
                 messages.info(request, 'Importing config from url')
                 response = requests.get(data['url'])
