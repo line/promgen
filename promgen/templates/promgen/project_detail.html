@@ -18,12 +18,14 @@
 <div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Configuration</div>
-    <a href="{% url 'project-update' project.id %}" class="btn btn-default">{% trans "Update Project" %}</a>
-    <a href="{% url 'project-export' project.id %}" class="btn btn-default">{% trans "Export Project" %}</a>
-    <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('{% trans "Delete this Project?" %}')" style="display: inline">
-      {% csrf_token %}
-      <button class="btn btn-danger">{% trans "Delete Project" %}</button>
-    </form>
+    <div class="panel-body">
+      <a href="{% url 'project-update' project.id %}" class="btn btn-default">{% trans "Update Project" %}</a>
+      <a href="{% url 'project-export' project.id %}" class="btn btn-default">{% trans "Export Project" %}</a>
+      <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('{% trans "Delete this Project?" %}')" style="display: inline">
+        {% csrf_token %}
+        <button class="btn btn-danger">{% trans "Delete Project" %}</button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -31,9 +33,13 @@
   <div class="panel panel-default">
     <div class="panel-heading">Notifications</div>
     <table class="table">
+      <tr>
+        <th>Sender</th>
+        <th>Value</th>
+      </tr>
       {% for sender in project.sender_set.all %}
       <tr>
-        <th>{{ sender.sender }}</th>
+        <td>{{ sender.sender }}</td>
         <td>{{ sender.show_value }}</td>
         <td>
           <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
