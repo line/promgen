@@ -41,7 +41,7 @@
                         <li><a href="{{ link }}">{{ title }}</a></li>
                         {% endfor %}
                         {% if user.is_superuser %}
-                        <li><a href="/admin">Admin</a></li>
+                        <li><a href="{% url 'admin:index' %}">Admin</a></li>
                         {% endif %}
                     </ul>
                     <form class="navbar-form navbar-left" action="{% url 'search' %}">
