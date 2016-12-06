@@ -33,7 +33,7 @@ msgstr "Serviceを削除しますか？"
 
 #: templates/promgen/project_detail.html:25
 msgid "Delete Project"
-msgstr "Projectを登録する"
+msgstr "Projectを削除する"
 
 #: templates/promgen/project_detail.html:39
 msgid "Delete notificiation?"
