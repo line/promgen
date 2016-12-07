@@ -33,3 +33,8 @@ def send(data):
         else:
             logger.debug('No senders configured for %s->%s', project, __name__)
             return None
+
+
+def test(target, data):
+    logger.debug('Sending test message to %s', target)
+    requests.post(target, data).raise_for_status()

@@ -52,6 +52,11 @@ def _send(channel, alert, data, color):
     requests.post(url, params).raise_for_status()
 
 
+def test(target, data):
+    logger.debug('Sending test message to %s', target)
+    _send(target, data, {'externalURL': ''}, 'yellow')
+
+
 def send(data):
     for alert in data['alerts']:
         project = alert['labels'].get('project')

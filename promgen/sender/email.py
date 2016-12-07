@@ -46,6 +46,11 @@ def _send(address, alert, data):
     )
 
 
+def test(target, alert):
+    logger.debug('Sending test message to %s', target)
+    _send(target, alert, {'externalURL': ''})
+
+
 def send(data):
     for alert in data['alerts']:
         project = alert['labels'].get('project')

@@ -58,6 +58,7 @@ urlpatterns = [
     url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
 
     url(r'^sender/(?P<pk>[0-9]+)/delete$', views.SenderDelete.as_view(), name='sender-delete'),
+    url(r'^sender/(?P<pk>[0-9]+)/test$', views.SenderTest.as_view(), name='sender-test'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
