@@ -108,6 +108,28 @@ class SenderDelete(DeleteView):
         return reverse('project-detail', args=[self.object.project_id])
 
 
+class SenderTest(View):
+    def post(self, request, pk):
+        sender = get_object_or_404(models.Sender, id=pk)
+        for entry in plugins.senders():
+            if entry.module_name == sender.sender:
+                try:
+                    entry.load().test(sender.value, {
+                        'generatorURL': 'Promgen',
+                        'status': 'Test',
+                        'labels': {},
+                        'annotations': {
+                            'alertname': 'Test Alert',
+                        },
+                    })
+                except:
+                    messages.warning(request, 'Error sending test message with ' + entry.module_name)
+                else:
+                    messages.info(request, 'Sent test message with ' + entry.module_name)
+
+        return HttpResponseRedirect(reverse('project-detail', args=[sender.project.id]))
+
+
 class ExporterDelete(DeleteView):
     model = models.Exporter
 

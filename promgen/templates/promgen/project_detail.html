@@ -42,6 +42,12 @@
         <td>{{ sender.sender }}</td>
         <td>{{ sender.show_value }}</td>
         <td>
+          <form method="post" action="{% url 'sender-test' sender.id %}" style="display: inline">
+            {% csrf_token %}
+            <button class="btn btn-danger">{% trans "Test" %}</button>
+          </form>
+        </td>
+        <td>
           <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
             {% csrf_token %}
             <button class="btn btn-danger">{% trans "Delete" %}</button>
