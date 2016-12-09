@@ -10,12 +10,11 @@
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
   <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
-  <li class="active">Register Farm</li>
+  <li class="active">{{ view.button_label }}</li>
 </ol>
 
-<form action="{% url 'farm-new' project.id %}" method="post">{% csrf_token %}
+<form method="post">{% csrf_token %}
     {{ form.as_p }}
-    <button class="btn btn-primary">Register Farm</button>
+    <button class="btn btn-primary">{{ view.button_label }}</button>
 </form>
-
 {% endblock %}
