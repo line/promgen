@@ -27,6 +27,12 @@ class ProjectForm(forms.ModelForm):
         exclude = ['service', 'farm']
 
 
+class FarmForm(forms.ModelForm):
+    class Meta:
+        model = models.Farm
+        exclude = ['project']
+
+
 class RuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule

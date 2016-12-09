@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
+from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
@@ -174,6 +175,26 @@ class FarmDetail(DetailView):
     model = models.Farm
 
 
+class FarmUpdate(UpdateView):
+    model = models.Farm
+    button_label = _('Update Farm')
+    template_name = 'promgen/farm_form.html'
+    form_class = forms.FarmForm
+
+    def get_context_data(self, **kwargs):
+        context = super(FarmUpdate, self).get_context_data(**kwargs)
+        context['project'] = self.object.project_set.first()
+        context['service'] = context['project'].service
+        return context
+
+    def form_valid(self, form):
+        farm, created = models.Farm.objects.update_or_create(
+            id=self.kwargs['pk'],
+            defaults=form.clean(),
+        )
+        return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
+
+
 class FarmDelete(DeleteView):
     model = models.Farm
 
@@ -337,6 +358,7 @@ class ServiceRegister(FormView):
 
 class FarmRegsiter(FormView, ProjectMixin):
     model = models.Farm
+    button_label = _('Register Farm')
     template_name = 'promgen/farm_form.html'
     form_class = forms.FarmForm
 
