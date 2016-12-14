@@ -10,5 +10,4 @@ test:
   override:
     - promgen test
   post:
-    - mkdir -p $CIRCLE_ARTIFACTS/cover
-    - cp dist/cover/* $CIRCLE_ARTIFACTS/cover/
+    - coverage html -d $CIRCLE_ARTIFACTS
