@@ -3,6 +3,9 @@ machine:
     version: 3.5.2
   environment:
     SECRET_KEY: abcd
+dependencies:
+  post:
+    - pip install -e .[dev]
 test:
   override:
     - promgen test
