@@ -1,6 +1,8 @@
 machine:
   python:
     version: 3.5.2
+  environment:
+    SECRET_KEY: abcd
 test:
   override:
     - promgen test
