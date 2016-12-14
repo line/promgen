@@ -223,7 +223,6 @@ class RulesList(ListView, ServiceMixin):
     def get_context_data(self, **kwargs):
         context = super(RulesList, self).get_context_data(**kwargs)
         context['all_rules'] = models.Rule.objects.all()
-        print(context)
         return context
 
 
