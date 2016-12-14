@@ -4,7 +4,7 @@ machine:
   environment:
     SECRET_KEY: abcd
 dependencies:
-  post:
+  override:
     - pip install -e .[dev]
 test:
   override:
