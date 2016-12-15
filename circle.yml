@@ -1,0 +1,13 @@
+machine:
+  python:
+    version: 3.5.2
+  environment:
+    SECRET_KEY: abcd
+dependencies:
+  override:
+    - pip install -e .[dev]
+test:
+  override:
+    - promgen test
+  post:
+    - coverage html -d $CIRCLE_ARTIFACTS
