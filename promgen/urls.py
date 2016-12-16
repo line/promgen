@@ -64,6 +64,7 @@ urlpatterns = [
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
+    url(r'^rule/(?P<pk>[0-9]+)/toggle$', views.RuleToggle.as_view(), name='rule-toggle'),
 
     url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
     url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),

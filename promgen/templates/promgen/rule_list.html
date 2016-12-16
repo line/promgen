@@ -24,10 +24,11 @@
 {% endif %}
 
 <div class="panel panel-default">
-    <table class="table table-bordered">
+    <table class="table table-bordered table-condensed">
       <thead>
         <tr>
           <th>Name</th>
+          <th>Enabled</th>
           <th>Clause</th>
           <th>Duration</th>
           <th>Labels</th>
@@ -41,19 +42,31 @@
         </tr>
       </thead>
 {% for rule in rule_list %}
-      <tr>
+      <tr {% if rule.enabled == False %}class="rule-off"{% endif %}>
         <td>{{ rule.name }}</td>
+        <td>{{ rule.enabled }}</td>
         <td>{{ rule.clause }}</td>
         <td>{{ rule.duration }}</td>
         <td>{{ rule.labels }}</td>
         <td>{{ rule.annotations }}</td>
         {% if service %}
         <td><a href="{% url 'rule-edit' rule.id %}" class="btn btn-primary">Edit</a></td>
-        <td><form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('Delete this rule?')" style="display: inline">
-          {% csrf_token %}
-          <button class="btn btn-danger">Delete</button>
-        </form>
-      </td>
+        <td>
+          <form method="post" action="{% url 'rule-toggle' rule.id %}" style="display: inline">
+            {% csrf_token %}
+            {% if rule.enabled %}
+            <button class="btn btn-default">Disable</button>
+            {% else %}
+            <button class="btn btn-primary">Enable</button>
+            {% endif %}
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('Delete this rule?')" style="display: inline">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </td>
         {% else %}
         <td><a href="{% url 'service-rules' rule.service.id %}">{{ rule.service }}</a></td>
         {% endif %}
