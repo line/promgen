@@ -35,7 +35,6 @@
           <th>Annotations</th>
           {% if service %}
           <th>&nbsp;</th>
-          <th>&nbsp;</th>
           {% else %}
           <th>Service</th>
           {% endif %}
@@ -50,8 +49,8 @@
         <td>{{ rule.labels }}</td>
         <td>{{ rule.annotations }}</td>
         {% if service %}
-        <td><a href="{% url 'rule-edit' rule.id %}" class="btn btn-primary">Edit</a></td>
         <td>
+          <a href="{% url 'rule-edit' rule.id %}" class="btn btn-primary">Edit</a>
           <form method="post" action="{% url 'rule-toggle' rule.id %}" style="display: inline">
             {% csrf_token %}
             {% if rule.enabled %}
@@ -60,8 +59,6 @@
             <button class="btn btn-primary">Enable</button>
             {% endif %}
           </form>
-        </td>
-        <td>
           <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('Delete this rule?')" style="display: inline">
             {% csrf_token %}
             <button class="btn btn-danger">Delete</button>
