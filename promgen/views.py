@@ -5,6 +5,7 @@ import logging
 import requests
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse, reverse_lazy
@@ -479,11 +480,14 @@ class Status(View):
 class Search(View):
     def get(self, request):
         return render(request, 'promgen/search.html', {
-            'farm_list': models.Farm.objects.filter(name__contains=request.GET.get('search')),
-            'host_list': models.Host.objects.filter(name__contains=request.GET.get('search')),
-            'project_list': models.Project.objects.filter(name__contains=request.GET.get('search')),
-            'rule_list': models.Rule.objects.filter(name__contains=request.GET.get('search')),
-            'service_list': models.Service.objects.filter(name__contains=request.GET.get('search')),
+            'farm_list': models.Farm.objects.filter(name__icontains=request.GET.get('search')),
+            'host_list': models.Host.objects.filter(name__icontains=request.GET.get('search')),
+            'project_list': models.Project.objects.filter(name__icontains=request.GET.get('search')),
+            'rule_list': models.Rule.objects.filter(
+                Q(name__icontains=request.GET.get('search')) |
+                Q(clause__icontains=request.GET.get('search'))
+            ),
+            'service_list': models.Service.objects.filter(name__icontains=request.GET.get('search')),
         })
 
 
