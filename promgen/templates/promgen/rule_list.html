@@ -44,10 +44,10 @@
       <tr {% if rule.enabled == False %}class="rule-off"{% endif %}>
         <td>{{ rule.name }}</td>
         <td>{{ rule.enabled }}</td>
-        <td>{{ rule.clause }}</td>
+        <td style="word-break: break-word;">{{ rule.clause }}</td>
         <td>{{ rule.duration }}</td>
         <td>{{ rule.labels }}</td>
-        <td>{{ rule.annotations }}</td>
+        <td style="word-break: break-word;">{{ rule.annotations }}</td>
         {% if service %}
         <td>
           <a href="{% url 'rule-edit' rule.id %}" class="btn btn-primary">Edit</a>
