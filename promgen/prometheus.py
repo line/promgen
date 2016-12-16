@@ -29,7 +29,7 @@ def check_rules(rules):
 
 def render_rules(rules=None):
     if rules is None:
-        rules = models.Rule.objects.all()
+        rules = models.Rule.objects.filter(enabled=True)
     return render_to_string('promgen/prometheus.rule', {'rules': rules})
 
 

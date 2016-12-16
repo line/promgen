@@ -134,6 +134,7 @@ class Rule(models.Model):
     labels = models.TextField(validators=[validate_json_or_empty])
     annotations = models.TextField(validators=[validate_json_or_empty])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
+    enabled = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['name']

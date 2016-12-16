@@ -145,6 +145,14 @@ class RuleDelete(DeleteView):
         return reverse('service-rules', args=[self.object.service_id])
 
 
+class RuleToggle(View):
+    def post(self, request, pk):
+        rule = get_object_or_404(models.Rule, id=pk)
+        rule.enabled = not rule.enabled
+        rule.save()
+        return HttpResponseRedirect(reverse('service-rules', args=[rule.service_id]))
+
+
 class HostDelete(DeleteView):
     model = models.Host
 
