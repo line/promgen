@@ -440,7 +440,7 @@ class ProjectExport(View):
 
 class RulesConfig(View):
     def get(self, request):
-        return HttpResponse(prometheus.render_rules(), content_type='text/plain')
+        return HttpResponse(prometheus.render_rules(), content_type='text/plain; charset=utf-8')
 
     def post(self, request):
         prometheus.write_rules(notify=False)
