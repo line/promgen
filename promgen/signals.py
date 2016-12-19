@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 write_config = Signal()
 write_rules = Signal()
+write_urls = Signal()
 
 
 def multi_receiver(signal, senders, **kwargs):
@@ -52,15 +53,28 @@ def run_once(signal):
 
 @run_once(write_config)
 def _write_config(signal, **kwargs):
+    logger.info('Writing config')
     prometheus.write_config()
     prometheus.reload_prometheus()
+    prometheus.notify('config_writer')
     return True
 
 
 @run_once(write_rules)
 def _write_rules(signal, **kwargs):
+    logger.info('Writing Rules')
     prometheus.write_rules()
     prometheus.reload_prometheus()
+    prometheus.notify('rule_writer')
+    return True
+
+
+@run_once(write_urls)
+def _write_urls(signal, **kwargs):
+    logger.info('Writing URLs')
+    prometheus.write_urls()
+    prometheus.reload_prometheus()
+    prometheus.notify('url_writer')
     return True
 
 
@@ -91,13 +105,13 @@ def delete_rule(sender, instance, **kwargs):
 @receiver(post_save, sender=models.URL)
 def save_url(sender, instance, **kwargs):
     prometheus.write_urls()
-    prometheus.reload_prometheus()
+    write_urls.send(instance)
 
 
 @receiver(post_delete, sender=models.URL)
 def delete_url(sender, instance, **kwargs):
     prometheus.write_urls()
-    prometheus.reload_prometheus()
+    write_urls.send(instance)
 
 
 @receiver(post_save, sender=models.Host)
