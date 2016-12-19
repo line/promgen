@@ -216,7 +216,7 @@ class UnlinkFarm(View):
         project = get_object_or_404(models.Project, id=pk)
         project.farm = None
         project.save()
-        signals.write_config.send(self)
+        signals.trigger_write_config.send(self)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
