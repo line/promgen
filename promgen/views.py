@@ -465,6 +465,15 @@ class RulesConfig(View):
         return HttpResponse('OK', status=202)
 
 
+class URLConfig(View):
+    def get(self, request):
+        return HttpResponse(prometheus.render_urls(), content_type='application/json')
+
+    def post(self, request):
+        prometheus.write_urls(notify=False)
+        return HttpResponse('OK', status=202)
+
+
 class Alert(View):
     def post(self, request, *args, **kwargs):
         body = json.loads(request.body.decode('utf-8'))
