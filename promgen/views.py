@@ -319,6 +319,13 @@ class URLDelete(DeleteView):
         return reverse('project-detail', args=[self.object.project_id])
 
 
+class URLList(ListView):
+    queryset = models.URL.objects\
+        .prefetch_related(
+            'project',
+        )
+
+
 class ProjectRegister(FormView, ServiceMixin):
     model = models.Project
     template_name = 'promgen/project_form.html'

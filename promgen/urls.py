@@ -45,6 +45,7 @@ urlpatterns = [
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
 
+    url(r'^url$', views.URLList.as_view(), name='url-list'),
     url(r'^url/(?P<pk>[0-9]+)/new$', views.URLRegister.as_view(), name='url-new'),
     url(r'^url/(?P<pk>[0-9]+)/delete$', views.URLDelete.as_view(), name='url-delete'),
 

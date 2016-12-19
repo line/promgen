@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>URLs</h1>
+</div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active">All URLs</li>
+</ol>
+
+<div class="panel panel-default">
+    <table class="table table-bordered table-condensed">
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Project</th>
+          <th>&nbsp;</th>
+        </tr>
+      </thead>
+{% for url in url_list %}
+      <tr>
+        <td><a href="{{ url.url }}">{{ url.url }}</a></td>
+        <td><a href="{% url 'project-detail' url.project.id %}">{{ url.project.name }}</a></td>
+        <td>
+          <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
+            {% csrf_token %}
+            <button class="btn btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+{% endfor %}
+    </table>
+
+</div>
+
+{% endblock %}
