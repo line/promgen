@@ -6,7 +6,7 @@ from promgen import models
 
 class SignalTest(TestCase):
     longMessage = True
-    @mock.patch('promgen.signals.write_config.send')
+    @mock.patch('promgen.signals.trigger_write_config.send')
     def test_write_signal(self, write_mock):
         # Build service trigger
         service = models.Service.objects.create(name='Service')
@@ -29,7 +29,7 @@ class SignalTest(TestCase):
             mock.call(e1), mock.call(e2)
         ])
 
-    @mock.patch('promgen.signals.write_config.send')
+    @mock.patch('promgen.signals.trigger_write_config.send')
     def test_write_and_delete(self, write_mock):
         # Build service trigger
         service = models.Service.objects.create(name='Service')

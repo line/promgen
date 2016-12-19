@@ -17,7 +17,7 @@ class RouteTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
-    @mock.patch('promgen.signals._write_config')
+    @mock.patch('promgen.signals._trigger_write_config')
     def test_import(self, mock_reload):
         response = self.client.post(reverse('import'), {
             'config': json.dumps(TEST_IMPORT)

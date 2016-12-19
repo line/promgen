@@ -9,8 +9,9 @@ from promgen import models, prometheus
 
 logger = logging.getLogger(__name__)
 
-write_config = Signal()
-write_rules = Signal()
+trigger_write_config = Signal()
+trigger_write_rules = Signal()
+trigger_write_urls = Signal()
 
 
 def multi_receiver(signal, senders, **kwargs):
@@ -50,17 +51,27 @@ def run_once(signal):
     return _decorator
 
 
-@run_once(write_config)
-def _write_config(signal, **kwargs):
+@run_once(trigger_write_config)
+def _trigger_write_config(signal, **kwargs):
+    logger.info('Writing config')
     prometheus.write_config()
-    prometheus.reload_prometheus()
+    prometheus.notify('config_writer')
     return True
 
 
-@run_once(write_rules)
-def _write_rules(signal, **kwargs):
+@run_once(trigger_write_rules)
+def _trigger_write_rules(signal, **kwargs):
+    logger.info('Writing Rules')
     prometheus.write_rules()
-    prometheus.reload_prometheus()
+    prometheus.notify('rule_writer')
+    return True
+
+
+@run_once(trigger_write_urls)
+def _trigger_write_urls(signal, **kwargs):
+    logger.info('Writing URLs')
+    prometheus.write_urls()
+    prometheus.notify('url_writer')
     return True
 
 
@@ -80,24 +91,24 @@ def delete_log(sender, instance, **kwargs):
 @receiver(post_save, sender=models.Rule)
 def save_rule(sender, instance, **kwargs):
     prometheus.check_rules([instance])
-    write_rules.send(instance)
+    trigger_write_rules.send(instance)
 
 
 @receiver(post_delete, sender=models.Rule)
 def delete_rule(sender, instance, **kwargs):
-    write_rules.send(instance)
+    trigger_write_rules.send(instance)
 
 
 @receiver(post_save, sender=models.URL)
 def save_url(sender, instance, **kwargs):
     prometheus.write_urls()
-    prometheus.reload_prometheus()
+    trigger_write_urls.send(instance)
 
 
 @receiver(post_delete, sender=models.URL)
 def delete_url(sender, instance, **kwargs):
     prometheus.write_urls()
-    prometheus.reload_prometheus()
+    trigger_write_urls.send(instance)
 
 
 @receiver(post_save, sender=models.Host)
@@ -105,7 +116,7 @@ def save_host(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.farm.project_set.all():
         if project.exporter_set:
-            write_config.send(instance)
+            trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Host)
@@ -113,14 +124,14 @@ def delete_host(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.farm.project_set.all():
         if project.exporter_set.exists():
-            write_config.send(instance)
+            trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Farm)
 def delete_farm(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.project_set.all():
-        write_config.send(instance)
+        trigger_write_config.send(instance)
 
 
 @receiver(post_save, sender=models.Exporter)
@@ -128,7 +139,7 @@ def save_exporter(sender, instance, **kwargs):
     '''Only trigger write if parent project also has hosts'''
     if instance.project.farm:
         if instance.project.farm.host_set.exists():
-            write_config.send(instance)
+            trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Exporter)
@@ -136,16 +147,16 @@ def delete_exporter(sender, instance, **kwargs):
     '''Only trigger write if parent project also has hosts'''
     if instance.project.farm:
         if instance.project.farm.host_set.exists():
-            write_config.send(instance)
+            trigger_write_config.send(instance)
 
 
 @receiver(post_save, sender=models.Project)
 def save_project(sender, instance, **kwargs):
     if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
-        write_config.send(instance)
+        trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Project)
 def delete_project(sender, instance, **kwargs):
     if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
-        write_config.send(instance)
+        trigger_write_config.send(instance)

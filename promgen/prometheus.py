@@ -3,6 +3,7 @@ import json
 import logging
 import subprocess
 import tempfile
+from urllib.parse import urljoin
 
 import requests
 from atomicwrites import atomic_write
@@ -33,6 +34,15 @@ def render_rules(rules=None):
     return render_to_string('promgen/prometheus.rule', {'rules': rules})
 
 
+def notify(target):
+    logger.debug('Sending notifications to %s', target)
+    for target in settings.PROMGEN[target].get('notify', []):
+        try:
+            requests.post(target).raise_for_status()
+        except Exception as e:
+            logger.error('%s while notifying %s', e, target)
+
+
 def render_urls():
     urls = collections.defaultdict(list)
     for url in models.URL.objects.all():
@@ -44,16 +54,10 @@ def render_urls():
     return json.dumps(data, indent=2, sort_keys=True)
 
 
-def write_urls(notify=True):
+def write_urls():
     with atomic_write(settings.PROMGEN['url_writer']['path'], overwrite=True) as fp:
         fp.write(render_urls())
     reload_prometheus()
-    if notify:
-        for target in settings.PROMGEN['url_writer'].get('notify', []):
-            try:
-                requests.post(target).raise_for_status()
-            except Exception as e:
-                logger.error('%s while notifying %s', e, target)
 
 
 def render_config(service=None, project=None):
@@ -87,32 +91,20 @@ def render_config(service=None, project=None):
     return json.dumps(data, indent=2, sort_keys=True)
 
 
-def write_config(notify=True):
+def write_config():
     with atomic_write(settings.PROMGEN['config_writer']['path'], overwrite=True) as fp:
         fp.write(render_config())
     reload_prometheus()
-    if notify:
-        for target in settings.PROMGEN['config_writer'].get('notify', []):
-            try:
-                requests.post(target).raise_for_status()
-            except Exception as e:
-                logger.error('%s while notifying %s', e, target)
 
 
-def write_rules(notify=True):
+def write_rules():
     with atomic_write(settings.PROMGEN['rule_writer']['rule_path'], overwrite=True) as fp:
         fp.write(render_rules())
     reload_prometheus()
-    if notify:
-        for target in settings.PROMGEN['rule_writer'].get('notify', []):
-            try:
-                requests.post(target).raise_for_status()
-            except Exception as e:
-                logger.error('%s while notifying %s', e, target)
 
 
 def reload_prometheus():
-    target = '{}/-/reload'.format(settings.PROMGEN['prometheus']['url'])
+    target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
     try:
         requests.post(target).raise_for_status()
     except Exception as e:
