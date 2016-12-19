@@ -41,6 +41,12 @@ class ExporterAdmin(admin.ModelAdmin):
     list_filter = ('project', 'job', 'port')
 
 
+@admin.register(models.URL)
+class URLAdmin(admin.ModelAdmin):
+    list_display = ('url', 'project')
+    list_filter = ('project',)
+
+
 @admin.register(models.Rule)
 class RuleAdmin(admin.ModelAdmin):
     list_display = ('name', 'clause', 'duration', 'labels', 'annotations', 'service')

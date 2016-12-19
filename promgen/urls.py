@@ -45,6 +45,9 @@ urlpatterns = [
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
 
+    url(r'^url/(?P<pk>[0-9]+)/new$', views.URLRegister.as_view(), name='url-new'),
+    url(r'^url/(?P<pk>[0-9]+)/delete$', views.URLDelete.as_view(), name='url-delete'),
+
     url(r'^farm/$', views.FarmList.as_view(), name='farm-list'),
     url(r'^farm/(?P<pk>[0-9]+)$', views.FarmDetail.as_view(), name='farm-detail'),
     url(r'^farm/(?P<pk>[0-9]+)/refresh$', views.FarmRefresh.as_view(), name='farm-refresh'),

@@ -301,6 +301,24 @@ class ExporterRegister(FormView, ProjectMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
+class URLRegister(FormView, ProjectMixin):
+    model = models.URL
+    template_name = 'promgen/url_form.html'
+    form_class = forms.URLForm
+
+    def form_valid(self, form):
+        project = get_object_or_404(models.Project, id=self.kwargs['pk'])
+        url, _ = models.URL.objects.get_or_create(project=project, **form.clean())
+        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+
+
+class URLDelete(DeleteView):
+    model = models.URL
+
+    def get_success_url(self):
+        return reverse('project-detail', args=[self.object.project_id])
+
+
 class ProjectRegister(FormView, ServiceMixin):
     model = models.Project
     template_name = 'promgen/project_form.html'
