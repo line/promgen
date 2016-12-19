@@ -33,6 +33,29 @@ def render_rules(rules=None):
     return render_to_string('promgen/prometheus.rule', {'rules': rules})
 
 
+def render_urls():
+    urls = collections.defaultdict(list)
+    for url in models.URL.objects.all():
+        urls[(
+            url.project.name, url.project.service.name,
+        )].append(url.url)
+
+    data = [{'labels': {'project': k[0], 'service': k[1]}, 'targets': v} for k, v in urls.items()]
+    return json.dumps(data, indent=2, sort_keys=True)
+
+
+def write_urls(notify=True):
+    with atomic_write(settings.PROMGEN['url_writer']['path'], overwrite=True) as fp:
+        fp.write(render_urls())
+    reload_prometheus()
+    if notify:
+        for target in settings.PROMGEN['url_writer'].get('notify', []):
+            try:
+                requests.post(target).raise_for_status()
+            except Exception as e:
+                logger.error('%s while notifying %s', e, target)
+
+
 def render_config(service=None, project=None):
     data = []
     for exporter in models.Exporter.objects.all():

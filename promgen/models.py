@@ -114,6 +114,11 @@ class Exporter(models.Model):
         return '{}:{}:{} ({})'.format(self.job, self.port, self.path, self.project)
 
 
+class URL(models.Model):
+    url = models.URLField(max_length=256)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+
+
 def validate_json_or_empty(value):
     if value == '':
         return
