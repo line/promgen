@@ -64,7 +64,7 @@ def _write_rules(signal, **kwargs):
     return True
 
 
-@multi_receiver(post_save, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project])
+@multi_receiver(post_save, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project, models.URL])
 def save_log(sender, instance, created, **kwargs):
     if created:
         models.Audit.log('Updated %s %s' % (sender.__name__, instance))
@@ -72,7 +72,7 @@ def save_log(sender, instance, created, **kwargs):
         models.Audit.log('Created %s %s' % (sender.__name__, instance))
 
 
-@multi_receiver(post_delete, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project])
+@multi_receiver(post_delete, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project, models.URL])
 def delete_log(sender, instance, **kwargs):
     models.Audit.log('Deleted %s %s' % (sender.__name__, instance))
 
@@ -86,6 +86,18 @@ def save_rule(sender, instance, **kwargs):
 @receiver(post_delete, sender=models.Rule)
 def delete_rule(sender, instance, **kwargs):
     write_rules.send(instance)
+
+
+@receiver(post_save, sender=models.URL)
+def save_url(sender, instance, **kwargs):
+    prometheus.write_urls()
+    prometheus.reload_prometheus()
+
+
+@receiver(post_delete, sender=models.URL)
+def delete_url(sender, instance, **kwargs):
+    prometheus.write_urls()
+    prometheus.reload_prometheus()
 
 
 @receiver(post_save, sender=models.Host)
