@@ -2,45 +2,27 @@ import logging
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 from promgen.models import Sender
 
 logger = logging.getLogger(__name__)
 
 
-SUBJECT = '''
-{alertname} {farm} {instance} {job} {_status}
-'''.strip()
-
-TEMPLATE = '''
-{alertname} {farm} {instance} {job} {_status}
-
-{summary}
-{description}
-
-Prometheus: {_prometheus}
-Alert Manager: {_alertmanager}
-'''.strip()
-
-
 def _send(address, alert, data):
+    subject = render_to_string('promgen/sender/email.subject.txt', {
+        'alert': alert,
+        'externalURL': data['externalURL'],
+    }).strip()
 
-    context = {
-        '_prometheus': alert['generatorURL'],
-        '_status': alert['status'],
-        '_alertmanager': data['externalURL'],
-        'summary': 'No Summary',
-        'description': 'No Description',
-        'instance': '',
-        'farm': '',
-        'job': '',
-    }
-    context.update(alert['labels'])
-    context.update(alert['annotations'])
+    body = render_to_string('promgen/sender/email.body.txt', {
+        'alert': alert,
+        'externalURL': data['externalURL'],
+    }).strip()
 
     send_mail(
-        SUBJECT.format(**context),
-        TEMPLATE.format(**context),
+        subject,
+        body,
         settings.PROMGEN[__name__]['sender'],
         [address]
     )
