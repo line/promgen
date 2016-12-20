@@ -1,0 +1,7 @@
+{{ alert.labels.alertname }} {{ alert.labels.farm }} {{ alert.labels.instance }} {{ alert.labels.job }} {{ alert.status }}
+
+{{ alert.annotations.summary }}
+{{ alert.annotations.description }}
+
+Prometheus: {{ alert.generatorURL }}
+Alert Manager: {{ externalURL }}
