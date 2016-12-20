@@ -8,19 +8,9 @@ import logging
 
 import requests
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from promgen.models import Sender
-
-TEMPLATE = '''
-{alertname} {farm} {instance} {job} {_status}
-
-{summary}
-{description}
-
-Prometheus: {_prometheus}
-Alert Manager: {_alertmanager}
-'''.strip()
-
 
 logger = logging.getLogger(__name__)
 
@@ -28,19 +18,10 @@ logger = logging.getLogger(__name__)
 def _send(channel, alert, data, color):
     url = settings.PROMGEN[__name__]['server']
 
-    context = {
-        '_prometheus': alert['generatorURL'],
-        '_status': alert['status'],
-        '_alertmanager': data['externalURL'],
-        'summary': 'No Summary',
-        'description': 'No Description',
-        'instance': '',
-        'farm': '',
-        'job': '',
-    }
-    context.update(alert['labels'])
-    context.update(alert['annotations'])
-    message = TEMPLATE.format(**context)
+    message = render_to_string('promgen/sender/ikasan.body.txt', {
+        'alert': alert,
+        'externalURL': data['externalURL'],
+    }).strip()
 
     params = {
         'channel': channel,
