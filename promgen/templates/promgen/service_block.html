@@ -2,6 +2,14 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
+    <form method="post" action="{% url 'mute' %}" class="form-inline pull-right">
+      {% csrf_token %}
+      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+      <input name="label.service" type="hidden" value="{{ service.name }}" />
+      <input id="mute_duration" name="duration" placeholder="1m/1h/etc" />
+      <button class="btn btn-warning">{% trans "Mute" %}</button>
+    </form>
+    <div class="clearfix"></div>
   </div>
 <table class="table table-bordered table-condensed">
   <tr>
@@ -9,6 +17,7 @@
     <th>Farm</th>
     <th>Exporters</th>
     <th>Senders</th>
+    <th>&nbsp;</th>
   </tr>
 {% for project in service.project_set.all %}
   <tr>
@@ -34,6 +43,16 @@
         </tr>
 {% endfor %}
       </table>
+    </td>
+    <td>
+      <form method="post" action="{% url 'mute' %}" class="form-inline">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+        <input name="label.service" type="hidden" value="{{ service.name }}" />
+        <input name="label.project" type="hidden" value="{{ project.name }}" />
+        <input name="duration" placeholder="1m/1h/etc" />
+        <button class="btn btn-warning">{% trans "Mute" %}</button>
+      </form>
     </td>
   </tr>
 {% endfor %}

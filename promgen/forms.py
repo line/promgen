@@ -9,6 +9,11 @@ class ImportForm(forms.Form):
     file_field = forms.FileField(required=False)
 
 
+class MuteForm(forms.Form):
+    next = forms.CharField(required=False)
+    duration = forms.CharField(required=True)
+
+
 class ExporterForm(forms.ModelForm):
     class Meta:
         model = models.Exporter

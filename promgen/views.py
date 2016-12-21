@@ -554,3 +554,28 @@ class Import(FormView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+
+class Mute(FormView):
+    form_class = forms.MuteForm
+
+    def post(self, request):
+        form = forms.MuteForm(request.POST)
+        if form.is_valid():
+            # Since it's a little annoying to submit forms with an array, we
+            # cheat a bit and just use a simple prefix which we can split on
+            # to build our array of labels
+            labels = {}
+            for key in request.POST:
+                if key.startswith('label.'):
+                    target = key.split('.', 1)[1]
+                    labels[target] = request.POST[key]
+            try:
+                duration = form.clean()['duration']
+                prometheus.mute(duration, labels)
+                messages.success(request, 'Setting mute for %s' % duration)
+            except Exception as e:
+                messages.warning(request, e)
+        else:
+            messages.warning(request, 'Error setting mute')
+        return HttpResponseRedirect(request.POST.get('next', '/'))

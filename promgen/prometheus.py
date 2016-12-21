@@ -1,4 +1,5 @@
 import collections
+import datetime
 import json
 import logging
 import subprocess
@@ -160,3 +161,31 @@ def import_config(config):
                 counters['Exporter'] += 1
 
     return dict(counters)
+
+
+def mute(duration, labels):
+    '''
+    Post a silence message to Alert Manager
+    Duration should be sent in a format like 1m 2h 1d etc
+    '''
+    start = datetime.datetime.now(datetime.timezone.utc)
+
+    if duration.lower().endswith('m'):
+        end = start + datetime.timedelta(minutes=int(duration[:-1]))
+    elif duration.lower().endswith('h'):
+        end = start + datetime.timedelta(hours=int(duration[:-1]))
+    elif duration.lower().endswith('d'):
+        end = start + datetime.timedelta(days=int(duration[:-1]))
+    else:
+        raise Exception('Unknown time modifier')
+
+    data = {
+        'comment': 'Promgen Mute',
+        'createdBy': 'Promgen',
+        'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
+        'endsAt': end.strftime('%Y-%m-%dT%H:%M:%S.000Z')
+    }
+
+    logger.debug('Sending silence for %s %s', end, data)
+    url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
+    requests.post(url, json=data).raise_for_status()
