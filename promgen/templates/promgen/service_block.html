@@ -2,6 +2,10 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
+    <span class="pull-right form-inline">
+      {% include "promgen/mute_form.inc.html" with label=service.name %}
+    </span>
+    <div class="clearfix"></div>
   </div>
 <table class="table table-bordered table-condensed">
   <tr>
@@ -9,6 +13,7 @@
     <th>Farm</th>
     <th>Exporters</th>
     <th>Senders</th>
+    <th>&nbsp;</th>
   </tr>
 {% for project in service.project_set.all %}
   <tr>
@@ -35,12 +40,15 @@
 {% endfor %}
       </table>
     </td>
+    <td>
+      {% include "promgen/mute_form.inc.html" with label=service.name|add:"-"|add:project.name %}
+    </td>
   </tr>
 {% endfor %}
 </table>
   <div class="panel-footer">
     <a href="{% url 'project-new' service.id %}" class="btn btn-primary">{% trans "Register Project" %}</a>
-    <a href="{% url 'service-update' service.id %}" class="btn btn-primary">{% trans "Update Project" %}</a>
+    <a href="{% url 'service-update' service.id %}" class="btn btn-warning">{% trans "Edit Service" %}</a>
     <a href="{% url 'service-rules' service.id %}" class="btn btn-default">{% trans "Rules" %}</a>
     <a href="{% url 'service-export' service.id %}" class="btn btn-default">{% trans "Export Service" %}</a>
     <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">

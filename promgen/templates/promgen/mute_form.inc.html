@@ -1,0 +1,14 @@
+{% load i18n %}
+<a class="btn btn-default form-inline" role="button" data-toggle="collapse" data-target="#options-{{ label }}" aria-expanded="false" aria-controls="collapseExample">Options</a>
+<form id="options-{{ label }}" method="post" action="{% url 'mute' %}" class="collapse">
+  {% csrf_token %}
+  <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+{% if service %}
+  <input name="label.service" type="hidden" value="{{ service.name }}" />
+{% endif %}
+{% if project %}
+  <input name="label.project" type="hidden" value="{{ project.name }}" />
+{% endif %}
+  <input name="duration" placeholder="1m/1h/etc" />
+  <button class="btn btn-warning">{% trans "Mute" %}</button>
+</form>
