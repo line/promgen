@@ -24,7 +24,7 @@ class SenderForm(forms.ModelForm):
 
 @admin.register(models.Sender)
 class SenderAdmin(admin.ModelAdmin):
-    list_display = ('project', 'sender', 'value')
+    list_display = ('project', 'sender', 'value', 'alias')
     form = SenderForm
     list_filter = ('project', 'sender')
 
