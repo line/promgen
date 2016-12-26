@@ -49,6 +49,7 @@ class Sender(models.Model):
             return self.alias
         return self.value
 
+    show_value.short_description = 'Value'
 
 class Farm(models.Model):
     name = models.CharField(max_length=128)
