@@ -42,13 +42,14 @@ class Sender(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
     sender = models.CharField(max_length=128)
     value = models.CharField(max_length=128)
-    password = models.BooleanField(default=False)
+    alias = models.CharField(max_length=128, blank=True)
 
     def show_value(self):
-        if self.password:
-            return '***'
+        if self.alias:
+            return self.alias
         return self.value
 
+    show_value.short_description = 'Value'
 
 class Farm(models.Model):
     name = models.CharField(max_length=128)
