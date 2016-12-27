@@ -165,6 +165,8 @@ if 'SENTRY_DSN' in os.environ:
         },
     }
 
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+
 if DEBUG:
     try:
         import debug_toolbar  # NOQA

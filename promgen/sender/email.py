@@ -4,11 +4,13 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
+from promgen.celery import app as celery
 from promgen.models import Sender
 
 logger = logging.getLogger(__name__)
 
 
+@celery.task
 def _send(address, alert, data):
     subject = render_to_string('promgen/sender/email.subject.txt', {
         'alert': alert,
@@ -30,7 +32,7 @@ def _send(address, alert, data):
 
 def test(target, alert):
     logger.debug('Sending test message to %s', target)
-    _send(target, alert, {'externalURL': ''})
+    _send.delay(target, alert, {'externalURL': ''})
 
 
 def send(data):
@@ -40,7 +42,7 @@ def send(data):
         if senders:
             for sender in senders:
                 logger.debug('Sending %s for %s', __name__, project)
-                _send(sender.value, alert, data)
+                _send.delay(sender.value, alert, data)
             return True
         else:
             logger.debug('No senders configured for %s->%s', project, __name__)

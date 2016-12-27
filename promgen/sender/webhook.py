@@ -6,10 +6,18 @@ configured webhook destinations
 '''
 
 import logging
+
 import requests
+
+from promgen.celery import app as celery
 from promgen.models import Sender
 
 logger = logging.getLogger(__name__)
+
+
+@celery.task
+def _send(url, data):
+    requests.post(url, data).raise_for_status()
 
 
 def send(data):
@@ -27,8 +35,7 @@ def send(data):
                 }
                 data.update(alert['labels'])
                 data.update(alert['annotations'])
-
-                requests.post(sender.value, data).raise_for_status()
+                _send.delay(url, data)
             return True
         else:
             logger.debug('No senders configured for %s->%s', project, __name__)

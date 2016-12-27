@@ -4,11 +4,13 @@ import requests
 from django.conf import settings
 from django.template.loader import render_to_string
 
+from promgen.celery import app as celery
 from promgen.models import Sender
 
 logger = logging.getLogger(__name__)
 
 
+@celery.task
 def _send(token, alert, data):
     url = settings.PROMGEN[__name__]['server']
 
