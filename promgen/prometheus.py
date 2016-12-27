@@ -11,7 +11,7 @@ from atomicwrites import atomic_write
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from promgen import models
+from promgen import models, tasks
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +38,7 @@ def render_rules(rules=None):
 def notify(target):
     logger.debug('Sending notifications to %s', target)
     for target in settings.PROMGEN[target].get('notify', []):
-        try:
-            requests.post(target).raise_for_status()
-        except Exception as e:
-            logger.error('%s while notifying %s', e, target)
+        tasks.post.delay(target)
 
 
 def render_urls():
@@ -106,10 +103,7 @@ def write_rules():
 
 def reload_prometheus():
     target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
-    try:
-        requests.post(target).raise_for_status()
-    except Exception as e:
-        logger.error('%s while notifying %s', e, target)
+    tasks.post.delay(target)
 
 
 def import_config(config):
