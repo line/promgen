@@ -16,6 +16,8 @@ import dj_database_url
 import envdir
 import yaml
 
+from promgen.plugins import apps
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_DIR = os.path.expanduser('~/.config/promgen')
@@ -54,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'promgen',
-]
+] + apps
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
