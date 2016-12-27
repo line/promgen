@@ -11,9 +11,15 @@ from atomicwrites import atomic_write
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from promgen import models, tasks
+from promgen import models
+from promgen.celery import app as celery
 
 logger = logging.getLogger(__name__)
+
+
+@celery.task
+def post(target, *args, **kwargs):
+    requests.post(target, *args, **kwargs)
 
 
 def check_rules(rules):
@@ -38,7 +44,7 @@ def render_rules(rules=None):
 def notify(target):
     logger.debug('Sending notifications to %s', target)
     for target in settings.PROMGEN[target].get('notify', []):
-        tasks.post.delay(target)
+        post.delay(target)
 
 
 def render_urls():
@@ -52,6 +58,7 @@ def render_urls():
     return json.dumps(data, indent=2, sort_keys=True)
 
 
+@celery.task
 def write_urls():
     with atomic_write(settings.PROMGEN['url_writer']['path'], overwrite=True) as fp:
         fp.write(render_urls())
@@ -89,21 +96,24 @@ def render_config(service=None, project=None):
     return json.dumps(data, indent=2, sort_keys=True)
 
 
+@celery.task
 def write_config():
     with atomic_write(settings.PROMGEN['config_writer']['path'], overwrite=True) as fp:
         fp.write(render_config())
     reload_prometheus()
 
 
+@celery.task
 def write_rules():
     with atomic_write(settings.PROMGEN['rule_writer']['rule_path'], overwrite=True) as fp:
         fp.write(render_rules())
     reload_prometheus()
 
 
+@celery.task
 def reload_prometheus():
     target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
-    tasks.post.delay(target)
+    post(target)
 
 
 def import_config(config):
