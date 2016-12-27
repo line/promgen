@@ -16,7 +16,7 @@ Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22
 Alert Manager: https://am.promehteus.localhost'''
 
 
-class LineNotifyTest(TestCase):
+class EmailTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
         self.service = models.Service.objects.create(name='Service 1')
@@ -39,8 +39,9 @@ class LineNotifyTest(TestCase):
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.sender.email.send_mail')
-    def test_project(self, mock_email):
+    def test_email(self, mock_email):
         self.assertTrue(send(TEST_ALERT))
         mock_email.assert_has_calls([
             mock.call(

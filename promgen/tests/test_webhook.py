@@ -23,7 +23,7 @@ _PARAMS = {
 }
 
 
-class IkasanTest(TestCase):
+class WebhookTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
         self.service = models.Service.objects.create(name='Service 1')
@@ -37,6 +37,6 @@ class IkasanTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('requests.post')
-    def test_project(self, mock_post):
+    def test_webhook(self, mock_post):
         self.assertTrue(send(TEST_ALERT))
         mock_post.assert_called_once_with('http://example.com', _PARAMS)

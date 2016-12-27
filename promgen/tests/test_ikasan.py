@@ -29,7 +29,7 @@ class IkasanTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('requests.post')
-    def test_project(self, mock_post):
+    def test_ikasan(self, mock_post):
         self.assertTrue(send(TEST_ALERT))
         mock_post.assert_called_once_with('http://ikasan.example', {
             'color': 'green',
