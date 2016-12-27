@@ -9,15 +9,10 @@ import logging
 
 import requests
 
-from promgen.celery import app as celery
 from promgen.models import Sender
+from promgen.prometheus import post
 
 logger = logging.getLogger(__name__)
-
-
-@celery.task
-def _send(url, data):
-    requests.post(url, data).raise_for_status()
 
 
 def send(data):
@@ -35,7 +30,7 @@ def send(data):
                 }
                 data.update(alert['labels'])
                 data.update(alert['annotations'])
-                _send.delay(url, data)
+                post.delay(sender.value, data)
             return True
         else:
             logger.debug('No senders configured for %s->%s', project, __name__)
