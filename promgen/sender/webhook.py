@@ -7,8 +7,6 @@ configured webhook destinations
 
 import logging
 
-import requests
-
 from promgen.models import Sender
 from promgen.prometheus import post
 
@@ -39,4 +37,4 @@ def send(data):
 
 def test(target, data):
     logger.debug('Sending test message to %s', target)
-    requests.post(target, data).raise_for_status()
+    post.delay(target, data).raise_for_status()

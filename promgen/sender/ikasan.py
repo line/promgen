@@ -6,12 +6,12 @@ https://github.com/studio3104/ikasan
 
 import logging
 
-import requests
 from django.conf import settings
 from django.template.loader import render_to_string
 
 from promgen.celery import app as celery
 from promgen.models import Sender
+from promgen.prometheus import post
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def _send(channel, alert, data, color):
 
     if color is not None:
         params['color'] = color
-    requests.post(url, params).raise_for_status()
+    post(url, params)
 
 
 def test(target, data):

@@ -1,11 +1,11 @@
 import logging
 
-import requests
 from django.conf import settings
 from django.template.loader import render_to_string
 
 from promgen.celery import app as celery
 from promgen.models import Sender
+from promgen.prometheus import post
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ def _send(token, alert, data):
         'Authorization': 'Bearer %s' % token
     }
 
-    requests.post(url, data=params, headers=headers).raise_for_status()
+    post(url, data=params, headers=headers)
 
 
 def test(target, alert):

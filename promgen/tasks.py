@@ -1,9 +1,6 @@
 import logging
 
-import requests
-
-from promgen import plugins, prometheus
-from promgen.celery import app
+from promgen import plugins, prometheus  # NOQA
 
 logger = logging.getLogger(__name__)
 for plugin in plugins.senders():
