@@ -1,5 +1,5 @@
 {% load i18n %}
-<a class="btn btn-default form-inline" role="button" data-toggle="collapse" data-target="#options-{{ label|slugify }}" aria-expanded="false" aria-controls="collapseExample">Options</a>
+<a class="btn btn-default form-inline btn-xs" role="button" data-toggle="collapse" data-target="#options-{{ label|slugify }}" aria-expanded="false" aria-controls="collapseExample">Options</a>
 <form id="options-{{ label|slugify }}" method="post" action="{% url 'mute' %}" class="collapse">
   {% csrf_token %}
   <input name="next" type="hidden" value="{{ request.get_full_path }}" />

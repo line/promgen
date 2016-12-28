@@ -57,7 +57,7 @@
         <td>
           <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">
             {% csrf_token %}
-            <button class="btn btn-danger">{% trans "Delete" %}</button>
+            <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
           </form>
         </td>
       </tr>
@@ -118,7 +118,7 @@
         <td>
           <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
             {% csrf_token %}
-          <button name="delete" type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+          <button name="delete" type="submit" class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
           </form>
         </td>
         {% endif %}

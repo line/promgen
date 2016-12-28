@@ -11,13 +11,13 @@
     <td>
       <form method="post" action="{% url 'sender-test' sender.id %}" style="display: inline">
         {% csrf_token %}
-        <button class="btn btn-danger">{% trans "Test" %}</button>
+        <button class="btn btn-danger btn-xs">{% trans "Test" %}</button>
       </form>
     </td>
     <td>
       <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
         {% csrf_token %}
-        <button class="btn btn-danger">{% trans "Delete" %}</button>
+        <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
       </form>
     </td>
   </tr>
