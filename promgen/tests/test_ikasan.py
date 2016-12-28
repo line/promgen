@@ -2,7 +2,7 @@ from unittest import mock
 from django.test import TestCase, override_settings
 
 from promgen import models
-from promgen.sender.ikasan import send
+from promgen.sender.ikasan import SenderIkasan
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
@@ -30,7 +30,7 @@ class IkasanTest(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('requests.post')
     def test_ikasan(self, mock_post):
-        self.assertTrue(send(TEST_ALERT))
+        self.assertEqual(SenderIkasan().send(TEST_ALERT), 1)
         mock_post.assert_called_once_with('http://ikasan.example', {
             'color': 'green',
             'channel': '#',

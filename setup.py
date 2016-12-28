@@ -38,10 +38,10 @@ setup(
             'default = promgen.remote',
         ],
         'promgen.sender': [
-            'ikasan = promgen.sender.ikasan',
-            'email = promgen.sender.email',
-            'linenotify = promgen.sender.linenotify',
-            'webhook = promgen.sender.webhook',
+            'ikasan = promgen.sender.ikasan:SenderIkasan',
+            'email = promgen.sender.email:SenderEmail',
+            'linenotify = promgen.sender.linenotify:SenderLineNotify',
+            'webhook = promgen.sender.webhook:SenderWebhook',
         ],
     }
 )
