@@ -116,7 +116,7 @@ class SenderTest(View):
         for entry in plugins.senders():
             if entry.module_name == sender.sender:
                 try:
-                    entry.load().test(sender.value, {
+                    entry.load()().test(sender.value, {
                         'generatorURL': 'Promgen',
                         'status': 'Test',
                         'labels': {},
@@ -490,7 +490,7 @@ class Alert(View):
             sent = 0
             error = 0
             try:
-                if entry.load().send(body):
+                if entry.load()().send(body):
                     sent += 1
             except Exception:
                 logger.exception('Error sending alert')

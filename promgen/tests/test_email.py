@@ -2,7 +2,7 @@ from unittest import mock
 from django.test import TestCase, override_settings
 
 from promgen import models
-from promgen.sender.email import send
+from promgen.sender.email import SenderEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
@@ -41,7 +41,7 @@ class LineNotifyTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.sender.email.send_mail')
     def test_project(self, mock_email):
-        self.assertTrue(send(TEST_ALERT))
+        self.assertEqual(SenderEmail().send(TEST_ALERT), 2)
         mock_email.assert_has_calls([
             mock.call(
                 _SUBJECT,
