@@ -15,9 +15,9 @@ _PARAMS = {
     'farm': 'foo-BETA',
     'instance': 'testhost.localhost:9100',
     'job': 'node',
-    'monitor': 'prometheus',
     'project': 'Project 1',
     'prometheus': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
+    'service': 'Service 1',
     'severity': 'critical',
     'status': 'resolved',
     'summary': 'Instance testhost.localhost:9100 down',
@@ -29,10 +29,10 @@ class WebhookTest(TestCase):
     def setUp(self):
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
-        project_type = ContentType.objects.get_for_model(self.project)
+        self.project_type = ContentType.objects.get_for_model(self.project)
         self.sender = models.Sender.objects.create(
             object_id=self.project.id,
-            content_type_id=project_type.id,
+            content_type_id=self.project_type.id,
             sender='promgen.sender.webhook',
             value='http://example.com',
         )
@@ -41,4 +41,9 @@ class WebhookTest(TestCase):
     @mock.patch('requests.post')
     def test_project(self, mock_post):
         self.assertEqual(SenderWebhook().send(TEST_ALERT), 1)
-        mock_post.assert_called_once_with('http://example.com', _PARAMS)
+        mock_post.assert_has_calls([
+            mock.call(
+                'http://example.com',
+                _PARAMS
+            ),
+        ])
