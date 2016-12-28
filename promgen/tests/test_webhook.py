@@ -27,9 +27,9 @@ _PARAMS = {
 class WebhookTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
-        project_type = ContentType.objects.get_by_natural_key('promgen', 'Project')
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
+        project_type = ContentType.objects.get_for_model(self.project)
         self.sender = models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=project_type.id,
