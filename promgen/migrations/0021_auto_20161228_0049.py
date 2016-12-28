@@ -8,8 +8,9 @@ import django.db.models.deletion
 
 def convert_to_project(apps, schema_editor):
     Sender = apps.get_model('promgen', 'Sender')
+    Project = apps.get_model('promgen', 'Project')
     ContentType = apps.get_model('contenttypes', 'ContentType')
-    project_type = ContentType.objects.get_by_natural_key('promgen', 'Project')
+    project_type = ContentType.objects.get_for_model(Project)
 
     for sender in Sender.objects.all():
         if sender.content_type_id == project_type.id:
@@ -21,8 +22,9 @@ def convert_to_project(apps, schema_editor):
 
 def convert_to_content_type(apps, schema_editor):
     Sender = apps.get_model('promgen', 'Sender')
+    Project = apps.get_model('promgen', 'Project')
     ContentType = apps.get_model('contenttypes', 'ContentType')
-    project_type = ContentType.objects.get_by_natural_key('promgen', 'Project')
+    project_type = ContentType.objects.get_for_model(Project)
     for sender in Sender.objects.all():
         sender.object_id = sender.project_id
         sender.content_type_id = project_type.id

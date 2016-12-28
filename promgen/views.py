@@ -492,11 +492,14 @@ class Alert(View):
             sent = 0
             error = 0
             try:
-                if entry.load()().send(body):
-                    sent += 1
+                Sender = entry.load()
+                logger.debug(Sender)
+                Sender().send(body)
             except Exception:
                 logger.exception('Error sending alert')
                 error += 1
+            else:
+                sent += 1
         return HttpResponse('OK')
 
 

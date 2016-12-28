@@ -1,10 +1,11 @@
 from unittest import mock
+
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 
 from promgen import models
 from promgen.sender.email import SenderEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
-
 
 _SUBJECT = 'node_down foo-BETA testhost.localhost:9100 node resolved'
 _MESSAGE = '''node_down foo-BETA testhost.localhost:9100 node resolved
@@ -16,24 +17,28 @@ Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22
 Alert Manager: https://am.promehteus.localhost'''
 
 
-class LineNotifyTest(TestCase):
+class EmailTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
+        project_type = ContentType.objects.get_by_natural_key('promgen', 'Project')
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.project2 = models.Project.objects.create(name='Project 2', service=self.service)
         self.sender = models.Sender.objects.create(
-            project=self.project,
+            object_id=self.project.id,
+            content_type_id=project_type.id,
             sender='promgen.sender.email',
             value='example@example.com',
         )
         models.Sender.objects.create(
-            project=self.project,
+            object_id=self.project.id,
+            content_type_id=project_type.id,
             sender='promgen.sender.email',
             value='foo@example.com',
         )
         models.Sender.objects.create(
-            project=self.project2,
+            object_id=self.project2.id,
+            content_type_id=project_type.id,
             sender='promgen.sender.email',
             value='bar@example.com',
         )
@@ -41,7 +46,7 @@ class LineNotifyTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.sender.email.send_mail')
     def test_project(self, mock_email):
-        self.assertEqual(SenderEmail().send(TEST_ALERT), 2)
+        self.assertEquals(SenderEmail().send(TEST_ALERT), 2)
         mock_email.assert_has_calls([
             mock.call(
                 _SUBJECT,
