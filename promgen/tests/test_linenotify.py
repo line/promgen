@@ -1,4 +1,6 @@
 from unittest import mock
+
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 
 from promgen import models
@@ -18,10 +20,12 @@ Alert Manager: https://am.promehteus.localhost'''
 class LineNotifyTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
+        project_type = ContentType.objects.get_by_natural_key('promgen', 'Project')
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.sender = models.Sender.objects.create(
-            project=self.project,
+            object_id=self.project.id,
+            content_type_id=project_type.id,
             sender='promgen.sender.linenotify',
             value='hogehoge',
         )
@@ -29,7 +33,7 @@ class LineNotifyTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('requests.post')
     def test_project(self, mock_post):
-        self.assertEqual(SenderLineNotify().send(TEST_ALERT), 1)
+        self.assertTrue(SenderLineNotify().send(TEST_ALERT))
         mock_post.assert_called_once_with(
             'https://notify.example',
             data={'message': _MESSAGE},
