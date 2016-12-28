@@ -8,32 +8,9 @@
     <div class="clearfix"></div>
   </div>
 
-<div class="panel-heading">Notifications</div>
+<div class="panel-heading">Service Level Senders</div>
 {% if service.sender.count %}
-<table class="table table-bordered table-condensed">
-  <tr>
-    <th>Sender</th>
-    <th>Value</th>
-  </tr>
-  {% for sender in service.sender.all %}
-  <tr>
-    <td>{{ sender.sender }}</td>
-    <td>{{ sender.show_value }}</td>
-    <td>
-      <form method="post" action="{% url 'sender-test' sender.id %}" style="display: inline">
-        {% csrf_token %}
-        <button class="btn btn-danger">{% trans "Test" %}</button>
-      </form>
-    </td>
-    <td>
-      <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
-        {% csrf_token %}
-        <button class="btn btn-danger">{% trans "Delete" %}</button>
-      </form>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+{% include "promgen/sender_block.html" with object=service %}
 {% endif %}
 
 <div class="panel-heading">Projects</div>
