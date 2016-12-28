@@ -49,7 +49,7 @@ msgstr "削除"
 
 #: templates/promgen/project_detail.html:48
 msgid "Register Sender"
-msgstr "Senderをを登録する"
+msgstr "Senderを登録する"
 
 #: templates/promgen/project_detail.html:78
 msgid "Register Exporter"
