@@ -126,6 +126,7 @@ class SenderTest(View):
                         },
                     })
                 except:
+                    logger.exception('Error sending test message')
                     messages.warning(request, 'Error sending test message with ' + entry.module_name)
                 else:
                     messages.info(request, 'Sent test message with ' + entry.module_name)
