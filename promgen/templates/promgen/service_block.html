@@ -7,6 +7,37 @@
     </span>
     <div class="clearfix"></div>
   </div>
+
+<div class="panel-heading">Notifications</div>
+{% if service.sender.count %}
+<table class="table table-bordered table-condensed">
+  <tr>
+    <th>Sender</th>
+    <th>Value</th>
+  </tr>
+  {% for sender in service.sender.all %}
+  <tr>
+    <td>{{ sender.sender }}</td>
+    <td>{{ sender.show_value }}</td>
+    <td>
+      <form method="post" action="{% url 'sender-test' sender.id %}" style="display: inline">
+        {% csrf_token %}
+        <button class="btn btn-danger">{% trans "Test" %}</button>
+      </form>
+    </td>
+    <td>
+      <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
+        {% csrf_token %}
+        <button class="btn btn-danger">{% trans "Delete" %}</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<div class="panel-heading">Projects</div>
+{% if service.project_set.count %}
 <table class="table table-bordered table-condensed">
   <tr>
     <th>Project</th>
@@ -46,8 +77,11 @@
   </tr>
 {% endfor %}
 </table>
+{% endif %}
+
   <div class="panel-footer">
     <a href="{% url 'project-new' service.id %}" class="btn btn-primary">{% trans "Register Project" %}</a>
+    <a href="{% url 'service-sender' service.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
     <a href="{% url 'service-update' service.id %}" class="btn btn-warning">{% trans "Edit Service" %}</a>
     <a href="{% url 'service-rules' service.id %}" class="btn btn-default">{% trans "Rules" %}</a>
     <a href="{% url 'service-export' service.id %}" class="btn btn-default">{% trans "Export Service" %}</a>
