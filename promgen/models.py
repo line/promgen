@@ -31,6 +31,9 @@ class Sender(models.Model):
 
     show_value.short_description = 'Value'
 
+    def __str__(self):
+        return '{}:{}'.format(self.sender, self.show_value())
+
 
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
