@@ -5,7 +5,9 @@ configured webhook destinations
 '''
 
 import logging
+
 import requests
+
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
@@ -18,8 +20,8 @@ class SenderWebhook(SenderBase):
             'status': alert['status'],
             'alertmanager': data['externalURL']
         }
-        body.update(alert['labels'])
-        body.update(alert['annotations'])
+        body.update(alert.get('labels', {}))
+        body.update(alert.get('annotations', {}))
 
         requests.post(url, body).raise_for_status()
         return True
