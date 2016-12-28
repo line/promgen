@@ -1,4 +1,6 @@
 from unittest import mock
+
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 
 from promgen import models
@@ -18,10 +20,12 @@ Alert Manager: https://am.promehteus.localhost'''
 class IkasanTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
+        project_type = ContentType.objects.get_by_natural_key('promgen', 'Project')
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.sender = models.Sender.objects.create(
-            project=self.project,
+            object_id=self.project.id,
+            content_type_id=project_type.id,
             sender='promgen.sender.ikasan',
             value='#',
         )
@@ -29,7 +33,7 @@ class IkasanTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('requests.post')
     def test_project(self, mock_post):
-        self.assertEqual(SenderIkasan().send(TEST_ALERT), 1)
+        self.assertEquals(SenderIkasan().send(TEST_ALERT), 1)
         mock_post.assert_called_once_with('http://ikasan.example', {
             'color': 'green',
             'channel': '#',
