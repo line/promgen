@@ -1,10 +1,11 @@
 from unittest import mock
+
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 
 from promgen import models
 from promgen.sender.webhook import SenderWebhook
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
-
 
 _PARAMS = {
     'alertmanager': 'https://am.promehteus.localhost',
@@ -23,13 +24,15 @@ _PARAMS = {
 }
 
 
-class IkasanTest(TestCase):
+class WebhookTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
+        project_type = ContentType.objects.get_by_natural_key('promgen', 'Project')
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.sender = models.Sender.objects.create(
-            project=self.project,
+            object_id=self.project.id,
+            content_type_id=project_type.id,
             sender='promgen.sender.webhook',
             value='http://example.com',
         )
