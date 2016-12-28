@@ -130,7 +130,7 @@ class SenderTest(View):
                 else:
                     messages.info(request, 'Sent test message with ' + entry.module_name)
 
-        return HttpResponseRedirect(reverse('project-detail', args=[sender.project.id]))
+        return HttpResponseRedirect(sender.content_object.get_absolute_url())
 
 
 class ExporterDelete(DeleteView):
@@ -404,7 +404,7 @@ class FarmRegsiter(FormView, ProjectMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class SenderRegister(FormView, ProjectMixin):
+class ProjectSenderRegister(FormView, ProjectMixin):
     model = models.Sender
     template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm
@@ -413,7 +413,19 @@ class SenderRegister(FormView, ProjectMixin):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
         project_type = ContentType.objects.get_for_model(project)
         sender, _ = models.Sender.objects.get_or_create(object_id=project.id, content_type_id=project_type.id, **form.clean())
-        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+        return HttpResponseRedirect(project.get_absolute_url())
+
+
+class ServiceSenderRegister(FormView, ServiceMixin):
+    model = models.Sender
+    template_name = 'promgen/service_sender_form.html'
+    form_class = forms.SenderForm
+
+    def form_valid(self, form):
+        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        service_type = ContentType.objects.get_for_model(service)
+        sender, _ = models.Sender.objects.get_or_create(object_id=service.id, content_type_id=service_type.id, **form.clean())
+        return HttpResponseRedirect(service.get_absolute_url())
 
 
 class HostRegister(FormView):
