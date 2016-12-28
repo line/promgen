@@ -32,7 +32,7 @@
     </td>
     <td>
       <table style="width: 100%">
-{% for sender in project.sender_set.all %}
+{% for sender in project.sender.all %}
         <tr>
           <td>{{ sender.sender }}</td>
           <td>{{ sender.show_value }}</td>

@@ -37,7 +37,7 @@
         <th>Sender</th>
         <th>Value</th>
       </tr>
-      {% for sender in project.sender_set.all %}
+      {% for sender in project.sender.all %}
       <tr>
         <td>{{ sender.sender }}</td>
         <td>{{ sender.show_value }}</td>

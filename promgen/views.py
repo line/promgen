@@ -5,6 +5,7 @@ import logging
 import requests
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -42,7 +43,7 @@ class ServiceList(ListView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender_set')
+            'project_set__sender')
 
 
 class HostList(ListView):
@@ -88,7 +89,7 @@ class ServiceDetail(DetailView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender_set')
+            'project_set__sender')
 
 
 class ServiceDelete(DeleteView):
@@ -107,7 +108,7 @@ class SenderDelete(DeleteView):
     model = models.Sender
 
     def get_success_url(self):
-        return reverse('project-detail', args=[self.object.project_id])
+        return self.object.content_object.get_absolute_url()
 
 
 class SenderTest(View):
@@ -410,7 +411,8 @@ class SenderRegister(FormView, ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        sender, _ = models.Sender.objects.get_or_create(project=project, **form.clean())
+        project_type = ContentType.objects.get_for_model(project)
+        sender, _ = models.Sender.objects.get_or_create(object_id=project.id, content_type_id=project_type.id, **form.clean())
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
