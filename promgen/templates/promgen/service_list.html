@@ -9,6 +9,7 @@
 
 
 {% for service in service_list %}
+<h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
 {% include "promgen/service_block.html" %}
 {% endfor %}
 

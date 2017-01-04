@@ -1,13 +1,5 @@
 {% load i18n %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
-    <span class="pull-right form-inline">
-      {% include "promgen/mute_form.inc.html" with label=service.name %}
-    </span>
-    <div class="clearfix"></div>
-  </div>
-  <div class="panel-body">
+<div class="well">
 
   <div class="panel panel-default">
     <div class="panel-heading">
@@ -71,8 +63,8 @@
 {% endif %}
 
   </div>
-</div>
-  <div class="panel-footer">
+
+    {% include "promgen/mute_form.inc.html" with label=service.name %}
     <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
     <a href="{% url 'service-rules' service.id %}" class="btn btn-default btn-sm">{% trans "Rules" %}</a>
     <a href="{% url 'service-export' service.id %}" class="btn btn-default btn-sm">{% trans "Export Service" %}</a>
@@ -80,5 +72,5 @@
       {% csrf_token %}
       <button class="btn btn-danger btn-sm">{% trans "Delete Service" %}</button>
     </form>
-  </div>
+
 </div>
