@@ -8,16 +8,16 @@ import logging
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from promgen.celery import app as celery
+from promgen.celery import wrap_send
 from promgen.prometheus import post
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
 
 
+@wrap_send
 class SenderIkasan(SenderBase):
-    @celery.task
-    def _send(channel, alert, data):
+    def _send(self, channel, alert, data):
         url = settings.PROMGEN[__name__]['server']
         color = 'green' if alert['status'] == 'resolved' else 'red'
 

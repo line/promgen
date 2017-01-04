@@ -20,3 +20,11 @@ app.autodiscover_tasks()
 @app.task(bind=True)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))
+
+
+def wrap_send(cls):
+    if hasattr(cls, '_send'):
+        print('Wrapping ', cls)
+        cls._send = app.task(cls._send, bind=True, lazy=False)
+        cls._send.__klass__ = cls()
+    return cls
