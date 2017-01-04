@@ -22,6 +22,11 @@ def debug_task(self):
     print('Request: {0!r}'.format(self.request))
 
 
+# Because of the way that celery is de-coupled, it can be quite difficult to
+# get an instance of 'self' when converting a class method into a celery task.
+# as a way to get around this, we can mimick a @task(bind=True) call so that we
+# get a self instance to the Celery task, and then we can set a __klass__
+# attribute that we can use to get to our other class functions
 def wrap_send(cls):
     if hasattr(cls, '_send'):
         print('Wrapping ', cls)
