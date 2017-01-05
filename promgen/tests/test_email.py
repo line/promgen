@@ -46,7 +46,7 @@ class EmailTest(TestCase):
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.sender.email.send_mail')
-    def test_project(self, mock_email):
+    def test_email(self, mock_email):
         self.client.post(reverse('alert'),
             data=json.dumps(TEST_ALERT),
             content_type='application/json'

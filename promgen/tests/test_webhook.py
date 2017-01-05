@@ -61,7 +61,7 @@ class WebhookTest(TestCase):
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('requests.post')
-    def test_project(self, mock_post):
+    def test_webhook(self, mock_post):
         self.client.post(reverse('alert'),
             data=json.dumps(TEST_ALERT),
             content_type='application/json'
