@@ -40,6 +40,7 @@ class ServiceMixin(ContextMixin):
 class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
+            'sender',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
