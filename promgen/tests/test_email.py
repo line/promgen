@@ -1,8 +1,9 @@
+import json
 from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
-
+from django.urls import reverse
 from promgen import models
 from promgen.sender.email import SenderEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
@@ -27,26 +28,29 @@ class EmailTest(TestCase):
         self.sender = models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=project_type.id,
-            sender='promgen.sender.email',
+            sender=SenderEmail.__module__,
             value='example@example.com',
         )
         models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=project_type.id,
-            sender='promgen.sender.email',
+            sender=SenderEmail.__module__,
             value='foo@example.com',
         )
         models.Sender.objects.create(
             object_id=self.project2.id,
             content_type_id=project_type.id,
-            sender='promgen.sender.email',
+            sender=SenderEmail.__module__,
             value='bar@example.com',
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.sender.email.send_mail')
     def test_project(self, mock_email):
-        self.assertEquals(SenderEmail().send(TEST_ALERT), 2)
+        self.client.post(reverse('alert'),
+            data=json.dumps(TEST_ALERT),
+            content_type='application/json'
+        )
         mock_email.assert_has_calls([
             mock.call(
                 _SUBJECT,

@@ -1,8 +1,9 @@
+import json
 from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
-
+from django.urls import reverse
 from promgen import models
 from promgen.sender.webhook import SenderWebhook
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
@@ -61,7 +62,10 @@ class WebhookTest(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('requests.post')
     def test_project(self, mock_post):
-        self.assertEqual(SenderWebhook().send(TEST_ALERT), 2)
+        self.client.post(reverse('alert'),
+            data=json.dumps(TEST_ALERT),
+            content_type='application/json'
+        )
         mock_post.assert_has_calls([
             mock.call(
                 'http://project.example.com',

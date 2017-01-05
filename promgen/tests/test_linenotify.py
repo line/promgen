@@ -1,8 +1,9 @@
+import json
 from unittest import mock
 
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
-
+from django.urls import reverse
 from promgen import models
 from promgen.sender.linenotify import SenderLineNotify
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
@@ -26,14 +27,17 @@ class LineNotifyTest(TestCase):
         self.sender = models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=project_type.id,
-            sender='promgen.sender.linenotify',
+            sender=SenderLineNotify.__module__,
             value='hogehoge',
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('requests.post')
     def test_project(self, mock_post):
-        self.assertTrue(SenderLineNotify().send(TEST_ALERT))
+        self.client.post(reverse('alert'),
+            data=json.dumps(TEST_ALERT),
+            content_type='application/json'
+        )
         mock_post.assert_called_once_with(
             'https://notify.example',
             data={'message': _MESSAGE},
