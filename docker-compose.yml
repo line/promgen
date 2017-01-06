@@ -1,0 +1,61 @@
+# Reference for exteranl_links and bridge containers
+# https://blog.virtualzone.de/2016/09/docker-compose-link-containers-outside-compose-file-using-external_links.html
+
+version: '2'
+services:
+  base:
+    build: .
+    image: promgen:HEAD
+    network_mode: bridge
+    command: sh -c "promgen migrate && promgen register docker-demo localhost 9090"
+    external_links:
+      - mysql
+      - redis
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      DATABASE_URL: mysql://promgen:promgen@mysql:3306/pypromgen
+      SECRET_KEY: asdf
+
+  web:
+    extends: base
+    command: promgen runserver 0.0.0.0:8000
+    ports:
+      - "8080:8000"
+    environment:
+      DEBUG: 1
+
+  worker:
+    extends: base
+    command: celery -A promgen worker -l info --queues localhost,celery
+    links:
+      - prometheus
+    volumes:
+      - ./docker:/etc/prometheus
+
+  prometheus:
+    image: prom/prometheus
+    network_mode: bridge
+    links:
+      - alertmanager
+      - blackbox
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker:/etc/prometheus
+
+  blackbox:
+    image: prom/blackbox-exporter
+    network_mode: bridge
+    volumes:
+      - ./docker:/etc/prometheus
+
+  alertmanager:
+    image: prom/alertmanager
+    command: -config.file=/etc/prometheus/alertmanager.yml
+    network_mode: bridge
+    links:
+      - web
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./docker:/etc/prometheus

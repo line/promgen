@@ -1,0 +1,7 @@
+Dockerfile
+Makefile
+docker-compose
+*.egg-info
+dist
+data
+.git

@@ -1,0 +1,8 @@
+route:
+  receiver: 'default'
+  group_by: ['service','project']
+
+receivers:
+- name: "default"
+  webhook_configs:
+  - url: http://web:8000/alert
