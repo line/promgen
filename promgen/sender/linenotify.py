@@ -3,16 +3,16 @@ import logging
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from promgen.celery import wrap_send
+from promgen.celery import app as celery
 from promgen.prometheus import post
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
 
 
-@wrap_send
 class SenderLineNotify(SenderBase):
-    def _send(self, token, alert, data):
+    @celery.task(bind=True)
+    def _send(task, token, alert, data):
         url = settings.PROMGEN[__name__]['server']
 
         message = render_to_string('promgen/sender/linenotify.body.txt', {
