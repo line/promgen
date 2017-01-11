@@ -167,6 +167,10 @@ if 'SENTRY_DSN' in os.environ:
         },
     }
 
+# If CELERY_BROKER_URL is set in our environment, then we configure celery as
+# expected. If it is not configured, then we set CELERY_TASK_ALWAYS_EAGER to
+# force celery to run all tasks in the same process (effectively runs each task
+# as a normal function)
 if 'CELERY_BROKER_URL' in os.environ:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 else:
