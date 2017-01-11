@@ -153,7 +153,7 @@ if 'SENTRY_DSN' in os.environ:
         'disable_existing_loggers': False,
         'handlers': {
             'sentry': {
-                'level': 'WARNING',
+                'level': 'ERROR',
                 'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
                 'dsn': os.environ['SENTRY_DSN'],
             },
@@ -161,7 +161,7 @@ if 'SENTRY_DSN' in os.environ:
         'loggers': {
             '': {
                 'handlers': ['sentry'],
-                'level': 'WARNING',
+                'level': 'ERROR',
                 'propagate': True,
             },
         },
