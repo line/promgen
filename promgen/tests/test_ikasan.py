@@ -32,6 +32,7 @@ class IkasanTest(TestCase):
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('requests.post')
     def test_ikasan(self, mock_post):
         self.client.post(reverse('alert'),

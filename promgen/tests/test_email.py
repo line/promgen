@@ -45,6 +45,7 @@ class EmailTest(TestCase):
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.sender.email.send_mail')
     def test_email(self, mock_email):
         self.client.post(reverse('alert'),

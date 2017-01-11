@@ -6,22 +6,23 @@ configured webhook destinations
 
 import logging
 
-import requests
-
+from promgen.celery import app as celery
+from promgen.prometheus import post
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
 
 
 class SenderWebhook(SenderBase):
-    def _send(self, url, alert, data):
-        body = {
+    @celery.task(bind=True)
+    def _send(task, url, alert, data):
+        params = {
             'prometheus': alert['generatorURL'],
             'status': alert['status'],
             'alertmanager': data['externalURL']
         }
-        body.update(alert.get('labels', {}))
-        body.update(alert.get('annotations', {}))
 
-        requests.post(url, body).raise_for_status()
+        params.update(alert.get('labels', {}))
+        params.update(alert.get('annotations', {}))
+        post(url, params)
         return True

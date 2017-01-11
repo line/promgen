@@ -16,7 +16,8 @@ import dj_database_url
 import envdir
 import yaml
 
-from promgen.plugins import apps
+from promgen.plugins import apps_from_setuptools
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,7 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'promgen',
-] + apps
+] + apps_from_setuptools
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -153,7 +154,7 @@ if 'SENTRY_DSN' in os.environ:
         'disable_existing_loggers': False,
         'handlers': {
             'sentry': {
-                'level': 'WARNING',
+                'level': 'ERROR',
                 'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
                 'dsn': os.environ['SENTRY_DSN'],
             },
@@ -161,11 +162,20 @@ if 'SENTRY_DSN' in os.environ:
         'loggers': {
             '': {
                 'handlers': ['sentry'],
-                'level': 'WARNING',
+                'level': 'ERROR',
                 'propagate': True,
             },
         },
     }
+
+# If CELERY_BROKER_URL is set in our environment, then we configure celery as
+# expected. If it is not configured, then we set CELERY_TASK_ALWAYS_EAGER to
+# force celery to run all tasks in the same process (effectively runs each task
+# as a normal function)
+if 'CELERY_BROKER_URL' in os.environ:
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+else:
+    CELERY_TASK_ALWAYS_EAGER = True
 
 if DEBUG:
     try:

@@ -5,17 +5,19 @@ https://github.com/studio3104/ikasan
 
 import logging
 
-import requests
 from django.conf import settings
 from django.template.loader import render_to_string
 
+from promgen.celery import app as celery
+from promgen.prometheus import post
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
 
 
 class SenderIkasan(SenderBase):
-    def _send(self, channel, alert, data):
+    @celery.task(bind=True)
+    def _send(task, channel, alert, data):
         url = settings.PROMGEN[__name__]['server']
         color = 'green' if alert['status'] == 'resolved' else 'red'
 
@@ -31,5 +33,5 @@ class SenderIkasan(SenderBase):
 
         if color is not None:
             params['color'] = color
-        requests.post(url, params).raise_for_status()
+        post(url, params)
         return True

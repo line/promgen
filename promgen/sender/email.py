@@ -4,13 +4,15 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
+from promgen.celery import app as celery
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
 
 
 class SenderEmail(SenderBase):
-    def _send(self, address, alert, data):
+    @celery.task(bind=True)
+    def _send(task, address, alert, data):
         subject = render_to_string('promgen/sender/email.subject.txt', {
             'alert': alert,
             'externalURL': data['externalURL'],
