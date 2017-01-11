@@ -1,9 +1,13 @@
 from __future__ import absolute_import, unicode_literals
+
+import logging
 import os
+
 from celery import Celery
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'promgen.settings')
+logger = logging.getLogger(__name__)
 
 app = Celery('promgen')
 
@@ -29,7 +33,7 @@ def debug_task(self):
 # attribute that we can use to get to our other class functions
 def wrap_send(cls):
     if hasattr(cls, '_send'):
-        print('Wrapping ', cls)
+        logger.debug('Wrapping %s', cls)
         cls._send = app.task(cls._send, bind=True, lazy=False)
         cls._send.__klass__ = cls()
     return cls
