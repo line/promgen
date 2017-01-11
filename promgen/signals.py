@@ -54,7 +54,7 @@ def run_once(signal):
 @run_once(trigger_write_config)
 def _trigger_write_config(signal, **kwargs):
     logger.info('Writing config')
-    prometheus.write_config()
+    prometheus.write_config.delay()
     prometheus.notify('config_writer')
     return True
 
@@ -62,7 +62,7 @@ def _trigger_write_config(signal, **kwargs):
 @run_once(trigger_write_rules)
 def _trigger_write_rules(signal, **kwargs):
     logger.info('Writing Rules')
-    prometheus.write_rules()
+    prometheus.write_rules.delay()
     prometheus.notify('rule_writer')
     return True
 
@@ -70,7 +70,7 @@ def _trigger_write_rules(signal, **kwargs):
 @run_once(trigger_write_urls)
 def _trigger_write_urls(signal, **kwargs):
     logger.info('Writing URLs')
-    prometheus.write_urls()
+    prometheus.write_urls.delay()
     prometheus.notify('url_writer')
     return True
 

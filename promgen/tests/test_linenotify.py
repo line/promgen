@@ -27,8 +27,9 @@ class LineNotifyTest(TestCase):
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('requests.post')
-    def test_project(self, mock_post):
+    def test_linenotify(self, mock_post):
         self.assertEqual(SenderLineNotify().send(TEST_ALERT), 1)
         mock_post.assert_called_once_with(
             'https://notify.example',

@@ -12,13 +12,17 @@ class RouteTests(TestCase):
     longMessage = True
 
     @override_settings(PROMGEN=TEST_SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert(self):
         response = self.client.post(reverse('alert'), data=json.dumps(TEST_ALERT), content_type='application/json')
         self.assertEqual(response.status_code, 200)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.signals._trigger_write_config')
-    def test_import(self, mock_reload):
+    @mock.patch('promgen.prometheus.reload_prometheus')
+    @mock.patch('promgen.prometheus.notify')
+    def test_import(self, mock_write, mock_reload, mock_notify):
         response = self.client.post(reverse('import'), {
             'config': json.dumps(TEST_IMPORT)
         })
