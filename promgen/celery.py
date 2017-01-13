@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 import os
+import platform
 
 from celery import Celery
 
@@ -20,6 +21,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
+app.conf.task_default_queue = platform.node()
 
 @app.task(bind=True)
 def debug_task(self):
