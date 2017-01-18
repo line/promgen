@@ -128,6 +128,9 @@ class Exporter(models.Model):
     def __str__(self):
         return '{}:{}:{} ({})'.format(self.job, self.port, self.path, self.project)
 
+    def get_absolute_url(self):
+        return reverse('project-detail', kwargs={'pk': self.project.pk})
+
 
 class URL(models.Model):
     url = models.URLField(max_length=256)
@@ -159,11 +162,26 @@ class Rule(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return '{} [{}]'.format(self.name, self.service.name)
+
+    def get_absolute_url(self):
+        return reverse('rule-edit', kwargs={'pk': self.pk})
+
 
 class Audit(models.Model):
     body = models.TextField()
     created = models.DateTimeField()
 
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(default=0)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
     @classmethod
-    def log(cls, body):
-        return cls.objects.create(body=body, created=timezone.now())
+    def log(cls, body, instance=None):
+        kwargs = {'body': body, 'created': timezone.now()}
+        if instance:
+            kwargs['content_type'] = ContentType.objects.get_for_model(instance)
+            kwargs['object_id'] = instance.id
+
+        return cls.objects.create(**kwargs)

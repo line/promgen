@@ -11,12 +11,20 @@
         <tr>
           <th>Timestamp</th>
           <th>Body</th>
+          <th>Object</th>
         </tr>
       </thead>
 {% for entry in audit_list %}
       <tr>
         <td>{{ entry.created }}</td>
         <td>{{ entry.body }}</td>
+        <td>
+          {% if entry.content_object %}
+          <a href="{{ entry.content_object.get_absolute_url }}">
+            {{ entry.content_object }}
+          </a>
+          {% endif %}
+        </td>
       </tr>
 {% endfor %}
     </table>

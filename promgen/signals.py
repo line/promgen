@@ -78,9 +78,9 @@ def _trigger_write_urls(signal, **kwargs):
 @multi_receiver(post_save, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project, models.URL])
 def save_log(sender, instance, created, **kwargs):
     if created:
-        models.Audit.log('Updated %s %s' % (sender.__name__, instance))
+        models.Audit.log('Created %s %s' % (sender.__name__, instance), instance)
     else:
-        models.Audit.log('Created %s %s' % (sender.__name__, instance))
+        models.Audit.log('Updated %s %s' % (sender.__name__, instance), instance)
 
 
 @multi_receiver(post_delete, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project, models.URL])
