@@ -32,30 +32,7 @@
 <div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Notifications</div>
-    <table class="table">
-      <tr>
-        <th>Sender</th>
-        <th>Value</th>
-      </tr>
-      {% for sender in project.sender_set.all %}
-      <tr>
-        <td>{{ sender.sender }}</td>
-        <td>{{ sender.show_value }}</td>
-        <td>
-          <form method="post" action="{% url 'sender-test' sender.id %}" style="display: inline">
-            {% csrf_token %}
-            <button class="btn btn-danger">{% trans "Test" %}</button>
-          </form>
-        </td>
-        <td>
-          <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
-            {% csrf_token %}
-            <button class="btn btn-danger">{% trans "Delete" %}</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </table>
+    {% include "promgen/sender_block.html" with object=project %}
     <div class="panel-footer">
       <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
     </div>
@@ -80,7 +57,7 @@
         <td>
           <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">
             {% csrf_token %}
-            <button class="btn btn-danger">{% trans "Delete" %}</button>
+            <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
           </form>
         </td>
       </tr>
@@ -141,7 +118,7 @@
         <td>
           <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
             {% csrf_token %}
-          <button name="delete" type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+          <button name="delete" type="submit" class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
           </form>
         </td>
         {% endif %}

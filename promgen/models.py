@@ -1,5 +1,8 @@
 import json
 
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -10,8 +13,31 @@ from promgen import plugins
 FARM_DEFAULT = 'default'
 
 
+class Sender(models.Model):
+    sender = models.CharField(max_length=128)
+    value = models.CharField(max_length=128)
+    alias = models.CharField(max_length=128, blank=True)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=(
+        models.Q(app_label='promgen', model='project') | models.Q(app_label='promgen', model='service'))
+    )
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def show_value(self):
+        if self.alias:
+            return self.alias
+        return self.value
+
+    show_value.short_description = 'Value'
+
+    def __str__(self):
+        return '{}:{}'.format(self.sender, self.show_value())
+
+
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
+    sender = GenericRelation(Sender)
 
     class Meta:
         ordering = ['name']
@@ -27,6 +53,7 @@ class Project(models.Model):
     name = models.CharField(max_length=128, unique=True)
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
+    sender = GenericRelation(Sender)
 
     class Meta:
         ordering = ['name']
@@ -37,19 +64,6 @@ class Project(models.Model):
     def __str__(self):
         return '{} [{}]'.format(self.name, self.service.name)
 
-
-class Sender(models.Model):
-    project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    sender = models.CharField(max_length=128)
-    value = models.CharField(max_length=128)
-    alias = models.CharField(max_length=128, blank=True)
-
-    def show_value(self):
-        if self.alias:
-            return self.alias
-        return self.value
-
-    show_value.short_description = 'Value'
 
 class Farm(models.Model):
     name = models.CharField(max_length=128)

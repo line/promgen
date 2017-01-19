@@ -1,12 +1,26 @@
 {% load i18n %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
-    <span class="pull-right form-inline">
-      {% include "promgen/mute_form.inc.html" with label=service.name %}
-    </span>
-    <div class="clearfix"></div>
+<div class="well">
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Sender
+      <span class="pull-right form-inline">
+        <a href="{% url 'service-sender' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Sender" %}</a>
+      </span>
+    </div>
+    {% if service.sender.count %}
+    {% include "promgen/sender_block.html" with object=service %}
+    {% endif %}
   </div>
+
+<div class="panel panel-default">
+<div class="panel-heading">
+  Projects
+  <span class="pull-right form-inline">
+    <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Project" %}</a>
+  </span>
+</div>
+{% if service.project_set.count %}
 <table class="table table-bordered table-condensed">
   <tr>
     <th>Project</th>
@@ -32,7 +46,7 @@
     </td>
     <td>
       <table style="width: 100%">
-{% for sender in project.sender_set.all %}
+{% for sender in project.sender.all %}
         <tr>
           <td>{{ sender.sender }}</td>
           <td>{{ sender.show_value }}</td>
@@ -46,14 +60,17 @@
   </tr>
 {% endfor %}
 </table>
-  <div class="panel-footer">
-    <a href="{% url 'project-new' service.id %}" class="btn btn-primary">{% trans "Register Project" %}</a>
-    <a href="{% url 'service-update' service.id %}" class="btn btn-warning">{% trans "Edit Service" %}</a>
-    <a href="{% url 'service-rules' service.id %}" class="btn btn-default">{% trans "Rules" %}</a>
-    <a href="{% url 'service-export' service.id %}" class="btn btn-default">{% trans "Export Service" %}</a>
+{% endif %}
+
+  </div>
+
+    {% include "promgen/mute_form.inc.html" with label=service.name %}
+    <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
+    <a href="{% url 'service-rules' service.id %}" class="btn btn-default btn-sm">{% trans "Rules" %}</a>
+    <a href="{% url 'service-export' service.id %}" class="btn btn-default btn-sm">{% trans "Export Service" %}</a>
     <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
       {% csrf_token %}
-      <button class="btn btn-danger">{% trans "Delete Service" %}</button>
+      <button class="btn btn-danger btn-sm">{% trans "Delete Service" %}</button>
     </form>
-  </div>
+
 </div>

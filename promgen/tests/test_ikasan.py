@@ -1,6 +1,9 @@
+import json
 from unittest import mock
-from django.test import TestCase, override_settings
 
+from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase, override_settings
+from django.urls import reverse
 from promgen import models
 from promgen.sender.ikasan import SenderIkasan
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
@@ -20,9 +23,11 @@ class IkasanTest(TestCase):
     def setUp(self):
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
+        project_type = ContentType.objects.get_for_model(self.project)
         self.sender = models.Sender.objects.create(
-            project=self.project,
-            sender='promgen.sender.ikasan',
+            object_id=self.project.id,
+            content_type_id=project_type.id,
+            sender=SenderIkasan.__module__,
             value='#',
         )
 
@@ -30,9 +35,15 @@ class IkasanTest(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('requests.post')
     def test_ikasan(self, mock_post):
-        self.assertEqual(SenderIkasan().send(TEST_ALERT), 1)
-        mock_post.assert_called_once_with('http://ikasan.example', {
-            'color': 'green',
-            'channel': '#',
-            'message': _MESSAGE}
+        self.client.post(reverse('alert'),
+            data=json.dumps(TEST_ALERT),
+            content_type='application/json'
         )
+        mock_post.assert_has_calls([
+            mock.call(
+                'http://ikasan.example', {
+                'color': 'green',
+                'channel': '#',
+                'message': _MESSAGE}
+            )
+        ])

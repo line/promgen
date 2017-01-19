@@ -21,7 +21,8 @@ class SenderWebhook(SenderBase):
             'status': alert['status'],
             'alertmanager': data['externalURL']
         }
-        params.update(alert['labels'])
-        params.update(alert['annotations'])
+
+        params.update(alert.get('labels', {}))
+        params.update(alert.get('annotations', {}))
         post(url, params)
         return True

@@ -19,14 +19,14 @@ class SenderForm(forms.ModelForm):
 
     class Meta:
         model = models.Sender
-        exclude = []
+        exclude = ['content_object']
 
 
 @admin.register(models.Sender)
 class SenderAdmin(admin.ModelAdmin):
-    list_display = ('project', 'sender', 'show_value')
+    list_display = ('content_object', 'content_type', 'sender', 'show_value')
     form = SenderForm
-    list_filter = ('project', 'sender')
+    list_filter = ('sender', 'content_type')
 
 
 @admin.register(models.Farm)

@@ -8,7 +8,7 @@
             "env": "prod",
             "instance": "testhost.localhost:9100",
             "job": "node",
-            "monitor": "prometheus",
+            "service": "Service 1",
             "farm": "foo-BETA",
             "project": "Project 1",
             "severity": "critical"
@@ -16,6 +16,16 @@
         "annotations": {
             "description": "testhost.localhost:9100 of job node has been down for more than 5 minutes.",
             "summary": "Instance testhost.localhost:9100 down"
+        },
+        "startsAt": "2016-04-21T20:14:37.698Z",
+        "endsAt": "2016-04-21T20:15:37.698Z",
+        "generatorURL": "https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D"
+    },{
+        "status": "firing",
+        "labels": {
+            "alertname": "service_level_alert",
+            "service": "Service 2",
+            "severity": "critical"
         },
         "startsAt": "2016-04-21T20:14:37.698Z",
         "endsAt": "2016-04-21T20:15:37.698Z",

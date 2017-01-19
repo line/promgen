@@ -63,7 +63,7 @@ class SenderForm(forms.ModelForm):
 
     class Meta:
         model = models.Sender
-        exclude = ['project']
+        exclude = ['content_type', 'object_id']
 
 
 class HostForm(forms.Form):

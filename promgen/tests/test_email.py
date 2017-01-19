@@ -1,10 +1,12 @@
+import json
 from unittest import mock
-from django.test import TestCase, override_settings
 
+from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase, override_settings
+from django.urls import reverse
 from promgen import models
 from promgen.sender.email import SenderEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
-
 
 _SUBJECT = 'node_down foo-BETA testhost.localhost:9100 node resolved'
 _MESSAGE = '''node_down foo-BETA testhost.localhost:9100 node resolved
@@ -22,19 +24,23 @@ class EmailTest(TestCase):
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.project2 = models.Project.objects.create(name='Project 2', service=self.service)
+        project_type = ContentType.objects.get_for_model(self.project)
         self.sender = models.Sender.objects.create(
-            project=self.project,
-            sender='promgen.sender.email',
+            object_id=self.project.id,
+            content_type_id=project_type.id,
+            sender=SenderEmail.__module__,
             value='example@example.com',
         )
         models.Sender.objects.create(
-            project=self.project,
-            sender='promgen.sender.email',
+            object_id=self.project.id,
+            content_type_id=project_type.id,
+            sender=SenderEmail.__module__,
             value='foo@example.com',
         )
         models.Sender.objects.create(
-            project=self.project2,
-            sender='promgen.sender.email',
+            object_id=self.project2.id,
+            content_type_id=project_type.id,
+            sender=SenderEmail.__module__,
             value='bar@example.com',
         )
 
@@ -42,7 +48,10 @@ class EmailTest(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.sender.email.send_mail')
     def test_email(self, mock_email):
-        self.assertEqual(SenderEmail().send(TEST_ALERT), 2)
+        self.client.post(reverse('alert'),
+            data=json.dumps(TEST_ALERT),
+            content_type='application/json'
+        )
         mock_email.assert_has_calls([
             mock.call(
                 _SUBJECT,

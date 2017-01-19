@@ -32,6 +32,7 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/new$', views.ProjectRegister.as_view(), name='project-new'),
     url(r'^service/(?P<pk>[0-9]+)/export$', views.ServiceExport.as_view(), name='service-export'),
     url(r'^service/(?P<pk>[0-9]+)/update$', views.ServiceUpdate.as_view(), name='service-update'),
+    url(r'^service/(?P<pk>[0-9]+)/sender$', views.ServiceSenderRegister.as_view(), name='service-sender'),
 
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),
@@ -41,7 +42,7 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.FarmRegsiter.as_view(), name='farm-new'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.ExporterRegister.as_view(), name='project-exporter'),
     url(r'^project/(?P<pk>[0-9]+)/export$', views.ProjectExport.as_view(), name='project-export'),
-    url(r'^project/(?P<pk>[0-9]+)/sender$', views.SenderRegister.as_view(), name='project-sender'),
+    url(r'^project/(?P<pk>[0-9]+)/sender$', views.ProjectSenderRegister.as_view(), name='project-sender'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
 

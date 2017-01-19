@@ -5,6 +5,7 @@ import logging
 import requests
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -39,10 +40,11 @@ class ServiceMixin(ContextMixin):
 class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
+            'sender',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender_set')
+            'project_set__sender')
 
 
 class HostList(ListView):
@@ -88,7 +90,7 @@ class ServiceDetail(DetailView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender_set')
+            'project_set__sender')
 
 
 class ServiceDelete(DeleteView):
@@ -107,7 +109,7 @@ class SenderDelete(DeleteView):
     model = models.Sender
 
     def get_success_url(self):
-        return reverse('project-detail', args=[self.object.project_id])
+        return self.object.content_object.get_absolute_url()
 
 
 class SenderTest(View):
@@ -130,7 +132,7 @@ class SenderTest(View):
                 else:
                     messages.info(request, 'Sent test message with ' + entry.module_name)
 
-        return HttpResponseRedirect(reverse('project-detail', args=[sender.project.id]))
+        return HttpResponseRedirect(sender.content_object.get_absolute_url())
 
 
 class ExporterDelete(DeleteView):
@@ -404,15 +406,28 @@ class FarmRegsiter(FormView, ProjectMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class SenderRegister(FormView, ProjectMixin):
+class ProjectSenderRegister(FormView, ProjectMixin):
     model = models.Sender
     template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        sender, _ = models.Sender.objects.get_or_create(project=project, **form.clean())
-        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+        project_type = ContentType.objects.get_for_model(project)
+        sender, _ = models.Sender.objects.get_or_create(object_id=project.id, content_type_id=project_type.id, **form.clean())
+        return HttpResponseRedirect(project.get_absolute_url())
+
+
+class ServiceSenderRegister(FormView, ServiceMixin):
+    model = models.Sender
+    template_name = 'promgen/service_sender_form.html'
+    form_class = forms.SenderForm
+
+    def form_valid(self, form):
+        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        service_type = ContentType.objects.get_for_model(service)
+        sender, _ = models.Sender.objects.get_or_create(object_id=service.id, content_type_id=service_type.id, **form.clean())
+        return HttpResponseRedirect(service.get_absolute_url())
 
 
 class HostRegister(FormView):
@@ -491,11 +506,14 @@ class Alert(View):
             sent = 0
             error = 0
             try:
-                if entry.load()().send(body):
-                    sent += 1
+                Sender = entry.load()
+                logger.debug(Sender)
+                Sender().send(body)
             except Exception:
                 logger.exception('Error sending alert')
                 error += 1
+            else:
+                sent += 1
         return HttpResponse('OK')
 
 

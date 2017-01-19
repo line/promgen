@@ -1,6 +1,9 @@
+import json
 from unittest import mock
-from django.test import TestCase, override_settings
 
+from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase, override_settings
+from django.urls import reverse
 from promgen import models
 from promgen.sender.linenotify import SenderLineNotify
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
@@ -20,19 +23,26 @@ class LineNotifyTest(TestCase):
     def setUp(self):
         self.service = models.Service.objects.create(name='Service 1')
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
+        project_type = ContentType.objects.get_for_model(self.project)
         self.sender = models.Sender.objects.create(
-            project=self.project,
-            sender='promgen.sender.linenotify',
+            object_id=self.project.id,
+            content_type_id=project_type.id,
+            sender=SenderLineNotify.__module__,
             value='hogehoge',
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('requests.post')
-    def test_linenotify(self, mock_post):
-        self.assertEqual(SenderLineNotify().send(TEST_ALERT), 1)
-        mock_post.assert_called_once_with(
-            'https://notify.example',
-            data={'message': _MESSAGE},
-            headers={'Authorization': 'Bearer hogehoge'},
+    def test_line_notify(self, mock_post):
+        self.client.post(reverse('alert'),
+            data=json.dumps(TEST_ALERT),
+            content_type='application/json'
         )
+        mock_post.assert_has_calls([
+            mock.call(
+                'https://notify.example',
+                data={'message': _MESSAGE},
+                headers={'Authorization': 'Bearer hogehoge'},
+            )
+        ], any_order=True)
