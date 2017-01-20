@@ -1,5 +1,5 @@
 import logging
-
+from django.conf import settings
 from promgen.models import Project, Service
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,18 @@ class SenderBase(object):
         '''
         raise NotImplementedError()
 
+    def config(self, key):
+        '''
+        Plugin specific configuration
 
+        This wraps our PROMGEN settings so that a plugin author does not need to
+        be concerned with how the configuration files are handled but only about
+        the specific key.
+        '''
+        try:
+            return settings.PROMGEN[self.__module__][key]
+        except KeyError:
+            logger.error('Undefined setting. Please check for %s under %s in settings.yml', key, self.__module__)
 
     def send(self, data):
         '''
