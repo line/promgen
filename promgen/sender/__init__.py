@@ -32,6 +32,13 @@ class SenderBase(object):
         raise NotImplementedError()
 
     def config(self, key):
+        '''
+        Plugin specific configuration
+
+        This wraps our PROMGEN settings so that a plugin author does not need to
+        be concerned with how the configuration files are handled but only about
+        the specific key.
+        '''
         try:
             return settings.PROMGEN[self.__module__][key]
         except KeyError:
