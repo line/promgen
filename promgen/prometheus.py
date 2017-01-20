@@ -25,7 +25,11 @@ def post(target, *args, **kwargs):
 def check_rules(rules):
     with tempfile.NamedTemporaryFile(mode='w', encoding='utf8') as fp:
         logger.debug('Rendering to %s', fp.name)
-        fp.write(render_rules(rules))
+        # Normally we wouldn't bother saving a copy to a variable here and would
+        # leave it in the fp.write() call, but saving a copy in the variable
+        # means we can see the rendered output in a Sentry stacktrace
+        rendered = render_rules(rules)
+        fp.write(rendered)
         fp.flush()
 
         subprocess.check_call([
