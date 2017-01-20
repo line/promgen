@@ -1,6 +1,7 @@
 import collections
 import json
 import logging
+import time
 
 import requests
 from django.conf import settings
@@ -225,6 +226,7 @@ class UnlinkFarm(View):
 
 class RulesList(ListView, ServiceMixin):
     model = models.Rule
+    form = forms.RuleCopyForm()
 
     def get_queryset(self):
         if 'pk' in self.kwargs:
@@ -232,10 +234,23 @@ class RulesList(ListView, ServiceMixin):
             return models.Rule.objects.filter(service=self.service)
         return models.Rule.objects.all()
 
-    def get_context_data(self, **kwargs):
-        context = super(RulesList, self).get_context_data(**kwargs)
-        context['all_rules'] = models.Rule.objects.all()
-        return context
+
+class RulesCopy(View):
+    def post(self, request, pk):
+        service = get_object_or_404(models.Service, id=pk)
+        form = forms.RuleCopyForm(request.POST)
+
+        if form.is_valid():
+            data = form.clean()
+            rule = get_object_or_404(models.Rule, id=data['rule_id'])
+            rule.pk = None
+            rule.name += str(int(time.time()))
+            rule.service = service
+            rule.enabled = False
+            rule.save()
+            return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
+        else:
+            return HttpResponseRedirect(reverse('service-rules', args=[pk]))
 
 
 class FarmRefresh(SingleObjectMixin, View):

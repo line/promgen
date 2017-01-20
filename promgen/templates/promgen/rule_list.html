@@ -75,6 +75,12 @@
     <div class="panel-footer">
       <a href="{% url 'rule-new' service.id %}" class="btn btn-primary">
         Register new Rule</a>
+
+        <form action="{% url 'rule-copy' service.id %}" method="post" style="display: inline">
+            {% csrf_token %}
+            {{ view.form.rule_id }}
+            <button class="btn btn-primary">Duplicate Rule</button>
+        </form>
     </div>
     {% endif %}
 

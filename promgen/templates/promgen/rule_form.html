@@ -9,6 +9,7 @@
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
+  <li><a href="{% url 'service-rules' service.id %}">Rules</a></li>
   <li class="active">New Rule</li>
 </ol>
 
