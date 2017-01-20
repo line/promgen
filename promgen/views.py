@@ -1,7 +1,6 @@
 import collections
 import json
 import logging
-import time
 
 import requests
 from django.conf import settings
@@ -243,11 +242,7 @@ class RulesCopy(View):
         if form.is_valid():
             data = form.clean()
             rule = get_object_or_404(models.Rule, id=data['rule_id'])
-            rule.pk = None
-            rule.name += str(int(time.time()))
-            rule.service = service
-            rule.enabled = False
-            rule.save()
+            rule.copy_to(service)
             return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
         else:
             return HttpResponseRedirect(reverse('service-rules', args=[pk]))
