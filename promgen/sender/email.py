@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
@@ -13,6 +12,7 @@ logger = logging.getLogger(__name__)
 class SenderEmail(SenderBase):
     @celery.task(bind=True)
     def _send(task, address, alert, data):
+        self = SenderEmail()  # Rebind self
         subject = render_to_string('promgen/sender/email.subject.txt', {
             'alert': alert,
             'externalURL': data['externalURL'],
@@ -26,7 +26,7 @@ class SenderEmail(SenderBase):
         send_mail(
             subject,
             body,
-            settings.PROMGEN[__name__]['sender'],
+            self.config('sender'),
             [address]
         )
         return True

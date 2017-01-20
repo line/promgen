@@ -1,5 +1,5 @@
 import logging
-
+from django.conf import settings
 from promgen.models import Project, Service
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,11 @@ class SenderBase(object):
         '''
         raise NotImplementedError()
 
-
+    def config(self, key):
+        try:
+            return settings.PROMGEN[self.__module__][key]
+        except KeyError:
+            logger.error('Undefined setting. Please check for %s under %s in settings.yml', key, self.__module__)
 
     def send(self, data):
         '''

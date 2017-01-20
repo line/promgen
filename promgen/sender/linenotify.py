@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from django.template.loader import render_to_string
 
 from promgen.celery import app as celery
@@ -13,7 +12,8 @@ logger = logging.getLogger(__name__)
 class SenderLineNotify(SenderBase):
     @celery.task(bind=True)
     def _send(task, token, alert, data):
-        url = settings.PROMGEN[__name__]['server']
+        self = SenderLineNotify()  # Rebind self
+        url = self.config('server')
 
         message = render_to_string('promgen/sender/linenotify.body.txt', {
             'alert': alert,
