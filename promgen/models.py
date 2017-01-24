@@ -1,4 +1,5 @@
 import json
+import time
 
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
@@ -167,6 +168,21 @@ class Rule(models.Model):
 
     def get_absolute_url(self):
         return reverse('rule-edit', kwargs={'pk': self.pk})
+
+    def copy_to(self, service):
+        '''
+        Make a copy under a new service
+
+        It's important that we set pk to None so a new object is created, but we
+        also need to ensure the new name is unique by appending some unique data
+        to the end of the name
+        '''
+        self.pk = None
+        self.name += str(int(time.time()))
+        self.service = service
+        self.enabled = False
+        self.save()
+        return self
 
 
 class Audit(models.Model):

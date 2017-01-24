@@ -50,6 +50,12 @@ class RuleForm(forms.ModelForm):
         }
 
 
+class RuleCopyForm(forms.Form):
+    rule_id = forms.TypedChoiceField(coerce=int, choices=[
+        (rule.pk, rule.name) for rule in models.Rule.objects.all()
+    ])
+
+
 class FarmForm(forms.ModelForm):
     class Meta:
         model = models.Farm
