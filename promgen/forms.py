@@ -1,3 +1,4 @@
+promgen/forms.pyimport datetime
 from django import forms
 
 from promgen import models, plugins
@@ -11,7 +12,40 @@ class ImportForm(forms.Form):
 
 class MuteForm(forms.Form):
     next = forms.CharField(required=False)
-    duration = forms.CharField(required=True)
+    duration = forms.CharField(required=False)
+    duration_from = forms.CharField(required=False)
+    duration_to = forms.CharField(required=False)
+
+    def clean_duration_from(self):
+        try:
+            datetime.datetime.strptime(self.data.get('duration_start', ''), '%Y-%m-%d %H:%M')
+        except Exception as e:
+            raise forms.ValidationError('Please enter one of them')
+
+    def clean(self):
+        duration = self.data.get('duration', '')
+        duration_from = self.data.get('duration_from', '')
+        duration_to = self.data.get('duration_to', '')
+
+        if not duration \
+                and not duration_from \
+                and not duration_to:
+            raise forms.ValidationError('Please enter one of them')
+
+        dt = {}
+        for str in [duration_from, duration_to]:
+            if str:
+                try:
+                    dt[str] = datetime.datetime.strptime(str, '%Y-%m-%d %H:%M')
+                except Exception as e:
+                    raise forms.ValidationError('Datetime format error')
+
+        if duration_from:
+            if not duration_to:
+                raise forms.ValidationError('Enter start, end is required')
+
+            if dt[duration_from] > dt[duration_to]:
+                raise forms.ValidationError('End is error')
 
 
 class ExporterForm(forms.ModelForm):

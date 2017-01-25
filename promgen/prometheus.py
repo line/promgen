@@ -4,6 +4,7 @@ import json
 import logging
 import subprocess
 import tempfile
+import pytz
 from urllib.parse import urljoin
 
 import requests
@@ -197,3 +198,26 @@ def mute(duration, labels):
     logger.debug('Sending silence for %s %s', end, data)
     url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
     requests.post(url, json=data).raise_for_status()
+
+
+def mute_fromto(duration_start, duration_end, labels):
+    '''
+    Post a silence message to Alert Manager
+    Duration should be sent in a format like 2017-01-01 09:00
+    '''
+    local_timezone = settings.PROMGEN.get('timezone', 'UTC')
+    start = datetime.datetime.strptime(duration_start, '%Y-%m-%d %H:%M').replace(tzinfo=pytz.timezone(local_timezone))
+    end = datetime.datetime.strptime(duration_end, '%Y-%m-%d %H:%M').replace(tzinfo=pytz.timezone(local_timezone))
+
+    data = {
+        'comment': 'Promgen Mute',
+        'createdBy': 'Promgen',
+        'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
+        'startsAt': start.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z'),
+        'endsAt': end.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+    }
+
+    logger.debug('Sending silence for %s - %s %s', start, end, data)
+    url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
+    requests.post(url, json=data).raise_for_status()
+
