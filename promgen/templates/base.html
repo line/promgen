@@ -5,9 +5,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block title %}PyPromgen{% endblock %}</title>
-        <link rel="stylesheet" href="{% static "/css/bootstrap.min.css" %}">
-        <link rel="stylesheet" href="{% static "/css/bootstrap-theme.min.css" %}">
+        <link rel="stylesheet" href="{% static "/bootstrap/css/bootstrap.min.css" %}">
+        <link rel="stylesheet" href="{% static "/bootstrap/css/bootstrap-theme.min.css" %}">
+        <link rel="stylesheet" href="{% static "/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" %}">
         <link rel="stylesheet" href="{% static "/css/promgen.css" %}">
+
     </head>
     <body>
         <header class="navbar navbar-inverse navbar-static-top" role="navigation">
@@ -72,7 +74,27 @@
 
         </footer>
         <script src="{% static "/js/jquery.min.js" %}"></script>
-        <script src="{% static "/js/bootstrap.min.js" %}"></script>
+        <script src="{% static "/bootstrap/js/bootstrap.min.js" %}"></script>
+        <script src="{% static "/moment/moment.min.js" %}"></script>
+        <script src="{% static "/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js" %}"></script>
+        <script type="text/javascript">
+            $(function () {
+                $('#datetimepicker1').datetimepicker({
+                    format : 'YYYY-MM-DD HH:mm'
+                });
+                $('#datetimepicker2').datetimepicker({
+                    format : 'YYYY-MM-DD HH:mm',
+                    useCurrent: false //Important! See issue #1075
+                });
+                $("#datetimepicker1").on("dp.change", function (e) {
+                    $('#datetimepicker2').data("DateTimePicker").minDate(e.date);
+                });
+                $("#datetimepicker2").on("dp.change", function (e) {
+                    $('#datetimepicker1').data("DateTimePicker").maxDate(e.date);
+                });
+            });
+        </script>
+
 {% block javascript %}{% endblock %}
     </body>
 </html>
