@@ -11,41 +11,30 @@ class ImportForm(forms.Form):
 
 
 class MuteForm(forms.Form):
+    def validate_datetime(value):
+        try:
+            datetime.datetime.strptime(value, '%Y-%m-%d %H:%M')
+        except:
+            raise forms.ValidationError('Invalid timestamp')
+
     next = forms.CharField(required=False)
     duration = forms.CharField(required=False)
-    duration_from = forms.CharField(required=False)
-    duration_to = forms.CharField(required=False)
-
-    def clean_duration_from(self):
-        try:
-            datetime.datetime.strptime(self.data.get('duration_start', ''), '%Y-%m-%d %H:%M')
-        except Exception as e:
-            raise forms.ValidationError('Please enter one of them')
+    start = forms.CharField(required=False)
+    stop = forms.CharField(required=False)
 
     def clean(self):
-        duration = self.data.get('duration', '')
-        duration_from = self.data.get('duration_from', '')
-        duration_to = self.data.get('duration_to', '')
+        duration = self.data.get('duration')
+        start = self.data.get('start')
+        stop = self.data.get('stop')
 
-        if not duration \
-                and not duration_from \
-                and not duration_to:
-            raise forms.ValidationError('Please enter one of them')
+        if duration:
+            # No further validation is required if only duration is set
+            return
 
-        dt = {}
-        for str in [duration_from, duration_to]:
-            if str:
-                try:
-                    dt[str] = datetime.datetime.strptime(str, '%Y-%m-%d %H:%M')
-                except Exception as e:
-                    raise forms.ValidationError('Datetime format error')
-
-        if duration_from:
-            if not duration_to:
-                raise forms.ValidationError('Enter start, end is required')
-
-            if dt[duration_from] > dt[duration_to]:
-                raise forms.ValidationError('End is error')
+        if not all([start, stop]):
+            raise forms.ValidationError('Both start and end are required')
+        elif datetime.datetime.strptime(start, '%Y-%m-%d %H:%M') > datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M'):
+            raise forms.ValidationError('Start time and end time is mismatch')
 
 
 class ExporterForm(forms.ModelForm):

@@ -605,10 +605,10 @@ class Mute(FormView):
                     prometheus.mute(duration, labels)
                     messages.success(request, 'Setting mute for %s' % duration)
                 else:
-                    duration_from = form.cleaned_data['duration_from']
-                    duration_to = form.cleaned_data['duration_to']
-                    prometheus.mute_fromto(duration_from, duration_to, labels)
-                    messages.success(request, 'Setting mute for %s - %s' % (duration_from, duration_to))
+                    start = form.cleaned_data['start']
+                    stop = form.cleaned_data['stop']
+                    prometheus.mute_fromto(start, stop, labels)
+                    messages.success(request, 'Setting mute for %s - %s' % (start, stop))
             except Exception as e:
                 messages.warning(request, e)
         else:
