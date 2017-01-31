@@ -19,8 +19,8 @@ class MuteForm(forms.Form):
 
     next = forms.CharField(required=False)
     duration = forms.CharField(required=False)
-    start = forms.CharField(required=False)
-    stop = forms.CharField(required=False)
+    start = forms.CharField(required=False, validators=[validate_datetime])
+    stop = forms.CharField(required=False, validators=[validate_datetime])
 
     def clean(self):
         duration = self.data.get('duration')
