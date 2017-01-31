@@ -600,9 +600,15 @@ class Mute(FormView):
                     target = key.split('.', 1)[1]
                     labels[target] = request.POST[key]
             try:
-                duration = form.clean()['duration']
-                prometheus.mute(duration, labels)
-                messages.success(request, 'Setting mute for %s' % duration)
+                duration = form.cleaned_data['duration']
+                if duration:
+                    prometheus.mute(duration, labels)
+                    messages.success(request, 'Setting mute for %s' % duration)
+                else:
+                    start = form.cleaned_data['start']
+                    stop = form.cleaned_data['stop']
+                    prometheus.mute_fromto(start, stop, labels)
+                    messages.success(request, 'Setting mute for %s - %s' % (start, stop))
             except Exception as e:
                 messages.warning(request, e)
         else:

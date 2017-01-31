@@ -1,5 +1,6 @@
-from django import forms
+import datetime
 
+from django import forms
 from promgen import models, plugins
 
 
@@ -10,8 +11,30 @@ class ImportForm(forms.Form):
 
 
 class MuteForm(forms.Form):
+    def validate_datetime(value):
+        try:
+            datetime.datetime.strptime(value, '%Y-%m-%d %H:%M')
+        except:
+            raise forms.ValidationError('Invalid timestamp')
+
     next = forms.CharField(required=False)
-    duration = forms.CharField(required=True)
+    duration = forms.CharField(required=False)
+    start = forms.CharField(required=False, validators=[validate_datetime])
+    stop = forms.CharField(required=False, validators=[validate_datetime])
+
+    def clean(self):
+        duration = self.data.get('duration')
+        start = self.data.get('start')
+        stop = self.data.get('stop')
+
+        if duration:
+            # No further validation is required if only duration is set
+            return
+
+        if not all([start, stop]):
+            raise forms.ValidationError('Both start and end are required')
+        elif datetime.datetime.strptime(start, '%Y-%m-%d %H:%M') > datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M'):
+            raise forms.ValidationError('Start time and end time is mismatch')
 
 
 class ExporterForm(forms.ModelForm):

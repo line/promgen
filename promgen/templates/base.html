@@ -7,7 +7,9 @@
         <title>{% block title %}PyPromgen{% endblock %}</title>
         <link rel="stylesheet" href="{% static "/css/bootstrap.min.css" %}">
         <link rel="stylesheet" href="{% static "/css/bootstrap-theme.min.css" %}">
+        <link rel="stylesheet" href="{% static "/css/bootstrap-datetimepicker.min.css" %}">
         <link rel="stylesheet" href="{% static "/css/promgen.css" %}">
+
     </head>
     <body>
         <header class="navbar navbar-inverse navbar-static-top" role="navigation">
@@ -73,6 +75,26 @@
         </footer>
         <script src="{% static "/js/jquery.min.js" %}"></script>
         <script src="{% static "/js/bootstrap.min.js" %}"></script>
+        <script src="{% static "/js/moment.min.js" %}"></script>
+        <script src="{% static "/js/bootstrap-datetimepicker.min.js" %}"></script>
+        <script type="text/javascript">
+            $(function () {
+                $('.mute_start').datetimepicker({
+                    format : 'YYYY-MM-DD HH:mm'
+                });
+                $('.mute_end').datetimepicker({
+                    format : 'YYYY-MM-DD HH:mm',
+                    useCurrent: false //Important! See issue #1075
+                });
+                $(".mute_start").on("dp.change", function (e) {
+                    $('.mute_end').data("DateTimePicker").minDate(e.date);
+                });
+                $(".mute_end").on("dp.change", function (e) {
+                    $('.mute_start').data("DateTimePicker").maxDate(e.date);
+                });
+            });
+        </script>
+
 {% block javascript %}{% endblock %}
     </body>
 </html>

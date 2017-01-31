@@ -9,6 +9,28 @@
 {% if project %}
   <input name="label.project" type="hidden" value="{{ project.name }}" />
 {% endif %}
-  <input name="duration" placeholder="1m/1h/etc" />
-  <button class="btn btn-warning">{% trans "Mute" %}</button>
+ <table>
+   <tr>
+     <td>
+       <input name="duration" placeholder="1m/1h/etc" />
+     </td>
+   </tr>
+   <tr>
+     <td>
+       <div class="row">
+         <div class='col-sm-5'>
+           Start <input name="start" type='text' class="form-control mute_start" />
+         </div>
+         <div class='col-sm-5'>
+           End <input name="stop" type='text' class="form-control mute_end" />
+         </div>
+       </div>
+     </td>
+   </tr>
+   <tr>
+     <td>
+       <button class="btn btn-warning pull-right">{% trans "Mute" %}</button>
+     </td>
+   </tr>
+ </table>
 </form>
