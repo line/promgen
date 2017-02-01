@@ -81,8 +81,9 @@ def render_config(service=None, project=None):
             continue
 
         labels = {
-            'project': exporter.project.name,
+            '__shard': exporter.project.service.shard.name,
             'service': exporter.project.service.name,
+            'project': exporter.project.name,
             'farm': exporter.project.farm.name,
             '__farm_source': exporter.project.farm.source,
             'job': exporter.job,
@@ -125,7 +126,7 @@ def import_config(config):
     counters = collections.defaultdict(int)
     for entry in config:
         shard, created = models.Shard.objects.get_or_create(
-            name=entry['labels'].get('shard', 'Default')
+            name=entry['labels'].get('__shard', 'Default')
         )
         if created:
             counters['Shard'] += 1
