@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>{{ shard.name }}</h1>
+  <a href="{% url 'service-new' %}" class="btn btn-primary">New Service</a>
+</div>
+
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'shard-list' %}">Home</a></li>
+  <li class="active"><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></li>
+</ol>
+
+{% for service in shard.service_set.all %}
+<h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
+{% include "promgen/service_block.html" %}
+{% endfor %}
+
+{% endblock %}

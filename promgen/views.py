@@ -37,6 +37,20 @@ class ServiceMixin(ContextMixin):
         return context
 
 
+class ShardList(ListView):
+    model = models.Shard
+
+
+class ShardDetail(DetailView):
+    queryset = models.Shard.objects\
+        .prefetch_related(
+            'service_set',
+            'service_set__project_set',
+            'service_set__project_set__farm',
+            'service_set__project_set__exporter_set',
+            'service_set__project_set__sender')
+
+
 class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
