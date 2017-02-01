@@ -494,6 +494,14 @@ class ApiConfig(View):
         return HttpResponse('OK', status=202)
 
 
+class Commit(View):
+    def post(self, request):
+        prometheus.write_config.delay()
+        prometheus.notify('config_writer')
+        messages.info(request, 'Refreshing Prometheus Config')
+        return HttpResponseRedirect(request.POST.get('next', '/'))
+
+
 class ServiceExport(View):
     def get(self, request, pk):
         service = get_object_or_404(models.Service, id=pk)
