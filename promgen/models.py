@@ -36,9 +36,23 @@ class Sender(models.Model):
         return '{}:{}'.format(self.sender, self.show_value())
 
 
+class Shard(models.Model):
+    name = models.CharField(max_length=128, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def get_absolute_url(self):
+        return reverse('shard-detail', kwargs={'pk': self.pk})
+
+    def __str__(self):
+        return self.name
+
+
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
     sender = GenericRelation(Sender)
+    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['name']

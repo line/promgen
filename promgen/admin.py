@@ -3,8 +3,14 @@ from django.contrib import admin
 
 from promgen import models, plugins
 
-admin.site.register(models.Service)
+admin.site.register(models.Shard)
 admin.site.register(models.Host)
+
+
+@admin.register(models.Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'shard')
+    list_filter = ('shard',)
 
 
 @admin.register(models.Project)
