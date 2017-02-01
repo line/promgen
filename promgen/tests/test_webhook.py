@@ -37,8 +37,9 @@ _PARAM2 = {
 class WebhookTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
-        self.service = models.Service.objects.create(name='Service 1')
-        self.service2 = models.Service.objects.create(name='Service 2')
+        self.shard = models.Shard.objects.create(name='Shard 1')
+        self.service = models.Service.objects.create(name='Service 1', shard=self.shard)
+        self.service2 = models.Service.objects.create(name='Service 2', shard=self.shard)
 
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
 

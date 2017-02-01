@@ -9,7 +9,8 @@ class SignalTest(TestCase):
     @mock.patch('promgen.signals.trigger_write_config.send')
     def test_write_signal(self, write_mock):
         # Build service trigger
-        service = models.Service.objects.create(name='Service')
+        shard = models.Shard.objects.create(name='Shard')
+        service = models.Service.objects.create(name='Service', shard=shard)
         farm = models.Farm.objects.create(name='farm')
         models.Host.objects.create(name='Host', farm=farm)
         project = models.Project.objects.create(
@@ -32,7 +33,8 @@ class SignalTest(TestCase):
     @mock.patch('promgen.signals.trigger_write_config.send')
     def test_write_and_delete(self, write_mock):
         # Build service trigger
-        service = models.Service.objects.create(name='Service')
+        shard = models.Shard.objects.create(name='Shard')
+        service = models.Service.objects.create(name='Service', shard=shard)
         farm = models.Farm.objects.create(name='farm')
         models.Host.objects.create(name='Host', farm=farm)
         project = models.Project.objects.create(
