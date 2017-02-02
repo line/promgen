@@ -1,0 +1,23 @@
+
+<table class="table table-bordered table-condensed">
+<div class="panel-heading">Active Alerts</div>
+<tr>
+  <th>Starts</th>
+  <th>Labels</th>
+  <th>Annotations</th>
+{% for alert in alerts %}
+<tr>
+  <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt }}</a></td>
+  <td>
+    {% for label, value in alert.labels.items %}
+      <span class="label label-default">{{label}}:{{ value }}</span>
+    {% endfor %}
+  </td>
+  <td>
+    {% for annotation, value in alert.annotations.items %}
+      <p>{{annotation}}:{{ value }}</p>
+    {% endfor %}
+  </td>
+</tr>
+{% endfor %}
+</table>

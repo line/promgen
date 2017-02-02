@@ -88,6 +88,8 @@ urlpatterns = [
     url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
     url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
     url(r'^commit$', csrf_exempt(views.Commit.as_view()), name='commit'),
+
+    url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
 ]
 
 if settings.DEBUG:

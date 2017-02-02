@@ -71,6 +71,7 @@
               {% endfor %}
           {% endif %}
             <div>
+<div style="display:none" class="panel panel-warning" id="alert-all"></div>
 {% block content %}{% endblock %}
             </div>
         </div>
@@ -98,7 +99,7 @@
                 });
             });
         </script>
-
+        <script src="{% static "/js/promgen.js" %}"></script>
 {% block javascript %}{% endblock %}
     </body>
 </html>

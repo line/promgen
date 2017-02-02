@@ -1,14 +1,16 @@
 import collections
 import json
 import logging
+from urllib.parse import urljoin
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
@@ -639,3 +641,21 @@ class Mute(FormView):
         else:
             messages.warning(request, 'Error setting mute')
         return HttpResponseRedirect(request.POST.get('next', '/'))
+
+
+class AjaxAlert(View):
+    def get(self, request):
+        alerts = collections.defaultdict(list)
+        url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts')
+        print(url)
+        response = requests.get(url)
+        for alert in response.json().get('data', []):
+            alerts['alert-all'].append(alert)
+            for key in ['project', 'service']:
+                if key in alert['labels']:
+                    alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
+
+        alerts = {key:render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}) for key in alerts}
+
+
+        return JsonResponse(alerts)
