@@ -646,16 +646,18 @@ class Mute(FormView):
 class AjaxAlert(View):
     def get(self, request):
         alerts = collections.defaultdict(list)
-        url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts')
-        print(url)
+        url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
         response = requests.get(url)
-        for alert in response.json().get('data', []):
-            alerts['alert-all'].append(alert)
-            for key in ['project', 'service']:
-                if key in alert['labels']:
-                    alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
+        for group in response.json().get('data', []):
+            for block in group.get('blocks', []):
+                for alert in block.get('alerts', []):
+                    if alert.get('inhibited', False):
+                        continue
+                    alerts['alert-all'].append(alert)
+                    for key in ['project', 'service']:
+                        if key in alert['labels']:
+                            alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
-        alerts = {key:render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}) for key in alerts}
-
+        alerts = {key: render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}) for key in alerts}
 
         return JsonResponse(alerts)
