@@ -12,6 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
@@ -658,6 +659,6 @@ class AjaxAlert(View):
                         if key in alert['labels']:
                             alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
-        alerts = {key: render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}, request) for key in alerts}
+        alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}, request) for key in alerts}
 
         return JsonResponse(alerts)
