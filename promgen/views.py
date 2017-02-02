@@ -657,7 +657,8 @@ class AjaxAlert(View):
                     alerts['alert-all'].append(alert)
                     for key in ['project', 'service']:
                         if key in alert['labels']:
-                            alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
+                            if alert['labels'][key]:
+                                alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
         alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}, request) for key in alerts}
 
