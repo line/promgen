@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="well">
-  <div style="display:none" class="panel panel-danger" id="alert-service-{{ service.name }}"></div>
+  <div style="display:none" id="alert-service-{{ service.name|slugify }}"></div>
 
   <div class="panel panel-default">
     <div class="panel-heading">
