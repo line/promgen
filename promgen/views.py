@@ -652,7 +652,7 @@ class AjaxAlert(View):
         for group in response.json().get('data', []):
             for block in group.get('blocks', []):
                 for alert in block.get('alerts', []):
-                    if alert.get('inhibited', False):
+                    if alert.get('silenced', False):
                         continue
                     alerts['alert-all'].append(alert)
                     for key in ['project', 'service']:
