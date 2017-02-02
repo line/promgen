@@ -14,6 +14,8 @@
   <li class="active"><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
 </ol>
 
+<div style="display:none" id="alert-project-{{ project.name|slugify }}"></div>
+
 <div class="row">
 
 <div class="col-md-6">
