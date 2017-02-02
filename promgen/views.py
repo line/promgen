@@ -658,6 +658,6 @@ class AjaxAlert(View):
                         if key in alert['labels']:
                             alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
-        alerts = {key: render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}) for key in alerts}
+        alerts = {key: render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}, request) for key in alerts}
 
         return JsonResponse(alerts)

@@ -1,22 +1,44 @@
-
+{% load i18n %}
 <table class="table table-bordered table-condensed">
 <div class="panel-heading">Active Alerts</div>
 <tr>
   <th>Starts</th>
   <th>Labels</th>
   <th>Annotations</th>
+  <th>&nbsp;</th>
 {% for alert in alerts %}
 <tr>
   <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt }}</a></td>
   <td>
     {% for label, value in alert.labels.items %}
-      <span class="label label-default">{{label}}:{{ value }}</span>
+      {% if value %}
+      <span class="label label-default">{{label}}: {{ value }}</span>
+      {% endif %}
     {% endfor %}
   </td>
   <td>
-    {% for annotation, value in alert.annotations.items %}
-      <p>{{annotation}}:{{ value }}</p>
-    {% endfor %}
+    {% if alert.annotations.summary %}
+    <p>Summary: {{ alert.annotations.summary }}</p>
+    {% endif %}
+    {% if alert.annotations.description %}
+    <p>Description: {{ alert.annotations.description }}</p>
+    {% endif %}
+    {% if alert.annotations.grafana %}
+    <a href="{{ alert.annotations.grafana }}">Grafana</a>
+    {% endif %}
+  </td>
+  <td>
+    <form method="post" action="{% url 'mute' %}">
+      {% csrf_token %}
+      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+    {% if alert.labels.service %}
+      <input name="label.service" type="hidden" value="{{ alert.labels.service }}" />
+    {% endif %}
+    {% if alert.labels.project %}
+      <input name="label.project" type="hidden" value="{{ alert.labels.project }}" />
+    {% endif %}
+      <button class="btn btn-warning pull-right">{% trans "Mute" %}</button>
+    </form>
   </td>
 </tr>
 {% endfor %}
