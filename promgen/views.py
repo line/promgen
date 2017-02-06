@@ -37,6 +37,20 @@ class ServiceMixin(ContextMixin):
         return context
 
 
+class ShardList(ListView):
+    model = models.Shard
+
+
+class ShardDetail(DetailView):
+    queryset = models.Shard.objects\
+        .prefetch_related(
+            'service_set',
+            'service_set__project_set',
+            'service_set__project_set__farm',
+            'service_set__project_set__exporter_set',
+            'service_set__project_set__sender')
+
+
 class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
@@ -95,7 +109,9 @@ class ServiceDetail(DetailView):
 
 class ServiceDelete(DeleteView):
     model = models.Service
-    success_url = reverse_lazy('service-list')
+
+    def get_success_url(self):
+        return reverse('shard-detail', args=[self.object.shard_id])
 
 
 class ProjectDelete(DeleteView):
@@ -398,8 +414,9 @@ class ServiceRegister(FormView):
     form_class = forms.ProjectForm
 
     def form_valid(self, form):
-        service, _ = models.Service.objects.get_or_create(**form.clean())
-        return HttpResponseRedirect(reverse('service-detail', args=[service.id]))
+        shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
+        service, _ = models.Service.objects.get_or_create(shard=shard, **form.clean())
+        return HttpResponseRedirect(service.get_absolute_url())
 
 
 class FarmRegsiter(FormView, ProjectMixin):
@@ -413,7 +430,7 @@ class FarmRegsiter(FormView, ProjectMixin):
         farm, _ = models.Farm.objects.get_or_create(source=models.FARM_DEFAULT, **form.clean())
         project.farm = farm
         project.save()
-        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+        return HttpResponseRedirect(project.get_absolute_url())
 
 
 class ProjectSenderRegister(FormView, ProjectMixin):
@@ -475,6 +492,14 @@ class ApiConfig(View):
     def post(self, request):
         prometheus.write_config()
         return HttpResponse('OK', status=202)
+
+
+class Commit(View):
+    def post(self, request):
+        prometheus.write_config.delay()
+        prometheus.notify('config_writer')
+        messages.info(request, 'Refreshing Prometheus Config')
+        return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
 class ServiceExport(View):

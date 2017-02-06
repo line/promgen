@@ -7,7 +7,8 @@
 </div>
 
 <ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li><a href="{% url 'shard-list' %}">Home</a></li>
+  <li><a href="{% url 'shard-detail' service.shard.id %}">{{ service.shard.name }}</a></li>
   <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
   <li class="active">New Project</li>
 </ol>

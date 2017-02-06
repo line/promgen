@@ -81,8 +81,9 @@ def render_config(service=None, project=None):
             continue
 
         labels = {
-            'project': exporter.project.name,
+            '__shard': exporter.project.service.shard.name,
             'service': exporter.project.service.name,
+            'project': exporter.project.name,
             'farm': exporter.project.farm.name,
             '__farm_source': exporter.project.farm.source,
             'job': exporter.job,
@@ -124,8 +125,15 @@ def reload_prometheus():
 def import_config(config):
     counters = collections.defaultdict(int)
     for entry in config:
+        shard, created = models.Shard.objects.get_or_create(
+            name=entry['labels'].get('__shard', 'Default')
+        )
+        if created:
+            counters['Shard'] += 1
+
         service, created = models.Service.objects.get_or_create(
             name=entry['labels']['service'],
+            defaults={'shard': shard}
         )
         if created:
             counters['Service'] += 1
@@ -220,4 +228,3 @@ def mute_fromto(start, stop, labels):
     logger.debug('Sending silence for %s - %s %s', start, stop, data)
     url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
     requests.post(url, json=data).raise_for_status()
-

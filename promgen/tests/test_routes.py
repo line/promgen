@@ -39,7 +39,8 @@ class RouteTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_project(self):
-        service = models.Service.objects.create(name='Service Test')
+        shard = models.Shard.objects.create(name='Shard Test')
+        service = models.Service.objects.create(name='Service Test', shard=shard)
         project = models.Project.objects.create(name='Project Test', service=service)
 
         response = self.client.get(reverse('project-detail', kwargs={'pk': project.pk}))

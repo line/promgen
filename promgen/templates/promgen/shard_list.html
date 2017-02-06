@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>Shards</h1>
+</div>
+
+{% for shard in shard_list %}
+<h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
+{% endfor %}
+
+{% endblock %}

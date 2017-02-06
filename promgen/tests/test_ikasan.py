@@ -21,7 +21,8 @@ Alert Manager: https://am.promehteus.localhost'''
 class IkasanTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
-        self.service = models.Service.objects.create(name='Service 1')
+        self.shard = models.Shard.objects.create(name='Shard 1')
+        self.service = models.Service.objects.create(name='Service 1', shard=self.shard)
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         project_type = ContentType.objects.get_for_model(self.project)
         self.sender = models.Sender.objects.create(

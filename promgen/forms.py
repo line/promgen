@@ -46,7 +46,7 @@ class ExporterForm(forms.ModelForm):
 class ServiceForm(forms.ModelForm):
     class Meta:
         model = models.Service
-        exclude = []
+        exclude = ['shard']
 
 
 class ProjectForm(forms.ModelForm):

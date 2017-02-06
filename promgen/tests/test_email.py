@@ -21,7 +21,8 @@ Alert Manager: https://am.promehteus.localhost'''
 class EmailTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
-        self.service = models.Service.objects.create(name='Service 1')
+        self.shard = models.Shard.objects.create(name='Shard 1')
+        self.service = models.Service.objects.create(name='Service 1', shard=self.shard)
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.project2 = models.Project.objects.create(name='Project 2', service=self.service)
         project_type = ContentType.objects.get_for_model(self.project)
