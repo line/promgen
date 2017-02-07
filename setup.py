@@ -1,9 +1,12 @@
 from setuptools import find_packages, setup
 
+from promgen.version import __version__
+
 setup(
     name='Promgen',
     author='Paul Traylor',
     packages=find_packages(exclude=['test']),
+    version=__version__,
     classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
