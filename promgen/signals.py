@@ -1,6 +1,7 @@
 import logging
 from functools import wraps
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import Signal, receiver
@@ -53,25 +54,28 @@ def run_once(signal):
 
 @run_once(trigger_write_config)
 def _trigger_write_config(signal, **kwargs):
-    logger.info('Writing config')
-    prometheus.write_config.delay()
-    prometheus.notify('config_writer')
+    for host in settings.PROMGEN['prometheus'].get('servers'):
+        queue, _ = host.split(':')
+        logger.debug('Queueing write on %s', queue)
+        prometheus.write_config.apply_async(queue=queue)
     return True
 
 
 @run_once(trigger_write_rules)
 def _trigger_write_rules(signal, **kwargs):
-    logger.info('Writing Rules')
-    prometheus.write_rules.delay()
-    prometheus.notify('rule_writer')
+    for host in settings.PROMGEN['prometheus'].get('servers'):
+        queue, _ = host.split(':')
+        logger.debug('Queueing rules on %s', queue)
+        prometheus.write_rules.apply_async(queue=queue)
     return True
 
 
 @run_once(trigger_write_urls)
 def _trigger_write_urls(signal, **kwargs):
-    logger.info('Writing URLs')
-    prometheus.write_urls.delay()
-    prometheus.notify('url_writer')
+    for host in settings.PROMGEN['prometheus'].get('servers'):
+        queue, _ = host.split(':')
+        logger.debug('Queueing URLs on %s', queue)
+        prometheus.write_urls.apply_async(queue=queue)
     return True
 
 

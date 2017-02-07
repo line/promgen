@@ -46,12 +46,6 @@ def render_rules(rules=None):
     return render_to_string('promgen/prometheus.rule', {'rules': rules})
 
 
-def notify(target):
-    logger.debug('Sending notifications to %s', target)
-    for target in settings.PROMGEN[target].get('notify', []):
-        post.delay(target)
-
-
 def render_urls():
     urls = collections.defaultdict(list)
     for url in models.URL.objects.all():
