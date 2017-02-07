@@ -10,7 +10,7 @@ _RULES = '''
 ALERT RuleName
   IF up==0
   FOR 1s
-  LABELS {service="Service 1", severity="severe"}
+  LABELS {severity="severe"}
   ANNOTATIONS {service="http://example.com/service/1/"}
 
 
