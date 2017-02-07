@@ -16,7 +16,7 @@ from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 
-from promgen import forms, models, plugins, prometheus, signals
+from promgen import forms, models, plugins, prometheus, signals, version
 
 logger = logging.getLogger(__name__)
 
@@ -554,7 +554,7 @@ class Alert(View):
 
 class Metrics(View):
     def get(self, request, *args, **kwargs):
-        return HttpResponse('', content_type='text/plain')
+        return HttpResponse('promgen_build_info{{version="{}"}} 1'.format(version.__version__), content_type='text/plain')
 
 
 class Status(View):
