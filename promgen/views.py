@@ -553,7 +553,7 @@ class Alert(View):
 
 class Metrics(View):
     def get(self, request, *args, **kwargs):
-        return HttpResponse('promgen_build_info{{version="{}"}} 1'.format(version.__version__), content_type='text/plain')
+        return HttpResponse('promgen_build_info{{version="{}"}} 1\n'.format(version.__version__), content_type='text/plain')
 
 
 class Status(View):
