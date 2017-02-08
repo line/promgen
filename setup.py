@@ -25,6 +25,7 @@ setup(
         'Django >= 1.10, < 1.11',
         'envdir',
         'pyyaml',
+        'raven',
         'requests',
     ],
     extras_require={
