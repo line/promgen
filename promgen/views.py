@@ -496,9 +496,7 @@ class ApiConfig(View):
 
 class Commit(View):
     def post(self, request):
-        prometheus.write_config.delay()
-        prometheus.notify('config_writer')
-        messages.info(request, 'Refreshing Prometheus Config')
+        signals.trigger_write_config.send(self)
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
@@ -554,7 +552,7 @@ class Alert(View):
 
 class Metrics(View):
     def get(self, request, *args, **kwargs):
-        return HttpResponse('promgen_build_info{{version="{}"}} 1'.format(version.__version__), content_type='text/plain')
+        return HttpResponse('promgen_build_info{{version="{}"}} 1\n'.format(version.__version__), content_type='text/plain')
 
 
 class Status(View):

@@ -13,18 +13,13 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 
 import dj_database_url
-import envdir
 import yaml
 
 from promgen.plugins import apps_from_setuptools
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_DIR = os.path.expanduser('~/.config/promgen')
-
-if os.path.exists(CONFIG_DIR):
-    envdir.open(CONFIG_DIR)
+CONFIG_DIR = os.environ['CONFIG_DIR']
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -174,6 +169,7 @@ if 'SENTRY_DSN' in os.environ:
 # as a normal function)
 if 'CELERY_BROKER_URL' in os.environ:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL')
 else:
     CELERY_TASK_ALWAYS_EAGER = True
 
