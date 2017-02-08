@@ -54,7 +54,10 @@ def run_once(signal):
 
 @run_once(trigger_write_config)
 def _trigger_write_config(signal, **kwargs):
-    for host in settings.PROMGEN['prometheus'].get('servers'):
+    if 'servers' not in settings.PROMGEN['prometheus']:
+        logger.warning('No servers configured for Prometheus')
+        return False
+    for host in settings.PROMGEN['prometheus'].get('servers', []):
         queue, _ = host.split(':')
         logger.debug('Queueing write on %s', queue)
         prometheus.write_config.apply_async(queue=queue)
@@ -63,7 +66,10 @@ def _trigger_write_config(signal, **kwargs):
 
 @run_once(trigger_write_rules)
 def _trigger_write_rules(signal, **kwargs):
-    for host in settings.PROMGEN['prometheus'].get('servers'):
+    if 'servers' not in settings.PROMGEN['prometheus']:
+        logger.warning('No servers configured for Prometheus')
+        return False
+    for host in settings.PROMGEN['prometheus'].get('servers', []):
         queue, _ = host.split(':')
         logger.debug('Queueing rules on %s', queue)
         prometheus.write_rules.apply_async(queue=queue)
@@ -72,7 +78,10 @@ def _trigger_write_rules(signal, **kwargs):
 
 @run_once(trigger_write_urls)
 def _trigger_write_urls(signal, **kwargs):
-    for host in settings.PROMGEN['prometheus'].get('servers'):
+    if 'servers' not in settings.PROMGEN['prometheus']:
+        logger.warning('No servers configured for Prometheus')
+        return False
+    for host in settings.PROMGEN['prometheus'].get('servers', []):
         queue, _ = host.split(':')
         logger.debug('Queueing URLs on %s', queue)
         prometheus.write_urls.apply_async(queue=queue)

@@ -497,7 +497,6 @@ class ApiConfig(View):
 class Commit(View):
     def post(self, request):
         signals.trigger_write_config.send(self)
-        messages.info(request, 'Refreshing Prometheus Config')
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
