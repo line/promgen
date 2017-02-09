@@ -19,7 +19,7 @@ from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 
-from promgen import forms, models, plugins, prometheus, signals
+from promgen import forms, models, plugins, prometheus, signals, version
 
 logger = logging.getLogger(__name__)
 
@@ -499,9 +499,7 @@ class ApiConfig(View):
 
 class Commit(View):
     def post(self, request):
-        prometheus.write_config.delay()
-        prometheus.notify('config_writer')
-        messages.info(request, 'Refreshing Prometheus Config')
+        signals.trigger_write_config.send(self)
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
@@ -557,7 +555,7 @@ class Alert(View):
 
 class Metrics(View):
     def get(self, request, *args, **kwargs):
-        return HttpResponse('', content_type='text/plain')
+        return HttpResponse('promgen_build_info{{version="{}"}} 1\n'.format(version.__version__), content_type='text/plain')
 
 
 class Status(View):

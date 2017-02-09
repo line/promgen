@@ -17,14 +17,17 @@ class RemoteTriggerMiddleware(object):
 
     def __call__(self, request):
         response = self.get_response(request)
-        for (receiver, status) in trigger_write_config.send(self, force=True):
-            if status:
-                messages.info(request, 'Wrote Config')
-        for (receiver, status) in trigger_write_rules.send(self, force=True):
-            if status:
-                messages.info(request, 'Wrote Rules')
-        for (receiver, status) in trigger_write_urls.send(self, force=True):
-            if status:
-                messages.info(request, 'Wrote URLs')
 
+        triggers = {
+            'Config': trigger_write_config.send,
+            'Rules': trigger_write_rules.send,
+            'URLs': trigger_write_urls.send,
+        }
+
+        for msg, func in triggers.items():
+            for (receiver, status) in func(self, force=True):
+                if status is True:
+                    messages.info(request, 'Triggered %s write ' % msg)
+                elif status is False:
+                    messages.warning(request, 'Error queueing %s ' % msg)
         return response

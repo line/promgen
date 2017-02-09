@@ -21,8 +21,7 @@ class RouteTests(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.signals._trigger_write_config')
     @mock.patch('promgen.prometheus.reload_prometheus')
-    @mock.patch('promgen.prometheus.notify')
-    def test_import(self, mock_write, mock_reload, mock_notify):
+    def test_import(self, mock_write, mock_reload):
         response = self.client.post(reverse('import'), {
             'config': json.dumps(TEST_IMPORT)
         })

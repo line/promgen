@@ -2,13 +2,20 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 import os
-import platform
 
-from celery import Celery
+import celery
+import raven
+from raven.contrib.celery import register_logger_signal, register_signal
 
-# set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'promgen.settings')
 logger = logging.getLogger(__name__)
+
+
+class Celery(celery.Celery):
+    def on_configure(self):
+        if 'SENTRY_DSN' in os.environ:
+            client = raven.Client(os.environ.get('SENTRY_DSN'))
+            register_logger_signal(client)
+            register_signal(client)
 
 app = Celery('promgen')
 
@@ -21,7 +28,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
-app.conf.task_default_queue = platform.node()
 
 @app.task(bind=True)
 def debug_task(self):
