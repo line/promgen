@@ -654,6 +654,8 @@ class AjaxAlert(View):
                 for alert in block.get('alerts', []):
                     if alert.get('silenced', False):
                         continue
+                    if alert['labels'].get('alertname') == 'PromgenHeartbeat':
+                        continue
                     alerts['alert-all'].append(alert)
                     for key in ['project', 'service']:
                         if key in alert['labels']:
