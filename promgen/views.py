@@ -648,6 +648,8 @@ class AjaxAlert(View):
         url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
         response = requests.get(url)
         for group in response.json().get('data', []):
+            if group.get('blocks') is None:
+                continue
             for block in group.get('blocks', []):
                 for alert in block.get('alerts', []):
                     if alert.get('silenced', False):
