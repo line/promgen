@@ -617,9 +617,10 @@ class Mute(FormView):
     def get(self, request, **kwargs):
         context = {}
         MAPPING = {
-            'service': models.Service,
+            'farm': models.Farm,
+            'host': models.Host,
             'project': models.Project,
-            'host': models.Host
+            'service': models.Service,
         }
         for label, klass in MAPPING.items():
             if label in kwargs:

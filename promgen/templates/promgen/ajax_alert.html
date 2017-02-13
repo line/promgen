@@ -11,9 +11,35 @@
 <tr>
   <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt }}</a></td>
   <td>
-    {% for label, value in alert.labels.items %}
-      {% if value %}
+    {% for label, value in alert.labels.items|dictsort:0 %}
+      {% if label == 'service' and alert.labels.service %}
+        <a
+          class="label label-warning"
+          href="{% url 'service-mute' alert.labels.service %}"
+          title="{% trans 'Mute Service' %}"
+        >{{label}}: {{ value }}</a>
+      {% elif label == 'project' and alert.labels.project %}
+        <a
+          class="label label-warning"
+          href="{% url 'service-mute' alert.labels.project %}"
+          title="{% trans 'Mute Project' %}"
+        >{{label}}: {{ value }}</a>
+        {% elif label == 'farm' and alert.labels.farm %}
+          <a
+            class="label label-warning"
+            href="{% url 'farm-mute' alert.labels.farm %}"
+            title="{% trans 'Mute Farm' %}"
+          >{{label}}: {{ value }}</a>
+        {% elif label == 'instance' and alert.labels.instance %}
+          <a
+            class="label label-warning"
+            href="{% url 'host-mute' alert.labels.instance %}"
+            title="{% trans 'Mute Host' %}"
+          >{{label}}: {{ value }}</a>
+      {% else %}
+        {% if value %}
       <span class="label label-default">{{label}}: {{ value }}</span>
+        {% endif %}
       {% endif %}
     {% endfor %}
   </td>
@@ -26,17 +52,6 @@
     {% endif %}
     {% if alert.annotations.grafana %}
     <a href="{{ alert.annotations.grafana }}">Grafana</a>
-    {% endif %}
-  </td>
-  <td>
-    {% if alert.labels.service %}
-      <a href="{% url 'service-mute' alert.labels.service %}" class="btn btn-warning btn-sm">{% trans "Mute Service" %}</a>
-    {% endif %}
-    {% if alert.labels.project %}
-      <a href="{% url 'project-mute' alert.labels.project %}" class="btn btn-warning btn-sm">{% trans "Mute Project" %}</a>
-    {% endif %}
-    {% if alert.labels.instance %}
-      <a href="{% url 'host-mute' alert.labels.instance %}" class="btn btn-warning btn-sm">{% trans "Mute Instance" %}</a>
     {% endif %}
   </td>
 </tr>
