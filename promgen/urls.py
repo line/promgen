@@ -86,6 +86,7 @@ urlpatterns = [
     url(r'^mute$', views.Mute.as_view(), name='mute'),
     url(r'^mute/service/(?P<service>.+)$', views.Mute.as_view(), name='service-mute'),
     url(r'^mute/project/(?P<project>.+)$', views.Mute.as_view(), name='project-mute'),
+    url(r'^mute/farm/(?P<farm>.+)$', views.Mute.as_view(), name='farm-mute'),
     url(r'^mute/host/(?P<host>.+)$', views.Mute.as_view(), name='host-mute'),
 
 
