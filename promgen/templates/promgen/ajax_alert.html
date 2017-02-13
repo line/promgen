@@ -29,17 +29,15 @@
     {% endif %}
   </td>
   <td>
-    <form method="post" action="{% url 'mute' %}">
-      {% csrf_token %}
-      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
     {% if alert.labels.service %}
-      <input name="label.service" type="hidden" value="{{ alert.labels.service }}" />
+      <a href="{% url 'service-mute' alert.labels.service %}" class="btn btn-warning btn-sm">{% trans "Mute Service" %}</a>
     {% endif %}
     {% if alert.labels.project %}
-      <input name="label.project" type="hidden" value="{{ alert.labels.project }}" />
+      <a href="{% url 'project-mute' alert.labels.project %}" class="btn btn-warning btn-sm">{% trans "Mute Project" %}</a>
     {% endif %}
-      <button class="btn btn-warning pull-right">{% trans "Mute" %}</button>
-    </form>
+    {% if alert.labels.instance %}
+      <a href="{% url 'host-mute' alert.labels.instance %}" class="btn btn-warning btn-sm">{% trans "Mute Instance" %}</a>
+    {% endif %}
   </td>
 </tr>
 {% endfor %}

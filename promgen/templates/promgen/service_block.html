@@ -28,7 +28,7 @@
     <th>Farm</th>
     <th>Exporters</th>
     <th>Senders</th>
-    <th>&nbsp;</th>
+    <th>Actions</th>
   </tr>
 {% for project in service.project_set.all %}
   <tr>
@@ -56,7 +56,7 @@
       </table>
     </td>
     <td>
-      {% include "promgen/mute_form.inc.html" with label=service.name|add:"-"|add:project.name %}
+      <a href="{% url 'project-mute' project.id %}" class="btn btn-warning btn-sm">{% trans "Mute" %}</a>
     </td>
   </tr>
 {% endfor %}
@@ -64,11 +64,10 @@
 {% endif %}
 
   </div>
-
-    {% include "promgen/mute_form.inc.html" with label=service.name %}
     <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
-    <a href="{% url 'service-rules' service.id %}" class="btn btn-default btn-sm">{% trans "Rules" %}</a>
+    <a href="{% url 'service-rules' service.id %}" class="btn btn-default btn-sm">{% trans "Edit Rules" %}</a>
     <a href="{% url 'service-export' service.id %}" class="btn btn-default btn-sm">{% trans "Export Service" %}</a>
+    <a href="{% url 'service-mute' service.id %}" class="btn btn-warning btn-sm">{% trans "Mute Service" %}</a>
     <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
       {% csrf_token %}
       <button class="btn btn-danger btn-sm">{% trans "Delete Service" %}</button>

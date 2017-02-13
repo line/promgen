@@ -614,6 +614,25 @@ class Import(FormView):
 class Mute(FormView):
     form_class = forms.MuteForm
 
+    def get(self, request, **kwargs):
+        context = {}
+        MAPPING = {
+            'service': models.Service,
+            'project': models.Project,
+            'host': models.Host
+        }
+        for label, klass in MAPPING.items():
+            if label in kwargs:
+                context['label'] = label
+                # TODO: using isnumeric sees fragile but I can revisit later
+                if kwargs[label].isnumeric():
+                    context['obj'] = get_object_or_404(klass, pk=kwargs[label])
+                else:
+                    context['obj'] = get_object_or_404(klass, name=kwargs[label])
+        if context:
+            return render(request, 'promgen/mute_form.html', context)
+        return HttpResponseRedirect('/')
+
     def post(self, request):
         form = forms.MuteForm(request.POST)
         if form.is_valid():

@@ -84,6 +84,11 @@ urlpatterns = [
     url(r'^import/$', views.Import.as_view(), name='import'),
 
     url(r'^mute$', views.Mute.as_view(), name='mute'),
+    url(r'^mute/service/(?P<service>.+)$', views.Mute.as_view(), name='service-mute'),
+    url(r'^mute/project/(?P<project>.+)$', views.Mute.as_view(), name='project-mute'),
+    url(r'^mute/host/(?P<host>.+)$', views.Mute.as_view(), name='host-mute'),
+
+
     url(r'^search/$', views.Search.as_view(), name='search'),
     url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
     url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
