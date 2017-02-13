@@ -58,10 +58,13 @@ def render_urls():
 
 
 @celery.task
-def write_urls():
-    with atomic_write(settings.PROMGEN['url_writer']['path'], overwrite=True) as fp:
+def write_urls(path=None, reload=True):
+    if path is None:
+        path = settings.PROMGEN['url_writer']['path']
+    with atomic_write(path, overwrite=True) as fp:
         fp.write(render_urls())
-    reload_prometheus()
+    if reload:
+        reload_prometheus()
 
 
 def render_config(service=None, project=None):
@@ -97,17 +100,23 @@ def render_config(service=None, project=None):
 
 
 @celery.task
-def write_config():
-    with atomic_write(settings.PROMGEN['config_writer']['path'], overwrite=True) as fp:
+def write_config(path=None, reload=True):
+    if path is None:
+        path = settings.PROMGEN['config_writer']['path']
+    with atomic_write(path, overwrite=True) as fp:
         fp.write(render_config())
-    reload_prometheus()
+    if reload:
+        reload_prometheus()
 
 
 @celery.task
-def write_rules():
-    with atomic_write(settings.PROMGEN['rule_writer']['rule_path'], overwrite=True) as fp:
+def write_rules(path=None, reload=True):
+    if path is None:
+        path = settings.PROMGEN['rule_writer']['path']
+    with atomic_write(path, overwrite=True) as fp:
         fp.write(render_rules())
-    reload_prometheus()
+    if reload:
+        reload_prometheus()
 
 
 @celery.task
