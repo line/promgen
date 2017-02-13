@@ -9,14 +9,15 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        parser.add_argument('--reload', action='store_true', help='Trigger Prometheus Reload')
         parser.add_argument(
             'out',
             nargs='?',
             help='Optionally specify an output file to use an atomic write operation'
         )
 
-    def handle(self, out, **kwargs):
-        if out:
-            prometheus.write_config(out, False)
+    def handle(self, **kwargs):
+        if kwargs['out']:
+            prometheus.write_config(kwargs['out'], kwargs['reload'])
         else:
             self.stdout.write(prometheus.render_config())
