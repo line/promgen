@@ -14,20 +14,39 @@
 {% if service_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Services</div>
-  <div class="panel-body">
-    <ul>
+  <table class="table table-bordered table-condensed">
+    <tr>
+      <th>Name</th>
+      <th>Projects</th>
+      <th>Rules</th>
+    </tr>
     {% for service in service_list %}
-    <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
+    <tr>
+      <td><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></td>
+      <td>
+        <ul class="list-unstyled">
+        {% for project in service.project_set.all %}
+          <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+        {% endfor %}
+        </ul>
+      </td>
+      <td>
+        <ul class="list-unstyled">
+        {% for rule in service.rule_set.all %}
+          <li><a href="{% url 'service-detail' service.id %}">{{ rule.name }}</a></li>
+        {% endfor %}
+        </ul>
+      </td>
+    </tr>
     {% endfor %}
-  </ul>
-  </div>
+  </table>
 </div>
 {% endif %}
 
 {% if project_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Projects</div>
-  <table class="table table-bordered">
+  <table class="table table-bordered table-condensed">
     <thead>
       <tr>
         <th>Name</th>
@@ -39,25 +58,20 @@
     <tr>
       <td><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td>
       <td>
-        <table style="width: 100%">
+        <dl class="dl-horizontal">
   {% for exporter in project.exporter_set.all %}
-          <tr>
-            <td>{{ exporter.job }}</td>
-            <td>{{ exporter.port }}</td>
-            <td>{{ exporter.path }}</td>
-          </tr>
+        <dt>{{ exporter.job }}</dt>
+        <dd>{{ exporter.port }}</dd>
   {% endfor %}
-        </table>
+        </dl>
       </td>
       <td>
-        <table style="width: 100%">
+        <dl class="dl-horizontal">
   {% for sender in project.sender.all %}
-          <tr>
-            <td>{{ sender.sender }}</td>
-            <td>{{ sender.show_value }}</td>
-          </tr>
+          <dt>{{ sender.sender }}</dt>
+          <dd>{{ sender.show_value }}</dd>
   {% endfor %}
-        </table>
+        </dl>
       </td>
     </tr>
     {% endfor %}
@@ -69,13 +83,32 @@
 {% if farm_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Farms</div>
-  <div class="panel-body">
-    <ul>
+  <table class="table table-bordered table-condensed">
+    <tr>
+      <th>Name</th>
+      <th>Projects</th>
+      <th>Hosts</th>
+    </tr>
     {% for farm in farm_list %}
-    <li><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></li>
+    <tr>
+      <td><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></td>
+      <td>
+        <ul class="list-unstyled">
+{% for project in farm.project_set.all %}
+          <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+{% endfor %}
+        </ul>
+      </td>
+      <td>
+        <ul class="list-unstyled">
+{% for host in farm.host_set.all %}
+          <li>{{ host.name }}</li>
+{% endfor %}
+        </ul>
+      </td>
+    </tr>
     {% endfor %}
-  </ul>
-  </div>
+  </table>
 </div>
 {% endif %}
 
@@ -95,29 +128,29 @@
 {% if rule_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Rules</div>
-  <table class="table table-bordered">
+  <table class="table table-bordered table-condensed">
     <thead>
       <tr>
         <th>Name</th>
+        <th>Service</th>
         <th>Clause</th>
         <th>Duration</th>
         <th>Labels</th>
         <th>Annotations</th>
-        <th>Service</th>
       </tr>
     </thead>
     {% for rule in rule_list %}
     <tr>
       <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
+      <td><a href="{% url 'service-detail' rule.service_id %}">{{ rule.service.name }}</a></td>
       <td>{{ rule.clause }}</td>
       <td>{{ rule.duration }}</td>
       <td>{{ rule.labels }}</td>
       <td>{{ rule.annotations }}</td>
-      <td>{{ rule.service }}</td>
     </tr>
     {% endfor %}
   </ul>
-  </div>
+  </table>
 </div>
 {% endif %}
 
