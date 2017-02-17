@@ -245,14 +245,15 @@ class UnlinkFarm(View):
 
 
 class RulesList(ListView, ServiceMixin):
-    model = models.Rule
     form = forms.RuleCopyForm()
+    template_name = 'promgen/rule_list.html'
 
     def get_queryset(self):
         if 'pk' in self.kwargs:
             self.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
             return models.Rule.objects.filter(service=self.service)
-        return models.Rule.objects.all()
+        return models.Service.objects\
+            .prefetch_related('rule_set')
 
 
 class RulesCopy(View):
