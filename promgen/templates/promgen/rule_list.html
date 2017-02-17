@@ -28,7 +28,6 @@
       <thead>
         <tr>
           <th>Name</th>
-          <th>Enabled</th>
           <th>Clause</th>
           <th>Duration</th>
           <th>Labels</th>
@@ -43,12 +42,10 @@
 {% for rule in rule_list %}
       <tr {% if rule.enabled == False %}class="rule-off"{% endif %}>
         <td>{{ rule.name }}</td>
-        <td>{{ rule.enabled }}</td>
         <td style="word-break: break-word;">{{ rule.clause }}</td>
         <td>{{ rule.duration }}</td>
         <td>{{ rule.labels }}</td>
         <td style="word-break: break-word;">{{ rule.annotations }}</td>
-        {% if service %}
         <td>
           <a href="{% url 'rule-edit' rule.id %}" class="btn btn-primary">Edit</a>
           <form method="post" action="{% url 'rule-toggle' rule.id %}" style="display: inline">
@@ -64,9 +61,7 @@
             <button class="btn btn-danger">Delete</button>
           </form>
         </td>
-        {% else %}
-        <td><a href="{% url 'service-rules' rule.service.id %}">{{ rule.service }}</a></td>
-        {% endif %}
+        <td><a href="{% url 'service-detail' rule.service.id %}">{{ rule.service }}</a></td>
       </tr>
 {% endfor %}
     </table>

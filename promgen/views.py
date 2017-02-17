@@ -58,6 +58,7 @@ class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
             'sender',
+            'rule_set',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
@@ -165,7 +166,7 @@ class RuleDelete(DeleteView):
     model = models.Rule
 
     def get_success_url(self):
-        return reverse('service-rules', args=[self.object.service_id])
+        return reverse('service-detail', args=[self.object.service_id])
 
 
 class RuleToggle(View):
@@ -173,7 +174,7 @@ class RuleToggle(View):
         rule = get_object_or_404(models.Rule, id=pk)
         rule.enabled = not rule.enabled
         rule.save()
-        return HttpResponseRedirect(reverse('service-rules', args=[rule.service_id]))
+        return HttpResponseRedirect(reverse('service-detail', args=[rule.service_id]))
 
 
 class HostDelete(DeleteView):
@@ -264,7 +265,7 @@ class RulesCopy(View):
             rule.copy_to(service)
             return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
         else:
-            return HttpResponseRedirect(reverse('service-rules', args=[pk]))
+            return HttpResponseRedirect(reverse('service-detail', args=[pk]))
 
 
 class FarmRefresh(SingleObjectMixin, View):
@@ -397,7 +398,7 @@ class RuleUpdate(UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse('service-rules', args=[self.object.service_id])
+        return reverse('service-detail', args=[self.object.service_id])
 
 
 class RuleRegister(FormView, ServiceMixin):
@@ -408,7 +409,7 @@ class RuleRegister(FormView, ServiceMixin):
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         rule, _ = models.Rule.objects.get_or_create(service=service, **form.clean())
-        return HttpResponseRedirect(reverse('service-rules', args=[service.id]))
+        return HttpResponseRedirect(reverse('service-detail', args=[service.id]))
 
 
 class ServiceRegister(FormView):
