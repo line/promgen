@@ -3,17 +3,30 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>New Service</h1>
+  <h1>{{ view.button_label }}</h1>
 </div>
 
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">New Service</li>
+{% if service %}
+  <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
+{% endif %}
+  <li class="active">{{ view.button_label }}</li>
 </ol>
 
-<form action="" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-primary">Register Service</button>
-</form>
+{% if service %}
+<div class="alert alert-danger" role="alert">
+    Warning. Renaming or Moving a service will reset all labels in Prometheus
+</div>
+{% endif %}
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary">{{ view.button_label }}</button>
+    </form>
+  </div>
+</div>
 
 {% endblock %}

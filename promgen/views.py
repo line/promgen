@@ -384,9 +384,10 @@ class ProjectUpdate(UpdateView):
 
 
 class ServiceUpdate(UpdateView):
+    button_label = _('Update Service')
+    form_class = forms.ServiceForm
     model = models.Service
     template_name = 'promgen/service_form.html'
-    form_class = forms.ServiceForm
 
 
 class RuleUpdate(UpdateView):
@@ -415,9 +416,10 @@ class RuleRegister(FormView, ServiceMixin):
 
 
 class ServiceRegister(FormView):
+    button_label = _('Service Register')
+    form_class = forms.ProjectForm
     model = models.Service
     template_name = 'promgen/service_form.html'
-    form_class = forms.ProjectForm
 
     def form_valid(self, form):
         shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
