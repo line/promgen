@@ -634,9 +634,9 @@ class Mute(FormView):
                 context['label'] = label
                 # TODO: using isnumeric sees fragile but I can revisit later
                 if kwargs[label].isnumeric():
-                    context['obj'] = get_object_or_404(klass, pk=kwargs[label])
+                    context['obj'] = klass.objects.filter(pk=kwargs[label]).first()
                 else:
-                    context['obj'] = get_object_or_404(klass, name=kwargs[label])
+                    context['obj'] = klass.objects.filter(name=kwargs[label]).first()
         if context:
             return render(request, 'promgen/mute_form.html', context)
         return HttpResponseRedirect('/')
