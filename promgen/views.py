@@ -103,6 +103,7 @@ class AuditList(ListView):
 
 
 class ServiceDetail(DetailView):
+    form = forms.RuleCopyForm()
     queryset = models.Service.objects\
         .prefetch_related(
             'project_set',

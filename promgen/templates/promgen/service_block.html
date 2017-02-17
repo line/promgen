@@ -38,6 +38,13 @@
       {% endfor %}
     </table>
 {% endif %}
+    <div class="panel-footer">
+      <form action="{% url 'rule-copy' service.id %}" method="post" style="display: inline">
+          {% csrf_token %}
+          {{ view.form.rule_id }}
+          <button class="btn btn-primary btn-xs">Duplicate Rule</button>
+      </form>
+    </div>
   </div>
 
   <div class="panel panel-default">
