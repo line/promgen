@@ -11,6 +11,14 @@
   <div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-heading"><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></div>
+      <div class="panel-body">
+        <dl class="dl-horizontal">
+          <dt>Services</dt>
+          <dd>{{ shard.service_set.count }}</dd>
+          <dt>Projects</dt>
+          <dd>{{ shard.service_set__project_set }}</dd>
+        </dl>
+      </div>
       <table class="table">
         <tr>
           <th>Service</th>
