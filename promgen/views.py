@@ -682,10 +682,10 @@ class AjaxAlert(View):
                             if alert['labels'][key]:
                                 alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
-        for key in alerts.keys():
-            if len(alerts[key]) > 5:
-                alerts[key] = alerts[key][:5]
+        # for key in alerts.keys():
+        #     if len(alerts[key]) > 5:
+        #         alerts[key] = alerts[key][:5]
 
-        alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key]}, request) for key in alerts}
+        alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
 
         return JsonResponse(alerts)
