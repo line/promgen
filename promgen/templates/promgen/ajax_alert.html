@@ -6,11 +6,11 @@
     </a>
   </div>
 <table class="table table-bordered table-condensed collapse" id="show-{{ key }}">
-<tr>
-  <th>Starts</th>
-  <th>Labels</th>
-  <th>Annotations</th>
-  <th>&nbsp;</th>
+  <tr>
+    <th>Starts</th>
+    <th>Labels</th>
+    <th>Annotations</th>
+  </tr>
 {% for alert in alerts %}
 <tr>
   <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt }}</a></td>
