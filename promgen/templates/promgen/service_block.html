@@ -109,12 +109,11 @@
 {% endif %}
 
   </div>
-    <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
     <a href="{% url 'service-export' service.id %}" class="btn btn-default btn-sm">{% trans "Export Service" %}</a>
+    <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
     <a href="{% url 'service-mute' service.id %}" class="btn btn-warning btn-sm">{% trans "Mute Service" %}</a>
     <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
       {% csrf_token %}
       <button class="btn btn-danger btn-sm">{% trans "Delete Service" %}</button>
     </form>
-
 </div>
