@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% block content %}
 
 <div class="page-header">
@@ -15,6 +15,12 @@
 {% if service.rule_set.count %}
 <h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
 <div class="panel panel-default">
+  <div class="panel-heading">
+    Rules ( {{service.rule_set.count}} )
+    <span class="pull-right form-inline">
+      <a href="{% url 'rule-new' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
+    </span>
+  </div>
 {% include "promgen/rule_block.html" with object=service show_full=1 %}
 </div>
 {% endif %}
