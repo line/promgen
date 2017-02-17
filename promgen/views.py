@@ -362,6 +362,7 @@ class URLList(ListView):
 
 
 class ProjectRegister(FormView, ServiceMixin):
+    button_label = _('Project Register')
     model = models.Project
     template_name = 'promgen/project_form.html'
     form_class = forms.ProjectForm
@@ -374,8 +375,9 @@ class ProjectRegister(FormView, ServiceMixin):
 
 class ProjectUpdate(UpdateView):
     model = models.Project
+    button_label = _('Project Update')
     template_name = 'promgen/project_form.html'
-    form_class = forms.ProjectForm
+    form_class = forms.ProjectMove
 
     def get_context_data(self, **kwargs):
         context = super(ProjectUpdate, self).get_context_data(**kwargs)

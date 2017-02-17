@@ -55,6 +55,12 @@ class ProjectForm(forms.ModelForm):
         exclude = ['service', 'farm']
 
 
+class ProjectMove(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        exclude = ['farm']
+
+
 class URLForm(forms.ModelForm):
     class Meta:
         model = models.URL
