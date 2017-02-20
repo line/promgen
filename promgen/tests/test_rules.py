@@ -56,6 +56,7 @@ class RuleTest(TestCase):
             'rules': TEST_RULE
         })
 
-        rule = models.Rule.objects.filter(name='ImportRule').get()
-        self.assertEqual(models.RuleLabel.objects.filter(rule=rule).count(), 1, 'Missing labels')
-        self.assertEqual(models.RuleAnnotation.objects.filter(rule=rule).count(), 1, 'Missing annotations')
+        # Includes count of our setUp rule + imported rules
+        self.assertEqual(models.Rule.objects.count(), 3, 'Missing Rule')
+        self.assertEqual(models.RuleLabel.objects.count(), 4, 'Missing labels')
+        self.assertEqual(models.RuleAnnotation.objects.count(), 7, 'Missing annotations')
