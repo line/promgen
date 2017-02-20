@@ -245,7 +245,7 @@ class RuleLabel(models.Model):
 
 class RuleAnnotation(models.Model):
     name = models.CharField(max_length=128)
-    value = models.CharField(max_length=128)
+    value = models.TextField()
     rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
 
 
