@@ -195,6 +195,17 @@ class Rule(models.Model):
     def get_absolute_url(self):
         return reverse('rule-edit', kwargs={'pk': self.pk})
 
+    def as_json(self):
+        return {
+            'name': self.name,
+            'clause': self.clause,
+            'duration': self.duration,
+            'service': self.service.name,
+            'enabled': self.enabled,
+            'labels': {l.name: l.value for l in RuleLabel.objects.filter(rule=self)},
+            'annotations': {a.name: a.value for a in RuleAnnotation.objects.filter(rule=self)},
+        }
+
     def copy_to(self, service):
         '''
         Make a copy under a new service
