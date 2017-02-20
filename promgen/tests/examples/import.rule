@@ -11,8 +11,8 @@ ALERT ExporterDown
 
 # Service: <shared>
 # Service URL: /service/49/
-ALERT ExporterDown
-  IF up == 0
+ALERT ExporterTargetDown
+  IF {__name__=~".*_up"} == 0
   FOR 1m
-  LABELS {severity="major"}
+  LABELS {severity="warning", another="foo"}
   ANNOTATIONS {bar="baz", service="http://promgen.example/service/49/", summary="High load on {{ $labels.instance }}"}
