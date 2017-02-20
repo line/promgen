@@ -74,7 +74,7 @@ class URLForm(forms.ModelForm):
 class RuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule
-        exclude = ['service']
+        exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
