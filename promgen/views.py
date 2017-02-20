@@ -4,6 +4,7 @@ import logging
 from urllib.parse import urljoin
 
 import requests
+from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
@@ -400,8 +401,14 @@ class RuleUpdate(UpdateView):
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
 
-    LabelForm = inlineformset_factory(models.Rule, models.RuleLabel, fields=('name', 'value'))
-    AnnotationForm = inlineformset_factory(models.Rule, models.RuleAnnotation, fields=('name', 'value'))
+    LabelForm = inlineformset_factory(models.Rule, models.RuleLabel, fields=('name', 'value'), widgets={
+        'name': django_forms.TextInput(attrs={'class': 'form-control'}),
+        'value': django_forms.TextInput(attrs={'rows': 5, 'class': 'form-control'}),
+    })
+    AnnotationForm = inlineformset_factory(models.Rule, models.RuleAnnotation, fields=('name', 'value'), widgets={
+        'name': django_forms.TextInput(attrs={'class': 'form-control'}),
+        'value': django_forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+    })
 
     def get_context_data(self, **kwargs):
         context = super(RuleUpdate, self).get_context_data(**kwargs)
