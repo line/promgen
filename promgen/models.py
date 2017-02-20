@@ -4,6 +4,7 @@ import time
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -169,8 +170,6 @@ class Rule(models.Model):
         ('1m', '1m'),
         ('5m', '5m'),
     ])
-    #labels = models.TextField(validators=[validate_json_or_empty])
-    #annotations = models.TextField(validators=[validate_json_or_empty])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
 
@@ -178,10 +177,15 @@ class Rule(models.Model):
         ordering = ['name']
 
     def labels(self):
-        return []
+        return {obj.name: obj.value for obj in RuleLabel.objects.filter(rule=self)}
 
     def annotations(self):
-        return []
+        _annotations = {obj.name: obj.value for obj in RuleAnnotation.objects.filter(rule=self)}
+        _annotations['service'] = 'http://{site}{path}'.format(
+            site=Site.objects.get_current().domain,
+            path=reverse('service-detail', args=[self.service_id])
+        )
+        return _annotations
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.service.name)

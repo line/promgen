@@ -12,6 +12,10 @@
   <li class="active">New Rule</li>
 </ol>
 
+{% if rules %}
+<pre>{% include "promgen/prometheus.rule" %}</pre>
+{% endif %}
+
 <form action="" class="input-group" method="post">{% csrf_token %}
 <div class="row">
 
@@ -58,11 +62,23 @@
 
 <div class="col-md-6">
   <div class="panel panel-default">
-    <div class="panel-heading">{{ form.labels.label_tag }}</div>
+    <div class="panel-heading">Labels - Control routing through AlertManager and Promgen</div>
     <div class="panel-body">
-      {{ form.labels.errors }}
-      {{ form.labels }}
-      <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
+      {{ label_set.management_form }}
+      <table class="table">
+          <tr>
+            <th>Annotation</th>
+            <th>Value</th>
+            <th>Delete?</th>
+          </tr>
+        {% for label_form in label_set %}
+          <tr>
+            <td>{{ label_form.id }} {{ label_form.name }}</td>
+            <td>{{ label_form.value }}</td>
+            <td>{{ label_form.DELETE }}</td>
+          </tr>
+        {% endfor %}
+      </table>
       <div class="panel panel-default">
         Examples
         <ul>
@@ -73,22 +89,33 @@
   </div>
 
   <div class="panel panel-default">
-    <div class="panel-heading">{{ form.annotations.label_tag }}</div>
+    <div class="panel-heading">Annotations - Provide extra details for notifications</div>
+    {{ annotation_set.management_form }}
+    <table class="table">
+        <tr>
+          <th>Annotation</th>
+          <th>Value</th>
+          <th>Delete?</th>
+        </tr>
+      {% for annotation_form in annotation_set %}
+        <tr>
+          <td>{{ annotation_form.id }} {{ annotation_form.name }}</td>
+          <td>{{ annotation_form.value }}</td>
+          <td>{{ annotation_form.DELETE }}</td>
+        </tr>
+      {% endfor %}
+    </table>
     <div class="panel-body">
-      {{ form.annotations.errors }}
-      {{ form.annotations }}
-      <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
       <div class="panel panel-default">
         Examples
         <ul>
-          <li><code>{"summary":"High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}", "description":"..."}</code></li>
+          <li><code>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</code></li>
         </ul>
       </div>
     </div>
   </div>
   </div>
 </div>
-
 
 </div>
 <button class="btn btn-primary">Register Rule</button>

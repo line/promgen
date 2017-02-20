@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
@@ -399,13 +400,40 @@ class RuleUpdate(UpdateView):
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
 
+    LabelForm = inlineformset_factory(models.Rule, models.RuleLabel, fields=('name', 'value'))
+    AnnotationForm = inlineformset_factory(models.Rule, models.RuleAnnotation, fields=('name', 'value'))
+
     def get_context_data(self, **kwargs):
         context = super(RuleUpdate, self).get_context_data(**kwargs)
         context['service'] = self.object.service
+        context['label_set'] = self.LabelForm(instance=self.object)
+        context['annotation_set'] = self.AnnotationForm(instance=self.object)
+        context['rules'] = [self.object]
         return context
 
-    def get_success_url(self):
-        return reverse('service-detail', args=[self.object.service_id])
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if not form.is_valid():
+            return self.form_invalid(form)
+
+        labels = self.LabelForm(request.POST, request.FILES, instance=self.object)
+        if labels.is_valid():
+            for instance in labels.save():
+                messages.info(request, 'Added {} to {}'.format(instance.name, self.object))
+        else:
+            logger.warning('Error saving labels %s', labels.errors)
+            return self.form_invalid(form)
+
+        annotations = self.AnnotationForm(request.POST, request.FILES, instance=self.object)
+        if annotations.is_valid():
+            for instance in annotations.save():
+                messages.info(request, 'Added {} to {}'.format(instance.name, self.object))
+        else:
+            logger.warning('Error saving annotations %s', annotations.errors)
+            return self.form_invalid(form)
+
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class RuleRegister(FormView, ServiceMixin):
