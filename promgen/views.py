@@ -561,8 +561,6 @@ class ProjectExport(View):
 
 class RulesConfig(View):
     def get(self, request):
-        if request.GET.get('format') == 'json':
-            return JsonResponse([rule.to_dict() for rule in models.Rule.objects.all()], safe=False)
         return HttpResponse(prometheus.render_rules(), content_type='text/plain; charset=utf-8')
 
     def post(self, request):

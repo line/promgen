@@ -17,8 +17,6 @@
   <div class="panel-heading">Preview</div>
   <div class="panel-body">
     <pre>{% include "promgen/prometheus.rule" %}</pre>
-    <label for="json_preview">Export</label>
-    <textarea id="json_preview" class="form-control">{{ rule.to_dict|to_json }}</textarea>
   </div>
 </div>
 {% endif %}
