@@ -13,69 +13,86 @@
 </ol>
 
 <form action="" class="input-group" method="post">{% csrf_token %}
-<div class="panel panel-default">
-  <div class="panel-heading">{{ form.name.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.name.errors }}
-    {{ form.name }}
+<div class="row">
 
-    {{ form.enabled.label_tag }}
-    {{ form.enabled.errors }}
-    {{ form.enabled }}
-  </div>
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.name.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.name.errors }}
+      {{ form.name }}
 
-  <div class="panel-heading">{{ form.clause.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.clause.errors }}
-    {{ form.clause }}
-  </div>
-  <div class="panel-body">
-    <p class="help-block">Prometheus query to alert on</p>
-    <div class="panel panel-default">
-      Examples
-      <ul>
-        <li><code>node_load1{service="analysis"} > 5</code></li>
-        <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
-      </ul>
+      {{ form.enabled.label_tag }}
+      {{ form.enabled.errors }}
+      {{ form.enabled }}
     </div>
   </div>
 
-  <div class="panel-heading">{{ form.duration.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.duration.errors }}
-    {{ form.duration }}
-    <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
-  </div>
-
-  <div class="panel-heading">{{ form.labels.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.labels.errors }}
-    {{ form.labels }}
-    <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
-    <div class="panel panel-default">
-      Examples
-      <ul>
-        <li><code>{"severity":"major"}</code></li>
-      </ul>
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.clause.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.clause.errors }}
+      {{ form.clause }}
+    </div>
+    <div class="panel-body">
+      <p class="help-block">Prometheus query to alert on</p>
+      <div class="panel panel-default">
+        Examples
+        <ul>
+          <li><code>node_load1{service="analysis"} > 5</code></li>
+          <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
+        </ul>
+      </div>
     </div>
   </div>
 
-  <div class="panel-heading">{{ form.annotations.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.annotations.errors }}
-    {{ form.annotations }}
-    <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
-    <div class="panel panel-default">
-      Examples
-      <ul>
-        <li><code>{"summary":"High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}", "description":"..."}</code></li>
-      </ul>
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.duration.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.duration.errors }}
+      {{ form.duration }}
+      <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
     </div>
-  </div>
-  <div class="panel-footer">
-    <button class="btn btn-primary">Register Rule</button>
   </div>
 </div>
+
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.labels.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.labels.errors }}
+      {{ form.labels }}
+      <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
+      <div class="panel panel-default">
+        Examples
+        <ul>
+          <li><code>{"severity":"major"}</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.annotations.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.annotations.errors }}
+      {{ form.annotations }}
+      <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
+      <div class="panel panel-default">
+        Examples
+        <ul>
+          <li><code>{"summary":"High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}", "description":"..."}</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+
+</div>
+<button class="btn btn-primary">Register Rule</button>
 </form>
+
 
 {% endblock %}
