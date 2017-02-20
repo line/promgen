@@ -40,5 +40,9 @@ class RuleTest(TestCase):
     def test_copy(self, mock_render):
         service = models.Service.objects.create(name='Service 2', shard=self.shard)
         copy = self.rule.copy_to(service)
+        # Test that our copy has the same labels and annotations
         self.assertIn('severity', copy.labels())
         self.assertIn('summary', copy.annotations())
+        # and test that we actually duplicated them and not moved them
+        self.assertEqual(models.RuleLabel.objects.count(), 2)
+        self.assertEqual(models.RuleAnnotation.objects.count(), 2)
