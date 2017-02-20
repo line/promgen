@@ -4,10 +4,14 @@ from django import forms
 from promgen import models, plugins
 
 
-class ImportForm(forms.Form):
+class ImportConfigForm(forms.Form):
     config = forms.CharField(widget=forms.Textarea, required=False)
     url = forms.CharField(required=False)
     file_field = forms.FileField(required=False)
+
+
+class ImportRuleForm(forms.Form):
+    rules = forms.CharField(widget=forms.Textarea, required=True)
 
 
 class MuteForm(forms.Form):

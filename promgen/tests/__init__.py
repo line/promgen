@@ -10,3 +10,6 @@ with open(os.path.join(os.path.dirname(__file__), 'examples', 'import.json')) as
 
 with open(os.path.join(os.path.dirname(__file__), 'examples', 'settings.yaml')) as fp:
     TEST_SETTINGS = yaml.load(fp)
+
+with open(os.path.join(os.path.dirname(__file__), 'examples', 'import.rule')) as fp:
+    TEST_RULE = fp.read()

@@ -2,11 +2,12 @@ import collections
 import datetime
 import json
 import logging
+import re
 import subprocess
 import tempfile
-import pytz
 from urllib.parse import urljoin
 
+import pytz
 import requests
 from atomicwrites import atomic_write
 from django.conf import settings
@@ -123,6 +124,80 @@ def write_rules(path=None, reload=True):
 def reload_prometheus():
     target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
     post(target)
+
+
+def import_rules(config):
+    # Attemps to match the pattern name="value" for Prometheus labels and annotations
+    RULE_MATCH = re.compile('((?P<key>\w+)\s*=\s*\"(?P<value>.*?)\")')
+
+    def parse_prom(text):
+        if not text:
+            return {}
+        converted = {}
+        for match, key, value in RULE_MATCH.findall(text.strip().strip('{}')):
+            converted[key] = value
+        return converted
+
+    counters = collections.defaultdict(int)
+
+    tokens = {}
+    for line in config.split('\n'):
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith('#'):
+            continue
+
+        keyword, data = line.split(' ', 1)
+
+        if keyword != 'ALERT':
+            tokens[keyword] = data
+            continue
+
+        if keyword == 'ALERT' and 'ALERT' not in tokens:
+            tokens[keyword] = data
+            continue
+
+        labels = parse_prom(tokens.get('LABELS'))
+        annotations = parse_prom(tokens.get('ANNOTATIONS'))
+
+        try:
+            service = models.Service.objects.get(name=labels.get('service', 'Default'))
+        except models.Service.DoesNotExist:
+            shard, created = models.Shard.objects.get_or_create(
+                name='Default'
+            )
+            if created:
+                counters['Shard'] += 1
+
+            service = models.Service.objects.create(
+                name=labels.get('service', 'Default'),
+                shard=shard,
+            )
+            counters['Service'] += 1
+
+        rule, created = models.Rule.objects.get_or_create(
+            name=tokens['ALERT'],
+            defaults={
+                'clause': tokens['IF'],
+                'duration': tokens['FOR'],
+                'service': service,
+            }
+        )
+
+        if created:
+            counters['Rules'] += 1
+            for k, v in labels.items():
+                models.RuleLabel.objects.create(name=k, value=v, rule=rule)
+                counters['Labels'] += 1
+            for k, v in annotations.items():
+                models.RuleAnnotation.objects.create(name=k, value=v, rule=rule)
+                counters['Annotations'] += 1
+
+        # Reset for our next loop
+        tokens = {keyword: data}
+
+    return dict(counters)
 
 
 def import_config(config):

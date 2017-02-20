@@ -621,12 +621,22 @@ class Search(View):
 
 class Import(FormView):
     template_name = 'promgen/import_form.html'
-    form_class = forms.ImportForm
+    form_class = forms.ImportConfigForm
     success_url = reverse_lazy('service-list')
 
     def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
         form = form_class(request.POST, request.FILES)
+
+        if 'rules' in request.POST:
+            form = forms.ImportRuleForm(request.POST)
+            if form.is_valid():
+                data = form.clean()
+                counters = prometheus.import_rules(data['rules'])
+                messages.info(request, 'Imported %s' % counters)
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
 
         if form.is_valid():
             data = form.clean()
