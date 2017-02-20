@@ -445,13 +445,13 @@ class RuleUpdate(UpdateView):
 
 class RuleRegister(FormView, ServiceMixin):
     model = models.Rule
-    template_name = 'promgen/rule_form.html'
-    form_class = forms.RuleForm
+    template_name = 'promgen/rule_register.html'
+    form_class = forms.NewRuleForm
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         rule, _ = models.Rule.objects.get_or_create(service=service, **form.clean())
-        return HttpResponseRedirect(reverse('service-detail', args=[service.id]))
+        return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
 
 
 class ServiceRegister(FormView):
