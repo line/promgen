@@ -45,6 +45,7 @@ class ShardList(ListView):
 
 
 class ShardDetail(DetailView):
+    form = forms.RuleCopyForm()
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
@@ -55,6 +56,7 @@ class ShardDetail(DetailView):
 
 
 class ServiceList(ListView):
+    form = forms.RuleCopyForm()
     queryset = models.Service.objects\
         .prefetch_related(
             'sender',
