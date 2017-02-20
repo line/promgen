@@ -11,7 +11,7 @@ ALERT RuleName
   IF up==0
   FOR 1s
   LABELS {severity="severe"}
-  ANNOTATIONS {service="http://example.com/service/1/"}
+  ANNOTATIONS {service="http://example.com/service/1/", summary="Test case"}
 
 
 '''.lstrip()
@@ -22,14 +22,14 @@ class RuleTest(TestCase):
     def setUp(self):
         self.shard = models.Shard.objects.create(name='Shard 1')
         self.service = models.Service.objects.create(id=1, name='Service 1', shard=self.shard)
-        models.Rule.objects.create(
+        self.rule = models.Rule.objects.create(
             name='RuleName',
             clause='up==0',
             duration='1s',
-            labels='{"severity":"severe"}',
-            annotations='{}',
             service=self.service
         )
+        models.RuleLabel.objects.create(name='severity', value='severe', rule=self.rule)
+        models.RuleAnnotation.objects.create(name='summary', value='Test case', rule=self.rule)
 
     @mock.patch('django.db.models.signals.post_save')
     def test_write(self, mock_render):
