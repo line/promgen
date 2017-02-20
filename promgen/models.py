@@ -195,7 +195,7 @@ class Rule(models.Model):
     def get_absolute_url(self):
         return reverse('rule-edit', kwargs={'pk': self.pk})
 
-    def as_json(self):
+    def to_dict(self):
         return {
             'name': self.name,
             'clause': self.clause,

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load promgen %}
 {% block content %}
 
 <div class="page-header">
@@ -13,7 +13,14 @@
 </ol>
 
 {% if rules %}
-<pre>{% include "promgen/prometheus.rule" %}</pre>
+<div class="panel panel-default">
+  <div class="panel-heading">Preview</div>
+  <div class="panel-body">
+    <pre>{% include "promgen/prometheus.rule" %}</pre>
+    <label for="json_preview">Export</label>
+    <textarea id="json_preview" class="form-control">{{ rule.to_dict|to_json }}</textarea>
+  </div>
+</div>
 {% endif %}
 
 <form action="" class="input-group" method="post">{% csrf_token %}

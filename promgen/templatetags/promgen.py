@@ -1,3 +1,5 @@
+import json
+
 from django import template
 
 register = template.Library()
@@ -10,3 +12,8 @@ def to_prom(value):
     ]
 
     return '{' + ', '.join(sorted(values)) + '}'
+
+
+@register.filter()
+def to_json(value):
+    return json.dumps(value)
