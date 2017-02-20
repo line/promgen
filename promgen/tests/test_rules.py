@@ -1,5 +1,8 @@
+import json
 from unittest import mock
+
 from django.test import TestCase
+from django.urls import reverse
 
 from promgen import models, prometheus
 
@@ -46,3 +49,25 @@ class RuleTest(TestCase):
         # and test that we actually duplicated them and not moved them
         self.assertEqual(models.RuleLabel.objects.count(), 2)
         self.assertEqual(models.RuleAnnotation.objects.count(), 2)
+
+    @mock.patch('django.db.models.signals.post_save')
+    def test_import(self, mock_render):
+        self.client.post(reverse('import'), {
+            'rules': json.dumps([{
+                'service': 'Service 1',
+                'name': 'ImportRule',
+                'duration': '1s',
+                'labels': {
+                    'severity': 'severe',
+                },
+                'annotations': {
+                    'summary': 'Test case'
+                }
+            }])
+        })
+
+        rule = models.Rule.objects.filter(name='ImportRule').get()
+        self.assertEqual(models.RuleLabel.objects.filter(rule=rule).count(), 1, 'Missing labels')
+        self.assertEqual(models.RuleAnnotation.objects.filter(rule=rule).count(), 1, 'Missing annotations')
+        # Cleanup to avoid test_write errors
+        #rules.delete()
