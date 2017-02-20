@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 
 from django.contrib.contenttypes.fields import (GenericForeignKey,
@@ -6,13 +7,14 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 
 from promgen import plugins
 
 FARM_DEFAULT = 'default'
+logger = logging.getLogger(__name__)
 
 
 class Sender(models.Model):
@@ -201,11 +203,26 @@ class Rule(models.Model):
         also need to ensure the new name is unique by appending some unique data
         to the end of the name
         '''
-        self.pk = None
-        self.name += str(int(time.time()))
-        self.service = service
-        self.enabled = False
-        self.save()
+        with transaction.atomic():
+            orig_pk = self.pk
+            self.pk = None
+            self.name += str(int(time.time()))
+            self.service = service
+            self.enabled = False
+            self.save()
+
+            for label in RuleLabel.objects.filter(rule_id=orig_pk):
+                logger.debug('Copying %s to %s', label, self)
+                label.pk = None
+                label.rule = self
+                label.save()
+
+            for annotation in RuleAnnotation.objects.filter(rule_id=orig_pk):
+                logger.debug('Copying %s to %s', annotation, self)
+                annotation.pk = None
+                annotation.rule = self
+                annotation.save()
+
         return self
 
 
