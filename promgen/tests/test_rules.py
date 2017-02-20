@@ -35,3 +35,10 @@ class RuleTest(TestCase):
     def test_write(self, mock_render):
         result = prometheus.render_rules()
         self.assertEqual(result, _RULES)
+
+    @mock.patch('django.db.models.signals.post_save')
+    def test_copy(self, mock_render):
+        service = models.Service.objects.create(name='Service 2', shard=self.shard)
+        copy = self.rule.copy_to(service)
+        self.assertIn('severity', copy.labels())
+        self.assertIn('summary', copy.annotations())
