@@ -169,13 +169,19 @@ class Rule(models.Model):
         ('1m', '1m'),
         ('5m', '5m'),
     ])
-    labels = models.TextField(validators=[validate_json_or_empty])
-    annotations = models.TextField(validators=[validate_json_or_empty])
+    #labels = models.TextField(validators=[validate_json_or_empty])
+    #annotations = models.TextField(validators=[validate_json_or_empty])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['name']
+
+    def labels(self):
+        return []
+
+    def annotations(self):
+        return []
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.service.name)
@@ -197,6 +203,18 @@ class Rule(models.Model):
         self.enabled = False
         self.save()
         return self
+
+
+class RuleLabel(models.Model):
+    name = models.CharField(max_length=128)
+    value = models.CharField(max_length=128)
+    rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
+
+
+class RuleAnnotation(models.Model):
+    name = models.CharField(max_length=128)
+    value = models.CharField(max_length=128)
+    rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
 
 
 class Audit(models.Model):
