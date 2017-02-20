@@ -674,7 +674,11 @@ class AjaxAlert(View):
         alerts = collections.defaultdict(list)
         url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
         response = requests.get(url)
-        for group in response.json().get('data', []):
+        data = response.json().get('data', [])
+        if data is None:
+            # Return an empty alert-all if there are no active alerts from AM
+            return JsonResponse({'alert-all': ''})
+        for group in data:
             if group.get('blocks') is None:
                 continue
             for block in group.get('blocks', []):
