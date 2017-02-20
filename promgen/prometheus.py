@@ -126,7 +126,7 @@ def reload_prometheus():
     post(target)
 
 
-def import_rules(config):
+def import_rules(config, default_service=None):
     # Attemps to match the pattern name="value" for Prometheus labels and annotations
     RULE_MATCH = re.compile('((?P<key>\w+)\s*=\s*\"(?P<value>.*?)\")')
 
@@ -161,20 +161,23 @@ def import_rules(config):
         labels = parse_prom(tokens.get('LABELS'))
         annotations = parse_prom(tokens.get('ANNOTATIONS'))
 
-        try:
-            service = models.Service.objects.get(name=labels.get('service', 'Default'))
-        except models.Service.DoesNotExist:
-            shard, created = models.Shard.objects.get_or_create(
-                name='Default'
-            )
-            if created:
-                counters['Shard'] += 1
+        if default_service:
+            service = default_service
+        else:
+            try:
+                service = models.Service.objects.get(name=labels.get('service', 'Default'))
+            except models.Service.DoesNotExist:
+                shard, created = models.Shard.objects.get_or_create(
+                    name='Default'
+                )
+                if created:
+                    counters['Shard'] += 1
 
-            service = models.Service.objects.create(
-                name=labels.get('service', 'Default'),
-                shard=shard,
-            )
-            counters['Service'] += 1
+                service = models.Service.objects.create(
+                    name=labels.get('service', 'Default'),
+                    shard=shard,
+                )
+                counters['Service'] += 1
 
         rule, created = models.Rule.objects.get_or_create(
             name=tokens['ALERT'],

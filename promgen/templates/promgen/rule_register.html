@@ -17,7 +17,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">New Rule</div>
   <div class="panel-body">
-    <form action="" method="post">{% csrf_token %}
+    <form action="{% url 'rule-new' service.id %}" method="post">{% csrf_token %}
         {{ form.as_p }}
         <button class="btn btn-primary">Register Rule</button>
     </form>
@@ -27,8 +27,8 @@
 <div class="panel panel-default">
   <div class="panel-heading">Import Rule</div>
   <div class="panel-body">
-    <form action="" method="post">{% csrf_token %}
-        <textarea class="form-control" name="import"></textarea>
+    <form action="{% url 'rule-new' service.id %}" method="post">{% csrf_token %}
+        <textarea class="form-control" name="rules"></textarea>
         <button class="btn btn-primary">Import Rule</button>
     </form>
   </div>

@@ -448,6 +448,22 @@ class RuleRegister(FormView, ServiceMixin):
     template_name = 'promgen/rule_register.html'
     form_class = forms.NewRuleForm
 
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        if 'rules' not in request.POST:
+            return self.form_invalid(form)
+
+        importform = forms.ImportRuleForm(request.POST)
+        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        if importform.is_valid():
+            data = importform.clean()
+            counters = prometheus.import_rules(data['rules'], service)
+            messages.info(request, 'Imported %s' % counters)
+            return HttpResponseRedirect(service.get_absolute_url())
+        return self.form_invalid(form)
+
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         rule, _ = models.Rule.objects.get_or_create(service=service, **form.clean())
