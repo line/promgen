@@ -1,15 +1,18 @@
 import collections
 import json
 import logging
+from urllib.parse import urljoin
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
+from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
@@ -611,6 +614,26 @@ class Import(FormView):
 class Mute(FormView):
     form_class = forms.MuteForm
 
+    def get(self, request, **kwargs):
+        context = {}
+        MAPPING = {
+            'farm': models.Farm,
+            'host': models.Host,
+            'project': models.Project,
+            'service': models.Service,
+        }
+        for label, klass in MAPPING.items():
+            if label in kwargs:
+                context['label'] = label
+                # TODO: using isnumeric sees fragile but I can revisit later
+                if kwargs[label].isnumeric():
+                    context['obj'] = get_object_or_404(klass, pk=kwargs[label])
+                else:
+                    context['obj'] = get_object_or_404(klass, name=kwargs[label])
+        if context:
+            return render(request, 'promgen/mute_form.html', context)
+        return HttpResponseRedirect('/')
+
     def post(self, request):
         form = forms.MuteForm(request.POST)
         if form.is_valid():
@@ -637,3 +660,32 @@ class Mute(FormView):
         else:
             messages.warning(request, 'Error setting mute')
         return HttpResponseRedirect(request.POST.get('next', '/'))
+
+
+class AjaxAlert(View):
+    def get(self, request):
+        alerts = collections.defaultdict(list)
+        url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
+        response = requests.get(url)
+        for group in response.json().get('data', []):
+            if group.get('blocks') is None:
+                continue
+            for block in group.get('blocks', []):
+                for alert in block.get('alerts', []):
+                    if alert.get('silenced', False):
+                        continue
+                    if alert['labels'].get('alertname') == 'PromgenHeartbeat':
+                        continue
+                    alerts['alert-all'].append(alert)
+                    for key in ['project', 'service']:
+                        if key in alert['labels']:
+                            if alert['labels'][key]:
+                                alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
+
+        # for key in alerts.keys():
+        #     if len(alerts[key]) > 5:
+        #         alerts[key] = alerts[key][:5]
+
+        alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
+
+        return JsonResponse(alerts)

@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 
 import dj_database_url
+import raven
 import yaml
 
 from promgen.plugins import apps_from_setuptools
@@ -142,7 +143,10 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 if 'SENTRY_DSN' in os.environ:
     INSTALLED_APPS += ['raven.contrib.django.raven_compat']
-    RAVEN_CONFIG = {'dsn': os.environ['SENTRY_DSN']}
+    RAVEN_CONFIG = {
+        'dsn': os.environ['SENTRY_DSN'],
+        'release': raven.fetch_git_sha(BASE_DIR),
+    }
 
     LOGGING = {
         'version': 1,
