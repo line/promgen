@@ -153,8 +153,12 @@
 <div class="col-md-6">
 {% if global.rule_set.count %}
   <div class="panel panel-primary">
-    <div class="panel-heading">Rules for {{ global.name }}</div>
-    {% include "promgen/rule_block.html" with object=global %}
+    <div class="panel-heading">
+      <a class="btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#show-global-rules" aria-expanded="false" aria-controls="collapseExample">
+      Common Rules ({{ global.rule_set.count }})
+      </a>
+    </div>
+    {% include "promgen/rule_block.html" with object=global collapse="show-global-rules" %}
   </div>
 {% endif %}
 
