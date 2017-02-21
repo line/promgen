@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Import Service</h1>
+  <h1>Import Configs</h1>
 </div>
 
 <ol class="breadcrumb">
@@ -25,7 +25,7 @@
   <div class="panel-heading">Import Rules</div>
   <div class="panel-body">
     <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
-      <textarea name="rules" class="form-control"></textarea>
+      <p><textarea name="rules" rows="5" class="form-control"></textarea></p>
       <button class="btn btn-primary">Import Rules</button>
     </form>
   </div>

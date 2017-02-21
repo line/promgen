@@ -5,9 +5,15 @@ from promgen import models, plugins
 
 
 class ImportConfigForm(forms.Form):
-    config = forms.CharField(widget=forms.Textarea, required=False)
-    url = forms.CharField(required=False)
-    file_field = forms.FileField(required=False)
+    config = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
+        required=False)
+    url = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False)
+    file_field = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        required=False)
 
 
 class ImportRuleForm(forms.Form):
