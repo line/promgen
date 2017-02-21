@@ -129,6 +129,7 @@ def reload_prometheus():
 def import_rules(config, default_service=None):
     # Attemps to match the pattern name="value" for Prometheus labels and annotations
     RULE_MATCH = re.compile('((?P<key>\w+)\s*=\s*\"(?P<value>.*?)\")')
+    counters = collections.defaultdict(int)
 
     def parse_prom(text):
         if not text:
@@ -138,9 +139,8 @@ def import_rules(config, default_service=None):
             converted[key] = value
         return converted
 
-    counters = collections.defaultdict(int)
-
     tokens = {}
+    rules = []
     for line in config.split('\n'):
         line = line.strip()
         if not line:
@@ -158,6 +158,13 @@ def import_rules(config, default_service=None):
             tokens[keyword] = data
             continue
 
+        rules.append(tokens)
+        # Start building our next rule
+        tokens = {keyword: data}
+    # Make sure we keep our last token after parsing all lines
+    rules.append(tokens)
+
+    for tokens in rules:
         labels = parse_prom(tokens.get('LABELS'))
         annotations = parse_prom(tokens.get('ANNOTATIONS'))
 
@@ -196,9 +203,6 @@ def import_rules(config, default_service=None):
             for k, v in annotations.items():
                 models.RuleAnnotation.objects.create(name=k, value=v, rule=rule)
                 counters['Annotations'] += 1
-
-        # Reset for our next loop
-        tokens = {keyword: data}
 
     return dict(counters)
 
