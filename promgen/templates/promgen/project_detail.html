@@ -30,9 +30,7 @@
       </form>
     </div>
   </div>
-</div>
 
-<div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Project Senders</div>
     {% include "promgen/sender_block.html" with object=project %}
@@ -40,9 +38,7 @@
       <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
     </div>
   </div>
-</div>
 
-<div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Exporters</div>
     <table class="table">
@@ -70,10 +66,7 @@
       <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary">{% trans "Register Exporter" %}</a>
     </div>
   </div>
-</div>
 
-
-<div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">URLs</div>
     <table class="table">
@@ -101,10 +94,7 @@
       </form>
     </div>
   </div>
-</div>
 
-
-<div class="col-md-6">
   <div class="panel panel-default">
     <div class="panel-heading">Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
     <table class="table">
@@ -160,14 +150,21 @@
   </div>
 </div>
 
-{% if project.service.rule_set.count %}
 <div class="col-md-6">
+{% if global.rule_set.count %}
+  <div class="panel panel-primary">
+    <div class="panel-heading">Rules for {{ global.name }}</div>
+    {% include "promgen/rule_block.html" with object=global %}
+  </div>
+{% endif %}
+
+{% if project.service.rule_set.count %}
   <div class="panel panel-primary">
     <div class="panel-heading">Rules for {{ project.service.name }}</div>
     {% include "promgen/rule_block.html" with object=project.service %}
   </div>
-</div>
 {% endif %}
+</div>
 
 </div>
 
