@@ -197,7 +197,7 @@ class ProjectDetail(DetailView):
         context['sources'] = [
             entry.name for entry in plugins.remotes()
         ]
-        context['global'] = models.Service.objects.get(name='Default')
+        context['global'] = models.Service.default()
         return context
 
 

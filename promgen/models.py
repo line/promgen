@@ -66,6 +66,22 @@ class Service(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def default(cls, service_name='Default', shard_name='Default'):
+        shard, created = Shard.objects.get_or_create(
+            name=shard_name
+        )
+        if created:
+            logger.info('Created default shard')
+
+        service, created = cls.objects.get_or_create(
+            name=service_name,
+            defaults={'shard': shard}
+        )
+        if created:
+            logger.info('Created default service')
+        return service
+
 
 class Project(models.Model):
     name = models.CharField(max_length=128, unique=True)

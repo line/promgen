@@ -174,17 +174,7 @@ def import_rules(config, default_service=None):
             try:
                 service = models.Service.objects.get(name=labels.get('service', 'Default'))
             except models.Service.DoesNotExist:
-                shard, created = models.Shard.objects.get_or_create(
-                    name='Default'
-                )
-                if created:
-                    counters['Shard'] += 1
-
-                service = models.Service.objects.create(
-                    name=labels.get('service', 'Default'),
-                    shard=shard,
-                )
-                counters['Service'] += 1
+                service = models.Service.default()
 
         rule, created = models.Rule.objects.get_or_create(
             name=tokens['ALERT'],
