@@ -440,7 +440,7 @@ class RuleUpdate(UpdateView):
             logger.warning('Error saving annotations %s', annotations.errors)
             return self.form_invalid(form)
 
-        return HttpResponseRedirect(self.get_success_url())
+        return self.form_valid(form)
 
 
 class RuleRegister(FormView, ServiceMixin):
