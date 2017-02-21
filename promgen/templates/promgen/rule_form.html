@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load i18n %}
 {% block content %}
 
 <div class="page-header">
@@ -130,5 +131,9 @@
 <button class="btn btn-primary">Register Rule</button>
 </form>
 
+<form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans "Delete this Rule?" %}')" style="display: inline">
+  {% csrf_token %}
+  <button class="btn btn-danger">{% trans "Delete Rule" %}</button>
+</form>
 
 {% endblock %}

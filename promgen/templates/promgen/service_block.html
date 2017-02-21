@@ -17,6 +17,7 @@
           <th>Clause</th>
           <th>Duration</th>
           <th>Toggle</th>
+          <th>Delete</th>
         </tr>
       </thead>
       {% for rule in service.rule_set.all %}
@@ -32,6 +33,12 @@
             {% else %}
             <button class="btn btn-primary btn-sm">Enable</button>
             {% endif %}
+          </form>
+        </td>
+        <td>
+          <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans "Delete this Rule?" %}')" style="display: inline">
+            {% csrf_token %}
+            <button class="btn btn-danger btn-sm">{% trans "Delete" %}</button>
           </form>
         </td>
       </tr>
