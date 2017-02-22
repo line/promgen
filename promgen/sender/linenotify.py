@@ -2,8 +2,8 @@ import logging
 
 from django.template.loader import render_to_string
 
+from promgen import util
 from promgen.celery import app as celery
-from promgen.prometheus import post
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
@@ -28,5 +28,5 @@ class SenderLineNotify(SenderBase):
             'Authorization': 'Bearer %s' % token
         }
 
-        post(url, data=params, headers=headers)
+        util.post(url, data=params, headers=headers)
         return True

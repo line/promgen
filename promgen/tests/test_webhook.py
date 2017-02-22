@@ -62,7 +62,7 @@ class WebhookTest(TestCase):
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    @mock.patch('requests.post')
+    @mock.patch('promgen.util.post')
     def test_webhook(self, mock_post):
         self.client.post(reverse('alert'),
             data=json.dumps(TEST_ALERT),

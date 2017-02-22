@@ -6,8 +6,8 @@ configured webhook destinations
 
 import logging
 
+from promgen import util
 from promgen.celery import app as celery
-from promgen.prometheus import post
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
@@ -24,5 +24,5 @@ class SenderWebhook(SenderBase):
 
         params.update(alert.get('labels', {}))
         params.update(alert.get('annotations', {}))
-        post(url, params)
+        util.post(url, params)
         return True
