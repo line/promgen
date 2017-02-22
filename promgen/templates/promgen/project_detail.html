@@ -21,34 +21,7 @@
 <div class="col-md-6">
   {% include "promgen/project_detail.configuration.html" %}
   {% include "promgen/project_detail.exporters.html" %}
-
-  <div class="panel panel-default">
-    <div class="panel-heading">URLs</div>
-    <table class="table">
-      <tr>
-        <th>URL</th>
-        <th>&nbsp;</th>
-      </tr>
-    {% for url in project.url_set.all %}
-      <tr>
-        <td>{{ url.url }}</td>
-        <td>
-          <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
-            {% csrf_token %}
-            <button class="btn btn-danger">{% trans "Delete" %}</button>
-          </form>
-        </td>
-      </tr>
-    {% endfor %}
-    </table>
-    <div class="panel-footer">
-      <form method="post" action="{% url 'url-new' project.id %}"  style="display: inline">
-        <input id="id_url" maxlength="256" name="url" type="url" required="">
-        {% csrf_token %}
-        <button class="btn btn-primary">{% trans "Register URL" %}</button>
-      </form>
-    </div>
-  </div>
+  {% include "promgen/project_detail.urls.html" %}
 
   <div class="panel panel-default">
     <div class="panel-heading">Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
