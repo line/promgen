@@ -62,7 +62,7 @@
       </span>
     </div>
     {% if service.sender.count %}
-    {% include "promgen/sender_block.html" with object=service %}
+    {% include "promgen/sender_block.html" with object=service show_edit=1 %}
     {% endif %}
   </div>
 
