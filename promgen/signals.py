@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 trigger_write_config = Signal()
 trigger_write_rules = Signal()
 trigger_write_urls = Signal()
+post_reload = Signal()
 
 
 def multi_receiver(signal, senders, **kwargs):
