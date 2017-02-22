@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load i18n %}
 
 {% block content %}
 
@@ -17,19 +16,17 @@
 <div style="display:none" id="alert-project-{{ project.name|slugify }}"></div>
 
 <div class="row">
+  <div class="col-md-6">
+    {% include "promgen/project_detail_configuration.html" %}
+    {% include "promgen/project_detail_exporters.html" %}
+    {% include "promgen/project_detail_urls.html" %}
+    {% include "promgen/project_detail_hosts.html" %}
+  </div>
 
-<div class="col-md-6">
-  {% include "promgen/project_detail.configuration.html" %}
-  {% include "promgen/project_detail.exporters.html" %}
-  {% include "promgen/project_detail.urls.html" %}
-  {% include "promgen/project_detail.hosts.html" %}
-</div>
-
-<div class="col-md-6">
-  {% include "promgen/project_detail.senders.html" %}
-  {% include "promgen/project_detail.rules.html" %}
-</div>
-
+  <div class="col-md-6">
+    {% include "promgen/project_detail_senders.html" %}
+    {% include "promgen/project_detail_rules.html" %}
+  </div>
 </div>
 
 {% endblock %}
