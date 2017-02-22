@@ -115,13 +115,11 @@ def delete_rule(sender, instance, **kwargs):
 
 @receiver(post_save, sender=models.URL)
 def save_url(sender, instance, **kwargs):
-    prometheus.write_urls()
     trigger_write_urls.send(instance)
 
 
 @receiver(post_delete, sender=models.URL)
 def delete_url(sender, instance, **kwargs):
-    prometheus.write_urls()
     trigger_write_urls.send(instance)
 
 
