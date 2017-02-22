@@ -115,8 +115,10 @@ def write_rules(path=None, reload=True):
 
 @celery.task
 def reload_prometheus():
+    from promgen.signals import post_reload
     target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
     response = util.post(target)
+    post_reload.send(response)
 
 
 def import_config(config):
