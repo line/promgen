@@ -4,23 +4,17 @@ import json
 import logging
 import subprocess
 import tempfile
-import pytz
 from urllib.parse import urljoin
 
-import requests
+import pytz
 from atomicwrites import atomic_write
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from promgen import models
+from promgen import models, util
 from promgen.celery import app as celery
 
 logger = logging.getLogger(__name__)
-
-
-@celery.task
-def post(target, *args, **kwargs):
-    requests.post(target, *args, **kwargs)
 
 
 def check_rules(rules):
@@ -122,7 +116,7 @@ def write_rules(path=None, reload=True):
 @celery.task
 def reload_prometheus():
     target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
-    post(target)
+    response = util.post(target)
 
 
 def import_config(config):
@@ -208,7 +202,7 @@ def mute(duration, labels):
 
     logger.debug('Sending silence for %s %s', end, data)
     url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
-    requests.post(url, json=data).raise_for_status()
+    util.post(url, json=data).raise_for_status()
 
 
 def mute_fromto(start, stop, labels):
@@ -230,4 +224,4 @@ def mute_fromto(start, stop, labels):
 
     logger.debug('Sending silence for %s - %s %s', start, stop, data)
     url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
-    requests.post(url, json=data).raise_for_status()
+    util.post(url, json=data).raise_for_status()

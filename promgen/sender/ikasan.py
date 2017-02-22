@@ -7,8 +7,8 @@ import logging
 
 from django.template.loader import render_to_string
 
+from promgen import util
 from promgen.celery import app as celery
-from promgen.prometheus import post
 from promgen.sender import SenderBase
 
 logger = logging.getLogger(__name__)
@@ -33,5 +33,5 @@ class SenderIkasan(SenderBase):
 
         if color is not None:
             params['color'] = color
-        post(url, params)
+        util.post(url, params)
         return True
