@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load i18n %}
 
 {% block content %}
 
@@ -17,170 +16,17 @@
 <div style="display:none" id="alert-project-{{ project.name|slugify }}"></div>
 
 <div class="row">
-
-<div class="col-md-6">
-  <div class="panel panel-default">
-    <div class="panel-heading">Configuration</div>
-    <div class="panel-body">
-      <a href="{% url 'project-export' project.id %}" class="btn btn-default">{% trans "Export Project" %}</a>
-      <a href="{% url 'project-update' project.id %}" class="btn btn-warning">{% trans "Update Project" %}</a>
-      <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('{% trans "Delete this Project?" %}')" style="display: inline">
-        {% csrf_token %}
-        <button class="btn btn-danger">{% trans "Delete Project" %}</button>
-      </form>
-    </div>
+  <div class="col-md-6">
+    {% include "promgen/project_detail_configuration.html" %}
+    {% include "promgen/project_detail_exporters.html" %}
+    {% include "promgen/project_detail_urls.html" %}
+    {% include "promgen/project_detail_hosts.html" %}
   </div>
 
-  <div class="panel panel-default">
-    <div class="panel-heading">Exporters</div>
-    <table class="table">
-      <tr>
-        <th>Job</th>
-        <th>Port</th>
-        <th>Metrics Path</th>
-        <th>&nbsp;</th>
-      </tr>
-    {% for exporter in project.exporter_set.all %}
-      <tr>
-        <td>{{ exporter.job }}</td>
-        <td>{{ exporter.port }}</td>
-        <td>{{ exporter.path }}</td>
-        <td>
-          <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">
-            {% csrf_token %}
-            <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
-          </form>
-        </td>
-      </tr>
-    {% endfor %}
-    </table>
-    <div class="panel-footer">
-      <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary">{% trans "Register Exporter" %}</a>
-    </div>
+  <div class="col-md-6">
+    {% include "promgen/project_detail_senders.html" %}
+    {% include "promgen/project_detail_rules.html" %}
   </div>
-
-  <div class="panel panel-default">
-    <div class="panel-heading">URLs</div>
-    <table class="table">
-      <tr>
-        <th>URL</th>
-        <th>&nbsp;</th>
-      </tr>
-    {% for url in project.url_set.all %}
-      <tr>
-        <td>{{ url.url }}</td>
-        <td>
-          <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
-            {% csrf_token %}
-            <button class="btn btn-danger">{% trans "Delete" %}</button>
-          </form>
-        </td>
-      </tr>
-    {% endfor %}
-    </table>
-    <div class="panel-footer">
-      <form method="post" action="{% url 'url-new' project.id %}"  style="display: inline">
-        <input id="id_url" maxlength="256" name="url" type="url" required="">
-        {% csrf_token %}
-        <button class="btn btn-primary">{% trans "Register URL" %}</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="panel panel-default">
-    <div class="panel-heading">Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
-    <table class="table">
-      <tr>
-        <th>Name</th>
-      {% if project.farm.source == FARM_DEFAULT %}
-        <th>&nbsp;</th>
-      {% endif %}
-      </tr>
-    {% for host in project.farm.host_set.all %}
-      <tr>
-        <td><a href="{% url 'host-detail' host.id %}">{{ host.name }}</a></td>
-        {% if project.farm.source == FARM_DEFAULT %}
-        <td>
-          <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
-            {% csrf_token %}
-          <button name="delete" type="submit" class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
-          </form>
-        </td>
-        {% endif %}
-      </tr>
-    {% endfor %}
-    </table>
-
-    <div class="panel-footer">
-  {% if project.farm.source == FARM_DEFAULT %}
-      <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">{% trans "Add new host" %}</a>
-      <a href="{% url 'farm-update' project.farm.id %}" class="btn btn-default">{% trans "Edit Farm" %}</a>
-      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">{% trans "Unlink Farm" %}</button>
-      </form>
-  {% elif project.farm %}
-      <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-warning">{% trans "Unlink Farm" %}</button>
-      </form>
-      <form method="post" action="{% url 'farm-convert' project.farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
-        {% csrf_token %}
-        <button class="btn btn-warning">{% trans "Convert to Local Farm" %}</button>
-      </form>
-      <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-warning">{% trans "Refresh Farm" %}</button>
-      </form>
-  {% else %}
-      <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "New Farm" %}</a>
-{% for source in sources %}
-      <a href="{% url 'farm-link' project.id source %}" class="btn btn-default">{% trans "Link Farm" %} {{ source }}</a>
-{% endfor %}
-  {% endif %}
-    </div>
-  </div>
-</div>
-
-<div class="col-md-6">
-  <div class="panel panel-default">
-    <div class="panel-heading">Project Senders</div>
-    {% include "promgen/sender_block.html" with object=project show_edit=1 %}
-    <div class="panel-footer">
-      <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
-    </div>
-  </div>
-
-{% if project.service.sender.count %}
-<div class="panel panel-primary">
-  <div class="panel-heading">
-    <a class="btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#show-service-senders" aria-expanded="false" aria-controls="collapseExample">
-    Service Senders ({{project.service.sender.count}})
-    </a>
-  </div>
-  {% include "promgen/sender_block.html" with object=project.service collapse="show-service-senders" %}
-</div>
-{% endif %}
-
-{% if global.rule_set.count %}
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      <a class="btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#show-global-rules" aria-expanded="false" aria-controls="collapseExample">
-      Common Rules ({{ global.rule_set.count }})
-      </a>
-    </div>
-    {% include "promgen/rule_block.html" with object=global collapse="show-global-rules" %}
-  </div>
-{% endif %}
-
-{% if project.service.rule_set.count %}
-  <div class="panel panel-primary">
-    <div class="panel-heading">Rules for {{ project.service.name }}</div>
-    {% include "promgen/rule_block.html" with object=project.service %}
-  </div>
-{% endif %}
-</div>
-
 </div>
 
 {% endblock %}

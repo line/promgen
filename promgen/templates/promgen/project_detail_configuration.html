@@ -1,0 +1,13 @@
+{% load i18n %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">Configuration</div>
+  <div class="panel-body">
+    <a href="{% url 'project-export' project.id %}" class="btn btn-default">{% trans "Export Project" %}</a>
+    <a href="{% url 'project-update' project.id %}" class="btn btn-warning">{% trans "Update Project" %}</a>
+    <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('{% trans "Delete this Project?" %}')" style="display: inline">
+      {% csrf_token %}
+      <button class="btn btn-danger">{% trans "Delete Project" %}</button>
+    </form>
+  </div>
+</div>
