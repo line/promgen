@@ -1,5 +1,5 @@
 {% load i18n %}
-<table class="table table-bordered table-condensed">
+<table class="table table-bordered table-condensed{% if collapse %} collapse" id="{{ collapse }}"{% endif %}">
   <tr>
     <th>Sender</th>
     <th>Value</th>
@@ -8,6 +8,7 @@
   <tr>
     <td>{{ sender.sender }}</td>
     <td>{{ sender.show_value }}</td>
+{% if show_edit %}
     <td>
       <form method="post" action="{% url 'sender-test' sender.id %}" style="display: inline">
         {% csrf_token %}
@@ -20,6 +21,7 @@
         <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
       </form>
     </td>
+{% endif %}
   </tr>
   {% endfor %}
 </table>
