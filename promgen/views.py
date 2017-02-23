@@ -570,6 +570,13 @@ class ServiceTargets(View):
         return HttpResponse(prometheus.render_config(service=service), content_type='application/json')
 
 
+class ServiceRules(View):
+    def get(self, request, pk):
+        service = get_object_or_404(models.Service, id=pk)
+        rules = models.Rule.objects.filter(service=service)
+        return HttpResponse(prometheus.render_rules(rules), content_type='text/plain; charset=utf-8')
+
+
 class ProjectTargets(View):
     def get(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)

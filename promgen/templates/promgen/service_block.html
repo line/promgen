@@ -7,6 +7,7 @@
       Rules ( {{service.rule_set.count}} )
       <span class="pull-right form-inline">
         <a href="{% url 'rule-new' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
+        <a href="{% url 'service-rules' service.id %}" class="btn btn-default btn-xs">{% trans "Export Rules" %}</a>
       </span>
     </div>
 {% if service.rule_set.count %}
