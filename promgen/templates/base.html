@@ -56,8 +56,10 @@
                     </form>
                     <form class="navbar-form navbar-left" action="{% url 'commit' %}" method="POST">
                       <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-                      <button type="submit" class="btn btn-warning">Commit</button>
+                      <button type="submit" class="btn btn-warning">Refresh</button>
                     </form>
+                    <span id="alert-load" class="btn btn-default navbar-btn">Alerts</span>
+                  </ul>
                 </div><!-- /.navbar-collapse -->
             </nav><!-- /.container-fluid -->
         </header>
@@ -70,7 +72,7 @@
               {% endfor %}
           {% endif %}
             <div>
-<div class="panel panel-default" id="alert-all"><div class="panel-heading"><span class="btn btn-default">Loading alerts</a></div></div>
+<div class="panel panel-default" style="display:none" id="alert-all"></div>
 {% block content %}{% endblock %}
             </div>
         </div>
