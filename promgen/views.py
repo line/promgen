@@ -570,7 +570,7 @@ class ServiceExport(View):
         return HttpResponse(prometheus.render_config(service=service), content_type='application/json')
 
 
-class ProjectExport(View):
+class ProjectTargets(View):
     def get(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
         return HttpResponse(prometheus.render_config(project=project), content_type='application/json')
