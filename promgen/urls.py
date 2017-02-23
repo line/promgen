@@ -33,7 +33,8 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RuleRegister.as_view(), name='rule-new'),
     url(r'^service/(?P<pk>[0-9]+)/rules/copy$', views.RulesCopy.as_view(), name='rule-copy'),
     url(r'^service/(?P<pk>[0-9]+)/new$', views.ProjectRegister.as_view(), name='project-new'),
-    url(r'^service/(?P<pk>[0-9]+)/export$', views.ServiceExport.as_view(), name='service-export'),
+    url(r'^service/(?P<pk>[0-9]+)/targets$', views.ServiceTargets.as_view(), name='service-targets'),
+    url(r'^service/(?P<pk>[0-9]+)/rules$', views.ServiceRules.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/update$', views.ServiceUpdate.as_view(), name='service-update'),
     url(r'^service/(?P<pk>[0-9]+)/sender$', views.ServiceSenderRegister.as_view(), name='service-sender'),
 
@@ -44,7 +45,7 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/link/(?P<source>\w+)$', views.FarmLink.as_view(), name='farm-link'),
     url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.FarmRegsiter.as_view(), name='farm-new'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.ExporterRegister.as_view(), name='project-exporter'),
-    url(r'^project/(?P<pk>[0-9]+)/export$', views.ProjectExport.as_view(), name='project-export'),
+    url(r'^project/(?P<pk>[0-9]+)/targets$', views.ProjectTargets.as_view(), name='project-targets'),
     url(r'^project/(?P<pk>[0-9]+)/sender$', views.ProjectSenderRegister.as_view(), name='project-sender'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
