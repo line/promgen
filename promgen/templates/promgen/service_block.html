@@ -71,6 +71,7 @@
   Projects
   <span class="pull-right form-inline">
     <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Project" %}</a>
+    <a href="{% url 'service-targets' service.id %}" class="btn btn-default btn-xs">{% trans "Export Service" %}</a>
   </span>
 </div>
 {% if service.project_set.count %}
@@ -116,7 +117,6 @@
 {% endif %}
 
   </div>
-    <a href="{% url 'service-export' service.id %}" class="btn btn-default btn-sm">{% trans "Export Service" %}</a>
     <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
     <a href="{% url 'service-mute' service.id %}" class="btn btn-warning btn-sm">{% trans "Mute Service" %}</a>
     <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">

@@ -564,7 +564,7 @@ class Commit(View):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
-class ServiceExport(View):
+class ServiceTargets(View):
     def get(self, request, pk):
         service = get_object_or_404(models.Service, id=pk)
         return HttpResponse(prometheus.render_config(service=service), content_type='application/json')
