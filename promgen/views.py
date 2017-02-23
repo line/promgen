@@ -47,7 +47,6 @@ class ShardList(ListView):
 
 
 class ShardDetail(DetailView):
-    form = forms.RuleCopyForm()
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
@@ -58,7 +57,6 @@ class ShardDetail(DetailView):
 
 
 class ServiceList(ListView):
-    form = forms.RuleCopyForm()
     queryset = models.Service.objects\
         .prefetch_related(
             'sender',
@@ -107,7 +105,6 @@ class AuditList(ListView):
 
 
 class ServiceDetail(DetailView):
-    form = forms.RuleCopyForm()
     queryset = models.Service.objects\
         .prefetch_related(
             'project_set',
@@ -250,7 +247,6 @@ class UnlinkFarm(View):
 
 
 class RulesList(ListView, ServiceMixin):
-    form = forms.RuleCopyForm()
     template_name = 'promgen/rule_list.html'
 
     def get_queryset(self):
@@ -448,6 +444,7 @@ class RuleRegister(FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.NewRuleForm
+    rule_copy_form = forms.RuleCopyForm()
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
