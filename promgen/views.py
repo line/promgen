@@ -637,14 +637,22 @@ class Status(View):
 class Search(View):
     def get(self, request):
         return render(request, 'promgen/search.html', {
-            'farm_list': models.Farm.objects.filter(name__icontains=request.GET.get('search')),
+            'farm_list': models.Farm.objects
+                .filter(name__icontains=request.GET.get('search'))
+                .prefetch_related('project_set', 'host_set'),
             'host_list': models.Host.objects.filter(name__icontains=request.GET.get('search')),
-            'project_list': models.Project.objects.filter(name__icontains=request.GET.get('search')),
-            'rule_list': models.Rule.objects.filter(
-                Q(name__icontains=request.GET.get('search')) |
-                Q(clause__icontains=request.GET.get('search'))
-            ),
-            'service_list': models.Service.objects.filter(name__icontains=request.GET.get('search')),
+            'project_list': models.Project.objects
+                .filter(name__icontains=request.GET.get('search'))
+                .prefetch_related('service', 'sender', 'exporter_set'),
+            'rule_list': models.Rule.objects
+                .filter(
+                    Q(name__icontains=request.GET.get('search')) |
+                    Q(clause__icontains=request.GET.get('search'))
+                )
+                .prefetch_related('service'),
+            'service_list': models.Service.objects
+                .filter(name__icontains=request.GET.get('search'))
+                .prefetch_related('project_set', 'rule_set', 'sender'),
         })
 
 
