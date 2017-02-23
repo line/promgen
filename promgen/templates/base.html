@@ -28,13 +28,14 @@
                         <li><a href="{% url 'service-list' %}">Services</a></li>
                         <li><a href="{% url 'rules-list' %}">Rules</a></li>
                         <li><a href="{% url 'url-list' %}">URLs</a></li>
-                        <li><a href="{% url 'farm-list' %}">Farms</a></li>
-                        <li><a href="{% url 'host-list' %}">Hosts</a></li>
                         <li class="dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Misc <span class="caret"></span></a>
                           <ul class="dropdown-menu">
                             <li><a href="{% url 'status' %}">Status</a></li>
                             <li><a href="{% url 'audit-list' %}">Log</a></li>
+                            <li><a href="{% url 'farm-list' %}">Farms</a></li>
+                            <li><a href="{% url 'host-list' %}">Hosts</a></li>
+                            <li><a href="{% url 'shard-list' %}">Shard</a></li>
                             <li><a href="{% url 'import' %}">Import Config</a></li>
                             <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
                             <li><a href="{% url 'config-rules' %}">Export Rules</a></li>
@@ -58,6 +59,8 @@
                       <input name="next" type="hidden" value="{{ request.get_full_path }}" />
                       <button type="submit" class="btn btn-warning">Commit</button>
                     </form>
+                    <span id="alert-load" class="btn btn-default navbar-btn">Alerts</span>
+                  </ul>
                 </div><!-- /.navbar-collapse -->
             </nav><!-- /.container-fluid -->
         </header>
@@ -70,7 +73,7 @@
               {% endfor %}
           {% endif %}
             <div>
-<div class="panel panel-default" id="alert-all"><div class="panel-heading"><span class="btn btn-default">Loading alerts</a></div></div>
+<div class="panel panel-default" style="display:none" id="alert-all"></div>
 {% block content %}{% endblock %}
             </div>
         </div>
