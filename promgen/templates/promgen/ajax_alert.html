@@ -1,11 +1,11 @@
 {% load i18n %}
 <div class="panel panel-danger">
   <div class="panel-heading">
-    <a class="btn btn-danger" role="button" data-toggle="collapse" href="#show-{{ key }}" aria-expanded="false" aria-controls="collapseExample">
+    <a class="btn btn-danger" role="button" data-toggle="collapse" href="#show-{{ key|slugify }}" aria-expanded="false" aria-controls="collapseExample">
     Alerts {{ alerts|length }}
     </a>
   </div>
-<table class="table table-bordered table-condensed collapse" id="show-{{ key }}">
+<table class="table table-bordered table-condensed collapse" id="show-{{ key|slugify }}">
   <tr>
     <th>Starts</th>
     <th>Labels</th>
