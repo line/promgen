@@ -1,17 +1,20 @@
 import json
+import logging
 import time
 
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 
 from promgen import plugins
 
 FARM_DEFAULT = 'default'
+logger = logging.getLogger(__name__)
 
 
 class Sender(models.Model):
@@ -62,6 +65,22 @@ class Service(models.Model):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def default(cls, service_name='Default', shard_name='Default'):
+        shard, created = Shard.objects.get_or_create(
+            name=shard_name
+        )
+        if created:
+            logger.info('Created default shard')
+
+        service, created = cls.objects.get_or_create(
+            name=service_name,
+            defaults={'shard': shard}
+        )
+        if created:
+            logger.info('Created default service')
+        return service
 
 
 class Project(models.Model):
@@ -169,13 +188,22 @@ class Rule(models.Model):
         ('1m', '1m'),
         ('5m', '5m'),
     ])
-    labels = models.TextField(validators=[validate_json_or_empty])
-    annotations = models.TextField(validators=[validate_json_or_empty])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['name']
+
+    def labels(self):
+        return {obj.name: obj.value for obj in RuleLabel.objects.filter(rule=self)}
+
+    def annotations(self):
+        _annotations = {obj.name: obj.value for obj in RuleAnnotation.objects.filter(rule=self)}
+        _annotations['service'] = 'http://{site}{path}'.format(
+            site=Site.objects.get_current().domain,
+            path=reverse('service-detail', args=[self.service_id])
+        )
+        return _annotations
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.service.name)
@@ -191,12 +219,39 @@ class Rule(models.Model):
         also need to ensure the new name is unique by appending some unique data
         to the end of the name
         '''
-        self.pk = None
-        self.name += str(int(time.time()))
-        self.service = service
-        self.enabled = False
-        self.save()
+        with transaction.atomic():
+            orig_pk = self.pk
+            self.pk = None
+            self.name += str(int(time.time()))
+            self.service = service
+            self.enabled = False
+            self.save()
+
+            for label in RuleLabel.objects.filter(rule_id=orig_pk):
+                logger.debug('Copying %s to %s', label, self)
+                label.pk = None
+                label.rule = self
+                label.save()
+
+            for annotation in RuleAnnotation.objects.filter(rule_id=orig_pk):
+                logger.debug('Copying %s to %s', annotation, self)
+                annotation.pk = None
+                annotation.rule = self
+                annotation.save()
+
         return self
+
+
+class RuleLabel(models.Model):
+    name = models.CharField(max_length=128)
+    value = models.CharField(max_length=128)
+    rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
+
+
+class RuleAnnotation(models.Model):
+    name = models.CharField(max_length=128)
+    value = models.TextField()
+    rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
 
 
 class Audit(models.Model):

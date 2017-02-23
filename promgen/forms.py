@@ -4,10 +4,20 @@ from django import forms
 from promgen import models, plugins
 
 
-class ImportForm(forms.Form):
-    config = forms.CharField(widget=forms.Textarea, required=False)
-    url = forms.CharField(required=False)
-    file_field = forms.FileField(required=False)
+class ImportConfigForm(forms.Form):
+    config = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
+        required=False)
+    url = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False)
+    file_field = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        required=False)
+
+
+class ImportRuleForm(forms.Form):
+    rules = forms.CharField(widget=forms.Textarea, required=True)
 
 
 class MuteForm(forms.Form):
@@ -46,7 +56,7 @@ class ExporterForm(forms.ModelForm):
 class ServiceForm(forms.ModelForm):
     class Meta:
         model = models.Service
-        exclude = ['shard']
+        exclude = []
 
 
 class ProjectForm(forms.ModelForm):
@@ -55,28 +65,42 @@ class ProjectForm(forms.ModelForm):
         exclude = ['service', 'farm']
 
 
+class ProjectMove(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        exclude = ['farm']
+
+
 class URLForm(forms.ModelForm):
     class Meta:
         model = models.URL
         exclude = ['project']
 
 
-class RuleForm(forms.ModelForm):
+class NewRuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule
         exclude = ['service']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-            'labels': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-            'annotations': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
+        }
+
+
+class RuleForm(forms.ModelForm):
+    class Meta:
+        model = models.Rule
+        exclude = []
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
         }
 
 
 class RuleCopyForm(forms.Form):
-    rule_id = forms.TypedChoiceField(coerce=int, choices=[
-        (rule.pk, rule.name) for rule in models.Rule.objects.all()
-    ])
+    rule_id = forms.TypedChoiceField(coerce=int, choices=sorted([
+        (rule.pk, '<{}> {}'.format(rule.service.name, rule.name)) for rule in models.Rule.objects.all()
+    ], key=lambda student: student[1]))
 
 
 class FarmForm(forms.ModelForm):

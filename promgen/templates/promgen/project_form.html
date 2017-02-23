@@ -3,19 +3,29 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Service: {{ service.name }}</h1>
+  <h1>Project: {{ project.name }}</h1>
 </div>
 
 <ol class="breadcrumb">
-  <li><a href="{% url 'shard-list' %}">Home</a></li>
+  <li><a href="{% url 'home' %}">Home</a></li>
   <li><a href="{% url 'shard-detail' service.shard.id %}">{{ service.shard.name }}</a></li>
   <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
-  <li class="active">New Project</li>
+  <li class="active">{{ view.button_label }}</li>
 </ol>
 
-<form action="" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-primary">Register Project</button>
-</form>
+{% if project %}
+<div class="alert alert-danger" role="alert">
+    Warning. Renaming or Moving a project will reset all labels in Prometheus
+</div>
+{% endif %}
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary">{{ view.button_label }}</button>
+    </form>
+  </div>
+</div>
 
 {% endblock %}

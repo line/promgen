@@ -4,10 +4,12 @@ import logging
 from urllib.parse import urljoin
 
 import requests
+from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
@@ -45,6 +47,7 @@ class ShardList(ListView):
 
 
 class ShardDetail(DetailView):
+    form = forms.RuleCopyForm()
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
@@ -55,9 +58,11 @@ class ShardDetail(DetailView):
 
 
 class ServiceList(ListView):
+    form = forms.RuleCopyForm()
     queryset = models.Service.objects\
         .prefetch_related(
             'sender',
+            'rule_set',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
@@ -102,6 +107,7 @@ class AuditList(ListView):
 
 
 class ServiceDetail(DetailView):
+    form = forms.RuleCopyForm()
     queryset = models.Service.objects\
         .prefetch_related(
             'project_set',
@@ -165,7 +171,7 @@ class RuleDelete(DeleteView):
     model = models.Rule
 
     def get_success_url(self):
-        return reverse('service-rules', args=[self.object.service_id])
+        return reverse('service-detail', args=[self.object.service_id])
 
 
 class RuleToggle(View):
@@ -173,7 +179,7 @@ class RuleToggle(View):
         rule = get_object_or_404(models.Rule, id=pk)
         rule.enabled = not rule.enabled
         rule.save()
-        return HttpResponseRedirect(reverse('service-rules', args=[rule.service_id]))
+        return HttpResponseRedirect(reverse('service-detail', args=[rule.service_id]))
 
 
 class HostDelete(DeleteView):
@@ -191,6 +197,7 @@ class ProjectDetail(DetailView):
         context['sources'] = [
             entry.name for entry in plugins.remotes()
         ]
+        context['global'] = models.Service.default()
         return context
 
 
@@ -243,14 +250,15 @@ class UnlinkFarm(View):
 
 
 class RulesList(ListView, ServiceMixin):
-    model = models.Rule
     form = forms.RuleCopyForm()
+    template_name = 'promgen/rule_list.html'
 
     def get_queryset(self):
         if 'pk' in self.kwargs:
             self.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
             return models.Rule.objects.filter(service=self.service)
-        return models.Rule.objects.all()
+        return models.Service.objects\
+            .prefetch_related('rule_set')
 
 
 class RulesCopy(View):
@@ -264,7 +272,7 @@ class RulesCopy(View):
             rule.copy_to(service)
             return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
         else:
-            return HttpResponseRedirect(reverse('service-rules', args=[pk]))
+            return HttpResponseRedirect(reverse('service-detail', args=[pk]))
 
 
 class FarmRefresh(SingleObjectMixin, View):
@@ -359,6 +367,7 @@ class URLList(ListView):
 
 
 class ProjectRegister(FormView, ServiceMixin):
+    button_label = _('Project Register')
     model = models.Project
     template_name = 'promgen/project_form.html'
     form_class = forms.ProjectForm
@@ -371,8 +380,9 @@ class ProjectRegister(FormView, ServiceMixin):
 
 class ProjectUpdate(UpdateView):
     model = models.Project
+    button_label = _('Project Update')
     template_name = 'promgen/project_form.html'
-    form_class = forms.ProjectForm
+    form_class = forms.ProjectMove
 
     def get_context_data(self, **kwargs):
         context = super(ProjectUpdate, self).get_context_data(**kwargs)
@@ -381,9 +391,10 @@ class ProjectUpdate(UpdateView):
 
 
 class ServiceUpdate(UpdateView):
+    button_label = _('Update Service')
+    form_class = forms.ServiceForm
     model = models.Service
     template_name = 'promgen/service_form.html'
-    form_class = forms.ServiceForm
 
 
 class RuleUpdate(UpdateView):
@@ -391,30 +402,80 @@ class RuleUpdate(UpdateView):
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
 
+    LabelForm = inlineformset_factory(models.Rule, models.RuleLabel, fields=('name', 'value'), widgets={
+        'name': django_forms.TextInput(attrs={'class': 'form-control'}),
+        'value': django_forms.TextInput(attrs={'rows': 5, 'class': 'form-control'}),
+    })
+    AnnotationForm = inlineformset_factory(models.Rule, models.RuleAnnotation, fields=('name', 'value'), widgets={
+        'name': django_forms.TextInput(attrs={'class': 'form-control'}),
+        'value': django_forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+    })
+
     def get_context_data(self, **kwargs):
         context = super(RuleUpdate, self).get_context_data(**kwargs)
         context['service'] = self.object.service
+        context['label_set'] = self.LabelForm(instance=self.object)
+        context['annotation_set'] = self.AnnotationForm(instance=self.object)
+        context['rules'] = [self.object]
         return context
 
-    def get_success_url(self):
-        return reverse('service-rules', args=[self.object.service_id])
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if not form.is_valid():
+            return self.form_invalid(form)
+
+        labels = self.LabelForm(request.POST, request.FILES, instance=self.object)
+        if labels.is_valid():
+            for instance in labels.save():
+                messages.info(request, 'Added {} to {}'.format(instance.name, self.object))
+        else:
+            logger.warning('Error saving labels %s', labels.errors)
+            return self.form_invalid(form)
+
+        annotations = self.AnnotationForm(request.POST, request.FILES, instance=self.object)
+        if annotations.is_valid():
+            for instance in annotations.save():
+                messages.info(request, 'Added {} to {}'.format(instance.name, self.object))
+        else:
+            logger.warning('Error saving annotations %s', annotations.errors)
+            return self.form_invalid(form)
+
+        return self.form_valid(form)
 
 
 class RuleRegister(FormView, ServiceMixin):
     model = models.Rule
-    template_name = 'promgen/rule_form.html'
-    form_class = forms.RuleForm
+    template_name = 'promgen/rule_register.html'
+    form_class = forms.NewRuleForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        if 'rules' not in request.POST:
+            return self.form_invalid(form)
+
+        importform = forms.ImportRuleForm(request.POST)
+        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        if importform.is_valid():
+            data = importform.clean()
+            counters = prometheus.import_rules(data['rules'], service)
+            messages.info(request, 'Imported %s' % counters)
+            return HttpResponseRedirect(service.get_absolute_url())
+        return self.form_invalid(form)
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         rule, _ = models.Rule.objects.get_or_create(service=service, **form.clean())
-        return HttpResponseRedirect(reverse('service-rules', args=[service.id]))
+        return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
 
 
 class ServiceRegister(FormView):
+    button_label = _('Service Register')
+    form_class = forms.ProjectForm
     model = models.Service
     template_name = 'promgen/service_form.html'
-    form_class = forms.ProjectForm
 
     def form_valid(self, form):
         shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
@@ -582,12 +643,22 @@ class Search(View):
 
 class Import(FormView):
     template_name = 'promgen/import_form.html'
-    form_class = forms.ImportForm
+    form_class = forms.ImportConfigForm
     success_url = reverse_lazy('service-list')
 
     def post(self, request, *args, **kwargs):
         form_class = self.get_form_class()
         form = form_class(request.POST, request.FILES)
+
+        if 'rules' in request.POST:
+            form = forms.ImportRuleForm(request.POST)
+            if form.is_valid():
+                data = form.clean()
+                counters = prometheus.import_rules(data['rules'])
+                messages.info(request, 'Imported %s' % counters)
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
 
         if form.is_valid():
             data = form.clean()
@@ -627,9 +698,9 @@ class Mute(FormView):
                 context['label'] = label
                 # TODO: using isnumeric sees fragile but I can revisit later
                 if kwargs[label].isnumeric():
-                    context['obj'] = get_object_or_404(klass, pk=kwargs[label])
+                    context['obj'] = klass.objects.filter(pk=kwargs[label]).first()
                 else:
-                    context['obj'] = get_object_or_404(klass, name=kwargs[label])
+                    context['obj'] = klass.objects.filter(name=kwargs[label]).first()
         if context:
             return render(request, 'promgen/mute_form.html', context)
         return HttpResponseRedirect('/')
@@ -667,7 +738,11 @@ class AjaxAlert(View):
         alerts = collections.defaultdict(list)
         url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
         response = requests.get(url)
-        for group in response.json().get('data', []):
+        data = response.json().get('data', [])
+        if data is None:
+            # Return an empty alert-all if there are no active alerts from AM
+            return JsonResponse({'alert-all': ''})
+        for group in data:
             if group.get('blocks') is None:
                 continue
             for block in group.get('blocks', []):
@@ -687,5 +762,7 @@ class AjaxAlert(View):
         #         alerts[key] = alerts[key][:5]
 
         alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
+        if 'alert-all' not in alerts:
+            alerts['alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
 
         return JsonResponse(alerts)

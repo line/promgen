@@ -1,0 +1,54 @@
+{% load i18n %}
+<div class="panel panel-default">
+  <div class="panel-heading">Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
+  <table class="table">
+    <tr>
+      <th>Name</th>
+    {% if project.farm.source == FARM_DEFAULT %}
+      <th>&nbsp;</th>
+    {% endif %}
+    </tr>
+  {% for host in project.farm.host_set.all %}
+    <tr>
+      <td><a href="{% url 'host-detail' host.id %}">{{ host.name }}</a></td>
+      {% if project.farm.source == FARM_DEFAULT %}
+      <td>
+        <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
+          {% csrf_token %}
+        <button name="delete" type="submit" class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
+        </form>
+      </td>
+      {% endif %}
+    </tr>
+  {% endfor %}
+  </table>
+
+  <div class="panel-footer">
+{% if project.farm.source == FARM_DEFAULT %}
+    <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">{% trans "Add new host" %}</a>
+    <a href="{% url 'farm-update' project.farm.id %}" class="btn btn-default">{% trans "Edit Farm" %}</a>
+    <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">{% trans "Unlink Farm" %}</button>
+    </form>
+{% elif project.farm %}
+    <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-warning">{% trans "Unlink Farm" %}</button>
+    </form>
+    <form method="post" action="{% url 'farm-convert' project.farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
+      {% csrf_token %}
+      <button class="btn btn-warning">{% trans "Convert to Local Farm" %}</button>
+    </form>
+    <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-warning">{% trans "Refresh Farm" %}</button>
+    </form>
+{% else %}
+    <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "New Farm" %}</a>
+{% for source in sources %}
+    <a href="{% url 'farm-link' project.id source %}" class="btn btn-default">{% trans "Link Farm" %} {{ source }}</a>
+{% endfor %}
+{% endif %}
+  </div>
+</div>

@@ -1,0 +1,23 @@
+{% load i18n %}
+<table class="table table-bordered table-condensed {% if collapse %}collapse" id="{{ collapse }}"{% endif %}">
+  <tr>
+    <th>Name</th>
+    <th>Clause</th>
+    <th>Duration</th>
+{% if show_full %}
+    <th>Labels</th>
+    <th>Annotations</th>
+{% endif %}
+  </tr>
+  {% for rule in object.rule_set.all %}
+  <tr>
+    <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
+    <td style="word-break: break-word;">{{ rule.clause }}</td>
+    <td>{{ rule.duration }}</td>
+{% if show_full %}
+    <td>{{ rule.labels }}</td>
+    <td style="word-break: break-word;">{{ rule.annotations }}</td>
+{% endif %}
+  </tr>
+  {% endfor %}
+</table>

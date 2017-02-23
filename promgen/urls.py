@@ -23,14 +23,13 @@ from promgen import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
-    url(r'^$', views.ShardList.as_view(), name='shard-list'),
+    url(r'^$', views.ShardList.as_view(), name='home'),
     url(r'^shard/(?P<pk>[0-9]+)/$', views.ShardDetail.as_view(), name='shard-detail'),
     url(r'^shard/(?P<pk>[0-9]+)/new$', views.ServiceRegister.as_view(), name='service-new'),
 
     url(r'^service/$', views.ServiceList.as_view(), name='service-list'),
     url(r'^service/(?P<pk>[0-9]+)/$', views.ServiceDetail.as_view(), name='service-detail'),
     url(r'^service/(?P<pk>[0-9]+)/delete$', views.ServiceDelete.as_view(), name='service-delete'),
-    url(r'^service/(?P<pk>[0-9]+)/rules$', views.RulesList.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RuleRegister.as_view(), name='rule-new'),
     url(r'^service/(?P<pk>[0-9]+)/rules/copy$', views.RulesCopy.as_view(), name='rule-copy'),
     url(r'^service/(?P<pk>[0-9]+)/new$', views.ProjectRegister.as_view(), name='project-new'),

@@ -2,6 +2,7 @@ import collections
 import datetime
 import json
 import logging
+import re
 import subprocess
 import tempfile
 from urllib.parse import urljoin
@@ -119,6 +120,77 @@ def reload_prometheus():
     target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
     response = util.post(target)
     post_reload.send(response)
+
+
+def import_rules(config, default_service=None):
+    # Attemps to match the pattern name="value" for Prometheus labels and annotations
+    RULE_MATCH = re.compile('((?P<key>\w+)\s*=\s*\"(?P<value>.*?)\")')
+    counters = collections.defaultdict(int)
+
+    def parse_prom(text):
+        if not text:
+            return {}
+        converted = {}
+        for match, key, value in RULE_MATCH.findall(text.strip().strip('{}')):
+            converted[key] = value
+        return converted
+
+    tokens = {}
+    rules = []
+    for line in config.split('\n'):
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith('#'):
+            continue
+
+        keyword, data = line.split(' ', 1)
+
+        if keyword != 'ALERT':
+            tokens[keyword] = data
+            continue
+
+        if keyword == 'ALERT' and 'ALERT' not in tokens:
+            tokens[keyword] = data
+            continue
+
+        rules.append(tokens)
+        # Start building our next rule
+        tokens = {keyword: data}
+    # Make sure we keep our last token after parsing all lines
+    rules.append(tokens)
+
+    for tokens in rules:
+        labels = parse_prom(tokens.get('LABELS'))
+        annotations = parse_prom(tokens.get('ANNOTATIONS'))
+
+        if default_service:
+            service = default_service
+        else:
+            try:
+                service = models.Service.objects.get(name=labels.get('service', 'Default'))
+            except models.Service.DoesNotExist:
+                service = models.Service.default()
+
+        rule, created = models.Rule.objects.get_or_create(
+            name=tokens['ALERT'],
+            defaults={
+                'clause': tokens['IF'],
+                'duration': tokens['FOR'],
+                'service': service,
+            }
+        )
+
+        if created:
+            counters['Rules'] += 1
+            for k, v in labels.items():
+                models.RuleLabel.objects.create(name=k, value=v, rule=rule)
+                counters['Labels'] += 1
+            for k, v in annotations.items():
+                models.RuleAnnotation.objects.create(name=k, value=v, rule=rule)
+                counters['Annotations'] += 1
+
+    return dict(counters)
 
 
 def import_config(config):

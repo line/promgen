@@ -1,0 +1,20 @@
+{% load i18n %}
+
+<div class="panel panel-default">
+  <div class="panel-heading">Project Senders</div>
+  {% include "promgen/sender_block.html" with object=project show_edit=1 %}
+  <div class="panel-footer">
+    <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
+  </div>
+</div>
+
+{% if project.service.sender.count %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <a class="btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#show-service-senders" aria-expanded="false" aria-controls="collapseExample">
+    Service Senders ({{project.service.sender.count}})
+    </a>
+  </div>
+  {% include "promgen/sender_block.html" with object=project.service collapse="show-service-senders" %}
+</div>
+{% endif %}

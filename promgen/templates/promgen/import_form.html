@@ -3,7 +3,7 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Import Service</h1>
+  <h1>Import Configs</h1>
 </div>
 
 <ol class="breadcrumb">
@@ -11,9 +11,24 @@
   <li class="active">Import Service</li>
 </ol>
 
-<form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
-    {{ form.as_p }}
-    <button class="btn btn-primary">Import</button>
-</form>
+<div class="panel panel-default">
+  <div class="panel-heading">Import Targets</div>
+  <div class="panel-body">
+    <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-primary">Import Targets</button>
+    </form>
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Import Rules</div>
+  <div class="panel-body">
+    <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+      <p><textarea name="rules" rows="5" class="form-control"></textarea></p>
+      <button class="btn btn-primary">Import Rules</button>
+    </form>
+  </div>
+</div>
 
 {% endblock %}

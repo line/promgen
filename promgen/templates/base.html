@@ -4,7 +4,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}PyPromgen{% endblock %}</title>
+        <title>{% block title %}Promgen {{ VERSION }}{% endblock %}</title>
         <link rel="stylesheet" href="{% static "/css/bootstrap.min.css" %}">
         <link rel="stylesheet" href="{% static "/css/bootstrap-theme.min.css" %}">
         <link rel="stylesheet" href="{% static "/css/bootstrap-datetimepicker.min.css" %}">
@@ -21,11 +21,10 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Promgen</a>
+                    <a class="navbar-brand" href="#">Promgen {{ VERSION }}</a>
                 </div>
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
-                        <li><a href="{% url 'shard-list' %}">Shard</a></li>
                         <li><a href="{% url 'service-list' %}">Services</a></li>
                         <li><a href="{% url 'rules-list' %}">Rules</a></li>
                         <li><a href="{% url 'url-list' %}">URLs</a></li>
@@ -75,7 +74,6 @@
 {% block content %}{% endblock %}
             </div>
         </div>
-        <footer class="container" id="footer">Promgen {{ VERSION }}</footer>
         <script src="{% static "/js/jquery.min.js" %}"></script>
         <script src="{% static "/js/bootstrap.min.js" %}"></script>
         <script src="{% static "/js/moment.min.js" %}"></script>

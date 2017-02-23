@@ -53,7 +53,16 @@ class URLAdmin(admin.ModelAdmin):
     list_filter = ('project',)
 
 
+class RuleLabelInline(admin.TabularInline):
+    model = models.RuleLabel
+
+
+class RuleAnnotationInline(admin.TabularInline):
+    model = models.RuleAnnotation
+
+
 @admin.register(models.Rule)
 class RuleAdmin(admin.ModelAdmin):
     list_display = ('name', 'clause', 'duration', 'labels', 'annotations', 'service')
     list_filter = ('service',)
+    inlines = [RuleLabelInline, RuleAnnotationInline]

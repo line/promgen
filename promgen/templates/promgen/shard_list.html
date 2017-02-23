@@ -1,13 +1,41 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% block content %}
 
 <div class="page-header">
   <h1>Shards</h1>
 </div>
 
+<div class="row">
 {% for shard in shard_list %}
-<h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a>
+        <span class="pull-right form-inline">
+          <a href="{% url 'service-new' shard.id %}" class="btn btn-primary btn-xs">{% trans "Register Service" %}</a>
+        </span>
+      </div>
+      <div class="panel-body">
+        <dl class="dl-horizontal">
+          <dt>Services</dt>
+          <dd>{{ shard.service_set.count }}</dd>
+          <dt>Projects</dt>
+          <dd>{{ shard.service_set__project_set }}</dd>
+        </dl>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Service</th>
+        </tr>
+{% for service in shard.service_set.all %}
+        <tr>
+          <td><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></td>
+        </tr>
+{% endfor %}
+    </table>
+  </div>
+</div>
 {% endfor %}
 
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-
+{% load promgen %}
+{% load i18n %}
 {% block content %}
 
 <div class="page-header">
@@ -9,74 +10,130 @@
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
-  <li><a href="{% url 'service-rules' service.id %}">Rules</a></li>
   <li class="active">New Rule</li>
 </ol>
 
-<form action="" class="input-group" method="post">{% csrf_token %}
+{% if rules %}
 <div class="panel panel-default">
-  <div class="panel-heading">{{ form.name.label_tag }}</div>
+  <div class="panel-heading">Preview</div>
   <div class="panel-body">
-    {{ form.name.errors }}
-    {{ form.name }}
-
-    {{ form.enabled.label_tag }}
-    {{ form.enabled.errors }}
-    {{ form.enabled }}
-  </div>
-
-  <div class="panel-heading">{{ form.clause.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.clause.errors }}
-    {{ form.clause }}
-  </div>
-  <div class="panel-body">
-    <p class="help-block">Prometheus query to alert on</p>
-    <div class="panel panel-default">
-      Examples
-      <ul>
-        <li><code>node_load1{service="analysis"} > 5</code></li>
-        <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="panel-heading">{{ form.duration.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.duration.errors }}
-    {{ form.duration }}
-    <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
-  </div>
-
-  <div class="panel-heading">{{ form.labels.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.labels.errors }}
-    {{ form.labels }}
-    <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
-    <div class="panel panel-default">
-      Examples
-      <ul>
-        <li><code>{"severity":"major"}</code></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="panel-heading">{{ form.annotations.label_tag }}</div>
-  <div class="panel-body">
-    {{ form.annotations.errors }}
-    {{ form.annotations }}
-    <div class="alert alert-info" role="alert">These are written as JSON to allow dynamic rendering to Prometheus's format</div>
-    <div class="panel panel-default">
-      Examples
-      <ul>
-        <li><code>{"summary":"High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}", "description":"..."}</code></li>
-      </ul>
-    </div>
-  </div>
-  <div class="panel-footer">
-    <button class="btn btn-primary">Register Rule</button>
+    <pre>{% include "promgen/prometheus.rule" %}</pre>
   </div>
 </div>
+{% endif %}
+
+<form action="" class="input-group" method="post">{% csrf_token %}
+<div class="row">
+
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.name.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.name.errors }}
+      {{ form.name }}
+
+      {{ form.enabled.label_tag }}
+      {{ form.enabled.errors }}
+      {{ form.enabled }}
+
+      <p>Move to different Service</p>
+      {{ form.service.errors }}
+      {{ form.service }}
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.clause.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.clause.errors }}
+      {{ form.clause }}
+    </div>
+    <div class="panel-body">
+      <p class="help-block">Prometheus query to alert on</p>
+      <div class="panel panel-default">
+        Examples
+        <ul>
+          <li><code>node_load1{service="analysis"} > 5</code></li>
+          <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">{{ form.duration.label_tag }}</div>
+    <div class="panel-body">
+      {{ form.duration.errors }}
+      {{ form.duration }}
+      <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
+    </div>
+  </div>
+</div>
+
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">Labels - Control routing through AlertManager and Promgen</div>
+    <div class="panel-body">
+      {{ label_set.management_form }}
+      <table class="table">
+          <tr>
+            <th>Label</th>
+            <th>Value</th>
+            <th>Delete?</th>
+          </tr>
+        {% for label_form in label_set %}
+          <tr>
+            <td>{{ label_form.id }} {{ label_form.name }}</td>
+            <td>{{ label_form.value }}</td>
+            <td>{{ label_form.DELETE }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+      <div class="panel panel-default">
+        Examples
+        <ul>
+          <li><code>{"severity":"major"}</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">Annotations - Provide extra details for notifications</div>
+    {{ annotation_set.management_form }}
+    <table class="table">
+        <tr>
+          <th>Annotation</th>
+          <th>Value</th>
+          <th>Delete?</th>
+        </tr>
+      {% for annotation_form in annotation_set %}
+        <tr>
+          <td>{{ annotation_form.id }} {{ annotation_form.name }}</td>
+          <td>{{ annotation_form.value }}</td>
+          <td>{{ annotation_form.DELETE }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    <div class="panel-body">
+      <div class="panel panel-default">
+        Examples
+        <ul>
+          <li><code>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+</div>
+<button class="btn btn-primary">Register Rule</button>
+</form>
+
+<form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans "Delete this Rule?" %}')" style="display: inline">
+  {% csrf_token %}
+  <button class="btn btn-danger">{% trans "Delete Rule" %}</button>
 </form>
 
 {% endblock %}

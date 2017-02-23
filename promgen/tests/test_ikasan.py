@@ -45,6 +45,7 @@ class IkasanTest(TestCase):
                 'http://ikasan.example', {
                 'color': 'green',
                 'channel': '#',
+                'message_format': 'text',
                 'message': _MESSAGE}
             )
         ])

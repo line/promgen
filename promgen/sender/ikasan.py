@@ -29,6 +29,7 @@ class SenderIkasan(SenderBase):
         params = {
             'channel': channel,
             'message': message,
+            'message_format': 'text',
         }
 
         if color is not None:
