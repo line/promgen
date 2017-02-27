@@ -11,7 +11,7 @@
       </span>
     </div>
 {% if service.rule_set.count %}
-{% include "promgen/rule_block.html" with object=service show_edit=1 %}
+{% include "promgen/rule_block.html" with rule_list=service.rule_set.all show_edit=1 %}
 {% endif %}
   </div>
 

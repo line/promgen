@@ -128,29 +128,7 @@
 {% if rule_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Rules</div>
-  <table class="table table-bordered table-condensed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Service</th>
-        <th>Clause</th>
-        <th>Duration</th>
-        <th>Labels</th>
-        <th>Annotations</th>
-      </tr>
-    </thead>
-    {% for rule in rule_list %}
-    <tr {% if not rule.enabled %}class="bg-disabled text-muted"{% endif %}>
-      <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
-      <td><a href="{% url 'service-detail' rule.service_id %}">{{ rule.service.name }}</a></td>
-      <td>{{ rule.clause }}</td>
-      <td>{{ rule.duration }}</td>
-      <td>{{ rule.labels }}</td>
-      <td>{{ rule.annotations }}</td>
-    </tr>
-    {% endfor %}
-  </ul>
-  </table>
+  {% include "promgen/rule_block.html" with show_full=1 %}
 </div>
 {% endif %}
 
