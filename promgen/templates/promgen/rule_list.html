@@ -21,7 +21,7 @@
       <a href="{% url 'rule-new' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
     </span>
   </div>
-{% include "promgen/rule_block.html" with object=service show_full=1 %}
+{% include "promgen/rule_block.html" with rule_list=service.rule_set.all show_full=1 %}
 </div>
 {% endif %}
 {% endfor %}
