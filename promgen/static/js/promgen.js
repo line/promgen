@@ -34,6 +34,7 @@ $( document ).ready(function() {
 
   $('#test_clause').click(function(){
     data = $('#id_clause').val();
+    $('#ajax-clause-check').html('<p>Loading...</p>')
     console.log("Testing Query: " + data)
     $.post("/ajax/clause", {'query': data}).done(function(result){
       for (var key in result) {
