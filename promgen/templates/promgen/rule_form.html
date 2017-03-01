@@ -15,8 +15,12 @@
 
 {% if rules %}
 <div class="panel panel-default">
-  <div class="panel-heading">Preview</div>
-  <div class="panel-body">
+  <div class="panel-heading">
+    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-preview" aria-expanded="false" aria-controls="collapseExample">
+      Preview
+    </button>
+  </div>
+  <div id="rule-preview" class="panel-body collapse">
     <pre>{% include "promgen/prometheus.rule" %}</pre>
   </div>
 </div>
@@ -43,11 +47,10 @@
   </div>
 
   <div class="panel panel-default">
-    <div class="panel-heading">{{ form.clause.label_tag }}</div>
+    <div class="panel-heading">{{ form.clause.label_tag }}　<a class="btn btn-warning" id="test_clause">Test Query</a></div>
     <div class="panel-body">
       {{ form.clause.errors }}
       {{ form.clause }}
-      <a class="btn btn-warning" id="test_clause">Test</a>
     </div>
     <div id="ajax-clause-check"></div>
     <div class="panel-body">
@@ -59,6 +62,15 @@
           <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
         </ul>
       </div>
+
+      <p class="help-block">
+        <ul class="list-inline">
+          <li><a href="https://prometheus.io/docs/querying/basics/">Basics</a></li>
+          <li><a href="https://prometheus.io/docs/querying/operators/">Operators</a></li>
+          <li><a href="https://prometheus.io/docs/querying/functions/">Functions</a></li>
+          <li><a href="https://prometheus.io/docs/querying/examples/">Examples</a></li>
+        </ul>
+      </p>
     </div>
   </div>
 
