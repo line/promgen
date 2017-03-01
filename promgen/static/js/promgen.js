@@ -1,8 +1,7 @@
 $( document ).ready(function() {
   $.ajax({url: "/ajax/alert",}).done(function( data ) {
     for (var key in data) {
-      console.log("Writing " + key)
-      if (key == 'alert-all') {
+      if (key == '#alert-all') {
         console.log('Replacing button')
         div = $(data[key])
         btn = $(data[key]).find('div.panel-heading a')
@@ -24,9 +23,11 @@ $( document ).ready(function() {
         table.removeAttr('id')
         table.removeClass('collapse')
 
-        $('#alert-all').replaceWith(div)
+        console.log("Replacing " + key)
+        $(key).replaceWith(div)
       } else {
-        $("#" + key).replaceWith(data[key])
+        console.log("Replacing " + key)
+        $(key).replaceWith(data[key])
       }
   }
   });

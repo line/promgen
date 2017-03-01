@@ -773,8 +773,8 @@ class AjaxAlert(View):
         #     if len(alerts[key]) > 5:
         #         alerts[key] = alerts[key][:5]
 
-        alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
-        if 'alert-all' not in alerts:
-            alerts['alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
+        alerts = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
+        if '#alert-all' not in alerts:
+            alerts['#alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
 
         return JsonResponse(alerts)
