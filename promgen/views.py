@@ -21,7 +21,7 @@ from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 
-from promgen import forms, models, plugins, prometheus, signals, version
+from promgen import forms, models, plugins, prometheus, signals, util, version
 
 logger = logging.getLogger(__name__)
 
@@ -769,10 +769,6 @@ class AjaxAlert(View):
                             if alert['labels'][key]:
                                 alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
-        # for key in alerts.keys():
-        #     if len(alerts[key]) > 5:
-        #         alerts[key] = alerts[key][:5]
-
         alerts = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
         if '#alert-all' not in alerts:
             alerts['#alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
@@ -782,6 +778,30 @@ class AjaxAlert(View):
 
 class AjaxClause(View):
     def post(self, request):
-        print(request.body)
-        print(request.POST)
-        return JsonResponse({})
+        url = '{}api/v1/query'.format(
+            settings.PROMGEN['prometheus']['url']
+        )
+        query = request.POST['query']
+        logger.debug('Querying %s with %s', url, query)
+        result = util.get(url, {'query': request.POST['query']}).json()
+
+        context = {'status': result['status'], 'panel_type': 'panel-success'}
+        context['data'] = result.get('data', {})
+
+        context['errors'] = {}
+        if result['status'] != 'success':
+            context['status'] = 'danger'
+            context['errors']['Query'] = result['error']
+
+        metrics = context['data'].get('result', [])
+        if metrics:
+            for row in metrics:
+                if 'service' not in row['metric'] and \
+                        'project' not in row['metric']:
+                    context['errors']['routing'] = 'Missing service and project labels so Promgen will be unable to route message'
+                    context['status'] = 'warning'
+        else:
+            context['status'] = 'warning'
+            context['errors']['no_results'] = 'No Results. May need to remove > clause to verity'
+
+        return JsonResponse({'#ajax-clause-check': render_to_string('promgen/ajax_clause_check.html', context)})
