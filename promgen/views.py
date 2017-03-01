@@ -778,3 +778,10 @@ class AjaxAlert(View):
             alerts['#alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
 
         return JsonResponse(alerts)
+
+
+class AjaxClause(View):
+    def post(self, request):
+        print(request.body)
+        print(request.POST)
+        return JsonResponse({})

@@ -31,4 +31,16 @@ $( document ).ready(function() {
       }
   }
   });
+
+  $('#test_clause').click(function(){
+    data = $('#id_clause').val();
+    console.log("Testing Query: " + data)
+    $.post("/ajax/clause", {'query': data}).done(function(result){
+      for (var key in result) {
+        console.log("Replacing " + key)
+        $(key).replaceWith(result[key])
+      }
+    })
+  })
+
 });
