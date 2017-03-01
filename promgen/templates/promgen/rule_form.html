@@ -54,21 +54,19 @@
     </div>
     <div id="ajax-clause-check"></div>
     <div class="panel-body">
-      <p class="help-block">Prometheus query to alert on</p>
-      <div class="panel panel-default">
-        Examples
-        <ul>
-          <li><code>node_load1{service="analysis"} > 5</code></li>
-          <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
-        </ul>
-      </div>
-
       <p class="help-block">
         <ul class="list-inline">
+          <li>Documentation:</li>
           <li><a href="https://prometheus.io/docs/querying/basics/">Basics</a></li>
           <li><a href="https://prometheus.io/docs/querying/operators/">Operators</a></li>
           <li><a href="https://prometheus.io/docs/querying/functions/">Functions</a></li>
           <li><a href="https://prometheus.io/docs/querying/examples/">Examples</a></li>
+        </ul>
+
+        Examples
+        <ul>
+          <li><code>node_load1{service="{{ service.name }}"} > 5</code></li>
+          <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
         </ul>
       </p>
     </div>

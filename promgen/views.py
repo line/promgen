@@ -800,7 +800,7 @@ class AjaxClause(View):
                         'project' not in row['metric']:
                     context['errors']['routing'] = 'Missing service and project labels so Promgen will be unable to route message'
                     context['status'] = 'warning'
-        elif '>' in query or '<' in query or '==' in query:
+        else:
             context['status'] = 'info'
             context['errors']['no_results'] = 'No Results. May need to remove conditional check (> < ==) to verity'
 

@@ -1,11 +1,8 @@
 {% load i18n %}
-<div id="ajax-clause-check" class="panel panel-{{ status }}">
-  <div class="panel-heading">
-    Results
-  </div>
+<div id="ajax-clause-check" class="panel-body">
 {% if data.result %}
     <table class="table table-condensed">
-      <tr>
+      <tr class="{{ status }}">
         <th>Timestamp</th>
         <th>Value</th>
         <th>Metric</th>
@@ -22,7 +19,7 @@
 
 {% if errors %}
     <table class="table table-condensed">
-      <tr>
+      <tr class="{{ status }}">
         <th>Error</th>
         <th>Message</th>
       </tr>
@@ -34,5 +31,4 @@
 {% endfor %}
   </table>
 {% endif %}
-
 </div>
