@@ -1,8 +1,13 @@
 {% load i18n %}
 <div id="ajax-clause-check" class="panel-body">
   <p>Query Duration: {{ duration }}</p>
+{% if collapse %}
+<a class="btn btn-success btn-sm" role="button" data-toggle="collapse" href="#prometheus-query-results" aria-expanded="false" aria-controls="collapseExample">
+  Show {{ data.result|length }} Results
+</a>
+{% endif %}
 {% if data.result %}
-    <table class="table table-condensed">
+    <table id="prometheus-query-results" class="table table-condensed table-scroll {% if collapse %}collapse{% endif %}">
       <tr class="{{ status }}">
         <th>Timestamp</th>
         <th>Value</th>

@@ -797,10 +797,11 @@ class AjaxClause(View):
 
         metrics = context['data'].get('result', [])
         if metrics:
+            context['collapse'] = len(metrics) > 5
             for row in metrics:
                 if 'service' not in row['metric'] and \
                         'project' not in row['metric']:
-                    context['errors']['routing'] = 'Missing service and project labels so Promgen will be unable to route message'
+                    context['errors']['routing'] = 'Some metrics are missing service and project labels so Promgen will be unable to route message'
                     context['status'] = 'warning'
         else:
             context['status'] = 'info'
