@@ -33,10 +33,12 @@ $( document ).ready(function() {
   });
 
   $('#test_clause').click(function(){
-    data = $('#id_clause').val();
-    $('#ajax-clause-check').html('<p>Loading...</p>')
-    console.log("Testing Query: " + data)
-    $.post("/ajax/clause", {'query': data}).done(function(result){
+    var btn = $(this)
+    var query = $(btn.data('source')).val()
+
+    $(btn.data('target')).html('<p>Loading...</p>')
+    console.log("Testing Query: " + query)
+    $.post("/ajax/clause", {'query': query, 'shard': btn.data('shard-id')}).done(function(result){
       for (var key in result) {
         console.log("Replacing " + key)
         $(key).replaceWith(result[key])
