@@ -783,7 +783,10 @@ class AjaxClause(View):
         url = '{}api/v1/query'.format(
             settings.PROMGEN['prometheus']['url']
         )
+
         query = request.POST['query']
+        shard = get_object_or_404(models.Shard, id=request.POST['shard'])
+
         logger.debug('Querying %s with %s', url, query)
         start = time.time()
         result = util.get(url, {'query': request.POST['query']}).json()
@@ -793,9 +796,6 @@ class AjaxClause(View):
         context['data'] = result.get('data', {})
 
         context['errors'] = {}
-        if result['status'] != 'success':
-            context['status'] = 'danger'
-            context['errors']['Query'] = result['error']
 
         metrics = context['data'].get('result', [])
         if metrics:
@@ -807,5 +807,10 @@ class AjaxClause(View):
         else:
             context['status'] = 'info'
             context['errors']['no_results'] = 'No Results. May need to remove conditional check (> < ==) to verity'
+
+        # Place this at the bottom to have a query error show up as danger
+        if result['status'] != 'success':
+            context['status'] = 'danger'
+            context['errors']['Query'] = result['error']
 
         return JsonResponse({'#ajax-clause-check': render_to_string('promgen/ajax_clause_check.html', context)})
