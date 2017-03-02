@@ -1,8 +1,7 @@
 $( document ).ready(function() {
   $.ajax({url: "/ajax/alert",}).done(function( data ) {
     for (var key in data) {
-      console.log("Writing " + key)
-      if (key == 'alert-all') {
+      if (key == '#alert-all') {
         console.log('Replacing button')
         div = $(data[key])
         btn = $(data[key]).find('div.panel-heading a')
@@ -24,10 +23,27 @@ $( document ).ready(function() {
         table.removeAttr('id')
         table.removeClass('collapse')
 
-        $('#alert-all').replaceWith(div)
+        console.log("Replacing " + key)
+        $(key).replaceWith(div)
       } else {
-        $("#" + key).replaceWith(data[key])
+        console.log("Replacing " + key)
+        $(key).replaceWith(data[key])
       }
   }
   });
+
+  $('#test_clause').click(function(){
+    var btn = $(this)
+    var query = $(btn.data('source')).val()
+
+    $(btn.data('target')).html('<p>Loading...</p>')
+    console.log("Testing Query: " + query)
+    $.post("/ajax/clause", {'query': query, 'shard': btn.data('shard-id')}).done(function(result){
+      for (var key in result) {
+        console.log("Replacing " + key)
+        $(key).replaceWith(result[key])
+      }
+    })
+  })
+
 });

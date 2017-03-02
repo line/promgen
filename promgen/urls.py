@@ -97,6 +97,7 @@ urlpatterns = [
     url(r'^commit$', csrf_exempt(views.Commit.as_view()), name='commit'),
 
     url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
+    url(r'^ajax/clause$', csrf_exempt(views.AjaxClause.as_view()), name='ajax-clause'),
 ]
 
 if settings.DEBUG:

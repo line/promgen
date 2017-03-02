@@ -1,0 +1,40 @@
+{% load i18n %}
+<div id="ajax-clause-check" class="panel-body">
+  <p>Query Duration: {{ duration }}</p>
+{% if collapse %}
+<a class="btn btn-success btn-sm" role="button" data-toggle="collapse" href="#prometheus-query-results" aria-expanded="false" aria-controls="collapseExample">
+  Show {{ data.result|length }} Results
+</a>
+{% endif %}
+{% if data.result %}
+    <table id="prometheus-query-results" class="table table-condensed table-scroll {% if collapse %}collapse{% endif %}">
+      <tr class="{{ status }}">
+        <th>Timestamp</th>
+        <th>Value</th>
+        <th>Metric</th>
+      </tr>
+{% for row in data.result %}
+      <tr>
+        <td>{{ row.value.0 }}</td>
+        <td>{{ row.value.1 }}</td>
+        <td>{{ row.metric }}</td>
+      </tr>
+{% endfor %}
+    </table>
+{% endif %}
+
+{% if errors %}
+    <table class="table table-condensed">
+      <tr class="{{ status }}">
+        <th>Error</th>
+        <th>Message</th>
+      </tr>
+{% for error, message in errors.items %}
+      <tr>
+        <td>{{ error }}</td>
+        <td>{{ message }}</td>
+      </tr>
+{% endfor %}
+  </table>
+{% endif %}
+</div>

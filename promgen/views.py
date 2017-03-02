@@ -1,6 +1,8 @@
 import collections
+import datetime
 import json
 import logging
+import time
 from urllib.parse import urljoin
 
 import requests
@@ -21,7 +23,7 @@ from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 
-from promgen import forms, models, plugins, prometheus, signals, version
+from promgen import forms, models, plugins, prometheus, signals, util, version
 
 logger = logging.getLogger(__name__)
 
@@ -769,12 +771,45 @@ class AjaxAlert(View):
                             if alert['labels'][key]:
                                 alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
-        # for key in alerts.keys():
-        #     if len(alerts[key]) > 5:
-        #         alerts[key] = alerts[key][:5]
-
-        alerts = {slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
-        if 'alert-all' not in alerts:
-            alerts['alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
+        alerts = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
+        if '#alert-all' not in alerts:
+            alerts['#alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
 
         return JsonResponse(alerts)
+
+
+class AjaxClause(View):
+    def post(self, request):
+        query = request.POST['query']
+        shard = get_object_or_404(models.Shard, id=request.POST['shard'])
+
+        url = '{}/api/v1/query'.format(shard.url)
+
+        logger.debug('Querying %s with %s', url, query)
+        start = time.time()
+        result = util.get(url, {'query': request.POST['query']}).json()
+        duration = datetime.timedelta(seconds=(time.time() - start))
+
+        context = {'status': result['status'], 'duration': duration}
+        context['data'] = result.get('data', {})
+
+        context['errors'] = {}
+
+        metrics = context['data'].get('result', [])
+        if metrics:
+            context['collapse'] = len(metrics) > 5
+            for row in metrics:
+                if 'service' not in row['metric'] and \
+                        'project' not in row['metric']:
+                    context['errors']['routing'] = 'Some metrics are missing service and project labels so Promgen will be unable to route message'
+                    context['status'] = 'warning'
+        else:
+            context['status'] = 'info'
+            context['errors']['no_results'] = 'No Results. May need to remove conditional check (> < ==) to verity'
+
+        # Place this at the bottom to have a query error show up as danger
+        if result['status'] != 'success':
+            context['status'] = 'danger'
+            context['errors']['Query'] = result['error']
+
+        return JsonResponse({'#ajax-clause-check': render_to_string('promgen/ajax_clause_check.html', context)})
