@@ -1,6 +1,8 @@
 import collections
+import datetime
 import json
 import logging
+import time
 from urllib.parse import urljoin
 
 import requests
@@ -783,9 +785,11 @@ class AjaxClause(View):
         )
         query = request.POST['query']
         logger.debug('Querying %s with %s', url, query)
+        start = time.time()
         result = util.get(url, {'query': request.POST['query']}).json()
+        duration = datetime.timedelta(seconds=(time.time() - start))
 
-        context = {'status': result['status'], 'panel_type': 'panel-success'}
+        context = {'status': result['status'], 'duration': duration}
         context['data'] = result.get('data', {})
 
         context['errors'] = {}
