@@ -780,12 +780,10 @@ class AjaxAlert(View):
 
 class AjaxClause(View):
     def post(self, request):
-        url = '{}api/v1/query'.format(
-            settings.PROMGEN['prometheus']['url']
-        )
-
         query = request.POST['query']
         shard = get_object_or_404(models.Shard, id=request.POST['shard'])
+
+        url = '{}/api/v1/query'.format(shard.url)
 
         logger.debug('Querying %s with %s', url, query)
         start = time.time()
