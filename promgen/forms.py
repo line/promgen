@@ -98,9 +98,12 @@ class RuleForm(forms.ModelForm):
 
 
 class RuleCopyForm(forms.Form):
-    rule_id = forms.TypedChoiceField(coerce=int, choices=sorted([
-        (rule.pk, '<{}> {}'.format(rule.service.name, rule.name)) for rule in models.Rule.objects.all()
-    ], key=lambda student: student[1]))
+    def _choices():
+        return sorted([
+            (rule.pk, '<{}> {}'.format(rule.service.name, rule.name)) for rule in models.Rule.objects.all()
+        ], key=lambda r: r[1])
+
+    rule_id = forms.TypedChoiceField(coerce=int, choices=_choices)
 
 
 class FarmForm(forms.ModelForm):
