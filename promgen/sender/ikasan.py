@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 class SenderIkasan(SenderBase):
+    '''
+    Send messages to Ikasan
+    '''
     @celery.task(bind=True)
     def _send(task, channel, alert, data):
         self = SenderIkasan()  # Rebind self

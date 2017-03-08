@@ -38,6 +38,14 @@ class Sender(models.Model):
     def __str__(self):
         return '{}:{}'.format(self.sender, self.show_value())
 
+    @classmethod
+    def plugins(cls):
+        for entry in plugins.senders():
+            try:
+                yield entry.module_name, entry.load()
+            except ImportError:
+                logger.warning('Error importing %s', entry.module_name)
+
 
 class Shard(models.Model):
     name = models.CharField(max_length=128, unique=True)

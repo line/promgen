@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 class SenderLineNotify(SenderBase):
+    '''
+    Send messages to line notify
+    '''
     @celery.task(bind=True)
     def _send(task, token, alert, data):
         self = SenderLineNotify()  # Rebind self
