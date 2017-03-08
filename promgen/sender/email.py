@@ -10,6 +10,10 @@ logger = logging.getLogger(__name__)
 
 
 class SenderEmail(SenderBase):
+    '''
+    Simple plaintext Email notification
+    '''
+
     @celery.task(bind=True)
     def _send(task, address, alert, data):
         self = SenderEmail()  # Rebind self

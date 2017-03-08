@@ -501,6 +501,11 @@ class ProjectSenderRegister(FormView, ProjectMixin):
     template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm
 
+    def get_context_data(self, **kwargs):
+        context = super(SenderRegister, self).get_context_data(**kwargs)
+        context['senders'] = models.Sender.plugins()
+        return context
+
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
         project_type = ContentType.objects.get_for_model(project)

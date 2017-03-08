@@ -1,5 +1,8 @@
 import logging
+import textwrap
+
 from django.conf import settings
+
 from promgen.models import Project, Service
 
 logger = logging.getLogger(__name__)
@@ -20,6 +23,11 @@ class SenderBase(object):
             self.__send = self._send.delay
         else:
             self.__send = self._send
+
+    @classmethod
+    def help(cls):
+        if cls.__doc__:
+            return textwrap.dedent(cls.__doc__)
 
     def _send(self, target, alert, data):
         '''
