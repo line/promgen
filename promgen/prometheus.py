@@ -43,12 +43,13 @@ def render_rules(rules=None):
 
 def render_urls():
     urls = collections.defaultdict(list)
+
     for url in models.URL.objects.all():
         urls[(
-            url.project.name, url.project.service.name,
+            url.project.name, url.project.service.name, url.project.service.shard.name,
         )].append(url.url)
 
-    data = [{'labels': {'project': k[0], 'service': k[1]}, 'targets': v} for k, v in urls.items()]
+    data = [{'labels': {'project': k[0], 'service': k[1], '__shard': k[2]}, 'targets': v} for k, v in urls.items()]
     return json.dumps(data, indent=2, sort_keys=True)
 
 
