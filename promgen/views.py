@@ -688,9 +688,20 @@ class Import(FormView):
                 messages.info(request, 'Importing config')
                 config = data['config']
 
-            counters = prometheus.import_config(json.loads(config))
+            objects = prometheus.import_config(json.loads(config))
+            counters = {key: len(objects[key]) for key in objects}
             messages.info(request, 'Imported %s' % counters)
 
+            # If we only have a single object in a category, automatically
+            # redirect to that category to make things easier to understand
+            if len(objects['Project']) == 1:
+                return HttpResponseRedirect(objects['Project'][0].get_absolute_url())
+            if len(objects['Service']) == 1:
+                return HttpResponseRedirect(objects['Service'][0].get_absolute_url())
+            if len(objects['Shard']) == 1:
+                return HttpResponseRedirect(objects['Shard'][0].get_absolute_url())
+
+            # otherwise we can just use the default behavior
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
