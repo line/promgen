@@ -16,7 +16,11 @@ class Command(BaseCommand):
             config = requests.get(target_file).json()
         else:
             config = json.load(open(target_file), encoding='utf8')
-        prometheus.import_config(config)
+
+        objects = prometheus.import_config(config)
+        counters = {key: len(objects[key]) for key in objects}
+        self.stdout.write('Imported {}'.format(counters))
+
         trigger_write_config.send(self, force=True)
         trigger_write_rules.send(self, force=True)
         trigger_write_urls.send(self, force=True)
