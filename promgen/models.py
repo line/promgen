@@ -67,13 +67,13 @@ class Service(models.Model):
     shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['shard', 'name']
 
     def get_absolute_url(self):
         return reverse('service-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.name
+        return '{} » {}'.format(self.shard.name, self.name)
 
     @classmethod
     def default(cls, service_name='Default', shard_name='Default'):
@@ -105,7 +105,7 @@ class Project(models.Model):
         return reverse('project-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return '{} [{}]'.format(self.name, self.service.name)
+        return '{} » {}'.format(self.service, self.name)
 
 
 class Farm(models.Model):
