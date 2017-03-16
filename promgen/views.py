@@ -616,7 +616,7 @@ class Alert(View):
             try:
                 Sender = entry.load()
                 logger.debug(Sender)
-                Sender().send(body)
+                Sender().send(body.copy())
             except Exception:
                 logger.exception('Error sending alert')
                 error += 1

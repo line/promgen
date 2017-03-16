@@ -63,7 +63,8 @@ class SenderBase(object):
         See tests/examples/alertmanager.json for an example payload
         '''
         sent = 0
-        for alert in data['alerts']:
+        alerts = data.pop('alerts', [])
+        for alert in alerts:
             for label, klass in self.MAPPING:
                 logger.debug('Checking for %s', label)
                 if label in alert['labels']:
