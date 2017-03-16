@@ -2,9 +2,9 @@ import logging
 import platform
 
 from celery import group
-from django.conf import settings
 from django.core.management.base import BaseCommand
 
+from promgen import models
 from promgen.celery import debug_task
 
 logger = logging.getLogger(__name__)
@@ -18,10 +18,9 @@ class Command(BaseCommand):
         results = []
 
         # Test individual Prometheus queues
-        for host in settings.PROMGEN['prometheus'].get('servers'):
-            queue, _ = host.split(':')
-            logger.debug('Queueing URLs on %s', queue)
-            results.append(debug_task.signature(queue=queue))
+        for server in models.Prometheus.objects.all():
+            logger.info('Testing queue on %s', server.host)
+            results.append(debug_task.signature(queue=server.host))
 
         # Test queue for current server
         results.append(debug_task.signature(queue=platform.node()))
