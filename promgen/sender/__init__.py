@@ -63,16 +63,18 @@ class SenderBase(object):
         See tests/examples/alertmanager.json for an example payload
         '''
         sent = 0
-        for alert in data['alerts']:
+        alerts = data.pop('alerts', [])
+        for alert in alerts:
             for label, klass in self.MAPPING:
-                logger.debug('Checking for %s', label)
-                if label in alert['labels']:
-                    logger.debug('Checking for %s %s', label, klass)
-                    for obj in klass.objects.filter(name=alert['labels'][label]):
-                        for sender in obj.sender.filter(sender=self.__module__):
-                            logger.debug('Sending to %s', sender)
-                            if self.__send(sender.value, alert, data):
-                                sent += 1
+                if label not in alert['labels']:
+                    logger.debug('Missing label %s', label)
+                    continue
+                logger.debug('Checking senders for %s=%s', label, alert['labels'][label])
+                for obj in klass.objects.filter(name=alert['labels'][label]):
+                    for sender in obj.sender.filter(sender=self.__module__):
+                        logger.debug('Sending to %s', sender)
+                        if self.__send(sender.value, alert, data):
+                            sent += 1
         if sent == 0:
             logger.debug('No senders configured for project or service')
         return sent
