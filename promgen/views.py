@@ -612,7 +612,7 @@ class Alert(View):
         error = collections.defaultdict(int)
 
         for entry in plugins.senders():
-            logger.debug('Sending notification to %s', entry.name)
+            logger.debug('Sending notification to %s', entry.module_name)
             try:
                 Sender = entry.load()
                 logger.debug(Sender)
