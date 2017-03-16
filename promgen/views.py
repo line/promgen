@@ -608,20 +608,26 @@ class URLConfig(View):
 class Alert(View):
     def post(self, request, *args, **kwargs):
         body = json.loads(request.body.decode('utf-8'))
+        sent = collections.defaultdict(int)
+        error = collections.defaultdict(int)
 
         for entry in plugins.senders():
             logger.debug('Sending notification to %s', entry.name)
-            sent = 0
-            error = 0
             try:
                 Sender = entry.load()
                 logger.debug(Sender)
-                Sender().send(body.copy())
+                count = Sender().send(body.copy())
             except Exception:
                 logger.exception('Error sending alert')
-                error += 1
+                error[entry.module_name] += 1
             else:
-                sent += 1
+                try:
+                    sent[entry.module_name] += count
+                except TypeError:
+                    logger.error('Invalid count returned from %s', entry.module_name)
+        logger.info('Notifications Sent: %s', dict(sent))
+        if error:
+            logger.error('Notification Errors: %s', dict(error))
         return HttpResponse('OK')
 
 
