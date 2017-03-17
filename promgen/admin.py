@@ -66,3 +66,9 @@ class RuleAdmin(admin.ModelAdmin):
     list_display = ('name', 'clause', 'duration', 'labels', 'annotations', 'service')
     list_filter = ('service',)
     inlines = [RuleLabelInline, RuleAnnotationInline]
+
+
+@admin.register(models.Prometheus)
+class PrometheusAdmin(admin.ModelAdmin):
+    list_display = ('shard', 'host', 'port')
+    list_filter = ('shard',)

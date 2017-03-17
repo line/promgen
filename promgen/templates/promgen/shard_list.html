@@ -7,7 +7,7 @@
 </div>
 
 <div class="row">
-{% for shard in shard_list %}
+{% for shard in shard_list|dictsortreversed:"service_set.count" %}
   <div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -16,17 +16,14 @@
           <a href="{% url 'service-new' shard.id %}" class="btn btn-primary btn-xs">{% trans "Register Service" %}</a>
         </span>
       </div>
-      <div class="panel-body">
-        <dl class="dl-horizontal">
-          <dt>Services</dt>
-          <dd>{{ shard.service_set.count }}</dd>
-          <dt>Projects</dt>
-          <dd>{{ shard.service_set__project_set }}</dd>
-        </dl>
-      </div>
+
+{% if shard.service_set.count %}
       <table class="table">
         <tr>
-          <th>Service</th>
+          <th>
+            <span class="badge">{{ shard.service_set.count }}</span>
+            Service
+          </th>
         </tr>
 {% for service in shard.service_set.all %}
         <tr>
@@ -34,6 +31,24 @@
         </tr>
 {% endfor %}
     </table>
+{% endif %}
+
+{% if shard.prometheus_set.count %}
+    <table class="table">
+      <tr>
+        <th>
+          <span class="badge">{{ shard.prometheus_set.count }}</span>
+          Servers
+        </th>
+      </tr>
+{% for prometheus in shard.prometheus_set.all %}
+      <tr>
+        <td>{{ prometheus.host }}:{{ prometheus.port }}</td>
+      </td>
+{% endfor %}
+    </table>
+{% endif %}
+
   </div>
 </div>
 {% endfor %}

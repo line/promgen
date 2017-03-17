@@ -279,3 +279,16 @@ class Audit(models.Model):
             kwargs['object_id'] = instance.id
 
         return cls.objects.create(**kwargs)
+
+
+class Prometheus(models.Model):
+    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
+    host = models.CharField(max_length=128)
+    port = models.IntegerField()
+
+    def __str__(self):
+        return '{}:{}'.format(self.host, self.port)
+
+    class Meta:
+        ordering = ['shard', 'host']
+        unique_together = (('host', 'port'))
