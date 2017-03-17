@@ -57,7 +57,7 @@ def run_once(signal):
 def _trigger_write_config(signal, **kwargs):
     for server in models.Prometheus.objects.all():
         if 'request' in kwargs:
-            messages.info(kwargs['request'], 'Updating config on ' + server.host)
+            messages.info(kwargs['request'], 'Updating config on {}'.format(server))
         logger.info('Queueing write_config on %s', server.host)
         prometheus.write_config.apply_async(queue=server.host)
 
@@ -66,7 +66,7 @@ def _trigger_write_config(signal, **kwargs):
 def _trigger_write_rules(signal, **kwargs):
     for server in models.Prometheus.objects.all():
         if 'request' in kwargs:
-            messages.info(kwargs['request'], 'Updating rules on ' + server.host)
+            messages.info(kwargs['request'], 'Updating rules on {}'.format(server))
         logger.info('Queueing write_rules on %s', server.host)
         prometheus.write_rules.apply_async(queue=server.host)
 
@@ -77,7 +77,7 @@ def _trigger_write_rules(signal, **kwargs):
 def _trigger_write_urls(signal, **kwargs):
     for server in models.Prometheus.objects.all():
         if 'request' in kwargs:
-            messages.info(kwargs['request'], 'Updating urls on ' + server.host)
+            messages.info(kwargs['request'], 'Updating urls on {}'.format(server))
         logger.info('Queueing write_urls on %s', server.host)
         prometheus.write_urls.apply_async(queue=server.host)
 

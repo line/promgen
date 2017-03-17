@@ -26,8 +26,6 @@ class RemoteTriggerMiddleware(object):
 
         for msg, func in triggers.items():
             for (receiver, status) in func(self, request=request, force=True):
-                if status is True:
-                    messages.info(request, 'Triggered %s write ' % msg)
-                elif status is False:
+                if status is False:
                     messages.warning(request, 'Error queueing %s ' % msg)
         return response
