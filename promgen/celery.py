@@ -49,10 +49,10 @@ def wrap_send(cls):
     return cls
 
 
-@celeryd_init.connect
-def configure_workers(sender=None, conf=None, **kwargs):
-    # To enable triggering config writes and reloads on a specific Prometheus server
-    # we automatically create a queue for the current server that we can target from
-    # our promgen.prometheus functions
-    app.control.add_consumer(queue=socket.gethostname())
-    debug_task.apply_async(queue=socket.gethostname())
+# @celeryd_init.connect
+# def configure_workers(sender=None, conf=None, **kwargs):
+#     # To enable triggering config writes and reloads on a specific Prometheus server
+#     # we automatically create a queue for the current server that we can target from
+#     # our promgen.prometheus functions
+#     app.control.add_consumer(queue=socket.gethostname())
+#     debug_task.apply_async(queue=socket.gethostname())
