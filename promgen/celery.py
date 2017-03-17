@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 import logging
 import os
+import socket
 
 import celery
 import raven
@@ -45,3 +46,9 @@ def wrap_send(cls):
         cls._send = app.task(cls._send, bind=True, lazy=False)
         cls._send.__klass__ = cls()
     return cls
+
+# To enable triggering config writes and reloads on a specific Prometheus server
+# we automatically create a queue for the current server that we can target from
+# our promgen.prometheus functions
+app.control.add_consumer(queue=socket.gethostname())
+debug_task.apply_async(queue=socket.gethostname())
