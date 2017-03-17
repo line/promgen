@@ -6,7 +6,7 @@ import socket
 
 import celery
 import raven
-from celery.signals import celeryd_init
+from celery.signals import celeryd_after_setup
 from raven.contrib.celery import register_logger_signal, register_signal
 
 logger = logging.getLogger(__name__)
@@ -49,10 +49,10 @@ def wrap_send(cls):
     return cls
 
 
-@celeryd_init.connect
-def configure_workers(sender=None, conf=None, **kwargs):
+@celeryd_after_setup.connect
+def setup_direct_queue(sender, instance, **kwargs):
     # To enable triggering config writes and reloads on a specific Prometheus server
     # we automatically create a queue for the current server that we can target from
     # our promgen.prometheus functions
-    app.control.add_consumer(queue=socket.gethostname())
+    instance.app.amqp.queues.select_add(socket.gethostname())
     debug_task.apply_async(queue=socket.gethostname())
