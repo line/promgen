@@ -25,7 +25,7 @@ class RemoteTriggerMiddleware(object):
         }
 
         for msg, func in triggers.items():
-            for (receiver, status) in func(self, force=True):
+            for (receiver, status) in func(self, request=request, force=True):
                 if status is True:
                     messages.info(request, 'Triggered %s write ' % msg)
                 elif status is False:
