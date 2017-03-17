@@ -49,10 +49,10 @@ def wrap_send(cls):
     return cls
 
 
-@celeryd_after_setup.connect
-def setup_direct_queue(sender, instance, **kwargs):
-    # To enable triggering config writes and reloads on a specific Prometheus server
-    # we automatically create a queue for the current server that we can target from
-    # our promgen.prometheus functions
-    instance.app.amqp.queues.select_add(socket.gethostname())
-    debug_task.apply_async(queue=socket.gethostname())
+# @celeryd_after_setup.connect
+# def setup_direct_queue(sender, instance, **kwargs):
+#     # To enable triggering config writes and reloads on a specific Prometheus server
+#     # we automatically create a queue for the current server that we can target from
+#     # our promgen.prometheus functions
+#     instance.app.amqp.queues.select_add(socket.gethostname())
+#     debug_task.apply_async(queue=socket.gethostname())
