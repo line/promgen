@@ -55,32 +55,34 @@ def run_once(signal):
 
 @run_once(trigger_write_config)
 def _trigger_write_config(signal, **kwargs):
-    for server in models.Prometheus.objects.all():
-        if 'request' in kwargs:
-            messages.info(kwargs['request'], 'Updating config on {}'.format(server))
-        logger.info('Queueing write_config on %s', server.host)
-        prometheus.write_config.apply_async(queue=server.host)
+    targets = [server.host for server in models.Prometheus.objects.all()]
+    for target in targets:
+        logger.info('Queueing write_config on %s', target)
+        prometheus.write_config.apply_async(queue=target)
+    if 'request' in kwargs:
+        messages.info(kwargs['request'], 'Updating config on {}'.format(targets))
+    return True
 
 
 @run_once(trigger_write_rules)
 def _trigger_write_rules(signal, **kwargs):
-    for server in models.Prometheus.objects.all():
-        if 'request' in kwargs:
-            messages.info(kwargs['request'], 'Updating rules on {}'.format(server))
-        logger.info('Queueing write_rules on %s', server.host)
-        prometheus.write_rules.apply_async(queue=server.host)
-
+    targets = [server.host for server in models.Prometheus.objects.all()]
+    for target in targets:
+        logger.info('Queueing write_rules on %s', target)
+        prometheus.write_rules.apply_async(queue=target)
+    if 'request' in kwargs:
+        messages.info(kwargs['request'], 'Updating rules on {}'.format(targets))
     return True
 
 
 @run_once(trigger_write_urls)
 def _trigger_write_urls(signal, **kwargs):
-    for server in models.Prometheus.objects.all():
-        if 'request' in kwargs:
-            messages.info(kwargs['request'], 'Updating urls on {}'.format(server))
-        logger.info('Queueing write_urls on %s', server.host)
-        prometheus.write_urls.apply_async(queue=server.host)
-
+    targets = [server.host for server in models.Prometheus.objects.all()]
+    for target in targets:
+        logger.info('Queueing write_urls on %s', target)
+        prometheus.write_urls.apply_async(queue=target)
+    if 'request' in kwargs:
+        messages.info(kwargs['request'], 'Updating urls on {}'.format(targets))
     return True
 
 
