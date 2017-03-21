@@ -8,7 +8,7 @@ from promgen import models
 from promgen.sender.email import SenderEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
-_SUBJECT = 'node_down foo-BETA testhost.localhost:9100 node resolved'
+_SUBJECT = '[resolved] node_down foo-BETA testhost.localhost:9100 node'
 _MESSAGE = '''node_down foo-BETA testhost.localhost:9100 node resolved
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
