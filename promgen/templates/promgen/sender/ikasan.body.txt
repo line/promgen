@@ -1,4 +1,4 @@
-{% autoescape off %}{{ alert.labels.alertname }} {{ alert.labels.farm }} {{ alert.labels.instance }} {{ alert.labels.job }} {{ alert.status }}
+{% autoescape off %}[{{ alert.status }}] {{ alert.labels.alertname }} {{ alert.labels.farm }} {{ alert.labels.instance }} {{ alert.labels.job }}
 {% for k,v in alert.annotations.items|dictsort:0 %}
 {{ k }}: {{ v }}{% endfor %}
 

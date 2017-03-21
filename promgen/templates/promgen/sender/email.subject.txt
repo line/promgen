@@ -1,1 +1,1 @@
-{{ alert.labels.alertname }} {{ alert.labels.farm }} {{ alert.labels.instance }} {{ alert.labels.job }} {{ alert.status }}
+[{{ alert.status }}] {{ alert.labels.alertname }} {{ alert.labels.farm }} {{ alert.labels.instance }} {{ alert.labels.job }}
