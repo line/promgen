@@ -9,7 +9,7 @@ from promgen.sender.ikasan import SenderIkasan
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
-_MESSAGE = '''node_down foo-BETA testhost.localhost:9100 node resolved
+_MESSAGE = '''[resolved] node_down foo-BETA testhost.localhost:9100 node
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
 summary: Instance testhost.localhost:9100 down
