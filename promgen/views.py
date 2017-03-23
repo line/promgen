@@ -502,7 +502,7 @@ class ProjectSenderRegister(FormView, ProjectMixin):
     form_class = forms.SenderForm
 
     def get_context_data(self, **kwargs):
-        context = super(SenderRegister, self).get_context_data(**kwargs)
+        context = super(ProjectSenderRegister, self).get_context_data(**kwargs)
         context['senders'] = models.Sender.plugins()
         return context
 
