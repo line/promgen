@@ -173,7 +173,6 @@ if 'SENTRY_DSN' in os.environ:
 # as a normal function)
 if 'CELERY_BROKER_URL' in os.environ:
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
-    CELERY_RESULT_BACKEND = os.environ.get('CELERY_BROKER_URL')
 else:
     CELERY_TASK_ALWAYS_EAGER = True
 
