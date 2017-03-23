@@ -242,7 +242,15 @@ class Rule(models.Model):
             self.enabled = False
             self.save()
 
+            # Add a service label to our new rule, to help ensure notifications
+            # get routed to the service we expect
+            self.add_label('service', service.name)
+
             for label in RuleLabel.objects.filter(rule_id=orig_pk):
+                # Skip service labels from our previous rule
+                if label.name in ['service']:
+                    logger.debug('Skipping %s: %s', label.name, label.value)
+                    continue
                 logger.debug('Copying %s to %s', label, self)
                 label.pk = None
                 label.rule = self
