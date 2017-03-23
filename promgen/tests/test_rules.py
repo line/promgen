@@ -47,7 +47,7 @@ class RuleTest(TestCase):
         self.assertIn('severity', copy.labels())
         self.assertIn('summary', copy.annotations())
         # and test that we actually duplicated them and not moved them
-        self.assertEqual(models.RuleLabel.objects.count(), 2)
+        self.assertEqual(models.RuleLabel.objects.count(), 3, 'Copied rule has exiting labels + service label')
         self.assertEqual(models.RuleAnnotation.objects.count(), 2)
 
     @mock.patch('django.db.models.signals.post_save')
