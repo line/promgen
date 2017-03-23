@@ -17,6 +17,7 @@ import raven
 import yaml
 
 from promgen.plugins import apps_from_setuptools
+from promgen.version import __version__
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -143,9 +144,14 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 if 'SENTRY_DSN' in os.environ:
     INSTALLED_APPS += ['raven.contrib.django.raven_compat']
+    try:
+        _RELEASE = raven.fetch_git_sha(BASE_DIR)
+    except:
+        _RELEASE = __version__
+
     RAVEN_CONFIG = {
         'dsn': os.environ['SENTRY_DSN'],
-        'release': raven.fetch_git_sha(BASE_DIR),
+        'release': _RELEASE,
     }
 
     LOGGING = {
