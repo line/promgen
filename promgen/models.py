@@ -206,6 +206,12 @@ class Rule(models.Model):
     def labels(self):
         return {obj.name: obj.value for obj in RuleLabel.objects.filter(rule=self)}
 
+    def add_label(self, name, value):
+        return RuleLabel.objects.get_or_create(rule=self, name=name, value=value)
+
+    def add_annotation(self, name, value):
+        return RuleAnnotation.objects.get_or_create(rule=self, name=name, value=value)
+
     def annotations(self):
         _annotations = {obj.name: obj.value for obj in RuleAnnotation.objects.filter(rule=self)}
         _annotations['service'] = 'http://{site}{path}'.format(
@@ -236,7 +242,15 @@ class Rule(models.Model):
             self.enabled = False
             self.save()
 
+            # Add a service label to our new rule, to help ensure notifications
+            # get routed to the service we expect
+            self.add_label('service', service.name)
+
             for label in RuleLabel.objects.filter(rule_id=orig_pk):
+                # Skip service labels from our previous rule
+                if label.name in ['service']:
+                    logger.debug('Skipping %s: %s', label.name, label.value)
+                    continue
                 logger.debug('Copying %s to %s', label, self)
                 label.pk = None
                 label.rule = self
