@@ -467,6 +467,7 @@ class RuleRegister(FormView, ServiceMixin):
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         rule, _ = models.Rule.objects.get_or_create(service=service, **form.clean())
+        rule.add_label('service', service.name)
         return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
 
 

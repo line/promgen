@@ -206,6 +206,12 @@ class Rule(models.Model):
     def labels(self):
         return {obj.name: obj.value for obj in RuleLabel.objects.filter(rule=self)}
 
+    def add_label(self, name, value):
+        return RuleLabel.objects.get_or_create(rule=self, name=name, value=value)
+
+    def add_annotation(self, name, value):
+        return RuleAnnotation.objects.get_or_create(rule=self, name=name, value=value)
+
     def annotations(self):
         _annotations = {obj.name: obj.value for obj in RuleAnnotation.objects.filter(rule=self)}
         _annotations['service'] = 'http://{site}{path}'.format(
