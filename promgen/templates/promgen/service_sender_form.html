@@ -26,18 +26,7 @@
     </div>
   </div>
 
-  <div class="col-md-6">
-{% for k, v in senders|dictsort:0 %}
-  {% if v.help %}
-    <div class="panel panel-default">
-      <div class="panel-heading">{{ k }}</div>
-      <div class="panel-body">
-        <pre>{{ v.help }}</pre>
-      </div>
-    </div>
-  {% endif %}
-{% endfor %}
-  </div>
+  <div class="col-md-6">{% include "promgen/sender_help.html" with senders=view.model.plugins %}</div>
 
 </div>
 
