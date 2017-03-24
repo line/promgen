@@ -1,7 +1,9 @@
 import datetime
 
 from django import forms
-from promgen import models, plugins
+from django.core.exceptions import ValidationError
+
+from promgen import models, plugins, prometheus
 
 
 class ImportConfigForm(forms.Form):
