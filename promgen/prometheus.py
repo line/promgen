@@ -28,11 +28,14 @@ def check_rules(rules):
         fp.write(rendered)
         fp.flush()
 
-        subprocess.check_call([
-            settings.PROMGEN['rule_writer']['promtool_path'],
-            'check-rules',
-            fp.name
-        ])
+        try:
+            subprocess.check_output([
+                settings.PROMGEN['rule_writer']['promtool_path'],
+                'check-rules',
+                fp.name
+            ], stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            raise Exception(rendered + e.output.decode('utf8'))
 
 
 def render_rules(rules=None):
