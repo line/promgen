@@ -7,6 +7,7 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
@@ -15,6 +16,8 @@ from promgen import plugins
 
 FARM_DEFAULT = 'default'
 logger = logging.getLogger(__name__)
+
+alphanumeric = RegexValidator(r'^[0-9a-zA-Z_]*$', 'Only alphanumeric characters are allowed.')
 
 
 class Sender(models.Model):
@@ -190,7 +193,7 @@ def validate_json_or_empty(value):
 
 
 class Rule(models.Model):
-    name = models.CharField(max_length=128, unique=True)
+    name = models.CharField(max_length=128, unique=True, validators=[alphanumeric])
     clause = models.TextField()
     duration = models.CharField(max_length=128, choices=[
         ('1s', '1s'),

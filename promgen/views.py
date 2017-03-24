@@ -439,6 +439,12 @@ class RuleUpdate(UpdateView):
             logger.warning('Error saving annotations %s', annotations.errors)
             return self.form_invalid(form)
 
+        try:
+            prometheus.check_rules([form.instance])
+        except Exception as e:
+            form._update_errors(e)
+            return self.form_invalid(form)
+
         return self.form_valid(form)
 
 
