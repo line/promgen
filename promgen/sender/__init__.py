@@ -9,6 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 class SenderBase(object):
+    '''
+    Base Sender class
+    '''
     MAPPING = [
         ('project', Project),
         ('service', Service),

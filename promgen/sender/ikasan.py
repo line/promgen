@@ -1,8 +1,3 @@
-'''
-Ikasan Hipchat bridge
-https://github.com/studio3104/ikasan
-'''
-
 import logging
 
 from django.template.loader import render_to_string
@@ -16,7 +11,9 @@ logger = logging.getLogger(__name__)
 
 class SenderIkasan(SenderBase):
     '''
-    Send messages to Ikasan
+    Send messages to Hipchat using Ikasan Hipchat bridge
+
+    https://github.com/studio3104/ikasan
     '''
     @celery.task(bind=True)
     def _send(task, channel, alert, data):
