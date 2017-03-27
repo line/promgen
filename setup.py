@@ -44,8 +44,8 @@ setup(
         'console_scripts': [
             'promgen = promgen.manage:main',
         ],
-        'promgen.server': [
-            'default = promgen.remote',
+        'promgen.discovery': [
+            'default = promgen.discovery.default:DiscoveryPromgen',
         ],
         'promgen.sender': [
             'ikasan = promgen.sender.ikasan:SenderIkasan',

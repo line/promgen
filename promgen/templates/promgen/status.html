@@ -14,11 +14,11 @@
 
 <table>
   <tr>
-    <td>Remote Plugins</td>
+    <td>Discovery Plugins</td>
     <td>
       <ul>
-{% for remote in remotes %}
-      <li>{{ remote.name }} - {{ remote.module_name }}</li>
+{% for plugin in discovery_plugins %}
+      <li>{{ plugin.name }} - {{ plugin.module_name }}</li>
 {% endfor %}
     </td>
   </tr>

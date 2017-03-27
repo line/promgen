@@ -222,7 +222,7 @@ class ProjectDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
         context['sources'] = [
-            entry.name for entry in plugins.remotes()
+            entry.name for entry in plugins.discovery()
         ]
         context['global'] = models.Service.default()
         return context
@@ -680,7 +680,7 @@ class Metrics(View):
 class Status(View):
     def get(self, request):
         return render(request, 'promgen/status.html', {
-            'remotes': [entry for entry in plugins.remotes()],
+            'discovery_plugins': [entry for entry in plugins.discovery()],
             'senders': [entry for entry in plugins.senders()],
         })
 
