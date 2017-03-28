@@ -10,3 +10,8 @@
 *.pyc
 *.sqlite3
 dist
+
+# Prometheus/Docker ignores
+docker/promgen.json
+docker/promgen.rule
+docker/blackbox.json

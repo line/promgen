@@ -774,8 +774,13 @@ class Mute(FormView):
 class AjaxAlert(View):
     def get(self, request):
         alerts = collections.defaultdict(list)
-        url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
-        response = requests.get(url)
+        try:
+            url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
+            response = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            logger.error('Error connecting to %s', url)
+            return JsonResponse({})
+
         data = response.json().get('data', [])
         if data is None:
             # Return an empty alert-all if there are no active alerts from AM
