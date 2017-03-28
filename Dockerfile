@@ -2,7 +2,7 @@ FROM python:3.5.3-alpine
 MAINTAINER paul.traylor@linecorp.com
 
 RUN adduser -D -u 1000 promgen promgen
-RUN apk add --no-cache --update mariadb-dev build-base && \
+RUN apk add --no-cache --update mariadb-dev build-base bash && \
     rm -rf /var/cache/apk/*
 
 ENV PYTHONUNBUFFERED 1
@@ -30,5 +30,7 @@ EXPOSE 8000
 
 RUN SECRET_KEY=1 promgen collectstatic --noinput
 
+COPY docker/docker-entrypoint.sh /
 VOLUME ["/etc/promgen", "/etc/prometheus"]
-CMD ["gunicorn", "promgen.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["web", "--bind", "0.0.0.0:8000", "--workers", "4"]

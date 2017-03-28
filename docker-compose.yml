@@ -5,7 +5,7 @@ version: '2'
 services:
   base:
     build: .
-    image: promgen:HEAD
+    image: promgen
     network_mode: bridge
     command: sh -c "promgen migrate && promgen register docker-demo localhost 9090"
     external_links:
@@ -26,7 +26,7 @@ services:
 
   worker:
     extends: base
-    command: celery -A promgen worker -l info --queues localhost,celery
+    command: worker -l info --queues localhost,celery
     links:
       - prometheus
     volumes:
