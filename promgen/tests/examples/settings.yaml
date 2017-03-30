@@ -1,28 +1,23 @@
 # Prometheus settings
 # These are used for Promgen to automatically trigger a reload on target changes
 prometheus:
-  url: http://prometheus.localhost/
+  url: http://prometheus:9090/
+
+alertmanager:
+  url: http://alertmanager:9093
 
 # Settings related to target configuration file.
 config_writer:
   # Output target configuration to this path
   path: /tmp/prom.json
-  # List of endpoints to POST to when writing configuration file. This is used
-  # to trigger other Promgen instances to write their configuration file
-  notify:
-    - http://promgen.example/api/v1/config
 
 rule_writer:
   # Output rule configuration to this path
-  rule_path: /tmp/prom.rule
+  path: /tmp/prom.rule
   # Path to promtool to verify valid rules file
   promtool_path: /usr/local/bin/promtool
-  # List of endpoints to POST to when writing configuration file. This is used
-  # to trigger other Promgen instances to write their configuration file
-  notify:
-    - http://promgen.example/api/v1/rule/
+  # List of default exporters to display in Promgen UI
 
-# List of default exporters to display in Promgen UI
 default_exporters:
   node: 9100
   nginx: 9113

@@ -1,17 +1,24 @@
-.PHONY build:
-build:
-	docker-compose build
-
+.PHONY: build up down shell test worker web
 up:
 	docker-compose up
+
+build:
+	docker-compose build
 
 down:
 	docker-compose down
 
-.PHONY shell:
-shell:
-	docker-compose run base bash
+clean: down
+	docker-compose rm
 
-.PHONY test:
+shell:
+	docker-compose run --rm worker bash
+
 test:
-	docker-compose run base promgen test
+	docker-compose run --rm worker test
+
+worker:
+	docker-compose run --rm worker
+
+web:
+	docker-compose run --rm web
