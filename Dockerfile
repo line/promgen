@@ -18,7 +18,7 @@ RUN pip install -r /tmp/requirements.txt
 
 COPY setup.py /usr/src/app/setup.py
 COPY promgen /usr/src/app/promgen
-COPY docker/settings.yaml /etc/promgen/settings.yaml
+COPY promgen/tests/examples/settings.yaml /etc/promgen/settings.yaml
 
 WORKDIR /usr/src/app
 RUN pip install -e .
