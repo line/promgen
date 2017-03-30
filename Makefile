@@ -1,4 +1,4 @@
-.PHONY: build up down shell test worker web
+.PHONY: build up down shell test worker web docs
 up:
 	docker-compose up
 
@@ -15,10 +15,7 @@ shell:
 	docker-compose run --rm worker bash
 
 test:
-	docker-compose run --rm worker test
+	docker-compose run base promgen test
 
-worker:
-	docker-compose run --rm worker
-
-web:
-	docker-compose run --rm web
+docs:
+	.venv/bin/sphinx-build -avb html docs dist/html

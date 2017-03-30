@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 class SenderLineNotify(SenderBase):
     '''
     Send messages to line notify
+
+    https://notify-bot.line.me/en/
     '''
     @celery.task(bind=True)
     def _send(task, token, alert, data):
