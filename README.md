@@ -10,29 +10,40 @@ See the [Promgen introduction slides][Slides] for more details.
 ## Promgen screenshots
 
 
-## Getting started
+## Quickstart with Docker
 
 Promgen attemps to use the [XDG] spec and follow suggestions for [12factor] apps
 
 ```bash
-# Create configuration directory
-mkdir -p ~/.config/promgen
-# For production deployment, you may need to create the cache directory
-mkdir -p ~/.cache/promgen
-# Set Database URL
-echo 'mysql://promgen:promgen@localhost/pypromgen' > ~/.config/promgen/DATABASE_URL
-# Generate Secret key
-date | shasum > ~/.config/promgen/SECRET_KEY
-# Turn on DEBUG mode for Django
-touch ~/.config/promgen/DEBUG
-# Copy and edit configuration file
-cp promgen/tests/examples/settings.yaml ~/.config/promgen/settings.yaml
-vim ~/.config/promgen/settings.yaml
+# Initialize required settings with docker container
+docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest bootstrap
+# Apply database updates
+docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest migrate
 ```
 
-[Example configuration file][Settings]
+You can then use your favorite configuration management system when deploying to each worker.
+
+You should then configuration Prometheus to load the target file from Prometheus and configure AlertManager to send notifications back to Promgen.
+
+See example settings files for proper configuration of Prometheus and AlertManager
+
+* [Example settings file](promgen/tests/examples/settings.yaml)
+* [Example prometheus file](docker/prometheus.yml)
+* [Example alert manager file](docker/alertmanager.yml)
+
+Assuming the settings have been properly copied to each node, you can run Promgen with the following commands
+
+```bash
+# Run Promgen web worker
+docker run --rm --network host -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ promgen:latest web
+
+# Run Promgen celery worker
+docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus promgen:latest worker
+```
 
 ## Installing Promgen for Development
+
+Promgen strives to be a standard Django application, so standard Django development patterns should apply
 
 ```bash
 virtualenv --python=/path/to/python3 /path/to/virtualenv
@@ -47,53 +58,8 @@ promgen test
 promgen runserver
 ```
 
-## Configure Prometheus to read Promgen generated configurations
-
-This is an example configuration for Prometheus.
-
-```
-rule_files:
-- "/tmp/prom.rule"
-
-scrape_configs:
-  - job_name: 'dummy'
-    file_sd_configs:
-      - files:
-        - "/tmp/prom.json"
-```
-
-When you add a host on the browser, Promgen automatically generates a /tmp/prom.json file. The information is then updated in a format as shown below.
-
-```
-[
-  {
-    "targets":[
-      "blog.admin1.localhost:9100"
-    ],
-    "labels":{
-      "service":"blog",
-      "project":"blog-admin",
-      "farm":"blog-admin-RELEASE",
-      "job":"node"
-    }
-  },
-  {
-    "targets":[
-      "blog.admin1.localhost:9113"
-    ],
-    "labels":{
-      "service":"blog",
-      "project":"blog-admin",
-      "farm":"blog-admin-RELEASE",
-      "job":"nginx"
-    }
-  }
-]
-```
-
 
 [12factor]: https://12factor.net/
 [Django]: https://docs.djangoproject.com/en/1.10/
-[Settings]: promgen/tests/examples/settings.yaml
 [Slides]: http://www.slideshare.net/tokuhirom/promgen-prometheus-managemnet-tool-simpleclientjava-hacks-prometheus-casual
 [XDG]: https://specifications.freedesktop.org/basedir-spec/latest/ar01s03.html

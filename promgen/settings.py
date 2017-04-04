@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import warnings
 
 import dj_database_url
 import raven
@@ -28,6 +29,11 @@ CONFIG_DIR = os.environ['CONFIG_DIR']
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    warnings.warn('Unset SECRET_KEY setting to random for now')
+    # Taken from Django's generation function
+    from django.utils.crypto import get_random_string
+    SECRET_KEY = get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.path.exists(os.path.join(CONFIG_DIR, 'DEBUG'))
