@@ -10,14 +10,16 @@ See the [Promgen introduction slides][Slides] for more details.
 ## Promgen screenshots
 
 
-## Getting started
+## Quickstart with Docker
 
 Promgen attemps to use the [XDG] spec and follow suggestions for [12factor] apps
 
 ```bash
-# Initialize required settings
-promgen bootstrap
+# Initialize required settings with docker container
+docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest promgen bootstrap
 ```
+
+You can then use your favorite configuration management system when deploying to each worker.
 
 You should then configuration Prometheus to load the target file from Prometheus and configure AlertManager to send notifications back to Promgen.
 
@@ -26,6 +28,16 @@ See example settings files for proper configuration of Prometheus and AlertManag
 * [Example settings file](promgen/tests/examples/settings.yaml)
 * [Example prometheus file](docker/prometheus.yml)
 * [Example alert manager file](docker/alertmanager.yml)
+
+Assuming the settings have been properly copied to each node, you can run Promgen with the following commands
+
+```bash
+# Run Promgen web worker
+docker run --rm --network host -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ promgen:latest web
+
+# Run Promgen celery worker
+docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus promgen:latest worker
+```
 
 ## Installing Promgen for Development
 
