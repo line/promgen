@@ -16,7 +16,9 @@ Promgen attemps to use the [XDG] spec and follow suggestions for [12factor] apps
 
 ```bash
 # Initialize required settings with docker container
-docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest promgen bootstrap
+docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest bootstrap
+# Apply database updates
+docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest migrate
 ```
 
 You can then use your favorite configuration management system when deploying to each worker.
