@@ -1,14 +1,13 @@
 atomicwrites==1.1.5
 celery==4.0.2
 dj-database-url
-Django==1.10.5
+django_nose
+Django==1.10.6
 envdir
-gunicorn
 gunicorn
 mysqlclient
 nose
 nose-cov
-django_nose
 pytz
 PyYAML==3.12
 raven
