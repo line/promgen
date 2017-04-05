@@ -204,6 +204,7 @@ def import_config(config):
             name=entry['labels'].get('__shard', 'Default')
         )
         if created:
+            logger.debug('Created shard %s', shard)
             counters['Shard'].append(shard)
 
         service, created = models.Service.objects.get_or_create(
@@ -211,6 +212,7 @@ def import_config(config):
             defaults={'shard': shard}
         )
         if created:
+            logger.debug('Created service %s', service)
             counters['Service'].append(service)
 
         farm, created = models.Farm.objects.get_or_create(
@@ -218,6 +220,7 @@ def import_config(config):
             defaults={'source': entry['labels'].get('__farm_source', 'pmc')}
         )
         if created:
+            logger.debug('Created farm %s', farm)
             counters['Farm'].append(farm)
 
         project, created = models.Project.objects.get_or_create(
@@ -226,9 +229,10 @@ def import_config(config):
             defaults={'farm': farm}
         )
         if created:
+            logger.debug('Created project %s', project)
             counters['Project'].append(project)
-
-        if not project.farm:
+        elif project.farm != farm:
+            logger.debug('Linking farm [%s] with [%s]', farm, project)
             project.farm = farm
             project.save()
 
@@ -240,6 +244,7 @@ def import_config(config):
             )
 
             if created:
+                logger.debug('Created host %s', host)
                 counters['Host'].append(host)
 
             exporter, created = models.Exporter.objects.get_or_create(
@@ -250,6 +255,7 @@ def import_config(config):
             )
 
             if created:
+                logger.debug('Created exporter %s', exporter)
                 counters['Exporter'].append(exporter)
 
     return counters
