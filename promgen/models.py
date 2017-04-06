@@ -11,6 +11,7 @@ from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from promgen import plugins
 
@@ -207,10 +208,11 @@ class Rule(models.Model):
     enabled = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['service', 'name']
 
+    @cached_property
     def labels(self):
-        return {obj.name: obj.value for obj in RuleLabel.objects.filter(rule=self)}
+        return {obj.name: obj.value for obj in self.rulelabel_set}
 
     def add_label(self, name, value):
         return RuleLabel.objects.get_or_create(rule=self, name=name, value=value)
@@ -218,8 +220,9 @@ class Rule(models.Model):
     def add_annotation(self, name, value):
         return RuleAnnotation.objects.get_or_create(rule=self, name=name, value=value)
 
+    @cached_property
     def annotations(self):
-        _annotations = {obj.name: obj.value for obj in RuleAnnotation.objects.filter(rule=self)}
+        _annotations = {obj.name: obj.value for obj in self.ruleannotation_set}
         _annotations['service'] = 'http://{site}{path}'.format(
             site=Site.objects.get_current().domain,
             path=reverse('service-detail', args=[self.service_id])
