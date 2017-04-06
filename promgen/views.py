@@ -18,7 +18,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
-from django.views.generic import DetailView, ListView, UpdateView, View
+from django.views.generic import (DetailView, ListView, TemplateView,
+                                  UpdateView, View)
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
@@ -86,19 +87,38 @@ class HostList(ListView):
         return context
 
 
-class HostDetail(DetailView):
-    model = models.Host
+class HostDetail(TemplateView):
+    template_name = 'promgen/host_detail.html'
 
-
-class HostSearch(ListView):
-    template_name = 'promgen/host_search.html'
-
-    def get_queryset(self):
-        return models.Host.objects\
-            .filter(name__contains=self.kwargs['name'])\
+    def get_context_data(self, **kwargs):
+        context = {}
+        context['slug'] = self.kwargs['slug']
+        context['host_list'] = models.Host.objects\
+            .filter(name__contains=self.kwargs['slug'])\
             .prefetch_related(
                 'farm',
             )
+        context['farm_list'] = [host.farm for host in context['host_list']]
+
+        context['project_list'] = models.Project.objects.filter(farm_id__in=[
+            farm.id for farm in context['farm_list']
+        ]).prefetch_related('sender', 'service', 'service__sender')
+
+        context['rule_list'] = models.Rule.objects.filter(service_id__in=[
+            project.service_id for project in context['project_list']
+        ]).prefetch_related('service')
+
+        context['exporter_list'] = models.Exporter.objects.filter(project_id__in=[
+            project.id for project in context['project_list']
+        ]).prefetch_related('project', 'project__service')
+
+        context['sender_list'] = [
+            sender for project in context['project_list'] for sender in project.sender.all()
+        ] + [
+            sender for project in context['project_list'] for sender in project.service.sender.all()
+        ]
+
+        return context
 
 
 class AuditList(ListView):

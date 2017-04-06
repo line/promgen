@@ -3,15 +3,72 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Host: {{ host.name }}</h1>
+  <h1>Host: {{ slug }}</h1>
 </div>
 
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li><a href="{% url 'farm-detail' host.farm.id %}">{{ host.farm.name }}</a></li>
-  <li class="active"><a href="{% url 'host-detail' host.id %}">{{ host.name }}</a></li>
+  <li class="active">{{ slug }}</li>
 </ol>
 
-{% include "promgen/host_block.html" %}
+<div class="panel panel-default">
+  <div class="panel-heading">Farm</div>
+  <table class="table">
+    <tr>
+      <th>Farm</th>
+    </tr>
+{% for farm in farm_list %}
+    <tr>
+      <td><a href="{{ farm.get_absolute_url }}">{{ farm.name }}</a></td>
+    </tr>
+{% endfor %}
+  </table>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Exporters</div>
+  <table class="table">
+    <tr>
+      <th>Service</th>
+      <th>Project</th>
+      <th>Job</th>
+      <th>Port</th>
+      <th>Path</th>
+    </tr>
+{% for exporter in exporter_list %}
+    <tr>
+      <td><a href="{{ exporter.project.service.get_absolute_url }}">{{ exporter.project.service.name }}</a></td>
+      <td><a href="{{ exporter.project.get_absolute_url }}">{{ exporter.project.name }}</a></td>
+      <td>{{ exporter.job }}</td>
+      <td>{{ exporter.port }}</td>
+      <td>{{ exporter.path }}</td>
+    </tr>
+{% endfor %}
+  </table>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Rules</div>
+  {% include "promgen/rule_block.html" %}
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Senders</div>
+  <table class="table">
+    <tr>
+      <th>Parent</th>
+      <th>Sender</th>
+      <th>Value</th>
+    </tr>
+{% for sender in sender_list %}
+    <tr>
+      <td><a href="{{ sender.content_object.get_absolute_url }}">{{ sender.content_object.name }}</a></td>
+      <td>{{ sender.sender }}</td>
+      <td>{{ sender.show_value }}</td>
+    </tr>
+{% endfor %}
+  </table>
+</div>
+
 
 {% endblock %}
