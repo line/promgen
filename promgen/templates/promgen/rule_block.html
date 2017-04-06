@@ -1,16 +1,16 @@
 {% load i18n %}
 <table class="table table-bordered table-condensed {% if collapse %}collapse" id="{{ collapse }}"{% endif %}">
   <tr>
-    <th>Name</th>
-    <th>Clause</th>
-    <th>Duration</th>
+    <th class="col-xs-2">Name</th>
+    <th class="col-md-7">Clause</th>
+    <th class="col-xs-1">Duration</th>
 {% if show_full %}
-    <th>Labels</th>
-    <th>Annotations</th>
+    <th class="col-md-2">Labels</th>
+    <th class="col-md-2">Annotations</th>
 {% endif %}
 {% if show_edit %}
-    <th>Toggle</th>
-    <th>Delete</th>
+    <th class="col-xs-1">Toggle</th>
+    <th class="col-xs-1">Delete</th>
 {% endif %}
   </tr>
   {% for rule in rule_list %}

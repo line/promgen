@@ -38,11 +38,11 @@
 {% if service.project_set.count %}
 <table class="table table-bordered table-condensed">
   <tr>
-    <th>Project</th>
-    <th>Farm</th>
-    <th>Exporters</th>
-    <th>Senders</th>
-    <th>Actions</th>
+    <th class="col-md-2">Project</th>
+    <th class="col-md-2">Farm</th>
+    <th class="col-md-2">Exporters</th>
+    <th class="col-md-3">Senders</th>
+    <th class="col-md-1">Actions</th>
   </tr>
 {% for project in service.project_set.all %}
   <tr>
