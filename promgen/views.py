@@ -361,6 +361,8 @@ class URLList(ListView):
     queryset = models.URL.objects\
         .prefetch_related(
             'project',
+            'project__service',
+            'project__service__shard',
         )
 
 
