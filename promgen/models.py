@@ -212,7 +212,7 @@ class Rule(models.Model):
 
     @cached_property
     def labels(self):
-        return {obj.name: obj.value for obj in self.rulelabel_set}
+        return {obj.name: obj.value for obj in self.rulelabel_set.all()}
 
     def add_label(self, name, value):
         return RuleLabel.objects.get_or_create(rule=self, name=name, value=value)
@@ -222,7 +222,7 @@ class Rule(models.Model):
 
     @cached_property
     def annotations(self):
-        _annotations = {obj.name: obj.value for obj in self.ruleannotation_set}
+        _annotations = {obj.name: obj.value for obj in self.ruleannotation_set.all()}
         _annotations['service'] = 'http://{site}{path}'.format(
             site=Site.objects.get_current().domain,
             path=reverse('service-detail', args=[self.service_id])

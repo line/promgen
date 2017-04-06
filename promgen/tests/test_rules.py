@@ -44,8 +44,8 @@ class RuleTest(TestCase):
         service = models.Service.objects.create(name='Service 2', shard=self.shard)
         copy = self.rule.copy_to(service)
         # Test that our copy has the same labels and annotations
-        self.assertIn('severity', copy.labels())
-        self.assertIn('summary', copy.annotations())
+        self.assertIn('severity', copy.labels)
+        self.assertIn('summary', copy.annotations)
         # and test that we actually duplicated them and not moved them
         self.assertEqual(models.RuleLabel.objects.count(), 3, 'Copied rule has exiting labels + service label')
         self.assertEqual(models.RuleAnnotation.objects.count(), 2)
