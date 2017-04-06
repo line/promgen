@@ -1,0 +1,26 @@
+[
+  {
+    "labels": {
+      "farm": "Farm 2",
+      "__farm_source": "other",
+      "job": "mysqld",
+      "project": "Test 2",
+      "service": "Test Service"
+    },
+    "targets": [
+      "ccc:9104"
+    ]
+  },
+  {
+    "labels": {
+      "farm": "Farm 3",
+      "job": "node",
+      "project": "Test 1",
+      "service": "Test Service"
+    },
+    "targets": [
+      "ddd:9100",
+      "fff:9100"
+    ]
+  }
+]
