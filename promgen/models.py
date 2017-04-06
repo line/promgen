@@ -182,6 +182,9 @@ class URL(models.Model):
     url = models.URLField(max_length=256)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['project__service', 'project', 'url']
+
 
 def validate_json_or_empty(value):
     if value == '':
