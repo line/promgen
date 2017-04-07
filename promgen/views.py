@@ -255,8 +255,8 @@ class RulesList(ListView, ServiceMixin):
         if 'pk' in self.kwargs:
             self.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
             return models.Rule.objects.filter(service=self.service)
-        return models.Service.objects\
-            .prefetch_related('rule_set')
+        return models.Rule.objects\
+            .prefetch_related('service', 'rulelabel_set', 'ruleannotation_set')
 
 
 class RulesCopy(View):
@@ -361,6 +361,8 @@ class URLList(ListView):
     queryset = models.URL.objects\
         .prefetch_related(
             'project',
+            'project__service',
+            'project__service__shard',
         )
 
 
