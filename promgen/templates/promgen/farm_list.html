@@ -29,7 +29,7 @@
         <td>
           <ul>
 {% for host in farm.host_set.all %}
-            <li><a href="{% url 'host-detail' host.id %}">{{ host.name }}</a></li>
+            <li><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></li>
 {% endfor %}
           </ul>
         </td>
