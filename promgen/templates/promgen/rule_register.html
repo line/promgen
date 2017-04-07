@@ -14,12 +14,40 @@
   <li class="active">New Rule</li>
 </ol>
 
+{% if form.non_field_errors  %}
+<div class="panel panel-danger">
+  <div class="panel-heading">Errors</div>
+    {% for error in form.non_field_errors %}
+      <div class="panel-body">{{ error|linebreaks }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <div class="panel panel-default">
   <div class="panel-heading">New Rule</div>
   <div class="panel-body">
     <form action="{% url 'rule-new' service.id %}" method="post">{% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">Register Rule</button>
+      <div>
+        {{ form.name.label_tag }}
+        {{ form.name.errors }}
+        {{ form.name }}
+      </div>
+      <div>
+        {{ form.enabled.label_tag }}
+        {{ form.enabled.errors }}
+        {{ form.enabled }}
+      </div>
+      <div>
+        {{ form.clause.label_tag }}
+        {{ form.clause.errors }}
+        {{ form.clause }}
+      </div>
+      <div>
+        {{ form.duration.label_tag }}
+        {{ form.duration.errors }}
+        {{ form.duration }}
+      </div>
+      <button class="btn btn-primary">Register Rule</button>
     </form>
   </div>
 </div>

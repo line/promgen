@@ -479,6 +479,15 @@ class RuleRegister(FormView, ServiceMixin):
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         if form.is_valid():
+            try:
+                # Set an instance of our service here so that we can pass it
+                # along for promtool to render
+                form.instance.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+                prometheus.check_rules([form.instance])
+            except Exception as e:
+                form._update_errors(e)
+                return self.form_invalid(form)
+
             return self.form_valid(form)
         if 'rules' not in request.POST:
             return self.form_invalid(form)
