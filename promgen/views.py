@@ -12,7 +12,8 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import inlineformset_factory
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import (Http404, HttpResponse, HttpResponseRedirect,
+                         JsonResponse)
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
@@ -87,17 +88,17 @@ class HostList(ListView):
         return context
 
 
-class HostDetail(TemplateView):
-    template_name = 'promgen/host_detail.html'
-
-    def get_context_data(self, **kwargs):
+class HostDetail(View):
+    def get(self, request, slug):
         context = {}
         context['slug'] = self.kwargs['slug']
         context['host_list'] = models.Host.objects\
             .filter(name__contains=self.kwargs['slug'])\
-            .prefetch_related(
-                'farm',
-            )
+            .prefetch_related('farm')
+
+        if not context['host_list']:
+            return render(request, 'promgen/host_404.html', context, status=404)
+
         context['farm_list'] = [host.farm for host in context['host_list']]
 
         context['project_list'] = models.Project.objects.filter(farm_id__in=[
@@ -118,7 +119,7 @@ class HostDetail(TemplateView):
             sender for project in context['project_list'] for sender in project.service.sender.all()
         ]
 
-        return context
+        return render(request, 'promgen/host_detail.html', context)
 
 
 class AuditList(ListView):
