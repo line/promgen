@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}No hosts found for {{ slug }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Host: {{ slug }}</h1>
+</div>
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active">{{ slug }}</li>
+</ol>
+
+<div class="alert alert-danger" role="alert">
+No hosts found for {{ slug }}
+</div>
+{% endblock %}
