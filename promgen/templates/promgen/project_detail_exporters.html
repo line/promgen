@@ -20,6 +20,18 @@
           <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
         </form>
       </td>
+      <td style="white-space: nowrap">
+        <form method="post" action="{% url 'exporter-toggle' exporter.id %}" style="display: inline">
+          {% csrf_token %}
+          {% if exporter.enabled %}
+            <a href="#" class="btn btn-default btn-sm" disabled>ON</a>
+            <button class="btn btn-primary btn-sm">OFF</button>
+          {% else %}
+            <button class="btn btn-primary btn-sm">ON</button>
+            <a href="#" class="btn btn-default btn-sm" disabled>OFF</a>
+          {% endif %}
+        </form>
+      </td>
     </tr>
   {% endfor %}
   </table>

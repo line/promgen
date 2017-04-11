@@ -170,6 +170,7 @@ class Exporter(models.Model):
     port = models.IntegerField()
     path = models.CharField(max_length=128, blank=True)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    enabled = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['job', 'port']

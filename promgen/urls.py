@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/sender$', views.ProjectSenderRegister.as_view(), name='project-sender'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
+    url(r'^exporter/(?P<pk>[0-9]+)/toggle$', views.ExporterToggle.as_view(), name='exporter-toggle'),
 
     url(r'^url$', views.URLList.as_view(), name='url-list'),
     url(r'^url/(?P<pk>[0-9]+)/new$', views.URLRegister.as_view(), name='url-new'),
