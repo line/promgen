@@ -190,7 +190,7 @@ class ExporterToggle(View):
         exporter = get_object_or_404(models.Exporter, id=pk)
         exporter.enabled = not exporter.enabled
         exporter.save()
-        prometheus.write_config()
+        signals.trigger_write_config.send(request)
         return HttpResponseRedirect(reverse('project-detail', args=[exporter.project_id]))
 
 
