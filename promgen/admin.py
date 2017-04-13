@@ -52,7 +52,7 @@ class FarmAdmin(admin.ModelAdmin):
 
 @admin.register(models.Exporter)
 class ExporterAdmin(admin.ModelAdmin):
-    list_display = ('job', 'port', 'path', 'project')
+    list_display = ('job', 'port', 'path', 'project', 'enabled')
     list_filter = ('project', 'job', 'port')
 
 

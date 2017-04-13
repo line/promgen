@@ -75,6 +75,8 @@ def render_config(service=None, project=None):
             continue
         if project and exporter.project.name != project.name:
             continue
+        if not exporter.enabled:
+            continue
 
         labels = {
             '__shard': exporter.project.service.shard.name,

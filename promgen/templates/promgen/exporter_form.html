@@ -35,6 +35,7 @@
         {% csrf_token %}
         <input type="hidden" name="job" value="{{ job }}" />
         <input type="hidden" name="port" value="{{ port }}" />
+        <input type="hidden" name="enabled" value="1" />
         <button class="btn btn-primary">Register {{ job }} (Port: {{ port }})</button>
       </form>
 {% endfor %}

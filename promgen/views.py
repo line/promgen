@@ -185,6 +185,15 @@ class ExporterDelete(DeleteView):
         return reverse('project-detail', args=[self.object.project_id])
 
 
+class ExporterToggle(View):
+    def post(self, request, pk):
+        exporter = get_object_or_404(models.Exporter, id=pk)
+        exporter.enabled = not exporter.enabled
+        exporter.save()
+        signals.trigger_write_config.send(request)
+        return HttpResponseRedirect(reverse('project-detail', args=[exporter.project_id]))
+
+
 class RuleDelete(DeleteView):
     model = models.Rule
 
