@@ -3,8 +3,17 @@ from django.contrib import admin
 
 from promgen import models, plugins
 
-admin.site.register(models.Shard)
 admin.site.register(models.Host)
+
+
+class PrometheusInline(admin.TabularInline):
+    model = models.Prometheus
+
+
+@admin.register(models.Shard)
+class ShardAdmin(admin.ModelAdmin):
+    list_display = ('name', 'url')
+    inlines = [PrometheusInline]
 
 
 @admin.register(models.Service)

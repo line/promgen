@@ -12,15 +12,13 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import inlineformset_factory
-from django.http import (Http404, HttpResponse, HttpResponseRedirect,
-                         JsonResponse)
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
-from django.views.generic import (DetailView, ListView, TemplateView,
-                                  UpdateView, View)
+from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
@@ -265,7 +263,7 @@ class UnlinkFarm(View):
         project = get_object_or_404(models.Project, id=pk)
         project.farm = None
         project.save()
-        signals.trigger_write_config.send(self)
+        signals.trigger_write_config.send(request)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -592,13 +590,13 @@ class ApiConfig(View):
         return HttpResponse(prometheus.render_config(), content_type='application/json')
 
     def post(self, request):
-        prometheus.write_config()
+        signals.trigger_write_config.send(request)
         return HttpResponse('OK', status=202)
 
 
 class Commit(View):
     def post(self, request):
-        signals.trigger_write_config.send(self)
+        signals.trigger_write_config.send(request)
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
