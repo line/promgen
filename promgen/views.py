@@ -12,15 +12,13 @@ from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import inlineformset_factory
-from django.http import (Http404, HttpResponse, HttpResponseRedirect,
-                         JsonResponse)
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
-from django.views.generic import (DetailView, ListView, TemplateView,
-                                  UpdateView, View)
+from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
