@@ -265,7 +265,7 @@ class UnlinkFarm(View):
         project = get_object_or_404(models.Project, id=pk)
         project.farm = None
         project.save()
-        signals.trigger_write_config.send(self)
+        signals.trigger_write_config.send(request)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -592,13 +592,13 @@ class ApiConfig(View):
         return HttpResponse(prometheus.render_config(), content_type='application/json')
 
     def post(self, request):
-        prometheus.write_config()
+        signals.trigger_write_config.send(request)
         return HttpResponse('OK', status=202)
 
 
 class Commit(View):
     def post(self, request):
-        signals.trigger_write_config.send(self)
+        signals.trigger_write_config.send(request)
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
