@@ -319,3 +319,4 @@ class Prometheus(models.Model):
     class Meta:
         ordering = ['shard', 'host']
         unique_together = (('host', 'port'))
+        verbose_name_plural = 'prometheis'
