@@ -19,3 +19,4 @@
 * [IMPROVEMENT] Better support for writing sender plugins by using Python's
   setuptools framework
 * [IMPROVEMENT] Blackbox exporter support by adding URLs to Project pages
+* [IMPROVEMENT] Support toggling Rules and Exporters
