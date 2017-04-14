@@ -190,6 +190,9 @@ class URL(models.Model):
     class Meta:
         ordering = ['project__service', 'project', 'url']
 
+    def __str__(self):
+        return '{} [{}]'.format(self.project, self.url)
+
 
 def validate_json_or_empty(value):
     if value == '':
