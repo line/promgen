@@ -5,8 +5,8 @@ from pkg_resources import working_set
 logger = logging.getLogger(__name__)
 
 
-def remotes():
-    return working_set.iter_entry_points('promgen.server')
+def discovery():
+    return working_set.iter_entry_points('promgen.discovery')
 
 
 def notifications():

@@ -125,9 +125,9 @@ class Farm(models.Model):
         keep = []
         create = []
 
-        for entry in plugins.remotes():
+        for entry in plugins.discovery():
             if self.source == entry.name:
-                for host in entry.load().fetch(self.name):
+                for host in entry.load()().fetch(self.name):
                     if host in remaining:
                         keep.append(host)
                         remaining.remove(host)
@@ -141,9 +141,9 @@ class Farm(models.Model):
 
     @classmethod
     def fetch(cls, source):
-        for entry in plugins.remotes():
+        for entry in plugins.discovery():
             if entry.name == source:
-                for farm in entry.load().farms():
+                for farm in entry.load()().farms():
                     yield farm
 
     def __str__(self):
