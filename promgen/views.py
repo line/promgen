@@ -158,7 +158,7 @@ class SenderDelete(DeleteView):
 class SenderTest(View):
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
-        for entry in plugins.senders():
+        for entry in plugins.notifications():
             if entry.module_name == sender.sender:
                 try:
                     entry.load()().test(sender.value, {
@@ -652,7 +652,7 @@ class Alert(View):
         sent = collections.defaultdict(int)
         error = collections.defaultdict(int)
 
-        for entry in plugins.senders():
+        for entry in plugins.notifications():
             logger.debug('Sending notification to %s', entry.module_name)
             try:
                 Sender = entry.load()
@@ -681,7 +681,7 @@ class Status(View):
     def get(self, request):
         return render(request, 'promgen/status.html', {
             'remotes': [entry for entry in plugins.remotes()],
-            'senders': [entry for entry in plugins.senders()],
+            'senders': [entry for entry in plugins.notifications()],
         })
 
 

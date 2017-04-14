@@ -8,9 +8,9 @@ from promgen.models import Project, Service
 logger = logging.getLogger(__name__)
 
 
-class SenderBase(object):
+class NotificationBase(object):
     '''
-    Base Sender class
+    Base Notification class
     '''
     MAPPING = [
         ('project', Project),

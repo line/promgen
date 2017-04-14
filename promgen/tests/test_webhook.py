@@ -4,8 +4,9 @@ from unittest import mock
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
+
 from promgen import models
-from promgen.sender.webhook import SenderWebhook
+from promgen.notification.webhook import NotificationWebhook
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 _PARAM1 = {
@@ -49,14 +50,14 @@ class WebhookTest(TestCase):
         self.sender = models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=self.project_type.id,
-            sender=SenderWebhook.__module__,
+            sender=NotificationWebhook.__module__,
             value='http://project.example.com',
         )
 
         self.sender = models.Sender.objects.create(
             object_id=self.service2.id,
             content_type_id=self.service_type.id,
-            sender=SenderWebhook.__module__,
+            sender=NotificationWebhook.__module__,
             value='http://service.example.com',
         )
 

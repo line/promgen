@@ -57,19 +57,19 @@ class Command(BaseCommand):
                 if row['mail_address']:
                     models.Sender.objects.get_or_create(
                         project=projects[row['id']],
-                        sender='promgen.sender.email',
+                        sender='promgen.notification.email',
                         value=row['mail_address'],
                     )
                 if row['hipchat_channel']:
                     models.Sender.objects.get_or_create(
                         project=projects[row['id']],
-                        sender='promgen.sender.ikasan',
+                        sender='promgen.notification.ikasan',
                         value=row['hipchat_channel'],
                     )
                 if row['line_notify_access_token']:
                     models.Sender.objects.get_or_create(
                         project=projects[row['id']],
-                        sender='promgen.sender.linenotify',
+                        sender='promgen.notification.linenotify',
                         value=row['line_notify_access_token'],
                         password=True,
                     )

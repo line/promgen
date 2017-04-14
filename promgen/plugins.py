@@ -9,8 +9,8 @@ def remotes():
     return working_set.iter_entry_points('promgen.server')
 
 
-def senders():
-    return working_set.iter_entry_points('promgen.sender')
+def notifications():
+    return working_set.iter_entry_points('promgen.notification')
 
 # Since plugins may need to load other resources bundled with them, we loop
 # through an additional promgen.apps entry point so that the default django

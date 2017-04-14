@@ -29,7 +29,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 class SenderForm(forms.ModelForm):
     sender = forms.ChoiceField(choices=[
-        (entry.module_name, entry.module_name) for entry in plugins.senders()
+        (entry.module_name, entry.module_name) for entry in plugins.notifications()
     ])
 
     class Meta:

@@ -44,7 +44,7 @@ class Sender(models.Model):
 
     @classmethod
     def plugins(cls):
-        for entry in plugins.senders():
+        for entry in plugins.notifications():
             try:
                 yield entry.module_name, entry.load()
             except ImportError:
