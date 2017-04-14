@@ -159,7 +159,7 @@ class Host(models.Model):
         unique_together = (('name', 'farm'))
 
     def get_absolute_url(self):
-        return reverse('host-detail', kwargs={'name': self.name})
+        return reverse('host-detail', kwargs={'slug': self.name})
 
     def __str__(self):
         return '{} [{}]'.format(self.name, self.farm.name)
