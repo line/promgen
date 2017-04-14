@@ -47,11 +47,11 @@ setup(
         'promgen.server': [
             'default = promgen.remote',
         ],
-        'promgen.sender': [
-            'ikasan = promgen.sender.ikasan:SenderIkasan',
-            'email = promgen.sender.email:SenderEmail',
-            'linenotify = promgen.sender.linenotify:SenderLineNotify',
-            'webhook = promgen.sender.webhook:SenderWebhook',
+        'promgen.notification': [
+            'ikasan = promgen.notification.ikasan:NotificationIkasan',
+            'email = promgen.notification.email:NotificationEmail',
+            'linenotify = promgen.notification.linenotify:NotificationLineNotify',
+            'webhook = promgen.notification.webhook:NotificationWebhook',
         ],
     }
 )

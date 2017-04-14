@@ -4,8 +4,9 @@ from unittest import mock
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
+
 from promgen import models
-from promgen.sender.linenotify import SenderLineNotify
+from promgen.notification.linenotify import NotificationLineNotify
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
@@ -28,7 +29,7 @@ class LineNotifyTest(TestCase):
         self.sender = models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=project_type.id,
-            sender=SenderLineNotify.__module__,
+            sender=NotificationLineNotify.__module__,
             value='hogehoge',
         )
 

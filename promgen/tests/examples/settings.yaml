@@ -26,9 +26,9 @@ default_exporters:
 
 # Sender Configuration Settings
 # These match the module path of the plugin itself
-promgen.sender.email:
+promgen.notification.email:
   sender: promgen@example.com
-promgen.sender.ikasan:
+promgen.notification.ikasan:
   server: http://ikasan.example
-promgen.sender.linenotify:
+promgen.notification.linenotify:
   server: https://notify.example

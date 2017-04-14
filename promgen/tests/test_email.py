@@ -4,8 +4,9 @@ from unittest import mock
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
+
 from promgen import models
-from promgen.sender.email import SenderEmail
+from promgen.notification.email import NotificationEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 _SUBJECT = '[resolved] node_down foo-BETA testhost.localhost:9100 node'
@@ -29,25 +30,25 @@ class EmailTest(TestCase):
         self.sender = models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=project_type.id,
-            sender=SenderEmail.__module__,
+            sender=NotificationEmail.__module__,
             value='example@example.com',
         )
         models.Sender.objects.create(
             object_id=self.project.id,
             content_type_id=project_type.id,
-            sender=SenderEmail.__module__,
+            sender=NotificationEmail.__module__,
             value='foo@example.com',
         )
         models.Sender.objects.create(
             object_id=self.project2.id,
             content_type_id=project_type.id,
-            sender=SenderEmail.__module__,
+            sender=NotificationEmail.__module__,
             value='bar@example.com',
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    @mock.patch('promgen.sender.email.send_mail')
+    @mock.patch('promgen.notification.email.send_mail')
     def test_email(self, mock_email):
         self.client.post(reverse('alert'),
             data=json.dumps(TEST_ALERT),

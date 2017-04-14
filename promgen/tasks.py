@@ -3,7 +3,7 @@ import logging
 from promgen import plugins, prometheus  # NOQA
 
 logger = logging.getLogger(__name__)
-for plugin in plugins.senders():
+for plugin in plugins.notifications():
     try:
         plugin.load()
     except ImportError:

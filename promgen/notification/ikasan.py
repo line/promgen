@@ -4,12 +4,12 @@ from django.template.loader import render_to_string
 
 from promgen import util
 from promgen.celery import app as celery
-from promgen.sender import SenderBase
+from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
-class SenderIkasan(SenderBase):
+class NotificationIkasan(NotificationBase):
     '''
     Send messages to Hipchat using Ikasan Hipchat bridge
 
@@ -17,7 +17,7 @@ class SenderIkasan(SenderBase):
     '''
     @celery.task(bind=True)
     def _send(task, channel, alert, data):
-        self = SenderIkasan()  # Rebind self
+        self = NotificationIkasan()  # Rebind self
         url = self.config('server')
         color = 'green' if alert['status'] == 'resolved' else 'red'
 

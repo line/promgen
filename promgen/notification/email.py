@@ -4,19 +4,19 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 
 from promgen.celery import app as celery
-from promgen.sender import SenderBase
+from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
-class SenderEmail(SenderBase):
+class NotificationEmail(NotificationBase):
     '''
     Simple plaintext Email notification
     '''
 
     @celery.task(bind=True)
     def _send(task, address, alert, data):
-        self = SenderEmail()  # Rebind self
+        self = NotificationEmail()  # Rebind self
         subject = render_to_string('promgen/sender/email.subject.txt', {
             'alert': alert,
             'externalURL': data['externalURL'],

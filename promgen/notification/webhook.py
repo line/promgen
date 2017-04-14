@@ -8,12 +8,12 @@ import logging
 
 from promgen import util
 from promgen.celery import app as celery
-from promgen.sender import SenderBase
+from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
-class SenderWebhook(SenderBase):
+class NotificationWebhook(NotificationBase):
     @celery.task(bind=True)
     def _send(task, url, alert, data):
         params = {
