@@ -9,7 +9,7 @@ from promgen.notification.linenotify import NotificationLineNotify
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
-_MESSAGE = '''[resolved] node_down foo-BETA testhost.localhost:9100 node
+_MESSAGE = '''[firing] node_down foo-BETA testhost.localhost:9100 node
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
 summary: Instance testhost.localhost:9100 down

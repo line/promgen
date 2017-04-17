@@ -19,20 +19,24 @@ class NotificationIkasan(NotificationBase):
     def _send(task, channel, alert, data):
         self = NotificationIkasan()  # Rebind self
         url = self.config('server')
-        color = 'green' if alert['status'] == 'resolved' else 'red'
-
-        message = render_to_string('promgen/sender/ikasan.body.txt', {
-            'alert': alert,
-            'externalURL': data['externalURL'],
-        }).strip()
 
         params = {
             'channel': channel,
-            'message': message,
             'message_format': 'text',
         }
 
-        if color is not None:
-            params['color'] = color
+        if alert['status'] == 'resolved':
+            params['color'] = 'green'
+            params['message'] = render_to_string('promgen/sender/ikasan.resolved.txt', {
+                'alert': alert,
+                'externalURL': data['externalURL'],
+            }).strip()
+        else:
+            params['color'] = 'red'
+            params['message'] = render_to_string('promgen/sender/ikasan.body.txt', {
+                'alert': alert,
+                'externalURL': data['externalURL'],
+            }).strip()
+
         util.post(url, params)
         return True

@@ -20,7 +20,7 @@ _PARAM1 = {
     'prometheus': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
     'service': 'Service 1',
     'severity': 'critical',
-    'status': 'resolved',
+    'status': 'firing',
     'summary': 'Instance testhost.localhost:9100 down',
 }
 
@@ -30,7 +30,7 @@ _PARAM2 = {
     'prometheus': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
     'service': 'Service 2',
     'severity': 'critical',
-    'status': 'firing',
+    'status': 'resolved',
 }
 
 

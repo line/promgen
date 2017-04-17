@@ -9,7 +9,8 @@ from promgen.notification.ikasan import NotificationIkasan
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
-_MESSAGE = '''[resolved] node_down foo-BETA testhost.localhost:9100 node
+_RESOLVED = '[resolved] service_level_alert Service 2 critical'
+_MESSAGE = '''[firing] node_down prod foo-BETA testhost.localhost:9100 node Project 1 Service 1 critical
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
 summary: Instance testhost.localhost:9100 down
@@ -27,7 +28,13 @@ class IkasanTest(TestCase):
         self.sender = models.Sender.create(
             obj=self.project,
             sender=NotificationIkasan.__module__,
-            value='#',
+            value='#1',
+        )
+        self.service2 = models.Service.objects.create(name='Service 2', shard=self.shard)
+        self.sender2 = models.Sender.create(
+            obj=self.service2,
+            sender=NotificationIkasan.__module__,
+            value='#2',
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
@@ -41,9 +48,16 @@ class IkasanTest(TestCase):
         mock_post.assert_has_calls([
             mock.call(
                 'http://ikasan.example', {
-                'color': 'green',
-                'channel': '#',
+                'color': 'red',
+                'channel': '#1',
                 'message_format': 'text',
                 'message': _MESSAGE}
-            )
-        ])
+            ),
+            mock.call(
+                'http://ikasan.example', {
+                'color': 'green',
+                'channel': '#2',
+                'message_format': 'text',
+                'message': _RESOLVED}
+            ),
+        ], any_order=True)

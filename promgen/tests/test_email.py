@@ -8,8 +8,8 @@ from promgen import models
 from promgen.notification.email import NotificationEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
-_SUBJECT = '[resolved] node_down foo-BETA testhost.localhost:9100 node'
-_MESSAGE = '''node_down foo-BETA testhost.localhost:9100 node resolved
+_SUBJECT = '[firing] node_down foo-BETA testhost.localhost:9100 node'
+_MESSAGE = '''node_down foo-BETA testhost.localhost:9100 node firing
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
 summary: Instance testhost.localhost:9100 down
