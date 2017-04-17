@@ -9,7 +9,6 @@ import requests
 from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -549,8 +548,7 @@ class ProjectSenderRegister(FormView, ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        project_type = ContentType.objects.get_for_model(project)
-        sender, _ = models.Sender.objects.get_or_create(object_id=project.id, content_type_id=project_type.id, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=project, **form.clean())
         return HttpResponseRedirect(project.get_absolute_url())
 
 
@@ -561,8 +559,7 @@ class ServiceSenderRegister(FormView, ServiceMixin):
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
-        service_type = ContentType.objects.get_for_model(service)
-        sender, _ = models.Sender.objects.get_or_create(object_id=service.id, content_type_id=service_type.id, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=service, **form.clean())
         return HttpResponseRedirect(service.get_absolute_url())
 
 

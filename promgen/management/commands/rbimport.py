@@ -55,20 +55,20 @@ class Command(BaseCommand):
                     service_id=services[row['service_id']].id
                 )
                 if row['mail_address']:
-                    models.Sender.objects.get_or_create(
-                        project=projects[row['id']],
+                    models.Sender.get_or_create(
+                        obj=projects[row['id']],
                         sender='promgen.notification.email',
                         value=row['mail_address'],
                     )
                 if row['hipchat_channel']:
-                    models.Sender.objects.get_or_create(
-                        project=projects[row['id']],
+                    models.Sender.get_or_create(
+                        obj=projects[row['id']],
                         sender='promgen.notification.ikasan',
                         value=row['hipchat_channel'],
                     )
                 if row['line_notify_access_token']:
-                    models.Sender.objects.get_or_create(
-                        project=projects[row['id']],
+                    models.Sender.get_or_create(
+                        obj=projects[row['id']],
                         sender='promgen.notification.linenotify',
                         value=row['line_notify_access_token'],
                         password=True,

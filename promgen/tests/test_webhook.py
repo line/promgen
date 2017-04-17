@@ -1,7 +1,6 @@
 import json
 from unittest import mock
 
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -44,19 +43,14 @@ class WebhookTest(TestCase):
 
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
 
-        self.project_type = ContentType.objects.get_for_model(self.project)
-        self.service_type = ContentType.objects.get_for_model(self.service)
-
-        self.sender = models.Sender.objects.create(
-            object_id=self.project.id,
-            content_type_id=self.project_type.id,
+        self.sender = models.Sender.create(
+            obj=self.project,
             sender=NotificationWebhook.__module__,
             value='http://project.example.com',
         )
 
-        self.sender = models.Sender.objects.create(
-            object_id=self.service2.id,
-            content_type_id=self.service_type.id,
+        self.sender = models.Sender.create(
+            obj=self.service2,
             sender=NotificationWebhook.__module__,
             value='http://service.example.com',
         )

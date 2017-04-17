@@ -1,7 +1,6 @@
 import json
 from unittest import mock
 
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -26,22 +25,18 @@ class EmailTest(TestCase):
         self.service = models.Service.objects.create(name='Service 1', shard=self.shard)
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         self.project2 = models.Project.objects.create(name='Project 2', service=self.service)
-        project_type = ContentType.objects.get_for_model(self.project)
-        self.sender = models.Sender.objects.create(
-            object_id=self.project.id,
-            content_type_id=project_type.id,
+        self.sender = models.Sender.create(
+            obj=self.project,
             sender=NotificationEmail.__module__,
             value='example@example.com',
         )
-        models.Sender.objects.create(
-            object_id=self.project.id,
-            content_type_id=project_type.id,
+        models.Sender.create(
+            obj=self.project,
             sender=NotificationEmail.__module__,
             value='foo@example.com',
         )
-        models.Sender.objects.create(
-            object_id=self.project2.id,
-            content_type_id=project_type.id,
+        models.Sender.create(
+            obj=self.project2,
             sender=NotificationEmail.__module__,
             value='bar@example.com',
         )
