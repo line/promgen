@@ -8,8 +8,8 @@ from promgen import models
 from promgen.notification.email import NotificationEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
-_SUBJECT = '[firing] node_down foo-BETA testhost.localhost:9100 node'
-_MESSAGE = '''node_down foo-BETA testhost.localhost:9100 node firing
+_SUBJECT = '[firing] node_down prod foo-BETA testhost.localhost:9100 node Project 1 Service 1 critical'
+_MESSAGE = '''[firing] node_down prod foo-BETA testhost.localhost:9100 node Project 1 Service 1 critical
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
 summary: Instance testhost.localhost:9100 down

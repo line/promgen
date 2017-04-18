@@ -1,1 +1,1 @@
-[{{ alert.status }}] {{ alert.labels.alertname }} {{ alert.labels.farm }} {{ alert.labels.instance }} {{ alert.labels.job }}
+{% autoescape off %}[{{ alert.status }}]{% for k,v in alert.labels.items|dictsort:0 %} {{ v }}{% endfor %}{% endautoescape %}
