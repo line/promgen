@@ -21,7 +21,41 @@ logger = logging.getLogger(__name__)
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z_]*$', 'Only alphanumeric characters are allowed.')
 
 
-class Sender(models.Model):
+class DynamicParent(models.Model):
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def create(cls, obj, **kwargs):
+        return cls.objects.create(
+            object_id=obj.id,
+            content_type_id=ContentType.objects.get_for_model(obj).id,
+            **kwargs
+        )
+
+    @classmethod
+    def filter(cls, obj, **kwargs):
+        return cls.objects.filter(
+            object_id=obj.id,
+            content_type_id=ContentType.objects.get_for_model(obj).id,
+            **kwargs
+        )
+
+    @classmethod
+    def get_or_create(cls, **kwargs):
+        if 'obj' in kwargs:
+            obj = kwargs.pop('obj')
+            kwargs['object_id'] = obj.id
+            kwargs['content_type_id'] = ContentType.objects.get_for_model(obj).id
+        if 'defaults' in kwargs and 'obj' in kwargs['defaults']:
+            obj = kwargs['defaults'].pop('obj')
+            kwargs['defaults']['object_id'] = obj.id
+            kwargs['defaults']['content_type_id'] = ContentType.objects.get_for_model(obj).id
+
+        return cls.objects.get_or_create(**kwargs)
+
+
+class Sender(DynamicParent):
     sender = models.CharField(max_length=128)
     value = models.CharField(max_length=128)
     alias = models.CharField(max_length=128, blank=True)
