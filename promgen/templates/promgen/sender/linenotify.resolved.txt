@@ -1,0 +1,1 @@
+{% autoescape off %}[{{ alert.status }}]{% for k,v in alert.labels.items|dictsort:0 %} {{ v }}{% endfor %}{% endautoescape %}

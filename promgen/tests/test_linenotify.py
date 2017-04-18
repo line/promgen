@@ -9,6 +9,7 @@ from promgen.notification.linenotify import NotificationLineNotify
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 
+_RESOLVED = '[resolved] service_level_alert Service 2 critical'
 _MESSAGE = '''[firing] node_down foo-BETA testhost.localhost:9100 node
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
@@ -30,6 +31,13 @@ class LineNotifyTest(TestCase):
             value='hogehoge',
         )
 
+        self.service2 = models.Service.objects.create(name='Service 2', shard=self.shard)
+        self.sender2 = models.Sender.create(
+            obj=self.service2,
+            sender=NotificationLineNotify.__module__,
+            value='asdfasdf',
+        )
+
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.util.post')
@@ -43,5 +51,10 @@ class LineNotifyTest(TestCase):
                 'https://notify.example',
                 data={'message': _MESSAGE},
                 headers={'Authorization': 'Bearer hogehoge'},
-            )
+            ),
+            mock.call(
+                'https://notify.example',
+                data={'message': _RESOLVED},
+                headers={'Authorization': 'Bearer asdfasdf'},
+            ),
         ], any_order=True)

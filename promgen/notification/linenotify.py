@@ -20,10 +20,16 @@ class NotificationLineNotify(NotificationBase):
         self = NotificationLineNotify()  # Rebind self
         url = self.config('server')
 
-        message = render_to_string('promgen/sender/linenotify.body.txt', {
-            'alert': alert,
-            'externalURL': data['externalURL'],
-        }).strip()
+        if alert['status'] == 'resolved':
+            message = render_to_string('promgen/sender/linenotify.resolved.txt', {
+                'alert': alert,
+                'externalURL': data['externalURL'],
+            }).strip()
+        else:
+            message = render_to_string('promgen/sender/linenotify.body.txt', {
+                'alert': alert,
+                'externalURL': data['externalURL'],
+            }).strip()
 
         params = {
             'message': message,
