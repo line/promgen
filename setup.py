@@ -1,3 +1,6 @@
+# Copyright (c) 2017 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 import os
 from setuptools import find_packages, setup
 
@@ -10,7 +13,7 @@ with open(os.path.join(here, "promgen", "version.py")) as f:
 
 setup(
     name='Promgen',
-    author='Paul Traylor',
+    author='LINE Corporation',
     packages=find_packages(exclude=['test']),
     version=about['__version__'],
     classifiers=[

@@ -1,3 +1,6 @@
+# Copyright (c) 2017 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 import requests
 
 from promgen.version import __version__
