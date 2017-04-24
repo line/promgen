@@ -39,7 +39,7 @@ if not SECRET_KEY:
 DEBUG = os.path.exists(os.path.join(CONFIG_DIR, 'DEBUG'))
 
 # Settings for Prometheus paths and such
-PROMGEN_CONFIG = os.path.join(CONFIG_DIR, 'settings.yaml')
+PROMGEN_CONFIG = os.path.join(CONFIG_DIR, 'promgen.yml')
 if os.path.exists(PROMGEN_CONFIG):
     with open(PROMGEN_CONFIG) as fp:
         PROMGEN = yaml.load(fp)

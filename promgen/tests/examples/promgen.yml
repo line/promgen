@@ -21,6 +21,9 @@ rule_writer:
 url_writer:
   path: /etc/prometheus/blackbox.json
 
+# See https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+# for a complete list of exporter ports. This just provides a quick add list
+# from Promgen's UI
 default_exporters:
   node: 9100
   nginx: 9113

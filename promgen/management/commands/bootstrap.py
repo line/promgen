@@ -46,7 +46,7 @@ class Command(BaseCommand):
             os.makedirs(settings.CONFIG_DIR)
 
         if not os.path.exists(settings.PROMGEN_CONFIG):
-            path = os.path.join(settings.BASE_DIR, 'promgen', 'tests', 'examples', 'settings.yaml')
+            path = os.path.join(settings.BASE_DIR, 'promgen', 'tests', 'examples', 'promgen.yml')
             self.write('Creating promgen config {} from {}', settings.PROMGEN_CONFIG, path)
             shutil.copy(path, settings.PROMGEN_CONFIG)
 
