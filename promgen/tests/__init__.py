@@ -12,7 +12,7 @@ with open(os.path.join(os.path.dirname(__file__), 'examples', 'import.json')) as
 with open(os.path.join(os.path.dirname(__file__), 'examples', 'replace.json')) as fp:
     TEST_REPLACE = json.load(fp)
 
-with open(os.path.join(os.path.dirname(__file__), 'examples', 'settings.yaml')) as fp:
+with open(os.path.join(os.path.dirname(__file__), 'examples', 'promgen.yml')) as fp:
     TEST_SETTINGS = yaml.load(fp)
 
 with open(os.path.join(os.path.dirname(__file__), 'examples', 'import.rule')) as fp:

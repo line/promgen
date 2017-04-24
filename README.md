@@ -27,7 +27,7 @@ You should then configuration Prometheus to load the target file from Prometheus
 
 See example settings files for proper configuration of Prometheus and AlertManager
 
-* [Example settings file](promgen/tests/examples/settings.yaml)
+* [Example settings file](promgen/tests/examples/promgen.yml)
 * [Example prometheus file](docker/prometheus.yml)
 * [Example alert manager file](docker/alertmanager.yml)
 
