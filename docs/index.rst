@@ -21,6 +21,9 @@ Welcome to Promgen's documentation!
    modules/prometheus
 
 
+.. image:: images/screenshot.png
+
+
 .. graphviz::
 
   digraph G {
