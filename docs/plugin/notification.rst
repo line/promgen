@@ -1,5 +1,5 @@
-Extending Promgen
-=================
+Notification Plugin
+===================
 
 Developing a Sender Plugin
 --------------------------
