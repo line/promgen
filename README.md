@@ -9,6 +9,8 @@ See the [Promgen introduction slides][Slides] for more details.
 
 ## Promgen screenshots
 
+![screenshot](docs/images/screenshot.png)
+
 
 ## Quickstart with Docker
 

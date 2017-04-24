@@ -12,7 +12,16 @@ Welcome to Promgen's documentation!
 
    terms
    docker
-   extending
+
+   plugin/notification
+   plugin/discovery
+
+   modules/models
+   modules/notification
+   modules/prometheus
+
+
+.. image:: images/screenshot.png
 
 
 .. graphviz::
