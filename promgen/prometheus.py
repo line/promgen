@@ -68,7 +68,14 @@ def write_urls(path=None, reload=True):
 
 def render_config(service=None, project=None):
     data = []
-    for exporter in models.Exporter.objects.all():
+    for exporter in models.Exporter.objects.\
+            prefetch_related(
+                'project__farm__host_set',
+                'project__farm',
+                'project__service__shard',
+                'project__service',
+                'project',
+                ):
         if not exporter.project.farm:
             continue
         if service and exporter.project.service.name != service.name:
@@ -90,7 +97,7 @@ def render_config(service=None, project=None):
             labels['__metrics_path__'] = exporter.path
 
         hosts = []
-        for host in models.Host.objects.filter(farm=exporter.project.farm):
+        for host in exporter.project.farm.host_set.all():
             hosts.append('{}:{}'.format(host.name, exporter.port))
 
         data.append({
