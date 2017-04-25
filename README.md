@@ -21,7 +21,11 @@ Below are the steps to get started with Promgen.
 Initialize Promgen using Docker.
 
 ```bash
-# Initialize required settings with docker container
+# Initialize required settings with Docker container
+# This will prompt you for connection settings for your database and Redis broker
+# using the standard DSN syntax.
+# Database example: mysql://password:username@hostname/databasename
+# Broker example: redis://localhost:6379/0
 docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest bootstrap
 # Apply database updates
 docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest migrate
@@ -46,16 +50,24 @@ See the example settings files for proper configuration of Prometheus and AlertM
 Run Promgen using the following command.
 
 ```bash
-# Run Promgen web worker
+# Run Promgen web worker. This is typically balanced behind an NGINX instance
 docker run --rm --network host -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ promgen:latest web
 
-# Run Promgen celery worker
+# Run Promgen celery worker. Make sure to run it on the same machine as your Prometheus server to manage the config settings
 docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus promgen:latest worker
 ```
 
-## Installing Promgen for development
+## How to contribute to Promgen
 
-Promgen strives to be a standard Django application, so standard Django development patterns should apply.
+First of all, thank you so much for taking your time to contribute! We always welcome your ideas and feedback. Please feel free to make any pull requests.
+
+* File an issue in [the issue tracker](https://github.com/line/promgen/issues) to report bugs and propose new features and improvements.
+* Ask a question using [the issue tracker](https://github.com/line/promgen/issues).
+* Contribute your work by sending [a pull request](https://github.com/line/promgen/pulls).
+
+### Setting up Promgen for development
+
+You can install Promgen for a development environment as follows.
 
 ```bash
 virtualenv --python=/path/to/python3 /path/to/virtualenv
@@ -70,13 +82,7 @@ promgen test
 promgen runserver
 ```
 
-## How to contribute to Promgen
-
-First of all, thank you so much for taking your time to contribute! We always welcome your ideas and feedback. Please feel free to make any pull requests.
-
-* File an issue in [the issue tracker](https://github.com/line/promgen/issues) to report bugs and propose new features and improvements.
-* Ask a question using [the issue tracker](https://github.com/line/promgen/issues).
-* Contribute your work by sending [a pull request](https://github.com/line/promgen/pulls).
+> Note: Promgen strives to be aa standard Django application. Make sure to apply standard Django development patterns.
 
 ### Contributor license agreement
 
