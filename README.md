@@ -74,9 +74,9 @@ promgen runserver
 
 First of all, thank you so much for taking your time to contribute! We always welcome your ideas and feedback. Please feel free to make any pull requests.
 
-* File an issue in [the issue tracker](add link) to report bugs and propose new features and improvements.
-* Ask a question using [the issue tracker](add link).
-* Contribute your work by sending [a pull request](add link).
+* File an issue in [the issue tracker](https://github.com/line/promgen/issues) to report bugs and propose new features and improvements.
+* Ask a question using [the issue tracker](https://github.com/line/promgen/issues).
+* Contribute your work by sending [a pull request](https://github.com/line/promgen/pulls).
 
 ### Contributor license agreement
 
