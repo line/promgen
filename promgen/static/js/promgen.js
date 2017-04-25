@@ -1,3 +1,7 @@
+/*
+# Copyright (c) 2017 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+*/
 $( document ).ready(function() {
   $.ajax({url: "/ajax/alert",}).done(function( data ) {
     for (var key in data) {

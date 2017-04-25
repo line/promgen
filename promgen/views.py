@@ -1,3 +1,6 @@
+# Copyright (c) 2017 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 import collections
 import datetime
 import json
@@ -679,6 +682,7 @@ class Status(View):
         return render(request, 'promgen/status.html', {
             'discovery_plugins': [entry for entry in plugins.discovery()],
             'senders': [entry for entry in plugins.notifications()],
+            'config': prometheus.render_config(),
         })
 
 

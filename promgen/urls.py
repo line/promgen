@@ -1,3 +1,6 @@
+# Copyright (c) 2017 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 """promgen URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:

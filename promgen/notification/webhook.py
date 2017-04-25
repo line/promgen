@@ -1,3 +1,6 @@
+# Copyright (c) 2017 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 '''
 Simple webhook bridge
 Accepts alert json from Alert Manager and then POSTs individual alerts to
