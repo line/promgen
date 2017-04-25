@@ -82,7 +82,7 @@ promgen test
 promgen runserver
 ```
 
-> Note: Promgen strives to be aa standard Django application. Make sure to apply standard Django development patterns.
+> Note: Promgen strives to be a standard Django application. Make sure to apply standard Django development patterns.
 
 ### Contributor license agreement
 
