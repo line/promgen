@@ -11,7 +11,7 @@ Running Promgen using Docker
     vim /etc/promgen/SECRET_KEY
 
     # Running a Promgen Django worker
-    docker run -d --name promgen -p 8000:8000 --network host -v /etc/promgen/:/etc/promgen/ promgen:latest
+    docker run -d --name promgen -p 8000:8000 --network host -v /etc/promgen/:/etc/promgen/ promgen:latest web
 
     # Running a Promgen Celery worker
-    docker run -d --name promgen --network host -v /etc/promgen/:/etc/promgen/ -v /etc/prometheus:/etc/prometheus promgen:latest celery
+    docker run -d --name promgen --network host -v /etc/promgen/:/etc/promgen/ -v /etc/prometheus:/etc/prometheus promgen:latest worker

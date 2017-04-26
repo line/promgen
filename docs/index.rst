@@ -7,18 +7,25 @@ Welcome to Promgen's documentation!
 ===================================
 
 .. toctree::
-   :maxdepth: 2
-   :hidden:
+  :maxdepth: 2
+  :hidden:
 
-   terms
-   docker
+  terms
+  docker
 
-   plugin/notification
-   plugin/discovery
+.. toctree::
+  :hidden:
 
-   modules/models
-   modules/notification
-   modules/prometheus
+  plugin/discovery
+  plugin/notification
+
+.. toctree::
+  :hidden:
+
+  modules/discovery
+  modules/models
+  modules/notification
+  modules/prometheus
 
 
 .. image:: images/screenshot.png
