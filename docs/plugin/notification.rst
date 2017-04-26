@@ -1,17 +1,14 @@
-Notification Plugin
-===================
+Writing Notification Plugins
+============================
 
-Developing a Sender Plugin
---------------------------
-
-Promgen uses sender plugins to route notifications to different services such as
+Promgen uses notifier plugins to route notifications to different services such as
 Email or LINE Notify. Sender plugins are registered using setuptools entry_points_.
 
 .. code-block:: python
 
     entry_points={
-        'promgen.sender': [
-            'sender_name = module.path.sender:SenderExample',
+        'promgen.notification': [
+            'sender_name = module.path.notification:NotificationExample',
         ],
     }
 
@@ -22,9 +19,9 @@ method
 .. code-block:: python
 
     from promgen.celery import app as celery
-    from promgen.sender import SenderBase
+    from promgen.notification import NotificationBase
 
-    class SenderExample(SenderBase):
+    class NotificationExample(NotificationBase):
         @celery.task(bind=True)
         def _send(task, target, alert, data):
             ## Code specific to sender
@@ -45,9 +42,9 @@ instance of the class
 .. code-block:: python
 
     from promgen.celery import app as celery
-    from promgen.sender import SenderBase
+    from promgen.notification import NotificationBase
 
-    class SenderCeleryExample(SenderBase):
+    class SenderCeleryExample(NotificationBase):
         @celery.task(bind=True)
         def _send(task, target, alert, data):
             self = task.__klass__()

@@ -1,5 +1,5 @@
-Discovery Plugin
-================
+Writing Discovery Plugins
+=========================
 
 These are used to bridge a server manifest from an external tool into one that
 Promgen can use

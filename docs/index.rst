@@ -41,6 +41,6 @@ Welcome to Promgen's documentation!
       Promgen -> Email
       Promgen -> Ikasan;
       Promgen -> LINENotify
-      Promgen -> Webhook [label="(5) Routes to target based on labels"];
+      Promgen -> Webhook [label="(5) Routes to notifier based on labels"];
     }
   }

@@ -6,8 +6,8 @@ Glossary
     digraph {
       rankdir=RL;
       { Service Prometheus} -> Shard;
-      { Rule Sender Project} -> Service;
-      { Rule Sender Exporter URL Farm} -> Project;
+      { Rule Notifier Project} -> Service;
+      { Rule Notifier Exporter URL Farm} -> Project;
       Host -> Farm;
       { rank=same Project Rule };
    }
@@ -33,11 +33,11 @@ Exporters and URL endpoints
 
 Farm
 ----
-Farm is a group of servers
+Farm is a group of servers. Farms may be updated using :doc:`plugin/discovery`
 
-Sender
-------
-Senders are used for routing messages to a specific destination such as Email or
+Notifiers
+---------
+:doc:`Notifiers <plugin/notification>` are used for routing messages to a specific destination such as Email or
 LINE Notify
 
 Rule
