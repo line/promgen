@@ -3,31 +3,44 @@
 {% block content %}
 
 <div class="page-header">
+  {% if project %}
   <h1>Project: {{ project.name }}</h1>
+  {% else %}
+  <h1>Service: {{ service.name }}</h1>
+  {% endif %}
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
-  <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
-  <li class="active">Register Exporter</li>
-</ol>
+{% include 'promgen/breadcrumb_block.html' with label='Register Exporter' %}
 
 <div class="row">
-
-  <div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-heading">Exporter</div>
-      <form action="{% url 'project-sender' project.id %}" method="post">{% csrf_token %}
-        <table>
-          {{ form.as_table }}
-        </table>
-          <button class="btn btn-primary">Register Sender</button>
-      </form>
-    </div>
+  <div class="col-md-3">
+    <ul class="nav nav-pills nav-stacked" role="tablist">
+      {% for k, v in view.model.plugins|dictsort:0 %}
+      <li role="presentation">
+        <a href="#{{ k|slugify }}" aria-controls="{{ k|slugify }}" role="tab" data-toggle="tab">{{ k }}</a>
+      </li>
+      {% endfor %}
+    </ul>
   </div>
 
-  <div class="col-md-6">{% include "promgen/sender_help.html" with senders=view.model.plugins %}</div>
-</div>
+  <div class="col-md-8 tab-content">
+    {% for k, v in view.model.plugins|dictsort:0 %}
+
+    <div role="tabpanel" class="tab-pane panel panel-default" id="{{ k|slugify }}">
+        <form action="" method="post">{% csrf_token %}
+          <input type="hidden" name="sender" value="{{k}}" />
+          <div class="panel-body">
+            <pre class="help-block">{{ v.help }}</pre>
+          </div>
+          <table class="table">
+            {{ v.form.as_table }}
+          </table>
+          <div class="panel-body">
+            <button class="btn btn-primary">Register Sender</button>
+          </div>
+          </form>
+    </div>
+    {% endfor %}
+  </div>
 
 {% endblock %}
