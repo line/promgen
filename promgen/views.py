@@ -557,7 +557,7 @@ class ProjectSenderRegister(FormView, ProjectMixin):
 
 class ServiceSenderRegister(FormView, ServiceMixin):
     model = models.Sender
-    template_name = 'promgen/service_sender_form.html'
+    template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm
 
     def form_valid(self, form):

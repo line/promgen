@@ -4,11 +4,17 @@
 import logging
 import textwrap
 
+from django import forms
 from django.conf import settings
 
 from promgen.models import Project, Service
 
 logger = logging.getLogger(__name__)
+
+
+class FormSenderBase(forms.Form):
+    value = forms.CharField(required=True)
+    alias = forms.CharField(required=False)
 
 
 class NotificationBase(object):
@@ -19,6 +25,8 @@ class NotificationBase(object):
         ('project', Project),
         ('service', Service),
     ]
+
+    form = FormSenderBase
 
     def __init__(self):
         # In case some of our sender plugins are not using celery,

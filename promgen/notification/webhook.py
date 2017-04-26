@@ -9,6 +9,8 @@ configured webhook destinations
 
 import logging
 
+from django import forms
+
 from promgen import util
 from promgen.celery import app as celery
 from promgen.notification import NotificationBase
@@ -16,7 +18,13 @@ from promgen.notification import NotificationBase
 logger = logging.getLogger(__name__)
 
 
+class FormWebhook(forms.Form):
+    value = forms.CharField(required=True)
+
+
 class NotificationWebhook(NotificationBase):
+    form = FormWebhook
+
     @celery.task(bind=True)
     def _send(task, url, alert, data):
         params = {
