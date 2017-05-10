@@ -86,7 +86,7 @@ promgen runserver
 
 ### Contributor license agreement
 
-If you are sending a pull request and it's a non-trivial change beyond fixing typos, please make sure to sign [the ICLA(individual contributor license agreement)](add link). Please contact us if you need the CCLA (corporate contributor license agreement).
+If you are sending a pull request and it's a non-trivial change beyond fixing typos, please make sure to sign [the ICLA(individual contributor license agreement)](https://feedback.line.me/enquete/public/1719-k6U3vfJ4). Please contact us if you need the CCLA (corporate contributor license agreement).
 
 ## The MIT License
 
