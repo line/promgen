@@ -22,7 +22,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
-from django.views.generic.base import ContextMixin
+from django.views.generic.base import ContextMixin, RedirectView
 from django.views.generic.edit import DeleteView, FormView
 
 from promgen import forms, models, plugins, prometheus, signals, util, version
@@ -262,7 +262,9 @@ class FarmUpdate(UpdateView):
         return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
 
 
-class FarmDelete(View):
+class FarmDelete(RedirectView):
+    pattern_name = 'farm-detail'
+
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
         farm.delete()
@@ -306,7 +308,9 @@ class RulesCopy(View):
             return HttpResponseRedirect(reverse('service-detail', args=[pk]))
 
 
-class FarmRefresh(View):
+class FarmRefresh(RedirectView):
+    pattern_name = 'farm-detail'
+
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
         farm.refresh()
@@ -315,9 +319,8 @@ class FarmRefresh(View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class FarmConvert(View):
-    def get(self, request, pk):
-        return HttpResponseRedirect(reverse('farm-detail', args=[pk]))
+class FarmConvert(RedirectView):
+    pattern_name = 'farm-detail'
 
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
