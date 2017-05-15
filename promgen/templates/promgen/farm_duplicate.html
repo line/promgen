@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li class="active">Convert Farm</li>
+</ol>
+
+<div class="panel panel-warning">
+  <div class="panel-heading">Error converting farm. Duplicate detected</div>
+
+  <table class="table">
+  {% for farm in farm_list %}
+    <tr>
+      <td>{{ farm.name }}</td>
+      <td>{{ farm.source }}</td>
+      <td>
+        <ul>
+  {% for host in farm.host_set.all %}
+          <li>{{ host }}</li>
+  {% endfor %}
+        </ul>
+      <td>
+  {% if farm.id == pk %}
+      <td></td>
+  {% else %}
+      <td>
+        <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
+          {% csrf_token %}
+          <input name="next" type="hidden" value="{{ next }}" />
+          <button class="btn btn-danger">Delete</button>
+        </form>
+      </td>
+  {% endif %}
+    </tr>
+  {% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -38,6 +38,7 @@
     </form>
     <form method="post" action="{% url 'farm-convert' project.farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
       {% csrf_token %}
+      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
       <button class="btn btn-warning">{% trans "Convert to Local Farm" %}</button>
     </form>
     <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">

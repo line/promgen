@@ -13,6 +13,7 @@ from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
+from django.db.utils import IntegrityError
 from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
@@ -21,8 +22,7 @@ from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
-from django.views.generic.base import ContextMixin
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.base import ContextMixin, RedirectView
 from django.views.generic.edit import DeleteView, FormView
 
 from promgen import forms, models, plugins, prometheus, signals, util, version
@@ -262,11 +262,16 @@ class FarmUpdate(UpdateView):
         return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
 
 
-class FarmDelete(DeleteView):
-    model = models.Farm
+class FarmDelete(RedirectView):
+    pattern_name = 'farm-detail'
 
-    def get_success_url(self):
-        return reverse('service-list')
+    def post(self, request, pk):
+        farm = get_object_or_404(models.Farm, id=pk)
+        farm.delete()
+
+        return HttpResponseRedirect(
+            request.POST.get('next', reverse('service-list'))
+        )
 
 
 class UnlinkFarm(View):
@@ -303,25 +308,36 @@ class RulesCopy(View):
             return HttpResponseRedirect(reverse('service-detail', args=[pk]))
 
 
-class FarmRefresh(SingleObjectMixin, View):
-    model = models.Farm
+class FarmRefresh(RedirectView):
+    pattern_name = 'farm-detail'
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.refresh()
-        project = self.object.project_set.get()
+    def post(self, request, pk):
+        farm = get_object_or_404(models.Farm, id=pk)
+        farm.refresh()
+        project = farm.project_set.get()
         models.Audit.log('Refreshed Farm')
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class FarmConvert(SingleObjectMixin, View):
-    model = models.Farm
+class FarmConvert(RedirectView):
+    pattern_name = 'farm-detail'
 
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        self.object.source = models.FARM_DEFAULT
-        self.object.save()
-        return HttpResponseRedirect(reverse('farm-detail', args=[self.object.id]))
+    def post(self, request, pk):
+        farm = get_object_or_404(models.Farm, id=pk)
+        farm.source = models.FARM_DEFAULT
+
+        try:
+            farm.save()
+        except IntegrityError:
+            return render(request, 'promgen/farm_duplicate.html', {
+                'pk': farm.pk,
+                'next': request.POST.get('next', reverse('farm-detail', args=[farm.pk])),
+                'farm_list': models.Farm.objects.filter(name=farm.name)
+            })
+
+        return HttpResponseRedirect(
+            request.POST.get('next', reverse('farm-detail', args=[farm.pk]))
+        )
 
 
 class FarmLink(View):
