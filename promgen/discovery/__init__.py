@@ -3,8 +3,19 @@
 
 
 class DiscoveryBase(object):
+    '''
+    Basic discovery plugin base
+
+    Child classes should implement both fetch and farm methods
+    '''
     def fetch(self, farm):
+        '''
+        Return list of hosts for farm
+        '''
         raise NotImplemented()
 
     def farms(self):
+        '''
+        Return a list of farm names
+        '''
         raise NotImplemented()

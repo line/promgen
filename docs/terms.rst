@@ -33,7 +33,7 @@ Exporters and URL endpoints
 
 Farm
 ----
-Farm is a group of servers. Farms may be updated using :doc:`plugin/discovery`
+Farm is a group of servers. Farms may be updated using :doc:`discovery plugins <plugin/discovery>`
 
 Notifiers
 ---------
