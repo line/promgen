@@ -25,6 +25,7 @@ ALERT RuleName
 
 class RuleTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
+    @mock.patch('django.db.models.signals.pre_save', mock.Mock())
     def setUp(self):
         self.shard = models.Shard.objects.create(name='Shard 1')
         self.service = models.Service.objects.create(id=1, name='Service 1', shard=self.shard)
