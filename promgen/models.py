@@ -335,13 +335,24 @@ class Audit(models.Model):
     body = models.TextField()
     created = models.DateTimeField()
     data = models.TextField(blank=True)
+    old = models.TextField(blank=True)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
     object_id = models.PositiveIntegerField(default=0)
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    @property
+    def hilight(self):
+        if self.body.startswith('Created'):
+            return 'success'
+        if self.body.startswith('Updated'):
+            return 'warning'
+        if self.body.startswith('Deleted'):
+            return 'danger'
+        return ''
+
     @classmethod
-    def log(cls, body, instance=None, **kwargs):
+    def log(cls, body, instance=None, old=None, **kwargs):
         kwargs['body'] = body
         kwargs['created'] = timezone.now()
 
@@ -349,6 +360,8 @@ class Audit(models.Model):
             kwargs['content_type'] = ContentType.objects.get_for_model(instance)
             kwargs['object_id'] = instance.id
             kwargs['data'] = json.dumps(model_to_dict(instance))
+        if old:
+            kwargs['old'] = json.dumps(model_to_dict(old))
 
         return cls.objects.create(**kwargs)
 

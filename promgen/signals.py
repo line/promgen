@@ -6,7 +6,8 @@ from functools import wraps
 
 from django.contrib import messages
 from django.core.cache import cache
-from django.db.models.signals import post_delete, post_save, pre_delete
+from django.db.models.signals import (post_delete, post_save, pre_delete,
+                                      pre_save)
 from django.dispatch import Signal, receiver
 
 from promgen import models, prometheus
@@ -89,18 +90,36 @@ def _trigger_write_urls(signal, **kwargs):
     return True
 
 
-def save_log(sender, instance, created, **kwargs):
+def update_log(sender, instance, **kwargs):
+    # For our update_log, we hook the pre_save signal and make sure it's an
+    # existing object by checking for a primary key. We then use that to get a
+    # copy of the existing object from the database so that we can show the
+    # changes
+    if instance.pk:
+        old = sender.objects.get(pk=instance.pk)
+        models.Audit.log('Updated %s %s' % (sender.__name__, instance), instance, old)
+pre_save.connect(update_log, sender=models.Exporter)
+pre_save.connect(update_log, sender=models.Farm)
+pre_save.connect(update_log, sender=models.Host)
+pre_save.connect(update_log, sender=models.Project)
+pre_save.connect(update_log, sender=models.Rule)
+pre_save.connect(update_log, sender=models.Service)
+pre_save.connect(update_log, sender=models.URL)
+
+
+def create_log(sender, instance, created, **kwargs):
+    # For our create_log, we have to hook post_save to make sure we have a
+    # primary key set so that we can link back to it using the ContentType
+    # system.
     if created:
         models.Audit.log('Created %s %s' % (sender.__name__, instance), instance)
-    else:
-        models.Audit.log('Updated %s %s' % (sender.__name__, instance), instance)
-post_save.connect(save_log, sender=models.Exporter)
-post_save.connect(save_log, sender=models.Farm)
-post_save.connect(save_log, sender=models.Host)
-post_save.connect(save_log, sender=models.Project)
-post_save.connect(save_log, sender=models.Rule)
-post_save.connect(save_log, sender=models.Service)
-post_save.connect(save_log, sender=models.URL)
+post_save.connect(create_log, sender=models.Exporter)
+post_save.connect(create_log, sender=models.Farm)
+post_save.connect(create_log, sender=models.Host)
+post_save.connect(create_log, sender=models.Project)
+post_save.connect(create_log, sender=models.Rule)
+post_save.connect(create_log, sender=models.Service)
+post_save.connect(create_log, sender=models.URL)
 
 
 def delete_log(sender, instance, **kwargs):
