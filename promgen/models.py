@@ -359,9 +359,9 @@ class Audit(models.Model):
         if instance:
             kwargs['content_type'] = ContentType.objects.get_for_model(instance)
             kwargs['object_id'] = instance.id
-            kwargs['data'] = json.dumps(model_to_dict(instance))
+            kwargs['data'] = json.dumps(model_to_dict(instance), sort_keys=True)
         if old:
-            kwargs['old'] = json.dumps(model_to_dict(old))
+            kwargs['old'] = json.dumps(model_to_dict(old), sort_keys=True)
 
         return cls.objects.create(**kwargs)
 
