@@ -89,17 +89,29 @@ def _trigger_write_urls(signal, **kwargs):
     return True
 
 
-@multi_receiver(post_save, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project, models.URL])
 def save_log(sender, instance, created, **kwargs):
     if created:
         models.Audit.log('Created %s %s' % (sender.__name__, instance), instance)
     else:
         models.Audit.log('Updated %s %s' % (sender.__name__, instance), instance)
+post_save.connect(save_log, sender=models.Exporter)
+post_save.connect(save_log, sender=models.Farm)
+post_save.connect(save_log, sender=models.Host)
+post_save.connect(save_log, sender=models.Project)
+post_save.connect(save_log, sender=models.Rule)
+post_save.connect(save_log, sender=models.Service)
+post_save.connect(save_log, sender=models.URL)
 
 
-@multi_receiver(post_delete, senders=[models.Rule, models.Exporter, models.Host, models.Farm, models.Project, models.URL])
 def delete_log(sender, instance, **kwargs):
-    models.Audit.log('Deleted %s %s' % (sender.__name__, instance))
+    models.Audit.log('Deleted %s %s' % (sender.__name__, instance), instance)
+post_delete.connect(delete_log, sender=models.Exporter)
+post_delete.connect(delete_log, sender=models.Farm)
+post_delete.connect(delete_log, sender=models.Host)
+post_delete.connect(delete_log, sender=models.Project)
+post_delete.connect(delete_log, sender=models.Rule)
+post_delete.connect(delete_log, sender=models.Service)
+post_delete.connect(delete_log, sender=models.URL)
 
 
 @receiver(post_save, sender=models.Rule)

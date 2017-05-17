@@ -11,6 +11,7 @@
         <tr>
           <th>Timestamp</th>
           <th>Body</th>
+          <th>Link</th>
           <th>Object</th>
         </tr>
       </thead>
@@ -23,6 +24,16 @@
           <a href="{{ entry.content_object.get_absolute_url }}">
             {{ entry.content_object }}
           </a>
+          {% endif %}
+        </td>
+        <td>
+          {% if entry.data %}
+          <a title="{{ entry.data }}" data-toggle="collapse" href="#collapse-log-{{entry.id}}" aria-expanded="false" aria-controls="collapseExample">
+            Show
+          </a>
+          <div class="collapse" id="collapse-log-{{entry.id}}">
+            {{ entry.data }}
+          </div>
           {% endif %}
         </td>
       </tr>
