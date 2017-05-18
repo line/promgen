@@ -1,6 +1,6 @@
 machine:
   python:
-    version: 3.5.2
+    version: 3.5.1
   environment:
     SECRET_KEY: abcd
 dependencies:
