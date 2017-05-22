@@ -12,6 +12,7 @@ from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
+from django.forms.models import model_to_dict
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -333,17 +334,34 @@ class RuleAnnotation(models.Model):
 class Audit(models.Model):
     body = models.TextField()
     created = models.DateTimeField()
+    data = models.TextField(blank=True)
+    old = models.TextField(blank=True)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
     object_id = models.PositiveIntegerField(default=0)
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    @property
+    def hilight(self):
+        if self.body.startswith('Created'):
+            return 'success'
+        if self.body.startswith('Updated'):
+            return 'warning'
+        if self.body.startswith('Deleted'):
+            return 'danger'
+        return ''
+
     @classmethod
-    def log(cls, body, instance=None):
-        kwargs = {'body': body, 'created': timezone.now()}
+    def log(cls, body, instance=None, old=None, **kwargs):
+        kwargs['body'] = body
+        kwargs['created'] = timezone.now()
+
         if instance:
             kwargs['content_type'] = ContentType.objects.get_for_model(instance)
             kwargs['object_id'] = instance.id
+            kwargs['data'] = json.dumps(model_to_dict(instance), sort_keys=True)
+        if old:
+            kwargs['old'] = json.dumps(model_to_dict(old), sort_keys=True)
 
         return cls.objects.create(**kwargs)
 

@@ -11,13 +11,26 @@
         <tr>
           <th>Timestamp</th>
           <th>Body</th>
-          <th>Object</th>
+          <th>Link</th>
         </tr>
       </thead>
 {% for entry in audit_list %}
-      <tr>
+      <tr class="{{ entry.hilight }}">
         <td>{{ entry.created }}</td>
-        <td>{{ entry.body }}</td>
+        <td>
+          {{ entry.body }}
+
+          {% if entry.data %}
+          <br />
+          <a data-toggle="collapse" href="#collapse-log-{{entry.id}}" aria-expanded="false" aria-controls="collapseExample">
+            Show
+          </a>
+          <div class="collapse" id="collapse-log-{{entry.id}}">
+            {% if entry.old %}<pre>{{ entry.old }}</pre> to{% endif %}
+            <pre>{{ entry.data }}</pre>
+          </div>
+          {% endif %}
+        </td>
         <td>
           {% if entry.content_object %}
           <a href="{{ entry.content_object.get_absolute_url }}">
