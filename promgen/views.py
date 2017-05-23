@@ -831,7 +831,7 @@ class AjaxAlert(View):
     def get(self, request):
         alerts = collections.defaultdict(list)
         try:
-            url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts/groups')
+            url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts')
             response = requests.get(url)
         except requests.exceptions.ConnectionError:
             logger.error('Error connecting to %s', url)
@@ -841,26 +841,26 @@ class AjaxAlert(View):
         if data is None:
             # Return an empty alert-all if there are no active alerts from AM
             return JsonResponse({'alert-all': ''})
-        for group in data:
-            if group.get('blocks') is None:
-                continue
-            for block in group.get('blocks', []):
-                for alert in block.get('alerts', []):
-                    if alert.get('silenced', False):
+        for alert in data:
+            alerts['alert-all'].append(alert)
+            for key in ['project', 'service']:
+                # Requires newer 0.7 alert manager release to have the status
+                # information with silenced and inhibited alerts
+                if 'status' in alert:
+                    if alert['status'].get('silencedBy'):
                         continue
-                    if alert['labels'].get('alertname') == 'PromgenHeartbeat':
+                    if alert['status'].get('inhibitedBy'):
                         continue
-                    alerts['alert-all'].append(alert)
-                    for key in ['project', 'service']:
-                        if key in alert['labels']:
-                            if alert['labels'][key]:
-                                alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
+                if key in alert['labels']:
+                    if alert['labels'][key]:
+                        alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
-        alerts = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request) for key in alerts}
-        if '#alert-all' not in alerts:
-            alerts['#alert-all'] = render_to_string('promgen/ajax_alert_clear.html')
+        context = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request).strip() for key in alerts}
+        if '#alert-all' not in context:
+            context['#alert-all'] = render_to_string('promgen/ajax_alert_clear.html').strip()
+        context['#alert-load'] = render_to_string('promgen/ajax_alert_button.html', {'alerts': alerts['alert-all'], 'key': 'alert-all'}).strip()
 
-        return JsonResponse(alerts)
+        return JsonResponse(context)
 
 
 class AjaxClause(View):

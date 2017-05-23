@@ -1,4 +1,6 @@
 {% load i18n %}
+{% spaceless %}
+{% if key != 'alert-all' %}
 <div class="panel panel-danger">
   <div class="panel-heading">
     <a class="btn btn-danger" role="button" data-toggle="collapse" href="#show-{{ key|slugify }}" aria-expanded="false" aria-controls="collapseExample">
@@ -6,6 +8,10 @@
     </a>
   </div>
 <table class="table table-bordered table-condensed collapse" id="show-{{ key|slugify }}">
+  {% else %}
+  <div class="panel panel-danger collapse" id="show-{{ key|slugify }}">
+    <table class="table table-bordered table-condensed">
+  {% endif %}
   <tr>
     <th>Starts</th>
     <th>Labels</th>
@@ -62,3 +68,4 @@
 {% endfor %}
 </table>
 </div>
+{% endspaceless %}
