@@ -195,11 +195,31 @@ def delete_exporter(sender, instance, **kwargs):
 
 @receiver(post_save, sender=models.Project)
 def save_project(sender, instance, **kwargs):
+    logger.debug('save_project: %s', instance)
     if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
         trigger_write_config.send(instance)
+        return True
 
 
 @receiver(pre_delete, sender=models.Project)
 def delete_project(sender, instance, **kwargs):
     if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
         trigger_write_config.send(instance)
+
+
+@receiver(post_save, sender=models.Service)
+def save_service(sender, instance, **kwargs):
+    # We saving a service, we delegate the configuration reload triggering to
+    # the child projects which have additional information about if we need to
+    # write out our file or not. We call our save_project signal directly
+    # (instead of through post_save.save) because we don't want to trigger other
+    # attached signals
+    logger.debug('save_service: %s', instance)
+    for project in instance.project_set.prefetch_related(
+            'farm',
+            'farm__host_set',
+            'exporter_set'):
+        if save_project(sender=models.Project, instance=project):
+            # If any of our save_project returns True, then we do not need to
+            # check any others
+            return True
