@@ -47,7 +47,14 @@ class ServiceMixin(ContextMixin):
 
 
 class ShardList(ListView):
-    model = models.Shard
+    queryset = models.Shard.objects\
+        .prefetch_related(
+            'prometheus_set',
+            'service_set',
+            'service_set__project_set',
+            'service_set__project_set__farm',
+            'service_set__project_set__exporter_set',
+            'service_set__project_set__sender')
 
 
 class ShardDetail(DetailView):
