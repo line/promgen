@@ -101,6 +101,7 @@ urlpatterns = [
 
     url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
     url(r'^ajax/clause$', csrf_exempt(views.AjaxClause.as_view()), name='ajax-clause'),
+    url(r'^ajax/mute$', csrf_exempt(views.AjaxMute.as_view()), name='ajax-mute'),
 ]
 
 if settings.DEBUG:

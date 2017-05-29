@@ -1,0 +1,37 @@
+{% load i18n %}
+{% spaceless %}
+{% if key != 'mute-all' %}
+<div class="panel panel-warning">
+  <div class="panel-heading">
+    <a class="btn btn-warning" role="button" data-toggle="collapse" href="#show-{{ key|slugify }}" aria-expanded="false" aria-controls="collapseExample">
+    Mutes {{ mutes|length }}
+    </a>
+  </div>
+<table class="table table-bordered table-condensed collapse" id="show-{{ key|slugify }}">
+  {% else %}
+  <div class="panel panel-warning collapse" id="show-{{ key|slugify }}">
+    <table class="table table-bordered table-condensed">
+  {% endif %}
+  <tr>
+    <th>Ends</th>
+    <th>Matchers</th>
+    <th>Comment</th>
+  </tr>
+{% for mute in mutes %}
+<tr>
+  <td>
+    <p>{{ mute.endsAt }}</p>
+  </td>
+  <td>
+    {% for matcher in mute.matchers %}
+      <span class="label label-default">{{ matcher.name }}: {{ matcher.value }}</span>
+    {% endfor %}
+  </td>
+  <td>
+    <p>{{ mute.comment }}</p>
+  </td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endspaceless %}

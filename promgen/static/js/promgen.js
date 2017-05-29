@@ -10,6 +10,13 @@ $( document ).ready(function() {
   }
   });
 
+  $.ajax({url: "/ajax/mute",}).done(function( data ) {
+    for (var key in data) {
+      console.log("Replacing mute " + key)
+      $(key).replaceWith(data[key])
+    }
+  });
+
   $('#test_clause').click(function(){
     var btn = $(this)
     var query = $(btn.data('source')).val()
