@@ -60,6 +60,7 @@
                       <button type="submit" class="btn btn-warning">Commit</button>
                     </form>
                     <span id="alert-load" class="btn btn-default navbar-btn">Alerts</span>
+                    <span id="mute-load" class="btn btn-default navbar-btn">Mutes</span>
                   </ul>
                 </div><!-- /.navbar-collapse -->
             </nav><!-- /.container-fluid -->
@@ -74,6 +75,7 @@
           {% endif %}
             <div>
 <div class="panel panel-default" style="display:none" id="alert-all"></div>
+<div class="panel panel-default" style="display:none" id="mute-all"></div>
 {% block content %}{% endblock %}
             </div>
         </div>

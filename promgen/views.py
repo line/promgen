@@ -7,6 +7,7 @@ import json
 import logging
 import time
 from urllib.parse import urljoin
+from dateutil import parser, tz
 
 import requests
 from django import forms as django_forms
@@ -905,3 +906,42 @@ class AjaxClause(View):
             context['errors']['Query'] = result['error']
 
         return JsonResponse({'#ajax-clause-check': render_to_string('promgen/ajax_clause_check.html', context)})
+
+
+class AjaxMute(View):
+    def get(self, request):
+        mutes = collections.defaultdict(list)
+        try:
+            url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
+            response = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            logger.error('Error connecting to %s', url)
+            return JsonResponse({})
+
+        data = response.json().get('data', [])
+        if data is None:
+            # Return an empty mute-all if there are no active mutes from AM
+            return JsonResponse({'mute-all': ''})
+
+        currentAt = datetime.datetime.now(datetime.timezone.utc)
+
+        for mute in data:
+            # Since there is no status field, compare endsAt with the current time
+            if mute.get('endsAt'):
+                endsAt = parser.parse(mute.get('endsAt'))
+                if endsAt < currentAt:
+                    continue
+
+            local_timezone = settings.PROMGEN.get('timezone', 'UTC')
+            mute['endsAt'] = endsAt.astimezone(tz.gettz(local_timezone)).strftime('%Y-%m-%d %H:%M:%S')
+            mutes['mute-all'].append(mute)
+            for matcher in mute.get('matchers'):
+                if matcher.get('name') in ['service', 'project']:
+                    mutes['mute-{}-{}'.format(matcher.get('name'), matcher.get('value'))].append(mute)
+
+        context = {'#' + slugify(key): render_to_string('promgen/ajax_mute.html', {'mutes': mutes[key], 'key': key}, request).strip() for key in mutes}
+        if '#mute-all' not in context:
+            context['#mute-all'] = render_to_string('promgen/ajax_mute_clear.html').strip()
+        context['#mute-load'] = render_to_string('promgen/ajax_mute_button.html', {'mutes': mutes['mute-all'], 'key': 'mute-all'}).strip()
+
+        return JsonResponse(context)
