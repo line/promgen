@@ -1,37 +1,24 @@
-{% extends "base.html" %}
 {% load i18n %}
-{% block content %}
-<h1>Mute Alerts for {{ label }} {{ obj.name }}</h1>
 <form method="post" action="{% url 'mute' %}">
+  <input name="next" type="hidden" value="{{ request.get_full_path }}" />
   {% csrf_token %}
-  <input name="next" type="hidden" value="{{ obj.get_absolute_url }}" />
-  <input name="label.{{ label }}" type="hidden" value="{{ obj.name }}" />
-  {% if label == 'project' %}
-  <input name="label.service" type="hidden" value="{{ obj.service.name }}" />
-  {% endif %}
-  <table>
+<div class="panel panel-warning" style="display:none" id="mute-form">
+  <div class="panel-heading">Mute</div>
+  <div class="labels panel-body"></div>
+  <table class="table table-bordered table-condensed duration">
     <tr>
-      <td>
-        <input name="duration" placeholder="1m/1h/etc" />
-      </td>
+      <th>Duration</th>
+      <th>Start</th>
+      <th>End</th>
     </tr>
     <tr>
-      <td>
-        <div class="row">
-          <div class='col-sm-5'>
-            Start <input name="start" type='text' class="form-control mute_start" />
-          </div>
-          <div class='col-sm-5'>
-            End <input name="stop" type='text' class="form-control mute_end" />
-          </div>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <button class="btn btn-warning pull-right">{% trans "Mute" %}</button>
-      </td>
+      <td><input name="duration" placeholder="1m/1h/etc" /></td>
+      <td style="position:relative"><input name="start" type='text' class="form-control mute_start" /></td>
+      <td style="position:relative"><input name="stop" type='text' class="form-control mute_end" /></td>
     </tr>
   </table>
+  <div class="panel-footer">
+    <button class="btn btn-warning">{% trans "Mute" %}</button>
+  </div>
+</div>
 </form>
-{% endblock %}

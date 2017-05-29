@@ -787,26 +787,6 @@ class Import(FormView):
 class Mute(FormView):
     form_class = forms.MuteForm
 
-    def get(self, request, **kwargs):
-        context = {}
-        MAPPING = {
-            'farm': models.Farm,
-            'host': models.Host,
-            'project': models.Project,
-            'service': models.Service,
-        }
-        for label, klass in MAPPING.items():
-            if label in kwargs:
-                context['label'] = label
-                # TODO: using isnumeric sees fragile but I can revisit later
-                if kwargs[label].isnumeric():
-                    context['obj'] = klass.objects.filter(pk=kwargs[label]).first()
-                else:
-                    context['obj'] = klass.objects.filter(name=kwargs[label]).first()
-        if context:
-            return render(request, 'promgen/mute_form.html', context)
-        return HttpResponseRedirect('/')
-
     def post(self, request):
         form = forms.MuteForm(request.POST)
         if form.is_valid():
@@ -848,7 +828,7 @@ class AjaxAlert(View):
         data = response.json().get('data', [])
         if data is None:
             # Return an empty alert-all if there are no active alerts from AM
-            return JsonResponse({'alert-all': ''})
+            return JsonResponse({})
         for alert in data:
             alerts['alert-all'].append(alert)
             for key in ['project', 'service']:
@@ -864,8 +844,6 @@ class AjaxAlert(View):
                         alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
         context = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request).strip() for key in alerts}
-        if '#alert-all' not in context:
-            context['#alert-all'] = render_to_string('promgen/ajax_alert_clear.html').strip()
         context['#alert-load'] = render_to_string('promgen/ajax_alert_button.html', {'alerts': alerts['alert-all'], 'key': 'alert-all'}).strip()
 
         return JsonResponse(context)
@@ -921,7 +899,7 @@ class AjaxMute(View):
         data = response.json().get('data', [])
         if data is None:
             # Return an empty mute-all if there are no active mutes from AM
-            return JsonResponse({'mute-all': ''})
+            return JsonResponse({})
 
         currentAt = datetime.datetime.now(datetime.timezone.utc)
 
@@ -940,8 +918,6 @@ class AjaxMute(View):
                     mutes['mute-{}-{}'.format(matcher.get('name'), matcher.get('value'))].append(mute)
 
         context = {'#' + slugify(key): render_to_string('promgen/ajax_mute.html', {'mutes': mutes[key], 'key': key}, request).strip() for key in mutes}
-        if '#mute-all' not in context:
-            context['#mute-all'] = render_to_string('promgen/ajax_mute_clear.html').strip()
         context['#mute-load'] = render_to_string('promgen/ajax_mute_button.html', {'mutes': mutes['mute-all'], 'key': 'mute-all'}).strip()
 
         return JsonResponse(context)

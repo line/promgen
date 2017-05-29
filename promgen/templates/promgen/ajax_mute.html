@@ -7,7 +7,7 @@
 {% else %}
 <div class="panel panel-warning">
   <div class="panel-heading">
-    <a class="btn btn-danger" role="button" data-toggle="collapse" href="#show-{{ key|slugify }}" aria-expanded="false" aria-controls="collapseExample">
+    <a class="btn btn-warning" role="button" data-toggle="collapse" href="#show-{{ key|slugify }}" aria-expanded="false" aria-controls="collapseExample">
     Mutes {{ mutes|length }}
     </a>
   </div>
@@ -20,17 +20,18 @@
   </tr>
 {% for mute in mutes %}
 <tr>
-  <td>
-    <p>{{ mute.endsAt }}</p>
-  </td>
+  <td>{{ mute.endsAt }}</td>
   <td>
     {% for matcher in mute.matchers %}
-      <span style="display: inline-block;" class="label label-warning">{{ matcher.name }}:{{ matcher.value }}</span>
+      <a
+        class="label label-warning"
+        data-labels='{"{{matcher.name}}":"{{matcher.value}}"}'
+        href="#"
+        style="display: inline-block;"
+        >{{ matcher.name }}:{{ matcher.value }}</a>
     {% endfor %}
   </td>
-  <td>
-    <p>{{ mute.comment }} </p>
-  </td>
+  <td>{{ mute.comment }}</td>
 </tr>
 {% endfor %}
 </table>

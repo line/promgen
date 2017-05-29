@@ -74,6 +74,7 @@
               {% endfor %}
           {% endif %}
             <div>
+{% include 'promgen/mute_form.html' %}
 <div class="panel panel-default" style="display:none" id="alert-all"></div>
 <div class="panel panel-default" style="display:none" id="mute-all"></div>
 {% block content %}{% endblock %}
