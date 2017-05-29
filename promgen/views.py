@@ -936,7 +936,7 @@ class AjaxMute(View):
             mute['endsAt'] = endsAt.astimezone(tz.gettz(local_timezone)).strftime('%Y-%m-%d %H:%M:%S')
             mutes['mute-all'].append(mute)
             for matcher in mute.get('matchers'):
-                if matcher.get('name') == 'service' or matcher.get('name') == 'project':
+                if matcher.get('name') in ['service', 'project']:
                     mutes['mute-{}-{}'.format(matcher.get('name'), matcher.get('value'))].append(mute)
 
         context = {'#' + slugify(key): render_to_string('promgen/ajax_mute.html', {'mutes': mutes[key], 'key': key}, request).strip() for key in mutes}
