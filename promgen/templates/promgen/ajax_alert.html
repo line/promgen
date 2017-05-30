@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load tz %}
 {% spaceless %}
 {% if key == 'alert-all' %}
 <div class="panel panel-danger collapse" id="show-{{ key|slugify }}">
@@ -20,7 +21,7 @@
   </tr>
 {% for alert in alerts %}
 <tr>
-  <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt }}</a></td>
+  <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt|timezone:TIMEZONE }}</a></td>
   <td>
     {% for label, value in alert.labels.items|dictsort:0 %}
         <a

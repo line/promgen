@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load tz %}
 {% spaceless %}
 {% if key == 'silence-all' %}
 <div class="panel panel-warning collapse" id="show-{{ key|slugify }}">
@@ -20,7 +21,7 @@
   </tr>
 {% for silence in silences %}
 <tr>
-  <td>{{ silence.endsAt }}</td>
+  <td>{{ silence.endsAt|timezone:TIMEZONE }}</td>
   <td>
     {% for matcher in silence.matchers %}
       <a

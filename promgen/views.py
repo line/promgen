@@ -830,6 +830,10 @@ class AjaxAlert(View):
             # Return an empty alert-all if there are no active alerts from AM
             return JsonResponse({})
         for alert in data:
+            for key in ['startsAt', 'endsAt']:
+                if key in alert:
+                    alert[key] = parser.parse(alert[key])
+
             alerts['alert-all'].append(alert)
             for key in ['project', 'service']:
                 # Requires newer 0.7 alert manager release to have the status
@@ -905,13 +909,11 @@ class AjaxSilence(View):
 
         for silence in data:
             # Since there is no status field, compare endsAt with the current time
-            if silence.get('endsAt'):
-                endsAt = parser.parse(silence.get('endsAt'))
-                if endsAt < currentAt:
+            if 'endsAt' in silence:
+                silence['endsAt'] = parser.parse(silence['endsAt'])
+                if silence['endsAt'] < currentAt:
                     continue
 
-            local_timezone = settings.PROMGEN.get('timezone', 'UTC')
-            silence['endsAt'] = endsAt.astimezone(tz.gettz(local_timezone)).strftime('%Y-%m-%d %H:%M:%S')
             silences['silence-all'].append(silence)
             for matcher in silence.get('matchers'):
                 if matcher.get('name') in ['service', 'project']:
