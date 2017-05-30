@@ -9,7 +9,8 @@ from promgen.version import __version__
 
 def settings_in_view(request):
     return {
-        'FARM_DEFAULT': FARM_DEFAULT,
         'EXTERNAL_LINKS': settings.PROMGEN.get('links', {}),
+        'FARM_DEFAULT': FARM_DEFAULT,
+        'TIMEZONE': settings.PROMGEN.get('timezone', 'UTC'),
         'VERSION': __version__,
     }
