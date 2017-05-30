@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="well">
   <div style="display:none" id="alert-service-{{ service.name|slugify }}"></div>
-  <div style="display:none" id="mute-service-{{ service.name|slugify }}"></div>
+  <div style="display:none" id="silence-service-{{ service.name|slugify }}"></div>
 
   <div class="panel panel-default">
     <div class="panel-heading">
@@ -71,7 +71,7 @@
       </table>
     </td>
     <td>
-      <a data-labels='{"service":"{{service.name}}","project":"{{project.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Mute" %}</a>
+      <a data-labels='{"service":"{{service.name}}","project":"{{project.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
     </td>
   </tr>
 {% endfor %}
@@ -80,7 +80,7 @@
 
   </div>
     <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
-    <a data-labels='{"service":"{{service.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Mute Service" %}</a>
+    <a data-labels='{"service":"{{service.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
     <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
       {% csrf_token %}
       <button class="btn btn-danger btn-sm">{% trans "Delete Service" %}</button>

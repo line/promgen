@@ -3,9 +3,9 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 */
 
-function mute_tag() {
+function silence_tag() {
   var labels = $.parseJSON(this.dataset.labels);
-  var form = $('#mute-form')
+  var form = $('#silence-form')
   for (var label in labels) {
     var value = labels[label]
     console.log('Adding %s %s', label, value)
@@ -31,15 +31,15 @@ function update_page(data) {
   for (var key in data) {
     console.log("Replacing %s", key)
     var ele = $(data[key])
-    ele.find("a[data-labels]").click(mute_tag);
+    ele.find("a[data-labels]").click(silence_tag);
     $(key).replaceWith(ele)
   }
 }
 
 $(document).ready(function() {
-  $("a[data-labels]").click(mute_tag)
+  $("a[data-labels]").click(silence_tag)
   $.ajax("/ajax/alert").done(update_page);
-  $.ajax("/ajax/mute").done(update_page);
+  $.ajax("/ajax/silence").done(update_page);
 
   $('#test_clause').click(function() {
     var btn = $(this)
@@ -52,4 +52,18 @@ $(document).ready(function() {
       'shard': btn.data('shard-id')
     }).done(update_page);
   })
+
+  $('.silence_start').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm'
+  });
+  $('.silence_end').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm',
+    useCurrent: false //Important! See issue #1075
+  });
+  $(".silence_start").on("dp.change", function(e) {
+    $('.silence_end').data("DateTimePicker").minDate(e.date);
+  });
+  $(".silence_end").on("dp.change", function(e) {
+    $('.silence_start').data("DateTimePicker").maxDate(e.date);
+  });
 });

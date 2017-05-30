@@ -60,7 +60,7 @@
                       <button type="submit" class="btn btn-warning">Commit</button>
                     </form>
                     <span id="alert-load" class="btn btn-default navbar-btn">Alerts</span>
-                    <span id="mute-load" class="btn btn-default navbar-btn">Mutes</span>
+                    <span id="silence-load" class="btn btn-default navbar-btn">Silences</span>
                   </ul>
                 </div><!-- /.navbar-collapse -->
             </nav><!-- /.container-fluid -->
@@ -74,9 +74,9 @@
               {% endfor %}
           {% endif %}
             <div>
-{% include 'promgen/mute_form.html' %}
+{% include 'promgen/silence_form.html' %}
 <div class="panel panel-default" style="display:none" id="alert-all"></div>
-<div class="panel panel-default" style="display:none" id="mute-all"></div>
+<div class="panel panel-default" style="display:none" id="silence-all"></div>
 {% block content %}{% endblock %}
             </div>
         </div>
@@ -84,23 +84,6 @@
         <script src="{% static "/js/bootstrap.min.js" %}"></script>
         <script src="{% static "/js/moment.min.js" %}"></script>
         <script src="{% static "/js/bootstrap-datetimepicker.min.js" %}"></script>
-        <script type="text/javascript">
-            $(function () {
-                $('.mute_start').datetimepicker({
-                    format : 'YYYY-MM-DD HH:mm'
-                });
-                $('.mute_end').datetimepicker({
-                    format : 'YYYY-MM-DD HH:mm',
-                    useCurrent: false //Important! See issue #1075
-                });
-                $(".mute_start").on("dp.change", function (e) {
-                    $('.mute_end').data("DateTimePicker").minDate(e.date);
-                });
-                $(".mute_end").on("dp.change", function (e) {
-                    $('.mute_start').data("DateTimePicker").maxDate(e.date);
-                });
-            });
-        </script>
         <script src="{% static "/js/promgen.js" %}"></script>
 {% block javascript %}{% endblock %}
     </body>

@@ -784,11 +784,11 @@ class Import(FormView):
             return self.form_invalid(form)
 
 
-class Mute(FormView):
-    form_class = forms.MuteForm
+class Silence(FormView):
+    form_class = forms.SilenceForm
 
     def post(self, request):
-        form = forms.MuteForm(request.POST)
+        form = forms.SilenceForm(request.POST)
         if form.is_valid():
             # Since it's a little annoying to submit forms with an array, we
             # cheat a bit and just use a simple prefix which we can split on
@@ -801,17 +801,17 @@ class Mute(FormView):
             try:
                 duration = form.cleaned_data['duration']
                 if duration:
-                    prometheus.mute(duration, labels)
-                    messages.success(request, 'Setting mute for %s' % duration)
+                    prometheus.silence(duration, labels)
+                    messages.success(request, 'Setting silence for %s' % duration)
                 else:
                     start = form.cleaned_data['start']
                     stop = form.cleaned_data['stop']
-                    prometheus.mute_fromto(start, stop, labels)
-                    messages.success(request, 'Setting mute for %s - %s' % (start, stop))
+                    prometheus.silence_fromto(start, stop, labels)
+                    messages.success(request, 'Setting silence for %s - %s' % (start, stop))
             except Exception as e:
                 messages.warning(request, e)
         else:
-            messages.warning(request, 'Error setting mute')
+            messages.warning(request, 'Error setting silence')
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
@@ -886,9 +886,9 @@ class AjaxClause(View):
         return JsonResponse({'#ajax-clause-check': render_to_string('promgen/ajax_clause_check.html', context)})
 
 
-class AjaxMute(View):
+class AjaxSilence(View):
     def get(self, request):
-        mutes = collections.defaultdict(list)
+        silences = collections.defaultdict(list)
         try:
             url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
             response = requests.get(url)
@@ -898,26 +898,26 @@ class AjaxMute(View):
 
         data = response.json().get('data', [])
         if data is None:
-            # Return an empty mute-all if there are no active mutes from AM
+            # Return an empty silence-all if there are no active silences from AM
             return JsonResponse({})
 
         currentAt = datetime.datetime.now(datetime.timezone.utc)
 
-        for mute in data:
+        for silence in data:
             # Since there is no status field, compare endsAt with the current time
-            if mute.get('endsAt'):
-                endsAt = parser.parse(mute.get('endsAt'))
+            if silence.get('endsAt'):
+                endsAt = parser.parse(silence.get('endsAt'))
                 if endsAt < currentAt:
                     continue
 
             local_timezone = settings.PROMGEN.get('timezone', 'UTC')
-            mute['endsAt'] = endsAt.astimezone(tz.gettz(local_timezone)).strftime('%Y-%m-%d %H:%M:%S')
-            mutes['mute-all'].append(mute)
-            for matcher in mute.get('matchers'):
+            silence['endsAt'] = endsAt.astimezone(tz.gettz(local_timezone)).strftime('%Y-%m-%d %H:%M:%S')
+            silences['silence-all'].append(silence)
+            for matcher in silence.get('matchers'):
                 if matcher.get('name') in ['service', 'project']:
-                    mutes['mute-{}-{}'.format(matcher.get('name'), matcher.get('value'))].append(mute)
+                    silences['silence-{}-{}'.format(matcher.get('name'), matcher.get('value'))].append(silence)
 
-        context = {'#' + slugify(key): render_to_string('promgen/ajax_mute.html', {'mutes': mutes[key], 'key': key}, request).strip() for key in mutes}
-        context['#mute-load'] = render_to_string('promgen/ajax_mute_button.html', {'mutes': mutes['mute-all'], 'key': 'mute-all'}).strip()
+        context = {'#' + slugify(key): render_to_string('promgen/ajax_silence.html', {'silences': silences[key], 'key': key}, request).strip() for key in silences}
+        context['#silence-load'] = render_to_string('promgen/ajax_silence_button.html', {'silences': silences['silence-all'], 'key': 'silence-all'}).strip()
 
         return JsonResponse(context)

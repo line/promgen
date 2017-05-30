@@ -87,11 +87,7 @@ urlpatterns = [
     url(r'^status/$', views.Status.as_view(), name='status'),
     url(r'^import/$', views.Import.as_view(), name='import'),
 
-    url(r'^mute$', views.Mute.as_view(), name='mute'),
-    url(r'^mute/service/(?P<service>.+)$', views.Mute.as_view(), name='service-mute'),
-    url(r'^mute/project/(?P<project>.+)$', views.Mute.as_view(), name='project-mute'),
-    url(r'^mute/farm/(?P<farm>.+)$', views.Mute.as_view(), name='farm-mute'),
-    url(r'^mute/host/(?P<host>.+)$', views.Mute.as_view(), name='host-mute'),
+    url(r'^silence$', views.Silence.as_view(), name='silence'),
 
 
     url(r'^search/$', views.Search.as_view(), name='search'),
@@ -101,7 +97,7 @@ urlpatterns = [
 
     url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
     url(r'^ajax/clause$', csrf_exempt(views.AjaxClause.as_view()), name='ajax-clause'),
-    url(r'^ajax/mute$', csrf_exempt(views.AjaxMute.as_view()), name='ajax-mute'),
+    url(r'^ajax/silence$', csrf_exempt(views.AjaxSilence.as_view()), name='ajax-silence'),
 ]
 
 if settings.DEBUG:
