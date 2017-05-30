@@ -4,7 +4,6 @@
 {% if key == 'silence-all' %}
 <div class="panel panel-warning collapse" id="show-{{ key|slugify }}">
   <div class="panel-heading">Silences {{ silences|length }}</div>
-  <table class="table table-bordered table-condensed">
 {% else %}
 <div class="panel panel-warning">
   <div class="panel-heading">
@@ -12,8 +11,9 @@
     Silences {{ silences|length }}
     </a>
   </div>
-  <table class="table table-bordered table-condensed collapse" id="show-{{ key|slugify }}">
+  <div class="panel panel-warning collapse" id="show-{{ key|slugify }}">
 {% endif %}
+  <table class="table table-bordered table-condensed">
   <tr>
     <th>Ends</th>
     <th>Matchers</th>
@@ -21,22 +21,27 @@
     <th>Comment</th>
   </tr>
 {% for silence in silences %}
-<tr>
-  <td>{{ silence.endsAt|timezone:TIMEZONE }}</td>
-  <td>
-    {% for matcher in silence.matchers %}
-      <a
-        class="label label-warning"
-        data-labels='{"{{matcher.name}}":"{{matcher.value}}"}'
-        href="#"
-        style="display: inline-block;"
-        >{{ matcher.name }}:{{ matcher.value }}</a>
-    {% endfor %}
-  </td>
-  <td>{{ silence.createdBy }}</td>
-  <td>{{ silence.comment }}</td>
-</tr>
+  <tr>
+    <td>{{ silence.endsAt|timezone:TIMEZONE }}</td>
+    <td>
+      {% for matcher in silence.matchers %}
+        <a
+          class="label label-warning"
+          data-labels='{"{{matcher.name}}":"{{matcher.value}}"}'
+          href="#"
+          style="display: inline-block;"
+          >{{ matcher.name }}:{{ matcher.value }}</a>
+      {% endfor %}
+    </td>
+    <td>{{ silence.createdBy }}</td>
+    <td>{{ silence.comment }}</td>
+  </tr>
 {% endfor %}
-</table>
+  </table>
+{% if key == 'silence-all' %}
 </div>
+{% else %}
+  </div>
+</div>
+{% endif %}
 {% endspaceless %}
