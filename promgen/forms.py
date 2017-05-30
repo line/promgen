@@ -24,7 +24,7 @@ class ImportRuleForm(forms.Form):
     rules = forms.CharField(widget=forms.Textarea, required=True)
 
 
-class MuteForm(forms.Form):
+class SilenceForm(forms.Form):
     def validate_datetime(value):
         try:
             datetime.datetime.strptime(value, '%Y-%m-%d %H:%M')

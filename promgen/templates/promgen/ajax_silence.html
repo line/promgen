@@ -1,14 +1,14 @@
 {% load i18n %}
 {% spaceless %}
-{% if key == 'mute-all' %}
+{% if key == 'silence-all' %}
 <div class="panel panel-warning collapse" id="show-{{ key|slugify }}">
-  <div class="panel-heading">Mutes {{ mutes|length }}</div>
+  <div class="panel-heading">Silences {{ silences|length }}</div>
   <table class="table table-bordered table-condensed">
 {% else %}
 <div class="panel panel-warning">
   <div class="panel-heading">
     <a class="btn btn-warning" role="button" data-toggle="collapse" href="#show-{{ key|slugify }}" aria-expanded="false" aria-controls="collapseExample">
-    Mutes {{ mutes|length }}
+    Silences {{ silences|length }}
     </a>
   </div>
   <table class="table table-bordered table-condensed collapse" id="show-{{ key|slugify }}">
@@ -18,11 +18,11 @@
     <th>Matchers</th>
     <th>Comment</th>
   </tr>
-{% for mute in mutes %}
+{% for silence in silences %}
 <tr>
-  <td>{{ mute.endsAt }}</td>
+  <td>{{ silence.endsAt }}</td>
   <td>
-    {% for matcher in mute.matchers %}
+    {% for matcher in silence.matchers %}
       <a
         class="label label-warning"
         data-labels='{"{{matcher.name}}":"{{matcher.value}}"}'
@@ -31,7 +31,7 @@
         >{{ matcher.name }}:{{ matcher.value }}</a>
     {% endfor %}
   </td>
-  <td>{{ mute.comment }}</td>
+  <td>{{ silence.comment }}</td>
 </tr>
 {% endfor %}
 </table>

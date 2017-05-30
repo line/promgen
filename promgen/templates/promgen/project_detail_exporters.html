@@ -34,7 +34,7 @@
           data-labels='{"job":"{{exporter.job}}","project":"{{project.name}}","service":"{{project.service.name}}"}'
           href="#"
           style="display: inline-block;"
-        >Mute</a>
+        >{% trans "Silence" %}</a>
       </td>
       <td>
         <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">

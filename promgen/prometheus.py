@@ -273,7 +273,7 @@ def import_config(config):
     return counters
 
 
-def mute(duration, labels):
+def silence(duration, labels):
     '''
     Post a silence message to Alert Manager
     Duration should be sent in a format like 1m 2h 1d etc
@@ -290,7 +290,7 @@ def mute(duration, labels):
         raise Exception('Unknown time modifier')
 
     data = {
-        'comment': 'Promgen Mute',
+        'comment': 'Silenced from Promgen',
         'createdBy': 'Promgen',
         'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
         'endsAt': end.strftime('%Y-%m-%dT%H:%M:%S.000Z')
@@ -301,21 +301,21 @@ def mute(duration, labels):
     util.post(url, json=data).raise_for_status()
 
 
-def mute_fromto(start, stop, labels):
+def silence_fromto(start, stop, labels):
     '''
     Post a silence message to Alert Manager
     Duration should be sent in a format like 2017-01-01 09:00
     '''
     local_timezone = pytz.timezone(settings.PROMGEN.get('timezone', 'UTC'))
-    mute_start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M').replace(tzinfo=local_timezone)
-    mute_stop = datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M').replace(tzinfo=local_timezone)
+    start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M').replace(tzinfo=local_timezone)
+    stop = datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M').replace(tzinfo=local_timezone)
 
     data = {
-        'comment': 'Promgen Mute',
+        'comment': 'Silenced from Promgen',
         'createdBy': 'Promgen',
         'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
-        'startsAt': mute_start.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z'),
-        'endsAt': mute_stop.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
+        'startsAt': start.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z'),
+        'endsAt': stop.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
     }
 
     logger.debug('Sending silence for %s - %s %s', start, stop, data)
