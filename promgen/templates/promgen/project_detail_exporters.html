@@ -9,6 +9,7 @@
       <th>Metrics Path</th>
       <th>Toggle</th>
       <th>&nbsp;</th>
+      <th>&nbsp;</th>
     </tr>
   {% for exporter in project.exporter_set.all %}
     <tr>
@@ -26,6 +27,14 @@
             <a href="#" class="btn btn-default btn-xs" disabled>OFF</a>
           {% endif %}
         </form>
+      </td>
+      <td>
+        <a
+          class="btn btn-warning btn-xs"
+          data-labels='{"job":"{{exporter.job}}","project":"{{project.name}}","service":"{{project.service.name}}"}'
+          href="#"
+          style="display: inline-block;"
+        >Mute</a>
       </td>
       <td>
         <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">

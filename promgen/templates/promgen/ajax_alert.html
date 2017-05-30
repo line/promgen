@@ -23,39 +23,12 @@
   <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt }}</a></td>
   <td>
     {% for label, value in alert.labels.items|dictsort:0 %}
-      {% if label == 'service' and alert.labels.service %}
         <a
-          style="display: inline-block;"
           class="label label-warning"
-          href="{% url 'service-mute' alert.labels.service %}"
-          title="{% trans 'Mute Service' %}"
-        >{{label}}: {{ value }}</a>
-      {% elif label == 'project' and alert.labels.project %}
-        <a
+          data-labels='{"{{label}}":"{{value}}"}'
+          href="#"
           style="display: inline-block;"
-          class="label label-warning"
-          href="{% url 'service-mute' alert.labels.project %}"
-          title="{% trans 'Mute Project' %}"
         >{{label}}: {{ value }}</a>
-        {% elif label == 'farm' and alert.labels.farm %}
-          <a
-            style="display: inline-block;"
-            class="label label-warning"
-            href="{% url 'farm-mute' alert.labels.farm %}"
-            title="{% trans 'Mute Farm' %}"
-          >{{label}}: {{ value }}</a>
-        {% elif label == 'instance' and alert.labels.instance %}
-          <a
-            style="display: inline-block;"
-            class="label label-warning"
-            href="{% url 'host-mute' alert.labels.instance %}"
-            title="{% trans 'Mute Host' %}"
-          >{{label}}: {{ value }}</a>
-      {% else %}
-        {% if value %}
-      <span style="display: inline-block;" class="label label-default">{{label}}: {{ value }}</span>
-        {% endif %}
-      {% endif %}
     {% endfor %}
   </td>
   <td>
