@@ -4,7 +4,6 @@
 {% if key == 'alert-all' %}
 <div class="panel panel-danger collapse" id="show-{{ key|slugify }}">
   <div class="panel-heading">Alerts {{ alerts|length }}</div>
-  <table class="table table-bordered table-condensed">
 {% else %}
 <div class="panel panel-danger">
   <div class="panel-heading">
@@ -12,39 +11,45 @@
     Alerts {{ alerts|length }}
     </a>
   </div>
-<table class="table table-bordered table-condensed collapse" id="show-{{ key|slugify }}">
-  {% endif %}
+  <div class="panel panel-danger collapse" id="show-{{ key|slugify }}">
+{% endif %}
+  <table class="table table-bordered table-condensed">
   <tr>
     <th>Starts</th>
     <th>Labels</th>
     <th>Annotations</th>
   </tr>
 {% for alert in alerts %}
-<tr>
-  <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt|timezone:TIMEZONE }}</a></td>
-  <td>
-    {% for label, value in alert.labels.items|dictsort:0 %}
-        <a
-          class="label label-warning"
-          data-labels='{"{{label}}":"{{value}}"}'
-          href="#"
-          style="display: inline-block;"
-        >{{label}}: {{ value }}</a>
-    {% endfor %}
-  </td>
-  <td>
-    {% if alert.annotations.summary %}
-    <p>Summary: {{ alert.annotations.summary }}</p>
-    {% endif %}
-    {% if alert.annotations.description %}
-    <p>Description: {{ alert.annotations.description }}</p>
-    {% endif %}
-    {% if alert.annotations.grafana %}
-    <a href="{{ alert.annotations.grafana }}">Grafana</a>
-    {% endif %}
-  </td>
-</tr>
+  <tr>
+    <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt|timezone:TIMEZONE }}</a></td>
+    <td>
+      {% for label, value in alert.labels.items|dictsort:0 %}
+          <a
+            class="label label-warning"
+            data-labels='{"{{label}}":"{{value}}"}'
+            href="#"
+            style="display: inline-block;"
+          >{{label}}: {{ value }}</a>
+      {% endfor %}
+    </td>
+    <td>
+      {% if alert.annotations.summary %}
+      <p>Summary: {{ alert.annotations.summary }}</p>
+      {% endif %}
+      {% if alert.annotations.description %}
+      <p>Description: {{ alert.annotations.description }}</p>
+      {% endif %}
+      {% if alert.annotations.grafana %}
+      <a href="{{ alert.annotations.grafana }}">Grafana</a>
+      {% endif %}
+    </td>
+  </tr>
 {% endfor %}
-</table>
+  </table>
+{% if key == 'alert-all' %}
 </div>
+{% else %}
+  </div>
+</div>
+{% endif %}
 {% endspaceless %}
