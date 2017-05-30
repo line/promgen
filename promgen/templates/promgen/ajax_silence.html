@@ -17,6 +17,7 @@
   <tr>
     <th>Ends</th>
     <th>Matchers</th>
+    <th>Creator</th>
     <th>Comment</th>
   </tr>
 {% for silence in silences %}
@@ -32,6 +33,7 @@
         >{{ matcher.name }}:{{ matcher.value }}</a>
     {% endfor %}
   </td>
+  <td>{{ silence.createdBy }}</td>
   <td>{{ silence.comment }}</td>
 </tr>
 {% endfor %}
