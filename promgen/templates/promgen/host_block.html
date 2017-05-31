@@ -20,7 +20,7 @@
 
 <div class="col-md-6">
   <div class="panel panel-default">
-    <div class="panel-heading">Senders from <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></div>
+    <div class="panel-heading">Notifiers from <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></div>
     <div>
       <table class="table">
 {% for sender in project.sender.all %}
