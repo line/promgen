@@ -43,6 +43,7 @@
     </form>
     <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
       {% csrf_token %}
+      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
       <button type="submit" class="btn btn-warning">{% trans "Refresh Farm" %}</button>
     </form>
 {% else %}

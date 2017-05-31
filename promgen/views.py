@@ -17,7 +17,7 @@ from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
@@ -322,9 +322,11 @@ class FarmRefresh(RedirectView):
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
         farm.refresh()
-        project = farm.project_set.get()
-        models.Audit.log('Refreshed Farm')
-        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+        if 'next' in request.POST:
+            return HttpResponseRedirect(request.POST['next'])
+        # If we don't have an explicit redirect, we can redirect to the farm
+        # itself
+        return redirect(farm)
 
 
 class FarmConvert(RedirectView):
