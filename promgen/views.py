@@ -55,7 +55,7 @@ class ShardList(ListView):
             'service_set__project_set',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
-            'service_set__project_set__sender')
+            'service_set__project_set__notifiers')
 
 
 class ShardDetail(DetailView):
@@ -65,7 +65,7 @@ class ShardDetail(DetailView):
             'service_set__project_set',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
-            'service_set__project_set__sender')
+            'service_set__project_set__notifiers')
 
 
 class ServiceList(ListView):
@@ -76,7 +76,7 @@ class ServiceList(ListView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender')
+            'project_set__notifiers')
 
 
 class HostList(ListView):
@@ -111,7 +111,7 @@ class HostDetail(View):
 
         context['project_list'] = models.Project.objects.filter(farm_id__in=[
             farm.id for farm in context['farm_list']
-        ]).prefetch_related('sender', 'service', 'service__sender')
+        ]).prefetch_related('sender', 'service', 'service__notifiers')
 
         context['rule_list'] = models.Rule.objects.filter(service_id__in=[
             project.service_id for project in context['project_list']
@@ -122,9 +122,9 @@ class HostDetail(View):
         ]).prefetch_related('project', 'project__service')
 
         context['sender_list'] = [
-            sender for project in context['project_list'] for sender in project.sender.all()
+            sender for project in context['project_list'] for sender in project.notifiers.all()
         ] + [
-            sender for project in context['project_list'] for sender in project.service.sender.all()
+            sender for project in context['project_list'] for sender in project.service.notifiers.all()
         ]
 
         return render(request, 'promgen/host_detail.html', context)
@@ -141,7 +141,7 @@ class ServiceDetail(DetailView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender')
+            'project_set__notifiers')
 
 
 class ServiceDelete(DeleteView):

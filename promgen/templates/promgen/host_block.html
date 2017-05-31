@@ -23,7 +23,7 @@
     <div class="panel-heading">Notifiers from <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></div>
     <div>
       <table class="table">
-{% for notifier in project.sender.all %}
+{% for notifier in project.notifiers.all %}
         <tr>
           <th>{{ notifier.sender }}</th>
           <td>{{ notifier.show_value }}</td>

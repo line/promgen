@@ -23,7 +23,7 @@
         <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Notifier" %}</a>
       </span>
     </div>
-    {% if service.sender.count %}
+    {% if service.notifiers.count %}
     {% include "promgen/sender_block.html" with object=service show_edit=1 %}
     {% endif %}
   </div>
@@ -62,7 +62,7 @@
     </td>
     <td>
       <table style="width: 100%">
-{% for notifier in project.sender.all %}
+{% for notifier in project.notifiers.all %}
         <tr>
           <td>{{ notifier.sender }}</td>
           <td>{{ notifier.show_value }}</td>

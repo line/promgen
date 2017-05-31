@@ -8,11 +8,11 @@
   </div>
 </div>
 
-{% if project.service.sender.count %}
+{% if project.service.notifiers.count %}
 <div class="panel panel-primary">
   <div class="panel-heading">
     <a class="btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#show-service-senders" aria-expanded="false" aria-controls="collapseExample">
-    Service Notifiers ({{project.service.sender.count}})
+    Service Notifiers ({{project.service.notifiers.count}})
     </a>
   </div>
   {% include "promgen/sender_block.html" with object=project.service collapse="show-service-senders" %}

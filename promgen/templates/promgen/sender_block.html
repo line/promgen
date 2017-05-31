@@ -4,7 +4,7 @@
     <th>Notifier</th>
     <th>Value</th>
   </tr>
-  {% for notifier in object.sender.all %}
+  {% for notifier in object.notifiers.all %}
   <tr>
     <td>{{ notifier.sender }}</td>
     <td>{{ notifier.show_value }}</td>
