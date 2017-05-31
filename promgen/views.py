@@ -71,7 +71,7 @@ class ShardDetail(DetailView):
 class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
-            'sender',
+            'notifiers',
             'rule_set',
             'project_set',
             'project_set__farm',
@@ -111,7 +111,7 @@ class HostDetail(View):
 
         context['project_list'] = models.Project.objects.filter(farm_id__in=[
             farm.id for farm in context['farm_list']
-        ]).prefetch_related('sender', 'service', 'service__notifiers')
+        ]).prefetch_related('notifiers', 'service', 'service__notifiers')
 
         context['rule_list'] = models.Rule.objects.filter(service_id__in=[
             project.service_id for project in context['project_list']
