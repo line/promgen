@@ -24,7 +24,7 @@
       </span>
     </div>
     {% if service.notifiers.count %}
-    {% include "promgen/sender_block.html" with object=service show_edit=1 %}
+    {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
     {% endif %}
   </div>
 
