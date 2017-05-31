@@ -3,11 +3,10 @@
 
 import json
 
-import requests
 from django.core.management.base import BaseCommand
 
-from promgen import prometheus
 from promgen.signals import trigger_write_config, trigger_write_rules, trigger_write_urls
+from promgen import prometheus, util
 
 
 class Command(BaseCommand):
@@ -16,7 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, target_file, **kwargs):
         if target_file.startswith('http'):
-            config = requests.get(target_file).json()
+            config = util.get(target_file).json()
         else:
             config = json.load(open(target_file), encoding='utf8')
 

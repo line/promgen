@@ -7,9 +7,9 @@ import json
 import logging
 import time
 from urllib.parse import urljoin
-from dateutil import parser, tz
 
 import requests
+from dateutil import parser
 from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
@@ -758,7 +758,7 @@ class Import(FormView):
                 config = data['file_field'].read().decode('utf8')
             elif data.get('url'):
                 messages.info(request, 'Importing config from url')
-                response = requests.get(data['url'])
+                response = util.get(data['url'])
                 response.raise_for_status()
                 config = response.text
             else:
@@ -820,7 +820,7 @@ class AjaxAlert(View):
         alerts = collections.defaultdict(list)
         try:
             url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts')
-            response = requests.get(url)
+            response = util.get(url)
         except requests.exceptions.ConnectionError:
             logger.error('Error connecting to %s', url)
             return JsonResponse({})
@@ -895,7 +895,7 @@ class AjaxSilence(View):
         silences = collections.defaultdict(list)
         try:
             url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
-            response = requests.get(url)
+            response = util.get(url)
         except requests.exceptions.ConnectionError:
             logger.error('Error connecting to %s', url)
             return JsonResponse({})
