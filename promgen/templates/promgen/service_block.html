@@ -20,7 +20,7 @@
     <div class="panel-heading">
       Sender
       <span class="pull-right form-inline">
-        <a href="{% url 'service-sender' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Sender" %}</a>
+        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Sender" %}</a>
       </span>
     </div>
     {% if service.sender.count %}

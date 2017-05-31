@@ -158,14 +158,14 @@ class ProjectDelete(DeleteView):
         return reverse('service-detail', args=[self.object.service_id])
 
 
-class SenderDelete(DeleteView):
+class NotifierDelete(DeleteView):
     model = models.Sender
 
     def get_success_url(self):
         return self.object.content_object.get_absolute_url()
 
 
-class SenderTest(View):
+class NotifierTest(View):
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         for entry in plugins.notifications():
@@ -568,7 +568,7 @@ class FarmRegsiter(FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ProjectSenderRegister(FormView, ProjectMixin):
+class ProjectNotifierRegister(FormView, ProjectMixin):
     model = models.Sender
     template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm
@@ -579,7 +579,7 @@ class ProjectSenderRegister(FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ServiceSenderRegister(FormView, ServiceMixin):
+class ServiceNotifierRegister(FormView, ServiceMixin):
     model = models.Sender
     template_name = 'promgen/sender_form.html'
     form_class = forms.SenderForm

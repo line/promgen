@@ -4,7 +4,7 @@
   <div class="panel-heading">Project Senders</div>
   {% include "promgen/sender_block.html" with object=project show_edit=1 %}
   <div class="panel-footer">
-    <a href="{% url 'project-sender' project.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
+    <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary">{% trans "Register Sender" %}</a>
   </div>
 </div>
 
