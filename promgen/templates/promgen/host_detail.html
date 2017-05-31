@@ -60,7 +60,7 @@
       <th>Notifier</th>
       <th>Value</th>
     </tr>
-{% for notifier in sender_list %}
+{% for notifier in notifier_list %}
     <tr>
       <td><a href="{{ notifier.content_object.get_absolute_url }}">{{ notifier.content_object.name }}</a></td>
       <td>{{ notifier.sender }}</td>

@@ -121,7 +121,7 @@ class HostDetail(View):
             project.id for project in context['project_list']
         ]).prefetch_related('project', 'project__service')
 
-        context['sender_list'] = [
+        context['notifier_list'] = [
             sender for project in context['project_list'] for sender in project.notifiers.all()
         ] + [
             sender for project in context['project_list'] for sender in project.service.notifiers.all()
