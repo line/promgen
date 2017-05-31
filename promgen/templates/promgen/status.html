@@ -26,7 +26,7 @@
     <td>Notifier Plugins</td>
     <td>
       <ul>
-{% for notifier in senders %}
+{% for notifier in notifier_plugins %}
       <li>{{ notifier.name }} - {{ notifier.module_name }}</li>
 {% endfor %}
     </td>

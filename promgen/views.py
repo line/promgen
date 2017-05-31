@@ -705,7 +705,7 @@ class Status(View):
     def get(self, request):
         return render(request, 'promgen/status.html', {
             'discovery_plugins': [entry for entry in plugins.discovery()],
-            'senders': [entry for entry in plugins.notifications()],
+            'notifier_plugins': [entry for entry in plugins.notifications()],
             'config': prometheus.render_config(),
         })
 
