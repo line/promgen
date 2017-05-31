@@ -62,10 +62,10 @@
     </td>
     <td>
       <table style="width: 100%">
-{% for sender in project.sender.all %}
+{% for notifier in project.sender.all %}
         <tr>
-          <td>{{ sender.sender }}</td>
-          <td>{{ sender.show_value }}</td>
+          <td>{{ notifier.sender }}</td>
+          <td>{{ notifier.show_value }}</td>
         </tr>
 {% endfor %}
       </table>

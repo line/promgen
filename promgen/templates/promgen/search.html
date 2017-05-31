@@ -67,9 +67,9 @@
       </td>
       <td>
         <dl class="dl-horizontal">
-  {% for sender in project.sender.all %}
-          <dt>{{ sender.sender }}</dt>
-          <dd>{{ sender.show_value }}</dd>
+  {% for notifier in project.sender.all %}
+          <dt>{{ notifier.sender }}</dt>
+          <dd>{{ notifier.show_value }}</dd>
   {% endfor %}
         </dl>
       </td>
