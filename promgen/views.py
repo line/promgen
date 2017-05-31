@@ -570,7 +570,7 @@ class FarmRegsiter(FormView, ProjectMixin):
 
 class ProjectNotifierRegister(FormView, ProjectMixin):
     model = models.Sender
-    template_name = 'promgen/sender_form.html'
+    template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
 
     def form_valid(self, form):
@@ -581,7 +581,7 @@ class ProjectNotifierRegister(FormView, ProjectMixin):
 
 class ServiceNotifierRegister(FormView, ServiceMixin):
     model = models.Sender
-    template_name = 'promgen/sender_form.html'
+    template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
 
     def form_valid(self, form):
