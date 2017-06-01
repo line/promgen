@@ -19,6 +19,14 @@ class ImportConfigForm(forms.Form):
         widget=forms.FileInput(attrs={'class': 'form-control'}),
         required=False)
 
+    replace = forms.BooleanField(
+        label='Set target shard',
+        required=False,
+    )
+    shard = forms.ChoiceField(
+        choices=lambda: [(shard.name, shard.name) for shard in models.Shard.objects.all()]
+    )
+
 
 class ImportRuleForm(forms.Form):
     rules = forms.CharField(widget=forms.Textarea, required=True)

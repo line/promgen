@@ -767,18 +767,28 @@ class Import(FormView):
                 messages.info(request, 'Importing config')
                 config = data['config']
 
-            objects = prometheus.import_config(json.loads(config))
-            counters = {key: len(objects[key]) for key in objects}
-            messages.info(request, 'Imported %s' % counters)
+            kwargs = {}
+            if data.get('replace'):
+                kwargs['replace_shard'] = data.get('shard')
+
+            imported, skipped = prometheus.import_config(json.loads(config), **kwargs)
+
+            if imported:
+                counters = {key: len(imported[key]) for key in imported}
+                messages.info(request, 'Imported %s' % counters)
+
+            if skipped:
+                counters = {key: len(skipped[key]) for key in skipped}
+                messages.info(request, 'Skipped %s' % counters)
 
             # If we only have a single object in a category, automatically
             # redirect to that category to make things easier to understand
-            if len(objects['Project']) == 1:
-                return HttpResponseRedirect(objects['Project'][0].get_absolute_url())
-            if len(objects['Service']) == 1:
-                return HttpResponseRedirect(objects['Service'][0].get_absolute_url())
-            if len(objects['Shard']) == 1:
-                return HttpResponseRedirect(objects['Shard'][0].get_absolute_url())
+            if len(imported['Project']) == 1:
+                return HttpResponseRedirect(imported['Project'][0].get_absolute_url())
+            if len(imported['Service']) == 1:
+                return HttpResponseRedirect(imported['Service'][0].get_absolute_url())
+            if len(imported['Shard']) == 1:
+                return HttpResponseRedirect(imported['Shard'][0].get_absolute_url())
 
             # otherwise we can just use the default behavior
             return self.form_valid(form)
