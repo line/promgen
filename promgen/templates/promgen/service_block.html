@@ -4,39 +4,48 @@
   <div style="display:none" id="silence-service-{{ service.name|slugify }}"></div>
 
   <div class="panel panel-default">
-    <div class="panel-heading">
-      Rules ( {{service.rule_set.count}} )
-      <span class="pull-right form-inline">
-        <a href="{% url 'rule-new' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
-        <a href="{% url 'service-rules' service.id %}" class="btn btn-default btn-xs">{% trans "Export Rules" %}</a>
-      </span>
+    <div class="panel-body">
+      <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>
+      <a href="{% url 'rule-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
+      <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
+
+      <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
+      <a data-labels='{"service":"{{service.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
+
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Export <span class="caret"></span>
+      </button>
+        <ul class="dropdown-menu">
+          <li role="presentation"><a href="{% url 'service-rules' service.id %}">{% trans "Export Rules" %}</a></li>
+          <li role="presentation"><a href="{% url 'service-targets' service.id %}">{% trans "Export Service" %}</a></li>
+        </ul>
+      </div>
+
+      <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans " Delete this service? " %}')" style="display: inline">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm pull-right">{% trans "Delete Service" %}</button>
+      </form>
     </div>
+  </div>
+
 {% if service.rule_set.count %}
-{% include "promgen/rule_block.html" with rule_list=service.rule_set.all show_edit=1 %}
-{% endif %}
-  </div>
-
   <div class="panel panel-default">
-    <div class="panel-heading">
-      Notifier
-      <span class="pull-right form-inline">
-        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Notifier" %}</a>
-      </span>
-    </div>
-    {% if service.notifiers.count %}
-    {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
-    {% endif %}
+    <div class="panel-heading">Rules</div>
+{% include "promgen/rule_block.html" with rule_list=service.rule_set.all show_edit=1 %}
   </div>
+{% endif %}
 
-<div class="panel panel-default">
-<div class="panel-heading">
-  Projects
-  <span class="pull-right form-inline">
-    <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Project" %}</a>
-    <a href="{% url 'service-targets' service.id %}" class="btn btn-default btn-xs">{% trans "Export Service" %}</a>
-  </span>
-</div>
+{% if service.notifiers.count %}
+  <div class="panel panel-default">
+    <div class="panel-heading">Notifier</div>
+    {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
+  </div>
+{% endif %}
+
 {% if service.project_set.count %}
+<div class="panel panel-default">
+  <div class="panel-heading">Projects</div>
 <table class="table table-bordered table-condensed">
   <tr>
     <th class="col-md-2">Project</th>
@@ -71,18 +80,13 @@
       </table>
     </td>
     <td>
-      <a data-labels='{"service":"{{service.name}}","project":"{{project.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
+      <a data-labels='{"service":"{{service.name}}","project":"{{project.name}}"}' href="#" class="btn btn-warning btn-xs">{% trans "Silence" %}</a>
     </td>
   </tr>
 {% endfor %}
 </table>
-{% endif %}
+
 
   </div>
-    <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
-    <a data-labels='{"service":"{{service.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
-    <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
-      {% csrf_token %}
-      <button class="btn btn-danger btn-sm">{% trans "Delete Service" %}</button>
-    </form>
+  {% endif %}
 </div>
