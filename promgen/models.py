@@ -158,6 +158,9 @@ class Farm(models.Model):
         ordering = ['name']
         unique_together = (('name', 'source',))
 
+    def get_absolute_url(self):
+        return reverse('farm-detail', kwargs={'pk': self.pk})
+
     def refresh(self):
         remaining = [host.name for host in self.host_set.all()]
         keep = []
