@@ -55,7 +55,7 @@ class ShardList(ListView):
             'service_set__project_set',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
-            'service_set__project_set__sender')
+            'service_set__project_set__notifiers')
 
 
 class ShardDetail(DetailView):
@@ -65,18 +65,18 @@ class ShardDetail(DetailView):
             'service_set__project_set',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
-            'service_set__project_set__sender')
+            'service_set__project_set__notifiers')
 
 
 class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
-            'sender',
+            'notifiers',
             'rule_set',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender')
+            'project_set__notifiers')
 
 
 class HostList(ListView):
@@ -111,7 +111,7 @@ class HostDetail(View):
 
         context['project_list'] = models.Project.objects.filter(farm_id__in=[
             farm.id for farm in context['farm_list']
-        ]).prefetch_related('sender', 'service', 'service__sender')
+        ]).prefetch_related('notifiers', 'service', 'service__notifiers')
 
         context['rule_list'] = models.Rule.objects.filter(service_id__in=[
             project.service_id for project in context['project_list']
@@ -121,10 +121,10 @@ class HostDetail(View):
             project.id for project in context['project_list']
         ]).prefetch_related('project', 'project__service')
 
-        context['sender_list'] = [
-            sender for project in context['project_list'] for sender in project.sender.all()
+        context['notifier_list'] = [
+            sender for project in context['project_list'] for sender in project.notifiers.all()
         ] + [
-            sender for project in context['project_list'] for sender in project.service.sender.all()
+            sender for project in context['project_list'] for sender in project.service.notifiers.all()
         ]
 
         return render(request, 'promgen/host_detail.html', context)
@@ -141,7 +141,7 @@ class ServiceDetail(DetailView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__sender')
+            'project_set__notifiers')
 
 
 class ServiceDelete(DeleteView):
@@ -158,14 +158,14 @@ class ProjectDelete(DeleteView):
         return reverse('service-detail', args=[self.object.service_id])
 
 
-class SenderDelete(DeleteView):
+class NotifierDelete(DeleteView):
     model = models.Sender
 
     def get_success_url(self):
         return self.object.content_object.get_absolute_url()
 
 
-class SenderTest(View):
+class NotifierTest(View):
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         for entry in plugins.notifications():
@@ -570,9 +570,9 @@ class FarmRegsiter(FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ProjectSenderRegister(FormView, ProjectMixin):
+class ProjectNotifierRegister(FormView, ProjectMixin):
     model = models.Sender
-    template_name = 'promgen/sender_form.html'
+    template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
 
     def form_valid(self, form):
@@ -581,9 +581,9 @@ class ProjectSenderRegister(FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ServiceSenderRegister(FormView, ServiceMixin):
+class ServiceNotifierRegister(FormView, ServiceMixin):
     model = models.Sender
-    template_name = 'promgen/sender_form.html'
+    template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
 
     def form_valid(self, form):
@@ -707,7 +707,7 @@ class Status(View):
     def get(self, request):
         return render(request, 'promgen/status.html', {
             'discovery_plugins': [entry for entry in plugins.discovery()],
-            'senders': [entry for entry in plugins.notifications()],
+            'notifier_plugins': [entry for entry in plugins.notifications()],
             'config': prometheus.render_config(),
         })
 

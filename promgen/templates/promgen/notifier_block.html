@@ -1,22 +1,22 @@
 {% load i18n %}
 <table class="table table-bordered table-condensed{% if collapse %} collapse" id="{{ collapse }}"{% endif %}">
   <tr>
-    <th>Sender</th>
+    <th>Notifier</th>
     <th>Value</th>
   </tr>
-  {% for sender in object.sender.all %}
+  {% for notifier in object.notifiers.all %}
   <tr>
-    <td>{{ sender.sender }}</td>
-    <td>{{ sender.show_value }}</td>
+    <td>{{ notifier.sender }}</td>
+    <td>{{ notifier.show_value }}</td>
 {% if show_edit %}
     <td>
-      <form method="post" action="{% url 'sender-test' sender.id %}" style="display: inline">
+      <form method="post" action="{% url 'notifier-test' notifier.id %}" style="display: inline">
         {% csrf_token %}
         <button class="btn btn-danger btn-xs">{% trans "Test" %}</button>
       </form>
     </td>
     <td>
-      <form method="post" action="{% url 'sender-delete' sender.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
+      <form method="post" action="{% url 'notifier-delete' notifier.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
         {% csrf_token %}
         <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
       </form>

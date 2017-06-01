@@ -40,7 +40,7 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/targets$', views.ServiceTargets.as_view(), name='service-targets'),
     url(r'^service/(?P<pk>[0-9]+)/rules$', views.ServiceRules.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/update$', views.ServiceUpdate.as_view(), name='service-update'),
-    url(r'^service/(?P<pk>[0-9]+)/sender$', views.ServiceSenderRegister.as_view(), name='service-sender'),
+    url(r'^service/(?P<pk>[0-9]+)/notifier$', views.ServiceNotifierRegister.as_view(), name='service-notifier'),
 
     url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
     url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),
@@ -50,7 +50,7 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.FarmRegsiter.as_view(), name='farm-new'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.ExporterRegister.as_view(), name='project-exporter'),
     url(r'^project/(?P<pk>[0-9]+)/targets$', views.ProjectTargets.as_view(), name='project-targets'),
-    url(r'^project/(?P<pk>[0-9]+)/sender$', views.ProjectSenderRegister.as_view(), name='project-sender'),
+    url(r'^project/(?P<pk>[0-9]+)/notifier$', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
     url(r'^exporter/(?P<pk>[0-9]+)/toggle$', views.ExporterToggle.as_view(), name='exporter-toggle'),
@@ -71,8 +71,8 @@ urlpatterns = [
     url(r'^host/(?P<slug>\S+)/$', views.HostDetail.as_view(), name='host-detail'),
     url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
 
-    url(r'^sender/(?P<pk>[0-9]+)/delete$', views.SenderDelete.as_view(), name='sender-delete'),
-    url(r'^sender/(?P<pk>[0-9]+)/test$', views.SenderTest.as_view(), name='sender-test'),
+    url(r'^notifier/(?P<pk>[0-9]+)/delete$', views.NotifierDelete.as_view(), name='notifier-delete'),
+    url(r'^notifier/(?P<pk>[0-9]+)/test$', views.NotifierTest.as_view(), name='notifier-test'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),

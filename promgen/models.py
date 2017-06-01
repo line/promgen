@@ -105,7 +105,7 @@ class Shard(models.Model):
 
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
-    sender = GenericRelation(Sender)
+    notifiers = GenericRelation(Sender)
     shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
 
     class Meta:
@@ -138,7 +138,7 @@ class Project(models.Model):
     name = models.CharField(max_length=128, unique=True)
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
-    sender = GenericRelation(Sender)
+    notifiers = GenericRelation(Sender)
 
     class Meta:
         ordering = ['name']

@@ -85,7 +85,7 @@ class NotificationBase(object):
                     continue
                 logger.debug('Checking senders for %s=%s', label, alert['labels'][label])
                 for obj in klass.objects.filter(name=alert['labels'][label]):
-                    for sender in obj.sender.filter(sender=self.__module__):
+                    for sender in obj.notifiers.filter(sender=self.__module__):
                         logger.debug('Sending to %s', sender)
                         if self.__send(sender.value, alert, data):
                             sent += 1

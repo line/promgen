@@ -18,13 +18,13 @@
 
   <div class="panel panel-default">
     <div class="panel-heading">
-      Sender
+      Notifier
       <span class="pull-right form-inline">
-        <a href="{% url 'service-sender' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Sender" %}</a>
+        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-xs">{% trans "Register Notifier" %}</a>
       </span>
     </div>
-    {% if service.sender.count %}
-    {% include "promgen/sender_block.html" with object=service show_edit=1 %}
+    {% if service.notifiers.count %}
+    {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
     {% endif %}
   </div>
 
@@ -42,7 +42,7 @@
     <th class="col-md-2">Project</th>
     <th class="col-md-2">Farm</th>
     <th class="col-md-2">Exporters</th>
-    <th class="col-md-3">Senders</th>
+    <th class="col-md-3">Notifiers</th>
     <th class="col-md-1">Actions</th>
   </tr>
 {% for project in service.project_set.all %}
@@ -62,10 +62,10 @@
     </td>
     <td>
       <table style="width: 100%">
-{% for sender in project.sender.all %}
+{% for notifier in project.notifiers.all %}
         <tr>
-          <td>{{ sender.sender }}</td>
-          <td>{{ sender.show_value }}</td>
+          <td>{{ notifier.sender }}</td>
+          <td>{{ notifier.show_value }}</td>
         </tr>
 {% endfor %}
       </table>
