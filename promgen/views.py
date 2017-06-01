@@ -721,7 +721,7 @@ class Search(View):
             'host_list': models.Host.objects.filter(name__icontains=request.GET.get('search')),
             'project_list': models.Project.objects
                 .filter(name__icontains=request.GET.get('search'))
-                .prefetch_related('service', 'sender', 'exporter_set'),
+                .prefetch_related('service', 'notifiers', 'exporter_set'),
             'rule_list': models.Rule.objects
                 .filter(
                     Q(name__icontains=request.GET.get('search')) |
@@ -730,7 +730,7 @@ class Search(View):
                 .prefetch_related('service'),
             'service_list': models.Service.objects
                 .filter(name__icontains=request.GET.get('search'))
-                .prefetch_related('project_set', 'rule_set', 'sender'),
+                .prefetch_related('project_set', 'rule_set', 'notifiers'),
         })
 
 
