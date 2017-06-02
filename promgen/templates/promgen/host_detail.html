@@ -11,7 +11,9 @@
   <li class="active">{{ slug }}</li>
 </ol>
 
-<div class="panel panel-primary">
+<div class="row">
+
+<div class="col-sm-6"><div class="panel panel-primary">
   <div class="panel-heading">Farm</div>
   <table class="table">
     <tr>
@@ -23,9 +25,9 @@
     </tr>
 {% endfor %}
   </table>
-</div>
+</div></div>
 
-<div class="panel panel-primary">
+<div class="col-sm-6"><div class="panel panel-primary">
   <div class="panel-heading">Project</div>
   <table class="table">
     <tr>
@@ -37,9 +39,9 @@
     </tr>
 {% endfor %}
   </table>
-</div>
+</div></div>
 
-<div class="panel panel-primary">
+<div class="col-sm-6"><div class="panel panel-primary">
   <div class="panel-heading">Exporters</div>
   <table class="table">
     <tr>
@@ -59,6 +61,25 @@
     </tr>
 {% endfor %}
   </table>
+</div></div>
+
+<div class="col-sm-6"><div class="panel panel-primary">
+  <div class="panel-heading">Notifiers</div>
+  <table class="table">
+    <tr>
+      <th>Parent</th>
+      <th>Notifier</th>
+      <th>Value</th>
+    </tr>
+{% for notifier in notifier_list %}
+    <tr>
+      <td><a href="{{ notifier.content_object.get_absolute_url }}">{{ notifier.content_object.name }}</a></td>
+      <td>{{ notifier.sender }}</td>
+      <td>{{ notifier.show_value }}</td>
+    </tr>
+{% endfor %}
+  </table>
+</div></div>
 </div>
 
 {% if rule_set.count %}
@@ -76,24 +97,5 @@
   {% include "promgen/rule_block.html" with rule_list=global.rule_set.all %}
 </div>
 {% endif %}
-
-<div class="panel panel-primary">
-  <div class="panel-heading">Notifiers</div>
-  <table class="table">
-    <tr>
-      <th>Parent</th>
-      <th>Notifier</th>
-      <th>Value</th>
-    </tr>
-{% for notifier in notifier_list %}
-    <tr>
-      <td><a href="{{ notifier.content_object.get_absolute_url }}">{{ notifier.content_object.name }}</a></td>
-      <td>{{ notifier.sender }}</td>
-      <td>{{ notifier.show_value }}</td>
-    </tr>
-{% endfor %}
-  </table>
-</div>
-
 
 {% endblock %}
