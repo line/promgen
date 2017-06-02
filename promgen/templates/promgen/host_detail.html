@@ -26,6 +26,20 @@
 </div>
 
 <div class="panel panel-primary">
+  <div class="panel-heading">Project</div>
+  <table class="table">
+    <tr>
+      <th>Project</th>
+    </tr>
+{% for project in project_list %}
+    <tr>
+      <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
+    </tr>
+{% endfor %}
+  </table>
+</div>
+
+<div class="panel panel-primary">
   <div class="panel-heading">Exporters</div>
   <table class="table">
     <tr>
