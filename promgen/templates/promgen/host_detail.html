@@ -11,7 +11,9 @@
   <li class="active">{{ slug }}</li>
 </ol>
 
-<div class="panel panel-default">
+<div class="row">
+
+<div class="col-sm-6"><div class="panel panel-primary">
   <div class="panel-heading">Farm</div>
   <table class="table">
     <tr>
@@ -23,9 +25,23 @@
     </tr>
 {% endfor %}
   </table>
-</div>
+</div></div>
 
-<div class="panel panel-default">
+<div class="col-sm-6"><div class="panel panel-primary">
+  <div class="panel-heading">Project</div>
+  <table class="table">
+    <tr>
+      <th>Project</th>
+    </tr>
+{% for project in project_list %}
+    <tr>
+      <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
+    </tr>
+{% endfor %}
+  </table>
+</div></div>
+
+<div class="col-sm-6"><div class="panel panel-primary">
   <div class="panel-heading">Exporters</div>
   <table class="table">
     <tr>
@@ -45,14 +61,9 @@
     </tr>
 {% endfor %}
   </table>
-</div>
+</div></div>
 
-<div class="panel panel-default">
-  <div class="panel-heading">Rules</div>
-  {% include "promgen/rule_block.html" %}
-</div>
-
-<div class="panel panel-default">
+<div class="col-sm-6"><div class="panel panel-primary">
   <div class="panel-heading">Notifiers</div>
   <table class="table">
     <tr>
@@ -68,7 +79,23 @@
     </tr>
 {% endfor %}
   </table>
+</div></div>
 </div>
 
+{% if rule_list.count %}
+<div class="panel panel-primary">
+  <div class="panel-heading">Rules</div>
+  {% include "promgen/rule_block.html" %}
+</div>
+{% endif %}
+
+{% if global.rule_set.count %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Common Rules
+  </div>
+  {% include "promgen/rule_block.html" with rule_list=global.rule_set.all %}
+</div>
+{% endif %}
 
 {% endblock %}

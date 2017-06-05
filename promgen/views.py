@@ -100,6 +100,7 @@ class HostDetail(View):
     def get(self, request, slug):
         context = {}
         context['slug'] = self.kwargs['slug']
+        context['global'] = models.Service.default()
         context['host_list'] = models.Host.objects\
             .filter(name__contains=self.kwargs['slug'])\
             .prefetch_related('farm')
