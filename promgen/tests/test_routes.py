@@ -28,7 +28,8 @@ class RouteTests(TestCase):
         response = self.client.post(reverse('import'), {
             'config': json.dumps(TEST_IMPORT)
         })
-        self.assertEqual(response.status_code, 302)
+
+        self.assertEqual(response.status_code, 302, 'Redirect to imported object')
         self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
         self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')
         self.assertEqual(models.Exporter.objects.count(), 2, 'Import two exporters')
@@ -44,12 +45,12 @@ class RouteTests(TestCase):
         response = self.client.post(reverse('import'), {
             'config': json.dumps(TEST_IMPORT)
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, 'Redirect to imported object')
 
         response = self.client.post(reverse('import'), {
             'config': json.dumps(TEST_REPLACE)
         })
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 302, 'Redirect to imported object (2)')
 
         self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
         self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')

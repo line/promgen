@@ -9,6 +9,9 @@ from promgen import models, plugins
 
 
 class ImportConfigForm(forms.Form):
+    def _choices():
+        return [('', '<Default>')] + sorted([(shard.name, 'Import into: ' + shard.name) for shard in models.Shard.objects.all()])
+
     config = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
         required=False)
@@ -18,6 +21,8 @@ class ImportConfigForm(forms.Form):
     file_field = forms.FileField(
         widget=forms.FileInput(attrs={'class': 'form-control'}),
         required=False)
+
+    shard = forms.ChoiceField(choices=_choices, required=False)
 
 
 class ImportRuleForm(forms.Form):

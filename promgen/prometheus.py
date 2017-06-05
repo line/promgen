@@ -209,15 +209,21 @@ def import_rules(config, default_service=None):
     return dict(counters)
 
 
-def import_config(config):
+def import_config(config, replace_shard=None):
     counters = collections.defaultdict(list)
+    skipped = collections.defaultdict(list)
     for entry in config:
+        if replace_shard:
+            logger.debug('Importing into shard %s', replace_shard)
+            entry['labels']['__shard'] = replace_shard
         shard, created = models.Shard.objects.get_or_create(
             name=entry['labels'].get('__shard', 'Default')
         )
         if created:
             logger.debug('Created shard %s', shard)
             counters['Shard'].append(shard)
+        else:
+            skipped['Shard'].append(shard)
 
         service, created = models.Service.objects.get_or_create(
             name=entry['labels']['service'],
@@ -226,6 +232,8 @@ def import_config(config):
         if created:
             logger.debug('Created service %s', service)
             counters['Service'].append(service)
+        else:
+            skipped['Service'].append(service)
 
         farm, created = models.Farm.objects.get_or_create(
             name=entry['labels']['farm'],
@@ -234,6 +242,8 @@ def import_config(config):
         if created:
             logger.debug('Created farm %s', farm)
             counters['Farm'].append(farm)
+        else:
+            skipped['Farm'].append(farm)
 
         project, created = models.Project.objects.get_or_create(
             name=entry['labels']['project'],
@@ -270,7 +280,7 @@ def import_config(config):
                 logger.debug('Created exporter %s', exporter)
                 counters['Exporter'].append(exporter)
 
-    return counters
+    return counters, skipped
 
 
 def silence(duration, labels):
