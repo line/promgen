@@ -768,7 +768,9 @@ class Import(FormView):
                 config = data['config']
 
             kwargs = {}
-            if data.get('replace'):
+            # This also lets us catch passing an empty string to signal using
+            # the shard value from the post request
+            if data.get('shard'):
                 kwargs['replace_shard'] = data.get('shard')
 
             imported, skipped = prometheus.import_config(json.loads(config), **kwargs)
