@@ -102,7 +102,7 @@ class HostDetail(View):
         context['slug'] = self.kwargs['slug']
         context['global'] = models.Service.default()
         context['host_list'] = models.Host.objects\
-            .filter(name__contains=self.kwargs['slug'])\
+            .filter(name__icontains=self.kwargs['slug'])\
             .prefetch_related('farm')
 
         if not context['host_list']:
