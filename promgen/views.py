@@ -844,7 +844,7 @@ class SilenceExpire(FormView):
             except Exception as e:
                 messages.warning(request, e)
         else:
-            messages.warning(request, 'Error expire silence')
+            messages.warning(request, 'Error expiring silence')
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
