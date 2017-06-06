@@ -830,6 +830,24 @@ class Silence(FormView):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
+class SilenceExpire(FormView):
+    form_class = forms.SilenceExpireForm
+
+    def post(self, request):
+        form = forms.SilenceExpireForm(request.POST)
+        if form.is_valid():
+            try:
+                silence_id = form.cleaned_data['silence_id']
+                url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silence/%s' % silence_id)
+                util.delete(url).raise_for_status()
+                messages.success(request, 'Expire silence')
+            except Exception as e:
+                messages.warning(request, e)
+        else:
+            messages.warning(request, 'Error expire silence')
+        return HttpResponseRedirect(request.POST.get('next', '/'))
+
+
 class AjaxAlert(View):
     def get(self, request):
         alerts = collections.defaultdict(list)
@@ -906,7 +924,7 @@ class AjaxClause(View):
 
 
 class AjaxSilence(View):
-    def get(self, request):
+    def post(self, request):
         silences = collections.defaultdict(list)
         try:
             url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')

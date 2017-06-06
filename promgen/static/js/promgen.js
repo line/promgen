@@ -39,7 +39,9 @@ function update_page(data) {
 $(document).ready(function() {
   $("a[data-labels]").click(silence_tag)
   $.ajax("/ajax/alert").done(update_page);
-  $.ajax("/ajax/silence").done(update_page);
+  $.post("/ajax/silence", {
+    'referer': window.location.toString()
+  }).done(update_page);
 
   $('#test_clause').click(function() {
     var btn = $(this)
