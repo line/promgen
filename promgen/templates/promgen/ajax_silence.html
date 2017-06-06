@@ -19,6 +19,7 @@
     <th>Matchers</th>
     <th>Creator</th>
     <th>Comment</th>
+    <th>Expire</th>
   </tr>
 {% for silence in silences %}
   <tr>
@@ -35,6 +36,16 @@
     </td>
     <td>{{ silence.createdBy }}</td>
     <td>{{ silence.comment }}</td>
+    <td>
+      <form method="post" action="{% url 'silence-expire' %}">
+        <div>
+          <button class="btn btn-warning btn-xs">{% trans "Expire" %}</button>
+        </div>
+        <input name="silence_id" type="hidden" value="{{ silence.id }}" />
+        <input name="next" type="hidden" value="{{ request.POST.referer }}" />
+        {% csrf_token %}
+      </form>
+    </td>
   </tr>
 {% endfor %}
   </table>

@@ -56,6 +56,11 @@ class SilenceForm(forms.Form):
             raise forms.ValidationError('Start time and end time is mismatch')
 
 
+class SilenceExpireForm(forms.Form):
+    silence_id = forms.CharField(required=True)
+    next = forms.CharField(required=False)
+
+
 class ExporterForm(forms.ModelForm):
     class Meta:
         model = models.Exporter

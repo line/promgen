@@ -88,7 +88,7 @@ urlpatterns = [
     url(r'^import/$', views.Import.as_view(), name='import'),
 
     url(r'^silence$', views.Silence.as_view(), name='silence'),
-
+    url(r'^silence/expire$', views.SilenceExpire.as_view(), name='silence-expire'),
 
     url(r'^search/$', views.Search.as_view(), name='search'),
     url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),

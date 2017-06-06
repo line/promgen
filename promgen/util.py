@@ -16,3 +16,8 @@ def get(url, **kwargs):
     with requests.sessions.Session() as session:
         session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
         return session.get(url, **kwargs)
+
+def delete(url, **kwargs):
+    with requests.sessions.Session() as session:
+        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
+        return session.delete(url, **kwargs)
