@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<div class="panel panel-default">
+<div class="panel panel-primary">
   <div class="panel-heading">Project Notifiers</div>
   {% include "promgen/notifier_block.html" with object=project show_edit=1 %}
   <div class="panel-footer">
@@ -9,9 +9,9 @@
 </div>
 
 {% if project.service.notifiers.count %}
-<div class="panel panel-primary">
+<div class="panel panel-default">
   <div class="panel-heading">
-    <a class="btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#show-service-senders" aria-expanded="false" aria-controls="collapseExample">
+    <a class="btn btn-default btn-sm" role="button" data-toggle="collapse" href="#show-service-senders" aria-expanded="false" aria-controls="collapseExample">
     Service Notifiers ({{project.service.notifiers.count}})
     </a>
   </div>
