@@ -21,7 +21,7 @@
     <th>Comment</th>
     <th>Expire</th>
   </tr>
-{% for silence in silences %}
+{% for silence in silences|dictsort:"endsAt" %}
   <tr>
     <td>{{ silence.endsAt|timezone:TIMEZONE }}</td>
     <td>

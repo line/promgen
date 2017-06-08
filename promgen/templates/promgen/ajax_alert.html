@@ -14,7 +14,7 @@
   <div class="panel panel-danger collapse" id="show-{{ key|slugify }}">
 {% endif %}
   <table class="table table-bordered table-condensed">
-{% for alert in alerts %}
+{% for alert in alerts|dictsortreversed:"startsAt" %}
   <tr>
     <td><a href="{{ alert.generatorURL }}">{{ alert.startsAt|timezone:TIMEZONE }}</a></td>
     <td>
