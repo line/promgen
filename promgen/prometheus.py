@@ -12,6 +12,7 @@ from urllib.parse import urljoin
 
 import pytz
 from atomicwrites import atomic_write
+from dateutil import parser
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -283,51 +284,31 @@ def import_config(config, replace_shard=None):
     return counters, skipped
 
 
-def silence(duration, comment, created_by, labels):
+def silence(labels, duration=None, **kwargs):
     '''
     Post a silence message to Alert Manager
     Duration should be sent in a format like 1m 2h 1d etc
     '''
-    start = datetime.datetime.now(datetime.timezone.utc)
-
-    if duration.lower().endswith('m'):
-        end = start + datetime.timedelta(minutes=int(duration[:-1]))
-    elif duration.lower().endswith('h'):
-        end = start + datetime.timedelta(hours=int(duration[:-1]))
-    elif duration.lower().endswith('d'):
-        end = start + datetime.timedelta(days=int(duration[:-1]))
+    if duration:
+        start = datetime.datetime.now(datetime.timezone.utc)
+        if duration.lower().endswith('m'):
+            end = start + datetime.timedelta(minutes=int(duration[:-1]))
+        elif duration.lower().endswith('h'):
+            end = start + datetime.timedelta(hours=int(duration[:-1]))
+        elif duration.lower().endswith('d'):
+            end = start + datetime.timedelta(days=int(duration[:-1]))
+        else:
+            raise Exception('Unknown time modifier')
+        kwargs['endsAt'] = end.strftime('%Y-%m-%dT%H:%M:%S.000Z')
     else:
-        raise Exception('Unknown time modifier')
+        local_timezone = pytz.timezone(settings.PROMGEN.get('timezone', 'UTC'))
+        for key in ['startsAt', 'endsAt']:
+            kwargs[key] = parser.parse(kwargs[key])\
+                .replace(tzinfo=local_timezone)\
+                .astimezone(pytz.utc)\
+                .strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
-    data = {
-        'comment': comment,
-        'createdBy': created_by,
-        'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
-        'endsAt': end.strftime('%Y-%m-%dT%H:%M:%S.000Z')
-    }
-
-    logger.debug('Sending silence for %s %s', end, data)
+    kwargs['matchers'] = [{'name': name, 'value': value} for name, value in labels.items()]
+    logger.debug('Sending silence for %s', kwargs)
     url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
-    util.post(url, json=data).raise_for_status()
-
-
-def silence_fromto(start, stop, comment, created_by, labels):
-    '''
-    Post a silence message to Alert Manager
-    Duration should be sent in a format like 2017-01-01 09:00
-    '''
-    local_timezone = pytz.timezone(settings.PROMGEN.get('timezone', 'UTC'))
-    start = datetime.datetime.strptime(start, '%Y-%m-%d %H:%M').replace(tzinfo=local_timezone)
-    stop = datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M').replace(tzinfo=local_timezone)
-
-    data = {
-        'comment': comment,
-        'createdBy': created_by,
-        'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
-        'startsAt': start.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z'),
-        'endsAt': stop.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
-    }
-
-    logger.debug('Sending silence for %s - %s %s', start, stop, data)
-    url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
-    util.post(url, json=data).raise_for_status()
+    util.post(url, json=kwargs).raise_for_status()

@@ -813,18 +813,21 @@ class Silence(FormView):
                 if key.startswith('label.'):
                     target = key.split('.', 1)[1]
                     labels[target] = request.POST[key]
+
+            kwargs = {
+                'comment': form.cleaned_data['comment'],
+                'createdBy': form.cleaned_data['created_by']
+            }
             try:
-                duration = form.cleaned_data['duration']
-                comment = form.cleaned_data['comment']
-                created_by = form.cleaned_data['created_by']
-                if duration:
-                    prometheus.silence(duration, comment, created_by, labels)
-                    messages.success(request, 'Setting silence for %s' % duration)
+                if form.cleaned_data['duration']:
+                    kwargs['duration'] = form.cleaned_data['duration']
+                    prometheus.silence(labels, **kwargs)
+                    messages.success(request, 'Setting silence for %s' % form.cleaned_data['duration'])
                 else:
-                    start = form.cleaned_data['start']
-                    stop = form.cleaned_data['stop']
-                    prometheus.silence_fromto(start, stop, comment, created_by, labels)
-                    messages.success(request, 'Setting silence for %s - %s' % (start, stop))
+                    kwargs['startsAt'] = form.cleaned_data['start']
+                    kwargs['endsAt'] = form.cleaned_data['stop']
+                    prometheus.silence(labels, **kwargs)
+                    messages.success(request, 'Setting silence for %s - %s' % (form.cleaned_data['start'], form.cleaned_data['stop']))
             except Exception as e:
                 messages.warning(request, e)
         else:
