@@ -291,11 +291,11 @@ def silence(labels, duration=None, **kwargs):
     '''
     if duration:
         start = datetime.datetime.now(datetime.timezone.utc)
-        if duration.lower().endswith('m'):
+        if duration.endswith('m'):
             end = start + datetime.timedelta(minutes=int(duration[:-1]))
-        elif duration.lower().endswith('h'):
+        elif duration.endswith('h'):
             end = start + datetime.timedelta(hours=int(duration[:-1]))
-        elif duration.lower().endswith('d'):
+        elif duration.endswith('d'):
             end = start + datetime.timedelta(days=int(duration[:-1]))
         else:
             raise Exception('Unknown time modifier')

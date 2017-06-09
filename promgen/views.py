@@ -820,7 +820,7 @@ class Silence(FormView):
             }
             try:
                 if form.cleaned_data['duration']:
-                    kwargs['duration'] = form.cleaned_data['duration']
+                    kwargs['duration'] = form.cleaned_data['duration'].lower()
                     prometheus.silence(labels, **kwargs)
                     messages.success(request, 'Setting silence for %s' % form.cleaned_data['duration'])
                 else:
