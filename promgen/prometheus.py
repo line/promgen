@@ -283,7 +283,7 @@ def import_config(config, replace_shard=None):
     return counters, skipped
 
 
-def silence(duration, labels):
+def silence(duration, comment, created_by, labels):
     '''
     Post a silence message to Alert Manager
     Duration should be sent in a format like 1m 2h 1d etc
@@ -300,8 +300,8 @@ def silence(duration, labels):
         raise Exception('Unknown time modifier')
 
     data = {
-        'comment': 'Silenced from Promgen',
-        'createdBy': 'Promgen',
+        'comment': comment,
+        'createdBy': created_by,
         'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
         'endsAt': end.strftime('%Y-%m-%dT%H:%M:%S.000Z')
     }
@@ -311,7 +311,7 @@ def silence(duration, labels):
     util.post(url, json=data).raise_for_status()
 
 
-def silence_fromto(start, stop, labels):
+def silence_fromto(start, stop, comment, created_by, labels):
     '''
     Post a silence message to Alert Manager
     Duration should be sent in a format like 2017-01-01 09:00
@@ -321,8 +321,8 @@ def silence_fromto(start, stop, labels):
     stop = datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M').replace(tzinfo=local_timezone)
 
     data = {
-        'comment': 'Silenced from Promgen',
-        'createdBy': 'Promgen',
+        'comment': comment,
+        'createdBy': created_by,
         'matchers': [{'name': name, 'value': value} for name, value in labels.items()],
         'startsAt': start.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z'),
         'endsAt': stop.astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%S.000Z')
