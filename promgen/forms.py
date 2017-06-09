@@ -40,6 +40,18 @@ class SilenceForm(forms.Form):
     duration = forms.CharField(required=False)
     start = forms.CharField(required=False, validators=[validate_datetime])
     stop = forms.CharField(required=False, validators=[validate_datetime])
+    comment = forms.CharField(required=False)
+    created_by = forms.CharField(required=False)
+
+    def clean_comment(self):
+        if self.cleaned_data['comment']:
+            return self.cleaned_data['comment']
+        return "Silenced from Promgen"
+
+    def clean_created_by(self):
+        if self.cleaned_data['created_by']:
+            return self.cleaned_data['created_by']
+        return "Promgen"
 
     def clean(self):
         duration = self.data.get('duration')
