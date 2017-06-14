@@ -162,23 +162,25 @@ class Farm(models.Model):
         return reverse('farm-detail', kwargs={'pk': self.pk})
 
     def refresh(self):
-        remaining = [host.name for host in self.host_set.all()]
-        keep = []
-        create = []
-
+        current = set(host.name for host in self.host_set.all())
         for entry in plugins.discovery():
             if self.source == entry.name:
-                for host in entry.load()().fetch(self.name):
-                    if host in remaining:
-                        keep.append(host)
-                        remaining.remove(host)
-                    else:
-                        keep.append(host)
-                        create.append(host)
-                        Host.objects.create(name=host, farm=self)
+                target = set(entry.load()().fetch(self.name))
 
-        if remaining:
-            Host.objects.filter(farm=self, name__in=remaining).delete()
+        keep = current & target
+        remove = current - target
+        add = target - current
+
+        if add:
+            Audit.log('Adding {} to {}'.format(add, self), self)
+            Host.objects.bulk_create([
+                Host(name=name, farm_id=self.id) for name in add
+            ])
+
+        if remove:
+            Audit.log('Removing {} from {}'.format(add, self), self)
+            Host.objects.filter(farm=self, name__in=remove).delete()
+
 
     @classmethod
     def fetch(cls, source):

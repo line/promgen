@@ -323,6 +323,7 @@ class FarmRefresh(RedirectView):
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
         farm.refresh()
+        messages.info(request, 'Refreshed hosts')
         if 'next' in request.POST:
             return HttpResponseRedirect(request.POST['next'])
         # If we don't have an explicit redirect, we can redirect to the farm
@@ -369,6 +370,7 @@ class FarmLink(View):
         if created:
             logger.info('Importing %s from %s', farm.name, source)
             farm.refresh()
+            messages.info(request, 'Refreshed hosts')
         project.farm = farm
         project.save()
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
