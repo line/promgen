@@ -40,6 +40,7 @@ setup(
     ],
     extras_require={
         'dev': [
+            'codecov',
             'django-nose',
             'nose-cov',
         ]
