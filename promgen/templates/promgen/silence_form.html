@@ -3,7 +3,10 @@
   <input name="next" type="hidden" value="{{ request.get_full_path }}" />
   {% csrf_token %}
 <div class="panel panel-warning" style="display:none" id="silence-form">
-  <div class="panel-heading">Silence</div>
+  <div class="panel-heading">
+    Silence
+    <button type="button" id="silence-form-close" class="close">&times;</button>
+  </div>
   <div class="labels panel-body"></div>
   <table class="table table-bordered table-condensed duration">
     <tr>

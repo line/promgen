@@ -69,3 +69,7 @@ $(document).ready(function() {
     $('.silence_start').data("DateTimePicker").maxDate(e.date);
   });
 });
+
+$('#silence-form-close').click( function() {
+  $('#silence-form').hide();
+});
