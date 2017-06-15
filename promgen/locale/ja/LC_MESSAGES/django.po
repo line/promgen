@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 07:49+0000\n"
+"POT-Creation-Date: 2017-06-15 08:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,6 +59,10 @@ msgstr "Projectを削除"
 #: templates/promgen/silence_form.html:28
 msgid "Silence"
 msgstr "Silence"
+
+#: templates/promgen/project_detail_exporters.html:40
+msgid "Delete this exporter?"
+msgstr "Exporterを削除しますか？"
 
 #: templates/promgen/project_detail_exporters.html:49
 msgid "Register Exporter"
@@ -140,7 +144,7 @@ msgid "Export Service"
 msgstr "Serviceをエクスポート"
 
 #: templates/promgen/service_block.html:25
-msgid " Delete this service? "
+msgid "Delete this service?"
 msgstr "Serviceを削除しますか？"
 
 #: templates/promgen/service_block.html:27
