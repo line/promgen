@@ -3,12 +3,11 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-27 05:58+0000\n"
+"POT-Creation-Date: 2017-06-15 08:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,97 +17,164 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: templates/promgen/project_detail.html:21
-#: templates/promgen/service_block.html:43
-msgid "Update Project"
-msgstr "Projectを更新する"
+#: templates/promgen/ajax_silence.html:42
+msgid "Expire"
+msgstr "Expire"
 
-#: templates/promgen/project_detail.html:22
-msgid "Export Project"
-msgstr "Projectをエクスポートする"
+#: templates/promgen/notifier_block.html:15
+msgid "Test"
+msgstr "Test"
 
-#: templates/promgen/project_detail.html:23
-msgid "Delete this Project?"
-msgstr "Serviceを削除しますか？"
-
-#: templates/promgen/project_detail.html:25
-msgid "Delete Project"
-msgstr "Projectを削除する"
-
-#: templates/promgen/project_detail.html:39
+#: templates/promgen/notifier_block.html:19
 msgid "Delete notificiation?"
-msgstr "通知を削除"
+msgstr "Notificiationを削除しますか？"
 
-#: templates/promgen/project_detail.html:41
-#: templates/promgen/project_detail.html:71
-#: templates/promgen/project_detail.html:101
-#, fuzzy
-#| msgid "Delete Project"
+#: templates/promgen/notifier_block.html:21
+#: templates/promgen/project_detail_exporters.html:42
+#: templates/promgen/project_detail_hosts.html:18
+#: templates/promgen/project_detail_urls.html:15
+#: templates/promgen/rule_block.html:41
 msgid "Delete"
 msgstr "削除"
 
-#: templates/promgen/project_detail.html:48
-msgid "Register Sender"
-msgstr "Senderを登録する"
+#: templates/promgen/project_detail_configuration.html:6
+msgid "Export Project"
+msgstr "Projectをエクスポート"
 
-#: templates/promgen/project_detail.html:78
+#: templates/promgen/project_detail_configuration.html:7
+msgid "Update Project"
+msgstr "Projectを更新"
+
+#: templates/promgen/project_detail_configuration.html:8
+msgid "Delete this Project?"
+msgstr "Projectを削除しますか？"
+
+#: templates/promgen/project_detail_configuration.html:10
+msgid "Delete Project"
+msgstr "Projectを削除"
+
+#: templates/promgen/project_detail_exporters.html:37
+#: templates/promgen/service_block.html:13
+#: templates/promgen/service_block.html:83
+#: templates/promgen/silence_form.html:28
+msgid "Silence"
+msgstr "Silence"
+
+#: templates/promgen/project_detail_exporters.html:40
+msgid "Delete this exporter?"
+msgstr "Exporterを削除しますか？"
+
+#: templates/promgen/project_detail_exporters.html:49
 msgid "Register Exporter"
-msgstr "Exporterを登録する"
+msgstr "Exporterを登録"
 
-#: templates/promgen/project_detail.html:99
+#: templates/promgen/project_detail_hosts.html:16
 msgid "Delete this host?"
-msgstr "Serviceを削除しますか？"
+msgstr "Hostを削除しますか？"
 
-#: templates/promgen/project_detail.html:111
+#: templates/promgen/project_detail_hosts.html:28
 msgid "Add new host"
-msgstr "Hostを追加する"
+msgstr "Hostを追加"
 
-#: templates/promgen/project_detail.html:112
+#: templates/promgen/project_detail_hosts.html:29
 msgid "Edit Farm"
-msgstr ""
+msgstr "Farmを編集"
 
-#: templates/promgen/project_detail.html:113
-#: templates/promgen/project_detail.html:118
+#: templates/promgen/project_detail_hosts.html:30
+#: templates/promgen/project_detail_hosts.html:35
 msgid "Unlink this farm?"
-msgstr ""
+msgstr "FarmをUnlinkしますか？"
 
-#: templates/promgen/project_detail.html:115
-#: templates/promgen/project_detail.html:120
+#: templates/promgen/project_detail_hosts.html:32
+#: templates/promgen/project_detail_hosts.html:37
 msgid "Unlink Farm"
-msgstr ""
+msgstr "FarmをUnlink"
 
-#: templates/promgen/project_detail.html:124
+#: templates/promgen/project_detail_hosts.html:42
 msgid "Convert to Local Farm"
 msgstr "FarmをLocalに変更"
 
-#: templates/promgen/project_detail.html:128
+#: templates/promgen/project_detail_hosts.html:47
 msgid "Refresh Farm"
 msgstr "Farmを更新"
 
-#: templates/promgen/project_detail.html:131
+#: templates/promgen/project_detail_hosts.html:50
 msgid "New Farm"
-msgstr "新しいFarm"
+msgstr "New Farm"
 
-#: templates/promgen/project_detail.html:133
+#: templates/promgen/project_detail_hosts.html:52
 msgid "Link Farm"
-msgstr ""
+msgstr "FarmをLink"
 
-#: templates/promgen/service_block.html:42
+#: templates/promgen/project_detail_notifiers.html:7
+#: templates/promgen/service_block.html:10
+msgid "Register Notifier"
+msgstr "Notifierを登録"
+
+#: templates/promgen/project_detail_urls.html:25
+msgid "Register URL"
+msgstr "URLを登録"
+
+#: templates/promgen/rule_block.html:39 templates/promgen/rule_form.html:158
+msgid "Delete this Rule?"
+msgstr "Ruleを削除しますか？"
+
+#: templates/promgen/rule_form.html:160
+msgid "Delete Rule"
+msgstr "Ruleを削除"
+
+#: templates/promgen/rule_list.html:22 templates/promgen/service_block.html:9
+msgid "Register Rule"
+msgstr "Ruleを登録"
+
+#: templates/promgen/service_block.html:8
 msgid "Register Project"
-msgstr "Projectを登録する"
+msgstr "Projectを登録"
 
-#: templates/promgen/service_block.html:44
-msgid "Rules"
-msgstr "Rules"
+#: templates/promgen/service_block.html:12
+msgid "Edit Service"
+msgstr "Serviceを編集"
 
-#: templates/promgen/service_block.html:45
+#: templates/promgen/service_block.html:20
+msgid "Export Rules"
+msgstr "Rulesをエクスポート"
+
+#: templates/promgen/service_block.html:21
 msgid "Export Service"
-msgstr "Servicesをエクスポートする"
+msgstr "Serviceをエクスポート"
 
-#: templates/promgen/service_block.html:46
+#: templates/promgen/service_block.html:25
 msgid "Delete this service?"
 msgstr "Serviceを削除しますか？"
 
-#: templates/promgen/service_block.html:48
+#: templates/promgen/service_block.html:27
 msgid "Delete Service"
-msgstr "Serviceを削除する"
+msgstr "Serviceを削除"
+
+#: templates/promgen/shard_list.html:16
+msgid "Register Service"
+msgstr "Serviceを登録"
+
+#: views.py:256
+msgid "Update Farm"
+msgstr ""
+
+#: views.py:429
+msgid "Project Register"
+msgstr ""
+
+#: views.py:442
+msgid "Project Update"
+msgstr ""
+
+#: views.py:453
+msgid "Update Service"
+msgstr ""
+
+#: views.py:551
+msgid "Service Register"
+msgstr ""
+
+#: views.py:564
+msgid "Register Farm"
+msgstr ""

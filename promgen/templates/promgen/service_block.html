@@ -22,7 +22,7 @@
         </ul>
       </div>
 
-      <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans " Delete this service? " %}')" style="display: inline">
+      <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
         {% csrf_token %}
         <button class="btn btn-danger btn-sm pull-right">{% trans "Delete Service" %}</button>
       </form>

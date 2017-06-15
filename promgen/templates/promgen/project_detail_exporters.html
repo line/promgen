@@ -37,7 +37,7 @@
         >{% trans "Silence" %}</a>
       </td>
       <td>
-        <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('Delete this exporter?')" style="display: inline">
+        <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('{% trans 'Delete this exporter?' %}')" style="display: inline">
           {% csrf_token %}
           <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
         </form>
