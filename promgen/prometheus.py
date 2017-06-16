@@ -308,7 +308,11 @@ def silence(labels, duration=None, **kwargs):
                 .astimezone(pytz.utc)\
                 .strftime('%Y-%m-%dT%H:%M:%S.000Z')
 
-    kwargs['matchers'] = [{'name': name, 'value': value} for name, value in labels.items()]
+    kwargs['matchers'] = [{
+        'name': name,
+        'value': value,
+        'isRegex': True if value.endswith("*") else False
+    } for name, value in labels.items()]
     logger.debug('Sending silence for %s', kwargs)
     url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
     util.post(url, json=kwargs).raise_for_status()

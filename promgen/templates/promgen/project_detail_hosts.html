@@ -13,6 +13,14 @@
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       {% if project.farm.source == FARM_DEFAULT %}
       <td>
+        <a
+          class="btn btn-warning btn-xs"
+          data-labels='{"instance":"{{host.name}}:[0-9]*","project":"{{project.name}}","service":"{{project.service.name}}"}'
+          href="#"
+          style="display: inline-block;"
+        >{% trans "Silence" %}</a>
+      </td>
+      <td>
         <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
           {% csrf_token %}
         <button name="delete" type="submit" class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
