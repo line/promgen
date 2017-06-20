@@ -1,10 +1,10 @@
 {% load i18n %}
 <div class="well">
-{% if service.notifiers.count == 0 %}
+{% if service.check_notifiers == False %}
   <div class="alert alert-warning" role="alert">
     <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
     <span class="sr-only">Warning:</span>
-    {% trans 'There are no notifications configured for this service. Please configure some' %}
+    {% trans 'This service does not have any notifications configured. Please configure notifications to properly route alerts' %}
   </div>
 {% endif %}
   <div style="display:none" id="alert-service-{{ service.name|slugify }}"></div>
@@ -45,7 +45,7 @@
 
 {% if service.notifiers.count %}
   <div class="panel panel-default">
-    <div class="panel-heading">Notifier</div>
+    <div class="panel-heading">Service Notifiers</div>
     {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
   </div>
 {% endif %}
@@ -63,7 +63,22 @@
   </tr>
 {% for project in service.project_set.all %}
   <tr>
-    <td><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td>
+    <td>
+{% if service.notifiers.count == 0 and project.notifiers.count == 0 %}
+      <a
+        class="btn btn-xs btn-warning"
+        role="button"
+        tabindex="0"
+        title="{% trans 'Notification setting warning' %}"
+        data-toggle="popover"
+        data-content='{% trans "No notifications configured for this project. Please configure some" %}'
+        data-html="true"
+        data-placement="right"
+        data-trigger="focus"
+      ><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></a>
+{% endif %}
+      <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a>
+    </td>
     <td>{% if project.farm %}{{ project.farm }}{% endif %}</td>
     <td>
       <table style="width: 100%">

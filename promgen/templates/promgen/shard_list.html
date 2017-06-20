@@ -28,19 +28,19 @@
 {% for service in shard.service_set.all %}
         <tr>
           <td>
-            {% if service.notifiers.count == 0 %}
+{% if service.check_notifiers == False %}
             <a
               class="btn btn-xs btn-warning"
               role="button"
               tabindex="0"
-              title="{% trans 'Please configure some' %}"
+              title="{% trans 'Notification setting warning' %}"
               data-toggle="popover"
-              data-content='{% trans "No notifications configured for Service." %}<a href="{% url 'service-notifier' service.id %}">&nbsp;{% trans "Register Notifier" %}</a>'
+              data-content='{% trans "This service does not have any notifications configured. Please configure notifications to properly route alerts" %}'
               data-html="true"
               data-placement="right"
               data-trigger="focus"
             ><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></a>
-            {% endif %}
+{% endif %}
             <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
           </td>
         </tr>
@@ -59,7 +59,7 @@
 {% for prometheus in shard.prometheus_set.all %}
       <tr>
         <td>{{ prometheus.host }}:{{ prometheus.port }}</td>
-      </td>
+      </tr>
 {% endfor %}
     </table>
 {% endif %}

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-20 01:28+0000\n"
+"POT-Creation-Date: 2017-06-20 07:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,6 +37,11 @@ msgstr "Notificiationを削除しますか？"
 msgid "Delete"
 msgstr "削除"
 
+#: templates/promgen/project_detail.html:20
+#: templates/promgen/service_block.html:74
+msgid "No notifications configured for this project. Please configure some"
+msgstr "このProjectにはNotifierの設定がありません。Notifierを設定してください"
+
 #: templates/promgen/project_detail_configuration.html:6
 msgid "Export Project"
 msgstr "Projectをエクスポート"
@@ -56,7 +61,7 @@ msgstr "Projectを削除"
 #: templates/promgen/project_detail_exporters.html:37
 #: templates/promgen/project_detail_hosts.html:21
 #: templates/promgen/service_block.html:20
-#: templates/promgen/service_block.html:90
+#: templates/promgen/service_block.html:105
 #: templates/promgen/silence_form.html:28
 msgid "Silence"
 msgstr "Silence"
@@ -108,7 +113,7 @@ msgid "Link Farm"
 msgstr "FarmをLink"
 
 #: templates/promgen/project_detail_notifiers.html:7
-#: templates/promgen/service_block.html:17 templates/promgen/shard_list.html:38
+#: templates/promgen/service_block.html:17
 msgid "Register Notifier"
 msgstr "Notifierを登録"
 
@@ -128,9 +133,9 @@ msgstr "Ruleを削除"
 msgid "Register Rule"
 msgstr "Ruleを登録"
 
-#: templates/promgen/service_block.html:7
-msgid "There are no notifications configured for this service. Please configure some"
-msgstr "このServiceにはNotifierの設定がありません。Notifierを設定してください"
+#: templates/promgen/service_block.html:7 templates/promgen/shard_list.html:38
+msgid "This service does not have any notifications configured. Please configure notifications to properly route alerts"
+msgstr "このServiceには通知設定がないProjectがあります。アラートを適切に通知するためにNotifierを設定してください"
 
 #: templates/promgen/service_block.html:15
 msgid "Register Project"
@@ -156,14 +161,10 @@ msgstr "Serviceを削除しますか？"
 msgid "Delete Service"
 msgstr "Serviceを削除"
 
+#: templates/promgen/service_block.html:72 templates/promgen/shard_list.html:36
+msgid "Notification setting warning"
+msgstr "Notifiers設定警告"
+
 #: templates/promgen/shard_list.html:16
 msgid "Register Service"
 msgstr "Serviceを登録"
-
-#: templates/promgen/shard_list.html:36
-msgid "Please configure some"
-msgstr "Notifierを設定してください"
-
-#: templates/promgen/shard_list.html:38
-msgid "No notifications configured for Service."
-msgstr "このServiceはNotifierの設定がありません。"

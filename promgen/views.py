@@ -52,6 +52,7 @@ class ShardList(ListView):
         .prefetch_related(
             'prometheus_set',
             'service_set',
+            'service_set__notifiers',
             'service_set__project_set',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
