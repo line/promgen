@@ -27,7 +27,22 @@
         </tr>
 {% for service in shard.service_set.all %}
         <tr>
-          <td><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></td>
+          <td>
+            {% if service.notifiers.count == 0 %}
+            <a
+              class="btn btn-xs btn-warning"
+              role="button"
+              tabindex="0"
+              title="{% trans 'Please configure some' %}"
+              data-toggle="popover"
+              data-content='{% trans "No notifications configured for Service." %}<a href="{% url 'service-notifier' service.id %}">&nbsp;{% trans "Register Notifier" %}</a>'
+              data-html="true"
+              data-placement="right"
+              data-trigger="focus"
+            ><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></a>
+            {% endif %}
+            <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
+          </td>
         </tr>
 {% endfor %}
     </table>
