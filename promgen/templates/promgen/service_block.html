@@ -1,5 +1,12 @@
 {% load i18n %}
 <div class="well">
+{% if service.notifiers.count == 0 %}
+  <div class="alert alert-warning" role="alert">
+    <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+    <span class="sr-only">Warning:</span>
+    {% trans 'There are no notifications configured for this service. Please configure some' %}
+  </div>
+{% endif %}
   <div style="display:none" id="alert-service-{{ service.name|slugify }}"></div>
   <div style="display:none" id="silence-service-{{ service.name|slugify }}"></div>
 

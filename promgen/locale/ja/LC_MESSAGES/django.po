@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 08:22+0000\n"
+"POT-Creation-Date: 2017-06-20 01:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr "Notificiationを削除しますか？"
 
 #: templates/promgen/notifier_block.html:21
 #: templates/promgen/project_detail_exporters.html:42
-#: templates/promgen/project_detail_hosts.html:18
+#: templates/promgen/project_detail_hosts.html:26
 #: templates/promgen/project_detail_urls.html:15
 #: templates/promgen/rule_block.html:41
 msgid "Delete"
@@ -54,8 +54,9 @@ msgid "Delete Project"
 msgstr "Projectを削除"
 
 #: templates/promgen/project_detail_exporters.html:37
-#: templates/promgen/service_block.html:13
-#: templates/promgen/service_block.html:83
+#: templates/promgen/project_detail_hosts.html:21
+#: templates/promgen/service_block.html:20
+#: templates/promgen/service_block.html:90
 #: templates/promgen/silence_form.html:28
 msgid "Silence"
 msgstr "Silence"
@@ -68,46 +69,46 @@ msgstr "Exporterを削除しますか？"
 msgid "Register Exporter"
 msgstr "Exporterを登録"
 
-#: templates/promgen/project_detail_hosts.html:16
+#: templates/promgen/project_detail_hosts.html:24
 msgid "Delete this host?"
 msgstr "Hostを削除しますか？"
 
-#: templates/promgen/project_detail_hosts.html:28
+#: templates/promgen/project_detail_hosts.html:36
 msgid "Add new host"
 msgstr "Hostを追加"
 
-#: templates/promgen/project_detail_hosts.html:29
+#: templates/promgen/project_detail_hosts.html:37
 msgid "Edit Farm"
 msgstr "Farmを編集"
 
-#: templates/promgen/project_detail_hosts.html:30
-#: templates/promgen/project_detail_hosts.html:35
+#: templates/promgen/project_detail_hosts.html:38
+#: templates/promgen/project_detail_hosts.html:43
 msgid "Unlink this farm?"
 msgstr "FarmをUnlinkしますか？"
 
-#: templates/promgen/project_detail_hosts.html:32
-#: templates/promgen/project_detail_hosts.html:37
+#: templates/promgen/project_detail_hosts.html:40
+#: templates/promgen/project_detail_hosts.html:45
 msgid "Unlink Farm"
 msgstr "FarmをUnlink"
 
-#: templates/promgen/project_detail_hosts.html:42
+#: templates/promgen/project_detail_hosts.html:50
 msgid "Convert to Local Farm"
 msgstr "FarmをLocalに変更"
 
-#: templates/promgen/project_detail_hosts.html:47
+#: templates/promgen/project_detail_hosts.html:55
 msgid "Refresh Farm"
 msgstr "Farmを更新"
 
-#: templates/promgen/project_detail_hosts.html:50
+#: templates/promgen/project_detail_hosts.html:58
 msgid "New Farm"
 msgstr "New Farm"
 
-#: templates/promgen/project_detail_hosts.html:52
+#: templates/promgen/project_detail_hosts.html:60
 msgid "Link Farm"
 msgstr "FarmをLink"
 
 #: templates/promgen/project_detail_notifiers.html:7
-#: templates/promgen/service_block.html:10
+#: templates/promgen/service_block.html:17 templates/promgen/shard_list.html:38
 msgid "Register Notifier"
 msgstr "Notifierを登録"
 
@@ -123,31 +124,35 @@ msgstr "Ruleを削除しますか？"
 msgid "Delete Rule"
 msgstr "Ruleを削除"
 
-#: templates/promgen/rule_list.html:22 templates/promgen/service_block.html:9
+#: templates/promgen/rule_list.html:22 templates/promgen/service_block.html:16
 msgid "Register Rule"
 msgstr "Ruleを登録"
 
-#: templates/promgen/service_block.html:8
+#: templates/promgen/service_block.html:7
+msgid "There are no notifications configured for this service. Please configure some"
+msgstr "このServiceにはNotifierの設定がありません。Notifierを設定してください"
+
+#: templates/promgen/service_block.html:15
 msgid "Register Project"
 msgstr "Projectを登録"
 
-#: templates/promgen/service_block.html:12
+#: templates/promgen/service_block.html:19
 msgid "Edit Service"
 msgstr "Serviceを編集"
 
-#: templates/promgen/service_block.html:20
+#: templates/promgen/service_block.html:27
 msgid "Export Rules"
 msgstr "Rulesをエクスポート"
 
-#: templates/promgen/service_block.html:21
+#: templates/promgen/service_block.html:28
 msgid "Export Service"
 msgstr "Serviceをエクスポート"
 
-#: templates/promgen/service_block.html:25
+#: templates/promgen/service_block.html:32
 msgid "Delete this service?"
 msgstr "Serviceを削除しますか？"
 
-#: templates/promgen/service_block.html:27
+#: templates/promgen/service_block.html:34
 msgid "Delete Service"
 msgstr "Serviceを削除"
 
@@ -155,26 +160,10 @@ msgstr "Serviceを削除"
 msgid "Register Service"
 msgstr "Serviceを登録"
 
-#: views.py:256
-msgid "Update Farm"
-msgstr ""
+#: templates/promgen/shard_list.html:36
+msgid "Please configure some"
+msgstr "Notifierを設定してください"
 
-#: views.py:429
-msgid "Project Register"
-msgstr ""
-
-#: views.py:442
-msgid "Project Update"
-msgstr ""
-
-#: views.py:453
-msgid "Update Service"
-msgstr ""
-
-#: views.py:551
-msgid "Service Register"
-msgstr ""
-
-#: views.py:564
-msgid "Register Farm"
-msgstr ""
+#: templates/promgen/shard_list.html:38
+msgid "No notifications configured for Service."
+msgstr "このServiceはNotifierの設定がありません。"

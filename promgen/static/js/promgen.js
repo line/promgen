@@ -37,7 +37,9 @@ function update_page(data) {
 }
 
 $(document).ready(function() {
-  $("a[data-labels]").click(silence_tag)
+  $("a[data-labels]").click(silence_tag);
+  $('[data-toggle="popover"]').popover();
+  $('[data-toggle="tooltip"]').tooltip();
   $.ajax("/ajax/alert").done(update_page);
   $.post("/ajax/silence", {
     'referer': window.location.toString()
