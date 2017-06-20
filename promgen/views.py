@@ -62,6 +62,8 @@ class ShardDetail(DetailView):
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
+            'service_set__notifiers',
+            'service_set__rule_set',
             'service_set__project_set',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
@@ -132,7 +134,12 @@ class HostDetail(View):
 
 
 class AuditList(ListView):
-    queryset = models.Audit.objects.order_by('-created')
+    queryset = models.Audit.objects\
+        .order_by('-created')\
+        .prefetch_related(
+            'content_object',
+        )
+
     paginate_by = 50
 
 
@@ -730,7 +737,7 @@ class Search(View):
                     Q(name__icontains=request.GET.get('search')) |
                     Q(clause__icontains=request.GET.get('search'))
                 )
-                .prefetch_related('service'),
+                .prefetch_related('service', 'ruleannotation_set', 'rulelabel_set'),
             'service_list': models.Service.objects
                 .filter(name__icontains=request.GET.get('search'))
                 .prefetch_related('project_set', 'rule_set', 'notifiers'),

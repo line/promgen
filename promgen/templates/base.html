@@ -21,7 +21,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Promgen {{ VERSION }}</a>
+                    <a class="navbar-brand" href="/">Promgen {{ VERSION }}</a>
                 </div>
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav">
@@ -51,9 +51,9 @@
                     </ul>
                     <form class="navbar-form navbar-left" action="{% url 'search' %}">
                       <div class="form-group">
-                        <input name="search" type="text" class="form-control" placeholder="Search">
+                        <input name="search" type="text" class="form-control" placeholder="Service, Project, etc">
                       </div>
-                      <button type="submit" class="btn btn-default">Submit</button>
+                      <button type="submit" class="btn btn-default">Search</button>
                     </form>
                     <form style="display:inline;" action="{% url 'commit' %}" method="POST">
                       <input name="next" type="hidden" value="{{ request.get_full_path }}" />
