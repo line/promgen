@@ -133,6 +133,15 @@ class Service(models.Model):
             logger.info('Created default service')
         return service
 
+    @property
+    def check_notifiers(self):
+        if self.notifiers.count() > 0:
+            return True
+        for project in self.project_set.all():
+            if project.notifiers.count() == 0:
+                return False
+        return True
+
 
 class Project(models.Model):
     name = models.CharField(max_length=128, unique=True)
