@@ -737,7 +737,7 @@ class Search(View):
                     Q(name__icontains=request.GET.get('search')) |
                     Q(clause__icontains=request.GET.get('search'))
                 )
-                .prefetch_related('service'),
+                .prefetch_related('service', 'ruleannotation_set', 'rulelabel_set'),
             'service_list': models.Service.objects
                 .filter(name__icontains=request.GET.get('search'))
                 .prefetch_related('project_set', 'rule_set', 'notifiers'),
