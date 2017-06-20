@@ -134,7 +134,12 @@ class HostDetail(View):
 
 
 class AuditList(ListView):
-    queryset = models.Audit.objects.order_by('-created')
+    queryset = models.Audit.objects\
+        .order_by('-created')\
+        .prefetch_related(
+            'content_object',
+        )
+
     paginate_by = 50
 
 
