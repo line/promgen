@@ -62,6 +62,8 @@ class ShardDetail(DetailView):
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
+            'service_set__notifiers',
+            'service_set__rule_set',
             'service_set__project_set',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
