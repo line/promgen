@@ -13,6 +13,20 @@
   <li class="active">New Rule</li>
 </ol>
 
+{% if rule.parent %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-parent" aria-expanded="false" aria-controls="collapseExample">
+      Parent Rule
+    </button>
+    <a class="btn btn-default" href="{% url 'rule-edit' rule.parent.pk %}" />Edit Parent</a>
+  </div>
+  <div id="rule-parent" class="panel-body collapse">
+    <pre>{% include "promgen/prometheus.rule" with rule=rule.parent %}</pre>
+  </div>
+</div>
+{% endif %}
+
 {% if rules %}
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -92,6 +106,21 @@
       <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
     </div>
   </div>
+
+{% if rule.overrides.count %}
+  <div class="panel panel-default">
+    <div class="panel-heading">Overrided By</div>
+    <table class="table">
+  {% for r in rule.overrides.all %}
+      <tr>
+        <td><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
+        <td>{{ r.clause }}</td>
+      </tr>
+  {% endfor %}
+    </table>
+  </div>
+{% endif %}
+
 </div>
 
 <div class="col-md-6">

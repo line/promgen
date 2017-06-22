@@ -265,6 +265,12 @@ class Rule(models.Model):
     ])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
+    parent = models.ForeignKey(
+        'Rule',
+        null=True,
+        related_name='overrides',
+        on_delete=models.SET_NULL
+    )
 
     class Meta:
         ordering = ['service', 'name']
@@ -302,6 +308,7 @@ class Rule(models.Model):
         with transaction.atomic():
             orig_pk = self.pk
             self.pk = None
+            self.parent_id = orig_pk
             self.name += str(int(time.time()))
             self.service = service
             self.enabled = False
