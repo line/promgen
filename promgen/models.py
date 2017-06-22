@@ -306,12 +306,17 @@ class Rule(models.Model):
         to the end of the name
         '''
         with transaction.atomic():
+            # First check to see if this rule is already overwritten
+            for rule in Rule.objects.filter(parent_id=self.pk, service_id=service.id):
+                return rule
+
             orig_pk = self.pk
             self.pk = None
             self.parent_id = orig_pk
-            self.name += str(int(time.time()))
+            self.name = '{}_{}'.format(self.name, service.name)
             self.service = service
             self.enabled = False
+            self.clause = self.clause.replace('{macro}', 'service="{}"'.format(service.name))
             self.save()
 
             # Add a service label to our new rule, to help ensure notifications

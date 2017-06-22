@@ -67,7 +67,7 @@ class ShardList(ListView):
             'service_set__project_set__notifiers')
 
 
-class ShardDetail(GlobalRulesMixin, DetailView):
+class ShardDetail(DetailView):
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
@@ -79,7 +79,7 @@ class ShardDetail(GlobalRulesMixin, DetailView):
             'service_set__project_set__notifiers')
 
 
-class ServiceList(GlobalRulesMixin, ListView):
+class ServiceList(ListView):
     queryset = models.Service.objects\
         .prefetch_related(
             'notifiers',
@@ -326,8 +326,8 @@ class RulesCopy(View):
 
         if form.is_valid():
             data = form.clean()
-            rule = get_object_or_404(models.Rule, id=data['rule_id'])
-            rule.copy_to(service)
+            original = get_object_or_404(models.Rule, id=data['rule_id'])
+            rule = original.copy_to(service)
             return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
         else:
             return HttpResponseRedirect(reverse('service-detail', args=[pk]))

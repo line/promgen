@@ -18,7 +18,10 @@
   </tr>
   {% for rule in rule_list %}
   <tr>
-    <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
+    <td>
+      {% if rule.parent %}X{% endif %}
+      <a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a>
+    </td>
     <td {% if not rule.enabled %}class="bg-disabled text-muted"{% endif %} style="word-break: break-word;">{{ rule.clause }}</td>
     <td>{{ rule.duration }}</td>
 {% if show_full %}
