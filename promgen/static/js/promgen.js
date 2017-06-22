@@ -51,7 +51,7 @@ $(document).ready(function() {
 
     $(btn.data('target')).html('<p>Loading...</p>')
     console.log("Testing Query: %s", query)
-    $.post("/ajax/clause", {
+    $.post(btn.data('href'), {
       'query': query,
       'shard': btn.data('shard-id')
     }).done(update_page);

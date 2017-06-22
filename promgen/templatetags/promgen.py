@@ -13,3 +13,10 @@ def to_prom(value):
     ]
 
     return '{' + ', '.join(sorted(values)) + '}'
+
+
+@register.filter()
+def rulemacro(value, rule):
+    print(value)
+    print(rule)
+    return value.replace('{macro}', 'foo="bar"')

@@ -72,7 +72,14 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       {{ form.clause.label_tag }}
-      <a class="btn btn-warning" id="test_clause" data-source="#id_clause" data-target="#ajax-clause-check" data-shard-id="{{ service.shard.id }}">Test Query</a>
+      <a
+        class="btn btn-warning"
+        id="test_clause"
+        data-source="#id_clause"
+        data-target="#ajax-clause-check"
+        data-shard-id="{{ service.shard.id }}"
+        data-href="{% url 'rule-test' rule.id %}"
+        >Test Query</a>
     </div>
     <div class="panel-body">
       {{ form.clause.errors }}

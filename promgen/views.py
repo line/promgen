@@ -26,6 +26,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin, RedirectView
 from django.views.generic.edit import DeleteView, FormView
 
+import promgen.templatetags.promgen as macro
 from promgen import forms, models, plugins, prometheus, signals, util, version
 
 logger = logging.getLogger(__name__)
@@ -908,16 +909,17 @@ class AjaxAlert(View):
         return JsonResponse(context)
 
 
-class AjaxClause(View):
-    def post(self, request):
-        query = request.POST['query']
+class RuleTest(View):
+    def post(self, request, pk):
         shard = get_object_or_404(models.Shard, id=request.POST['shard'])
+        rule = get_object_or_404(models.Rule, id=pk)
+        query = macro.rulemacro(request.POST['query'], rule)
 
         url = '{}/api/v1/query'.format(shard.url)
 
         logger.debug('Querying %s with %s', url, query)
         start = time.time()
-        result = util.get(url, {'query': request.POST['query']}).json()
+        result = util.get(url, {'query': query}).json()
         duration = datetime.timedelta(seconds=(time.time() - start))
 
         context = {'status': result['status'], 'duration': duration}
