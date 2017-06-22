@@ -922,7 +922,7 @@ class RuleTest(View):
         result = util.get(url, {'query': query}).json()
         duration = datetime.timedelta(seconds=(time.time() - start))
 
-        context = {'status': result['status'], 'duration': duration}
+        context = {'status': result['status'], 'duration': duration, 'query': query}
         context['data'] = result.get('data', {})
 
         context['errors'] = {}
