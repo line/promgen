@@ -22,22 +22,24 @@
     <a class="btn btn-default" href="{% url 'rule-edit' rule.parent.pk %}" />Edit Parent</a>
   </div>
   <div id="rule-parent" class="panel-body collapse">
-    <pre>{% include "promgen/prometheus.rule" with rule=rule.parent %}</pre>
+    <pre>{% include "promgen/prometheus.rule" %}</pre>
   </div>
 </div>
 {% endif %}
 
-{% if rules %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-preview" aria-expanded="false" aria-controls="collapseExample">
-      Preview
-    </button>
+{% if rule.overrides.count %}
+  <div class="panel panel-warning">
+    <div class="panel-heading">Overridden By</div>
+    <table class="table">
+  {% for r in rule.overrides.all %}
+      <tr>
+        <td><a href="{% url 'service-detail' r.service.pk %}">{{ r.service.name }}</a></td>
+        <td><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
+        <td>{{ r.clause|rulemacro:r }}</td>
+      </tr>
+  {% endfor %}
+    </table>
   </div>
-  <div id="rule-preview" class="panel-body collapse">
-    <pre>{% include "promgen/prometheus.rule" %}</pre>
-  </div>
-</div>
 {% endif %}
 
 <form action="" class="input-group" method="post">{% csrf_token %}
@@ -53,7 +55,7 @@
   {% endif %}
 
 <div class="col-md-6">
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">{{ form.name.label_tag }}</div>
     <div class="panel-body">
       {{ form.name.errors }}
@@ -69,21 +71,23 @@
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">
       {{ form.clause.label_tag }}
+    </div>
+    <div class="panel-body">
+      {{ form.clause.errors }}
+      {{ form.clause }}
+    </div>
+    <div class="panel-body">
       <a
-        class="btn btn-warning"
+        class="btn btn-primary btn-sm"
         id="test_clause"
         data-source="#id_clause"
         data-target="#ajax-clause-check"
         data-shard-id="{{ service.shard.id }}"
         data-href="{% url 'rule-test' rule.id %}"
         >Test Query</a>
-    </div>
-    <div class="panel-body">
-      {{ form.clause.errors }}
-      {{ form.clause }}
     </div>
     <div id="ajax-clause-check"></div>
     <div class="panel-body">
@@ -105,7 +109,7 @@
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">{{ form.duration.label_tag }}</div>
     <div class="panel-body">
       {{ form.duration.errors }}
@@ -113,25 +117,10 @@
       <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
     </div>
   </div>
-
-{% if rule.overrides.count %}
-  <div class="panel panel-default">
-    <div class="panel-heading">Overrided By</div>
-    <table class="table">
-  {% for r in rule.overrides.all %}
-      <tr>
-        <td><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
-        <td>{{ r.clause }}</td>
-      </tr>
-  {% endfor %}
-    </table>
-  </div>
-{% endif %}
-
 </div>
 
 <div class="col-md-6">
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">Labels - Control routing through AlertManager and Promgen</div>
     <div class="panel-body">
       {{ label_set.management_form }}
@@ -158,7 +147,7 @@
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">Annotations - Provide extra details for notifications</div>
     {{ annotation_set.management_form }}
     <table class="table">

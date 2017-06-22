@@ -491,7 +491,10 @@ class RuleUpdate(UpdateView):
         context['service'] = self.object.service
         context['label_set'] = self.LabelForm(instance=self.object)
         context['annotation_set'] = self.AnnotationForm(instance=self.object)
-        context['rules'] = [self.object]
+        if self.object.parent:
+            context['rules'] = [self.object.parent]
+        else:
+            context['rules'] = [self.object]
         return context
 
     def post(self, request, *args, **kwargs):
