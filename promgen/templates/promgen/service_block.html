@@ -43,6 +43,13 @@
   </div>
 {% endif %}
 
+{% if global_rule_set.count %}
+  <div class="panel panel-default">
+    <div class="panel-heading">Global Rules</div>
+{% include "promgen/rule_block.html" with rule_list=global_rule_set.all show_overwrite=service.id %}
+  </div>
+{% endif %}
+
 {% if service.notifiers.count %}
   <div class="panel panel-default">
     <div class="panel-heading">Service Notifiers</div>

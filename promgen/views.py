@@ -47,6 +47,13 @@ class ServiceMixin(ContextMixin):
         return context
 
 
+class GlobalRulesMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super(GlobalRulesMixin, self).get_context_data(**kwargs)
+        context['global_rule_set'] = models.Service.default().rule_set
+        return context
+
+
 class ShardList(ListView):
     queryset = models.Shard.objects\
         .prefetch_related(
@@ -59,7 +66,7 @@ class ShardList(ListView):
             'service_set__project_set__notifiers')
 
 
-class ShardDetail(DetailView):
+class ShardDetail(GlobalRulesMixin, DetailView):
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
@@ -71,7 +78,7 @@ class ShardDetail(DetailView):
             'service_set__project_set__notifiers')
 
 
-class ServiceList(ListView):
+class ServiceList(GlobalRulesMixin, ListView):
     queryset = models.Service.objects\
         .prefetch_related(
             'notifiers',
@@ -144,7 +151,7 @@ class AuditList(ListView):
     paginate_by = 50
 
 
-class ServiceDetail(DetailView):
+class ServiceDetail(GlobalRulesMixin, DetailView):
     queryset = models.Service.objects\
         .prefetch_related(
             'project_set',
