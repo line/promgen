@@ -6,6 +6,7 @@ import textwrap
 
 from django import forms
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 from promgen.models import Project, Service
 
@@ -87,6 +88,14 @@ class NotificationBase(object):
                 for obj in klass.objects.filter(name=alert['labels'][label]):
                     for sender in obj.notifiers.filter(sender=self.__module__):
                         logger.debug('Sending to %s', sender)
+                        if label == 'service':
+                            project_url = obj.project_set.get(name__exact=alert['labels']['project']).get_absolute_url()
+                        else:
+                            project_url = obj.get_absolute_url()
+                        alert['projectURL'] = 'http://{site}{path}'.format(
+                            site=Site.objects.get_current().domain,
+                            path=project_url
+                        )
                         if self.__send(sender.value, alert, data):
                             sent += 1
         if sent == 0:
