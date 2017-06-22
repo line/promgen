@@ -7,6 +7,8 @@ from django import template
 
 register = template.Library()
 
+EXCLUSION_MACRO = '<exclude>'
+
 
 @register.filter()
 def to_prom(value):
@@ -29,4 +31,4 @@ def rulemacro(value, rule):
     macro = ','.join(
         '{}!~"{}"'.format(k, v) for k, v in filters.items()
     )
-    return value.replace('{macro}', macro)
+    return value.replace(EXCLUSION_MACRO, macro)

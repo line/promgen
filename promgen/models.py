@@ -3,7 +3,6 @@
 
 import json
 import logging
-import time
 
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
@@ -16,6 +15,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+import promgen.templatetags.promgen as macro
 from promgen import plugins
 from promgen.shortcuts import resolve_domain
 
@@ -316,7 +316,7 @@ class Rule(models.Model):
             self.name = '{}_{}'.format(self.name, service.name)
             self.service = service
             self.enabled = False
-            self.clause = self.clause.replace('{macro}', 'service="{}"'.format(service.name))
+            self.clause = self.clause.replace(macro.EXCLUSION_MACRO, 'service="{}"'.format(service.name))
             self.save()
 
             # Add a service label to our new rule, to help ensure notifications
