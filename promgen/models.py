@@ -14,6 +14,7 @@ from django.forms.models import model_to_dict
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 
 import promgen.templatetags.promgen as macro
 from promgen import plugins
@@ -313,7 +314,7 @@ class Rule(models.Model):
             orig_pk = self.pk
             self.pk = None
             self.parent_id = orig_pk
-            self.name = '{}_{}'.format(self.name, service.name)
+            self.name = '{}_{}'.format(self.name, slugify(service.name)).replace('-', '_')
             self.service = service
             self.enabled = False
             self.clause = self.clause.replace(macro.EXCLUSION_MACRO, 'service="{}"'.format(service.name))
