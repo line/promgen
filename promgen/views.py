@@ -491,6 +491,7 @@ class RuleUpdate(UpdateView):
         context['service'] = self.object.service
         context['label_set'] = self.LabelForm(instance=self.object)
         context['annotation_set'] = self.AnnotationForm(instance=self.object)
+        context['macro'] = macro.EXCLUSION_MACRO
         if self.object.parent:
             context['rules'] = [self.object.parent]
         else:
@@ -914,11 +915,10 @@ class AjaxAlert(View):
 
 class RuleTest(View):
     def post(self, request, pk):
-        shard = get_object_or_404(models.Shard, id=request.POST['shard'])
         rule = get_object_or_404(models.Rule, id=pk)
         query = macro.rulemacro(request.POST['query'], rule)
 
-        url = '{}/api/v1/query'.format(shard.url)
+        url = '{}/api/v1/query'.format(rule.service.shard.url)
 
         logger.debug('Querying %s with %s', url, query)
         start = time.time()
@@ -947,7 +947,7 @@ class RuleTest(View):
             context['status'] = 'danger'
             context['errors']['Query'] = result['error']
 
-        return JsonResponse({'#ajax-clause-check': render_to_string('promgen/ajax_clause_check.html', context)})
+        return JsonResponse({request.POST['target']: render_to_string('promgen/ajax_clause_check.html', context)})
 
 
 class AjaxSilence(View):

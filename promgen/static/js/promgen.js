@@ -45,15 +45,15 @@ $(document).ready(function() {
     'referer': window.location.toString()
   }).done(update_page);
 
-  $('#test_clause').click(function() {
+  $('[data-source]').click(function() {
     var btn = $(this)
-    var query = $(btn.data('source')).val()
+    var query = btn.data('source') == 'self' ? btn.text()  : $(btn.data('source')).val();
 
-    $(btn.data('target')).html('<p>Loading...</p>')
+    $(btn.data('target')).html('Loading...').show();
     console.log("Testing Query: %s", query)
     $.post(btn.data('href'), {
       'query': query,
-      'shard': btn.data('shard-id')
+      'target': btn.data('target')
     }).done(update_page);
   })
 
