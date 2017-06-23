@@ -8,7 +8,6 @@ import time
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models, transaction
@@ -18,6 +17,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 from promgen import plugins
+from promgen.shortcuts import resolve_domain
 
 FARM_DEFAULT = 'default'
 logger = logging.getLogger(__name__)
@@ -282,10 +282,7 @@ class Rule(models.Model):
     @cached_property
     def annotations(self):
         _annotations = {obj.name: obj.value for obj in self.ruleannotation_set.all()}
-        _annotations['service'] = 'http://{site}{path}'.format(
-            site=Site.objects.get_current().domain,
-            path=reverse('service-detail', args=[self.service_id])
-        )
+        _annotations['rule'] = resolve_domain('rule-edit', pk=self.pk)
         return _annotations
 
     def __str__(self):

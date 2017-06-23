@@ -16,8 +16,8 @@ _RULES = '''
 ALERT RuleName
   IF up==0
   FOR 1s
-  LABELS {severity="severe"}
-  ANNOTATIONS {service="http://example.com/service/1/", summary="Test case"}
+  LABELS {{severity="severe"}}
+  ANNOTATIONS {{rule="http://example.com/rule/{rule.id}/edit", summary="Test case"}}
 
 
 '''.lstrip()
@@ -41,7 +41,7 @@ class RuleTest(TestCase):
     @mock.patch('django.db.models.signals.post_save')
     def test_write(self, mock_render):
         result = prometheus.render_rules()
-        self.assertEqual(result, _RULES)
+        self.assertEqual(result, _RULES.format(rule=self.rule))
 
     @mock.patch('django.db.models.signals.post_save')
     def test_copy(self, mock_render):
