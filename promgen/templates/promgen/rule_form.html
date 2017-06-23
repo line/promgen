@@ -19,6 +19,13 @@
   </div>
   <div id="rule-parent" class="panel-body collapse">
     <pre>{% include "promgen/prometheus.rule" %}</pre>
+    <input id="parent-clause" type="hidden" value="{{rule.parent.clause}}">
+    <a
+      class="btn btn-primary btn-sm"
+      data-href="{% url 'rule-test' rule.parent.id %}"
+      data-source="#parent-clause"
+      data-target="#ajax-clause-check"
+      >Test Parent</a>
   </div>
 </div>
 {% endif %}
@@ -38,7 +45,7 @@
   </div>
 {% endif %}
 
-<form action="" class="input-group" method="post">{% csrf_token %}
+<form action="{% url 'rule-edit' rule.pk %}" class="input-group" method="post">{% csrf_token %}
 <div class="row">
 
   {% if form.non_field_errors  %}
@@ -97,7 +104,7 @@
     <div id="ajax-clause-check" class="panel-body" style="display:none;"></div>
 
     <ul class="list-group">
-      <li class="list-group-item">Examples</li>
+      <li class="list-group-item">Simple Examples</li>
       <li class="list-group-item">
         <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
           node_load1{service="{{ service.name }}"} > 5
@@ -108,6 +115,7 @@
           api_http_request_latencies_second{quantile="0.5"} > 1
         </code>
       </li>
+      <li class="list-group-item">Promgen Exclusion Macro</li>
       <li class="list-group-item">
         <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
           node_memory_MemFree{% templatetag openbrace %}{{ macro }}{% templatetag closebrace %} / node_memory_MemTotal{% templatetag openbrace %}{{ macro }}{% templatetag closebrace %} < 0.05
