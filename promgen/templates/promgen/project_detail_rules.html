@@ -7,7 +7,7 @@
     Common Rules ({{ global.rule_set.count }})
     </a>
   </div>
-  {% include "promgen/rule_block.html" with rule_list=global.rule_set.all collapse="show-global-rules" %}
+  {% include "promgen/rule_block.html" with rule_list=global.rule_set.all show_overwrite=project.service.id collapse="show-global-rules" %}
 </div>
 {% endif %}
 
