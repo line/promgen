@@ -473,7 +473,13 @@ class ServiceUpdate(UpdateView):
 
 
 class RuleUpdate(UpdateView):
-    model = models.Rule
+    queryset = models.Rule.objects.prefetch_related(
+        'service',
+        'service__shard',
+        'overrides',
+        'overrides__service',
+        'overrides__service__shard',
+    )
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
 

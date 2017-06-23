@@ -114,6 +114,9 @@ class NewRuleForm(forms.ModelForm):
 
 
 class RuleForm(forms.ModelForm):
+    # Manually specify service here so we can prefetch objects for faster rendering
+    service = forms.ModelChoiceField(queryset=models.Service.objects.select_related('shard'))
+
     class Meta:
         model = models.Rule
         exclude = ['parent']
