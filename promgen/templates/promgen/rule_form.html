@@ -36,9 +36,13 @@
     <table class="table">
   {% for r in rule.overrides.all %}
       <tr>
-        <td><a href="{% url 'service-detail' r.service.pk %}">{{ r.service.name }}</a></td>
-        <td><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
-        <td>{{ r.clause|rulemacro:r }}</td>
+        <td class="col-xs-2"><a href="{% url 'service-detail' r.service.pk %}">{{ r.service }}</a></td>
+        <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
+        <td class="col-xs-8">
+          <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
+            {{ r.clause|rulemacro:r }}
+          </code>
+        </td>
       </tr>
   {% endfor %}
     </table>
