@@ -16,10 +16,11 @@ _RESOLVED = '[resolved] service_level_alert Service 2 critical'
 _MESSAGE = '''[firing] node_down prod foo-BETA testhost.localhost:9100 node Project 1 Service 1 critical
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
+project: http://example.com/project/{project.id}/
+service: http://example.com/service/{service.id}/
 summary: Instance testhost.localhost:9100 down
 
-Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D
-Alert Manager: https://am.promehteus.localhost'''
+Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D'''
 
 
 class IkasanTest(TestCase):
@@ -54,7 +55,7 @@ class IkasanTest(TestCase):
                 'color': 'red',
                 'channel': '#1',
                 'message_format': 'text',
-                'message': _MESSAGE}
+                'message': _MESSAGE.format(service=self.service, project=self.project)}
             ),
             mock.call(
                 'http://ikasan.example', {

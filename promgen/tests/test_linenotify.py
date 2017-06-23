@@ -16,10 +16,11 @@ _RESOLVED = '[resolved] service_level_alert Service 2 critical'
 _MESSAGE = '''[firing] node_down foo-BETA testhost.localhost:9100 node
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
+project: http://example.com/project/{project.id}/
+service: http://example.com/service/{service.id}/
 summary: Instance testhost.localhost:9100 down
 
-Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D
-Alert Manager: https://am.promehteus.localhost'''
+Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D'''
 
 
 class LineNotifyTest(TestCase):
@@ -52,7 +53,7 @@ class LineNotifyTest(TestCase):
         mock_post.assert_has_calls([
             mock.call(
                 'https://notify.example',
-                data={'message': _MESSAGE},
+                data={'message': _MESSAGE.format(service=self.service, project=self.project)},
                 headers={'Authorization': 'Bearer hogehoge'},
             ),
             mock.call(

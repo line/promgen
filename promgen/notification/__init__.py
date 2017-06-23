@@ -6,9 +6,9 @@ import textwrap
 
 from django import forms
 from django.conf import settings
-from django.contrib.sites.models import Site
 
 from promgen.models import Project, Service
+from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 
@@ -80,24 +80,27 @@ class NotificationBase(object):
         sent = 0
         alerts = data.pop('alerts', [])
         for alert in alerts:
+            alert.setdefault('annotations', {})
+            output = {}
+
+            # Look through our labels and find the object from Promgen's DB
+            # If we find an object in Promgen, add an annotation with a direct link
             for label, klass in self.MAPPING:
                 if label not in alert['labels']:
                     logger.debug('Missing label %s', label)
                     continue
-                logger.debug('Checking senders for %s=%s', label, alert['labels'][label])
+                # Should only find a single value, but I think filter is a little
+                # bit more forgiving than get in terms of throwing errors
                 for obj in klass.objects.filter(name=alert['labels'][label]):
-                    for sender in obj.notifiers.filter(sender=self.__module__):
-                        logger.debug('Sending to %s', sender)
-                        if label == 'service':
-                            project_url = obj.project_set.get(name__exact=alert['labels']['project']).get_absolute_url()
-                        else:
-                            project_url = obj.get_absolute_url()
-                        alert['projectURL'] = 'http://{site}{path}'.format(
-                            site=Site.objects.get_current().domain,
-                            path=project_url
-                        )
-                        if self.__send(sender.value, alert, data):
-                            sent += 1
+                    logger.debug('Found %s %s', label, obj)
+                    output[label] = obj
+                    alert['annotations'][label] = resolve_domain(obj)
+
+            for label, obj in output.items():
+                for sender in obj.notifiers.filter(sender=self.__module__):
+                    logger.debug('Sending to %s', sender)
+                    if self.__send(sender.value, alert, data):
+                        sent += 1
         if sent == 0:
             logger.debug('No senders configured for project or service')
         return sent

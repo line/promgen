@@ -2,6 +2,4 @@
 {% for k,v in alert.annotations.items|dictsort:0 %}
 {{ k }}: {{ v }}{% endfor %}
 
-Project: {{ alert.projectURL }}
-
 Prometheus: {{ alert.generatorURL }}

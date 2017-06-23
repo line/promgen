@@ -28,12 +28,9 @@ class NotificationWebhook(NotificationBase):
     @celery.task(bind=True)
     def _send(task, url, alert, data):
         params = {
-            'prometheus': alert['generatorURL'],
-            'status': alert['status'],
-            'alertmanager': data['externalURL']
+            'externalURL': data.get('externalURL'),
+            'alert': alert,
         }
 
-        params.update(alert.get('labels', {}))
-        params.update(alert.get('annotations', {}))
         util.post(url, params)
         return True
