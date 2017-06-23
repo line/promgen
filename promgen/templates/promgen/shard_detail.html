@@ -7,11 +7,7 @@
   <a href="{% url 'service-new' shard.id %}" class="btn btn-primary">New Service</a>
 </div>
 
-
-<ol class="breadcrumb">
-  <li><a href="{% url 'home' %}">Home</a></li>
-  <li class="active"><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></li>
-</ol>
+{% include 'promgen/breadcrumb.html' with shard=shard only %}
 
 {% for service in shard.service_set.all %}
 <h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>

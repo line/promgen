@@ -6,11 +6,7 @@
   <h1>Service: {{ service.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'home' %}">Home</a></li>
-  <li><a href="{% url 'shard-detail' service.shard.id %}">{{ service.shard.name }}</a></li>
-  <li class="active"><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
-</ol>
+{% include 'promgen/breadcrumb.html' with service=service only %}
 
 {% include "promgen/service_block.html" %}
 

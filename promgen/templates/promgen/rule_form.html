@@ -7,11 +7,7 @@
   <h1>Service: {{ service.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
-  <li class="active">New Rule</li>
-</ol>
+{% include 'promgen/breadcrumb.html' with rule=rule active='New Rule' only %}
 
 {% if rule.parent %}
 <div class="panel panel-default">

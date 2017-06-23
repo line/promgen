@@ -6,12 +6,7 @@
   <h1>Project: {{ project.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
-  <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
-  <li class="active">Register Exporter</li>
-</ol>
+{% include 'promgen/breadcrumb.html' with project=project label='Register Exporter' only %}
 
 <div class="row">
 

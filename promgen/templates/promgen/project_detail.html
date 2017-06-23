@@ -6,12 +6,7 @@
   <h1>Project: {{ project.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'home' %}">Home</a></li>
-  <li><a href="{% url 'shard-detail' project.service.shard.id %}">{{ project.service.shard.name }}</a></li>
-  <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
-  <li class="active"><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
-</ol>
+{% include 'promgen/breadcrumb.html' with project=project only %}
 
 {% if project.notifiers.count == 0 and project.service.notifiers.count == 0 %}
 <div class="alert alert-warning" role="alert">

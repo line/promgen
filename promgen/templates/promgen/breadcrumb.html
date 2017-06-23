@@ -1,0 +1,42 @@
+{% if rule %}
+<ol class="breadcrumb">
+  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li><a href="{% url 'shard-detail' rule.service.shard.id %}" title="Shard">{{ rule.service.shard.name }}</a></li>
+  <li><a href="{% url 'service-detail' rule.service.id %}" title="Service">{{ rule.service.name }}</a></li>
+  <li class="active">{{ active }}</li>
+</ol>
+{% endif %}
+
+{% if service %}
+<ol class="breadcrumb">
+  <li><a href="{% url 'home' %}">Home</a></li>
+  <li><a href="{% url 'shard-detail' service.shard.id %}" title="Shard">{{ service.shard.name }}</a></li>
+{% if label %}
+  <li><a href="{% url 'service-detail' service.id %}" title="Service">{{ service.name }}</a></li>
+  <li class="active">{{ label }}</li>
+{% else %}
+  <li class="active"><a href="{% url 'service-detail' service.id %}" title="Service">{{ service.name }}</a></li>
+{% endif %}
+</ol>
+{% endif %}
+
+{% if project %}
+<ol class="breadcrumb">
+  <li><a href="{% url 'home' %}">Home</a></li>
+  <li><a href="{% url 'shard-detail' project.service.shard.id %}" title="Shard">{{ project.service.shard.name }}</a></li>
+  <li><a href="{% url 'service-detail' project.service.id %}" title="Service">{{ project.service.name }}</a></li>
+{% if label %}
+  <li><a href="{% url 'project-detail' project.id %}" title="Project">{{ project.name }}</a></li>
+  <li class="active">{{ label }}</li>
+{% else %}
+  <li class="active"><a href="{% url 'project-detail' project.id %}" title="project">{{ project.name }}</a></li>
+{% endif %}
+</ol>
+{% endif %}
+
+{% if shard %}
+<ol class="breadcrumb">
+  <li><a href="{% url 'home' %}">Home</a></li>
+  <li class="active"><a href="{% url 'shard-detail' shard.id %}" title="shard">{{ shard.name }}</a></li>
+</ol>
+{% endif %}
