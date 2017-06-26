@@ -25,10 +25,10 @@ _PARAM1 = {
             'farm': 'foo-BETA'
         },
         'annotations': {
-            'service': 'http://example.com/service/14/',
+            'service': 'http://example.com/service/{service.id}/',
             'description': 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
             'summary': 'Instance testhost.localhost:9100 down',
-            'project': 'http://example.com/project/12/'
+            'project': 'http://example.com/project/{project.id}/'
         },
         'generatorURL': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
         'endsAt': '2016-04-21T20:15:37.698Z',
@@ -46,7 +46,7 @@ _PARAM2 = {
             'service': 'Service 2'
         },
         'annotations': {
-            'service': 'http://example.com/service/15/'
+            'service': 'http://example.com/service/{service.id}/'
         },
         'generatorURL': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
         'endsAt': '2016-04-21T20:15:37.698Z',
@@ -85,6 +85,9 @@ class WebhookTest(TestCase):
             data=json.dumps(TEST_ALERT),
             content_type='application/json'
         )
+        _PARAM1['alert']['annotations']['service'] = _PARAM1['alert']['annotations']['service'].format(service=self.service)
+        _PARAM1['alert']['annotations']['project'] = _PARAM1['alert']['annotations']['project'].format(project=self.project)
+        _PARAM2['alert']['annotations']['service'] = _PARAM1['alert']['annotations']['service'].format(service=self.service)
         mock_post.assert_has_calls([
             mock.call(
                 'http://project.example.com',
