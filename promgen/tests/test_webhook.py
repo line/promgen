@@ -87,7 +87,7 @@ class WebhookTest(TestCase):
         )
         _PARAM1['alert']['annotations']['service'] = _PARAM1['alert']['annotations']['service'].format(service=self.service)
         _PARAM1['alert']['annotations']['project'] = _PARAM1['alert']['annotations']['project'].format(project=self.project)
-        _PARAM2['alert']['annotations']['service'] = _PARAM1['alert']['annotations']['service'].format(service=self.service)
+        _PARAM2['alert']['annotations']['service'] = _PARAM2['alert']['annotations']['service'].format(service=self.service2)
         mock_post.assert_has_calls([
             mock.call(
                 'http://project.example.com',
