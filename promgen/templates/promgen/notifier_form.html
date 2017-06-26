@@ -10,7 +10,11 @@
   {% endif %}
 </div>
 
-{% include 'promgen/breadcrumb_block.html' with label='Register Exporter' %}
+{% if project %}
+{% include 'promgen/breadcrumb.html' with project=project label='Register Exporter' only %}
+{% else %}
+{% include 'promgen/breadcrumb.html' with service=service label='Register Exporter' only %}
+{% endif %}
 
 <div class="row">
   <div class="col-md-3">

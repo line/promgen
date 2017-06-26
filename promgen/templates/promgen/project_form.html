@@ -2,21 +2,20 @@
 
 {% block content %}
 
-<div class="page-header">
-  <h1>Project: {{ project.name }}</h1>
-</div>
-
-<ol class="breadcrumb">
-  <li><a href="{% url 'home' %}">Home</a></li>
-  <li><a href="{% url 'shard-detail' service.shard.id %}">{{ service.shard.name }}</a></li>
-  <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
-  <li class="active">{{ view.button_label }}</li>
-</ol>
-
 {% if project %}
-<div class="alert alert-danger" role="alert">
-    Warning. Renaming or Moving a project will reset all labels in Prometheus
-</div>
+  <div class="page-header">
+    <h1>Project: {{ project.name }}</h1>
+  </div>
+
+  {% include 'promgen/breadcrumb.html' with project=project label=view.button_label only %}
+  <div class="alert alert-danger" role="alert">
+      Warning. Renaming or Moving a project will reset all labels in Prometheus
+  </div>
+{% else %}
+  <div class="page-header">
+    <h1>Register new Project</h1>
+  </div>
+  {% include 'promgen/breadcrumb.html' with service=service label=view.button_label only %}
 {% endif %}
 
 <div class="panel panel-default">

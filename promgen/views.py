@@ -26,6 +26,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin, RedirectView
 from django.views.generic.edit import DeleteView, FormView
 
+import promgen.templatetags.promgen as macro
 from promgen import forms, models, plugins, prometheus, signals, util, version
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,13 @@ class ServiceMixin(ContextMixin):
         context = super(ServiceMixin, self).get_context_data(**kwargs)
         if 'pk' in self.kwargs:
             context['service'] = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        return context
+
+
+class GlobalRulesMixin(object):
+    def get_context_data(self, **kwargs):
+        context = super(GlobalRulesMixin, self).get_context_data(**kwargs)
+        context['global_rule_set'] = models.Service.default().rule_set
         return context
 
 
@@ -144,7 +152,7 @@ class AuditList(ListView):
     paginate_by = 50
 
 
-class ServiceDetail(DetailView):
+class ServiceDetail(GlobalRulesMixin, DetailView):
     queryset = models.Service.objects\
         .prefetch_related(
             'project_set',
@@ -318,8 +326,8 @@ class RulesCopy(View):
 
         if form.is_valid():
             data = form.clean()
-            rule = get_object_or_404(models.Rule, id=data['rule_id'])
-            rule.copy_to(service)
+            original = get_object_or_404(models.Rule, id=data['rule_id'])
+            rule = original.copy_to(service)
             return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
         else:
             return HttpResponseRedirect(reverse('service-detail', args=[pk]))
@@ -465,7 +473,13 @@ class ServiceUpdate(UpdateView):
 
 
 class RuleUpdate(UpdateView):
-    model = models.Rule
+    queryset = models.Rule.objects.prefetch_related(
+        'service',
+        'service__shard',
+        'overrides',
+        'overrides__service',
+        'overrides__service__shard',
+    )
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
 
@@ -483,7 +497,11 @@ class RuleUpdate(UpdateView):
         context['service'] = self.object.service
         context['label_set'] = self.LabelForm(instance=self.object)
         context['annotation_set'] = self.AnnotationForm(instance=self.object)
-        context['rules'] = [self.object]
+        context['macro'] = macro.EXCLUSION_MACRO
+        if self.object.parent:
+            context['rules'] = [self.object.parent]
+        else:
+            context['rules'] = [self.object]
         return context
 
     def post(self, request, *args, **kwargs):
@@ -901,19 +919,19 @@ class AjaxAlert(View):
         return JsonResponse(context)
 
 
-class AjaxClause(View):
-    def post(self, request):
-        query = request.POST['query']
-        shard = get_object_or_404(models.Shard, id=request.POST['shard'])
+class RuleTest(View):
+    def post(self, request, pk):
+        rule = get_object_or_404(models.Rule, id=pk)
+        query = macro.rulemacro(request.POST['query'], rule)
 
-        url = '{}/api/v1/query'.format(shard.url)
+        url = '{}/api/v1/query'.format(rule.service.shard.url)
 
         logger.debug('Querying %s with %s', url, query)
         start = time.time()
-        result = util.get(url, {'query': request.POST['query']}).json()
+        result = util.get(url, {'query': query}).json()
         duration = datetime.timedelta(seconds=(time.time() - start))
 
-        context = {'status': result['status'], 'duration': duration}
+        context = {'status': result['status'], 'duration': duration, 'query': query}
         context['data'] = result.get('data', {})
 
         context['errors'] = {}
@@ -935,7 +953,7 @@ class AjaxClause(View):
             context['status'] = 'danger'
             context['errors']['Query'] = result['error']
 
-        return JsonResponse({'#ajax-clause-check': render_to_string('promgen/ajax_clause_check.html', context)})
+        return JsonResponse({request.POST['target']: render_to_string('promgen/ajax_clause_check.html', context)})
 
 
 class AjaxSilence(View):

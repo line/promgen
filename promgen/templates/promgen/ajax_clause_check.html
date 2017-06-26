@@ -1,6 +1,7 @@
 {% load i18n %}
 <div id="ajax-clause-check" class="panel-body">
   <p>Query Duration: {{ duration }}</p>
+  <code>{{ query }}</code>
 {% if collapse %}
 <a class="btn btn-success btn-sm" role="button" data-toggle="collapse" href="#prometheus-query-results" aria-expanded="false" aria-controls="collapseExample">
   Show {{ data.result|length }} Results

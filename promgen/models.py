@@ -3,7 +3,6 @@
 
 import json
 import logging
-import time
 
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
@@ -15,7 +14,9 @@ from django.forms.models import model_to_dict
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 
+import promgen.templatetags.promgen as macro
 from promgen import plugins
 from promgen.shortcuts import resolve_domain
 
@@ -265,6 +266,12 @@ class Rule(models.Model):
     ])
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
+    parent = models.ForeignKey(
+        'Rule',
+        null=True,
+        related_name='overrides',
+        on_delete=models.SET_NULL
+    )
 
     class Meta:
         ordering = ['service', 'name']
@@ -300,11 +307,17 @@ class Rule(models.Model):
         to the end of the name
         '''
         with transaction.atomic():
+            # First check to see if this rule is already overwritten
+            for rule in Rule.objects.filter(parent_id=self.pk, service_id=service.id):
+                return rule
+
             orig_pk = self.pk
             self.pk = None
-            self.name += str(int(time.time()))
+            self.parent_id = orig_pk
+            self.name = '{}_{}'.format(self.name, slugify(service.name)).replace('-', '_')
             self.service = service
             self.enabled = False
+            self.clause = self.clause.replace(macro.EXCLUSION_MACRO, 'service="{}"'.format(service.name))
             self.save()
 
             # Add a service label to our new rule, to help ensure notifications

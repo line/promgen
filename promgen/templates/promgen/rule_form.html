@@ -7,26 +7,49 @@
   <h1>Service: {{ service.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
-  <li class="active">New Rule</li>
-</ol>
+{% include 'promgen/breadcrumb.html' with rule=rule active='New Rule' only %}
 
-{% if rules %}
+{% if rule.parent %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-preview" aria-expanded="false" aria-controls="collapseExample">
-      Preview
+    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-parent" aria-expanded="false" aria-controls="collapseExample">
+      Parent Rule
     </button>
+    <a class="btn btn-default" href="{% url 'rule-edit' rule.parent.pk %}" />Edit Parent</a>
   </div>
-  <div id="rule-preview" class="panel-body collapse">
+  <div id="rule-parent" class="panel-body collapse">
     <pre>{% include "promgen/prometheus.rule" %}</pre>
+    <input id="parent-clause" type="hidden" value="{{rule.parent.clause}}">
+    <a
+      class="btn btn-primary btn-sm"
+      data-href="{% url 'rule-test' rule.parent.id %}"
+      data-source="#parent-clause"
+      data-target="#ajax-clause-check"
+      >Test Parent</a>
   </div>
 </div>
 {% endif %}
 
-<form action="" class="input-group" method="post">{% csrf_token %}
+{% if rule.overrides.count %}
+  <div class="panel panel-warning">
+    <div class="panel-heading">Overridden By</div>
+    <table class="table">
+  {% for r in rule.overrides.all %}
+      <tr>
+        <td class="col-xs-2"><a href="{% url 'service-detail' r.service.pk %}">{{ r.service }}</a></td>
+        <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
+        <td class="col-xs-8">
+          <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
+            {{ r.clause|rulemacro:r }}
+          </code>
+        </td>
+      </tr>
+  {% endfor %}
+    </table>
+  </div>
+{% endif %}
+
+<form action="{% url 'rule-edit' rule.pk %}" class="input-group" method="post">{% csrf_token %}
 <div class="row">
 
   {% if form.non_field_errors  %}
@@ -39,7 +62,7 @@
   {% endif %}
 
 <div class="col-md-6">
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">{{ form.name.label_tag }}</div>
     <div class="panel-body">
       {{ form.name.errors }}
@@ -55,36 +78,57 @@
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">
       {{ form.clause.label_tag }}
-      <a class="btn btn-warning" id="test_clause" data-source="#id_clause" data-target="#ajax-clause-check" data-shard-id="{{ service.shard.id }}">Test Query</a>
     </div>
+
     <div class="panel-body">
-      {{ form.clause.errors }}
-      {{ form.clause }}
-    </div>
-    <div id="ajax-clause-check"></div>
-    <div class="panel-body">
-      <p class="help-block">
         <ul class="list-inline">
-          <li>Documentation:</li>
+          <li>Prometheus Documentation:</li>
           <li><a href="https://prometheus.io/docs/querying/basics/">Basics</a></li>
           <li><a href="https://prometheus.io/docs/querying/operators/">Operators</a></li>
           <li><a href="https://prometheus.io/docs/querying/functions/">Functions</a></li>
           <li><a href="https://prometheus.io/docs/querying/examples/">Examples</a></li>
         </ul>
-
-        Examples
-        <ul>
-          <li><code>node_load1{service="{{ service.name }}"} > 5</code></li>
-          <li><code>api_http_request_latencies_second{quantile="0.5"} > 1</code></li>
-        </ul>
-      </p>
     </div>
+
+    <div class="panel-body">
+      {{ form.clause.errors }}
+      {{ form.clause }}
+    </div>
+    <div class="panel-body">
+      <a
+        class="btn btn-primary btn-sm"
+        data-href="{% url 'rule-test' rule.id %}"
+        data-source="#id_clause"
+        data-target="#ajax-clause-check"
+        >Test Query</a>
+    </div>
+    <div id="ajax-clause-check" class="panel-body" style="display:none;"></div>
+
+    <ul class="list-group">
+      <li class="list-group-item">Simple Examples</li>
+      <li class="list-group-item">
+        <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
+          node_load1{service="{{ service.name }}"} > 5
+        </code>
+      </li>
+      <li class="list-group-item">
+        <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
+          api_http_request_latencies_second{quantile="0.5"} > 1
+        </code>
+      </li>
+      <li class="list-group-item">Promgen Exclusion Macro</li>
+      <li class="list-group-item">
+        <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
+          node_memory_MemFree{% templatetag openbrace %}{{ macro }}{% templatetag closebrace %} / node_memory_MemTotal{% templatetag openbrace %}{{ macro }}{% templatetag closebrace %} < 0.05
+        </code>
+      </li>
+    </ul>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">{{ form.duration.label_tag }}</div>
     <div class="panel-body">
       {{ form.duration.errors }}
@@ -95,34 +139,32 @@
 </div>
 
 <div class="col-md-6">
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">Labels - Control routing through AlertManager and Promgen</div>
-    <div class="panel-body">
-      {{ label_set.management_form }}
-      <table class="table">
-          <tr>
-            <th>Label</th>
-            <th>Value</th>
-            <th>Delete?</th>
-          </tr>
-        {% for label_form in label_set %}
-          <tr>
-            <td>{{ label_form.id }} {{ label_form.name }}</td>
-            <td>{{ label_form.value }}</td>
-            <td>{{ label_form.DELETE }}</td>
-          </tr>
-        {% endfor %}
-      </table>
-      <div class="panel panel-default">
-        Examples
-        <ul>
-          <li><code>{"severity":"major"}</code></li>
-        </ul>
-      </div>
-    </div>
+    {{ label_set.management_form }}
+    <table class="table">
+        <tr>
+          <th>Label</th>
+          <th>Value</th>
+          <th>Delete?</th>
+        </tr>
+      {% for label_form in label_set %}
+        <tr>
+          <td>{{ label_form.id }} {{ label_form.name }}</td>
+          <td>{{ label_form.value }}</td>
+          <td>{{ label_form.DELETE }}</td>
+        </tr>
+      {% endfor %}
+    </table>
+    <ul class="list-group">
+      <li class="list-group-item">Examples</li>
+      <li class="list-group-item">
+        <code>{"severity":"major"}</code>
+      </li>
+    </ul>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-primary">
     <div class="panel-heading">Annotations - Provide extra details for notifications</div>
     {{ annotation_set.management_form }}
     <table class="table">
@@ -139,20 +181,16 @@
         </tr>
       {% endfor %}
     </table>
-    <div class="panel-body">
-      <div class="panel panel-default">
-        Examples
-        <ul>
-          <li><code>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</code></li>
-        </ul>
-      </div>
-    </div>
-  </div>
+    <ul class="list-group">
+      <li class="list-group-item">Examples</li>
+      <li class="list-group-item">
+        <code>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</pre></code>
+      </li>
+    </ul>
   </div>
 </div>
 
-</div>
-<button class="btn btn-primary">Register Rule</button>
+<button class="btn btn-primary">Save Rule</button>
 </form>
 
 <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans "Delete this Rule?" %}')" style="display: inline">

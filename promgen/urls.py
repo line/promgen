@@ -78,6 +78,8 @@ urlpatterns = [
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
     url(r'^rule/(?P<pk>[0-9]+)/toggle$', views.RuleToggle.as_view(), name='rule-toggle'),
+    url(r'^rule/(?P<pk>[0-9]+)/test$', csrf_exempt(views.RuleTest.as_view()), name='rule-test'),
+
 
     url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
     url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
@@ -95,9 +97,8 @@ urlpatterns = [
     url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
     url(r'^commit$', csrf_exempt(views.Commit.as_view()), name='commit'),
 
-    url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
-    url(r'^ajax/clause$', csrf_exempt(views.AjaxClause.as_view()), name='ajax-clause'),
     url(r'^ajax/silence$', csrf_exempt(views.AjaxSilence.as_view()), name='ajax-silence'),
+    url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
 ]
 
 if settings.DEBUG:

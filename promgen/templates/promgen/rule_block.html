@@ -12,10 +12,20 @@
     <th class="col-xs-1">Toggle</th>
     <th class="col-xs-1">Delete</th>
 {% endif %}
+{% if show_overwrite %}
+    <th class="col-xs-1">Overwrite</th>
+{% endif %}
   </tr>
   {% for rule in rule_list %}
   <tr>
-    <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
+    <td>
+      <a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a>
+      {% if rule.parent %}
+      <a style="pull-right" title="Parent Rule" href="{% url 'rule-edit' rule.parent.id %}">
+        <span class="glyphicon glyphicon-upload"></span>
+      </a>
+      {% endif %}
+    </td>
     <td {% if not rule.enabled %}class="bg-disabled text-muted"{% endif %} style="word-break: break-word;">{{ rule.clause }}</td>
     <td>{{ rule.duration }}</td>
 {% if show_full %}
@@ -41,6 +51,16 @@
         <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
       </form>
     </td>
+{% endif %}
+
+{% if show_overwrite %}
+<td>
+  <form method="post" action="{% url 'rule-copy' show_overwrite %}" style="display: inline">
+    <input name="rule_id" type="hidden" value="{{rule.pk}}" />
+    {% csrf_token %}
+    <button class="btn btn-warning btn-xs">{% trans "Overwrite" %}</button>
+  </form>
+</td>
 {% endif %}
   </tr>
   {% endfor %}
