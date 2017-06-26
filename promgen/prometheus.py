@@ -44,7 +44,14 @@ def check_rules(rules):
 
 def render_rules(rules=None):
     if rules is None:
-        rules = models.Rule.objects.filter(enabled=True)
+        rules = models.Rule.objects.filter(enabled=True).prefetch_related(
+            'content_object',
+            'content_type',
+            'overrides__content_object',
+            'overrides__content_type',
+            'ruleannotation_set',
+            'rulelabel_set',
+        )
     return render_to_string('promgen/prometheus.rule', {'rules': rules})
 
 
@@ -189,12 +196,12 @@ def import_rules(config, default_service=None):
             except models.Service.DoesNotExist:
                 service = models.Service.default()
 
-        rule, created = models.Rule.objects.get_or_create(
+        rule, created = models.Rule.get_or_create(
             name=tokens['ALERT'],
             defaults={
                 'clause': tokens['IF'],
                 'duration': tokens['FOR'],
-                'service': service,
+                'obj': service,
             }
         )
 

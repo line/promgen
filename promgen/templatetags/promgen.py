@@ -23,12 +23,12 @@ def to_prom(value):
 def rulemacro(value, rule):
     labels = collections.defaultdict(list)
     for r in rule.overrides.all():
-        labels['service'].append(r.service.name)
+        labels[r.content_type.model].append(r.content_object.name)
 
     filters = {
-        k: '|'.join(labels[k]) for k in labels
+        k: '|'.join(labels[k]) for k in sorted(labels)
     }
     macro = ','.join(
-        '{}!~"{}"'.format(k, v) for k, v in filters.items()
+        sorted('{}!~"{}"'.format(k, v) for k, v in filters.items())
     )
     return value.replace(EXCLUSION_MACRO, macro)

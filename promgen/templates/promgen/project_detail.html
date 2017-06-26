@@ -18,18 +18,20 @@
 <div style="display:none" id="alert-project-{{ project.name|slugify }}"></div>
 <div style="display:none" id="silence-project-{{ project.name|slugify }}"></div>
 
+{% include "promgen/project_detail_configuration.html" %}
+
 <div class="row">
   <div class="col-md-6">
-    {% include "promgen/project_detail_configuration.html" %}
     {% include "promgen/project_detail_exporters.html" %}
     {% include "promgen/project_detail_hosts.html" %}
-    {% include "promgen/project_detail_urls.html" %}
   </div>
 
   <div class="col-md-6">
+    {% include "promgen/project_detail_urls.html" %}
     {% include "promgen/project_detail_notifiers.html" %}
-    {% include "promgen/project_detail_rules.html" %}
   </div>
 </div>
+
+{% include "promgen/project_detail_rules.html" %}
 
 {% endblock %}

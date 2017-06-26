@@ -1,13 +1,5 @@
 {% load i18n %}
 
-<div class="panel panel-primary">
-  <div class="panel-heading">Project Notifiers</div>
-  {% include "promgen/notifier_block.html" with object=project show_edit=1 %}
-  <div class="panel-footer">
-    <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary">{% trans "Register Notifier" %}</a>
-  </div>
-</div>
-
 {% if project.service.notifiers.count %}
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -18,3 +10,12 @@
   {% include "promgen/notifier_block.html" with object=project.service collapse="show-service-senders" %}
 </div>
 {% endif %}
+
+
+<div class="panel panel-primary">
+  <div class="panel-heading">Project Notifiers</div>
+  {% include "promgen/notifier_block.html" with object=project show_edit=1 %}
+  <div class="panel-footer">
+    <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary">{% trans "Register Notifier" %}</a>
+  </div>
+</div>

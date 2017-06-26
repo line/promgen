@@ -106,7 +106,7 @@ class URLForm(forms.ModelForm):
 class NewRuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule
-        exclude = ['service']
+        exclude = ['content_type', 'object_id', 'parent']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
@@ -127,12 +127,8 @@ class RuleForm(forms.ModelForm):
 
 
 class RuleCopyForm(forms.Form):
-    def _choices():
-        return sorted([
-            (rule.pk, '<{}> {}'.format(rule.service.name, rule.name)) for rule in models.Rule.objects.all()
-        ], key=lambda r: r[1])
-
-    rule_id = forms.TypedChoiceField(coerce=int, choices=_choices)
+    content_type = forms.ChoiceField(choices=[(x, x) for x in ['service', 'project']])
+    object_id = forms.IntegerField()
 
 
 class FarmForm(forms.ModelForm):

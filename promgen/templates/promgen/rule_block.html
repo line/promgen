@@ -4,10 +4,6 @@
     <th class="col-xs-2">Name</th>
     <th class="col-md-7">Clause</th>
     <th class="col-xs-1">Duration</th>
-{% if show_full %}
-    <th class="col-md-2">Labels</th>
-    <th class="col-md-2">Annotations</th>
-{% endif %}
 {% if show_edit %}
     <th class="col-xs-1">Toggle</th>
     <th class="col-xs-1">Delete</th>
@@ -21,17 +17,13 @@
     <td>
       <a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a>
       {% if rule.parent %}
-      <a style="pull-right" title="Parent Rule" href="{% url 'rule-edit' rule.parent.id %}">
-        <span class="glyphicon glyphicon-upload"></span>
+      <a title="View Parent Rule" href="{% url 'rule-edit' rule.parent.id %}">
+        <span class="pull-right glyphicon glyphicon-upload"></span>
       </a>
       {% endif %}
     </td>
     <td {% if not rule.enabled %}class="bg-disabled text-muted"{% endif %} style="word-break: break-word;">{{ rule.clause }}</td>
     <td>{{ rule.duration }}</td>
-{% if show_full %}
-    <td>{{ rule.labels }}</td>
-    <td style="word-break: break-word;">{{ rule.annotations }}</td>
-{% endif %}
 {% if show_edit %}
     <td style="white-space: nowrap">
       <form method="post" action="{% url 'rule-toggle' rule.id %}" style="display: inline">
@@ -55,8 +47,9 @@
 
 {% if show_overwrite %}
 <td>
-  <form method="post" action="{% url 'rule-copy' show_overwrite %}" style="display: inline">
-    <input name="rule_id" type="hidden" value="{{rule.pk}}" />
+  <form method="post" action="{% url 'rule-overwrite' rule.pk %}" style="display: inline">
+    <input name="content_type" type="hidden" value="{{content_type}}" />
+    <input name="object_id" type="hidden" value="{{show_overwrite}}" />
     {% csrf_token %}
     <button class="btn btn-warning btn-xs">{% trans "Overwrite" %}</button>
   </form>

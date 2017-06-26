@@ -34,8 +34,6 @@ urlpatterns = [
     url(r'^service/$', views.ServiceList.as_view(), name='service-list'),
     url(r'^service/(?P<pk>[0-9]+)/$', views.ServiceDetail.as_view(), name='service-detail'),
     url(r'^service/(?P<pk>[0-9]+)/delete$', views.ServiceDelete.as_view(), name='service-delete'),
-    url(r'^service/(?P<pk>[0-9]+)/rules/new$', views.RuleRegister.as_view(), name='rule-new'),
-    url(r'^service/(?P<pk>[0-9]+)/rules/copy$', views.RulesCopy.as_view(), name='rule-copy'),
     url(r'^service/(?P<pk>[0-9]+)/new$', views.ProjectRegister.as_view(), name='project-new'),
     url(r'^service/(?P<pk>[0-9]+)/targets$', views.ServiceTargets.as_view(), name='service-targets'),
     url(r'^service/(?P<pk>[0-9]+)/rules$', views.ServiceRules.as_view(), name='service-rules'),
@@ -75,10 +73,12 @@ urlpatterns = [
     url(r'^notifier/(?P<pk>[0-9]+)/test$', views.NotifierTest.as_view(), name='notifier-test'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
+    url(r'^(?P<content_type>(service|project))/(?P<object_id>[0-9]+)/rule$', views.RuleRegister.as_view(), name='rule-new'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
     url(r'^rule/(?P<pk>[0-9]+)/toggle$', views.RuleToggle.as_view(), name='rule-toggle'),
     url(r'^rule/(?P<pk>[0-9]+)/test$', csrf_exempt(views.RuleTest.as_view()), name='rule-test'),
+    url(r'^rule/(?P<pk>[0-9]+)/duplicate$', views.RulesCopy.as_view(), name='rule-overwrite'),
 
 
     url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),

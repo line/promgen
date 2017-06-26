@@ -4,7 +4,7 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Service: {{ service.name }}</h1>
+  <h1>{{ rule.content_type.name }}: {{ rule.content_object.name }}</h1>
 </div>
 
 {% include 'promgen/breadcrumb.html' with rule=rule active='New Rule' only %}
@@ -31,12 +31,16 @@
 {% endif %}
 
 {% if rule.overrides.count %}
-  <div class="panel panel-warning">
-    <div class="panel-heading">Overridden By</div>
-    <table class="table">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-children" aria-expanded="false" aria-controls="collapseExample">
+        Overridden By
+      </button>
+    </div>
+    <table class="table collapse" id="rule-children">
   {% for r in rule.overrides.all %}
       <tr>
-        <td class="col-xs-2"><a href="{% url 'service-detail' r.service.pk %}">{{ r.service }}</a></td>
+        <td class="col-xs-2"><a href="{% url 'service-detail' r.content_object.pk %}">{{ r.content_object }}</a></td>
         <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
         <td class="col-xs-8">
           <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
@@ -71,10 +75,6 @@
       {{ form.enabled.label_tag }}
       {{ form.enabled.errors }}
       {{ form.enabled }}
-
-      <p>Move to different Service</p>
-      {{ form.service.errors }}
-      {{ form.service }}
     </div>
   </div>
 

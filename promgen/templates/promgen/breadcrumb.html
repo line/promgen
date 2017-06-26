@@ -1,8 +1,15 @@
 {% if rule %}
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li><a href="{% url 'shard-detail' rule.service.shard.id %}" title="Shard">{{ rule.service.shard.name }}</a></li>
-  <li><a href="{% url 'service-detail' rule.service.id %}" title="Service">{{ rule.service.name }}</a></li>
+{% if rule.content_type.name == 'service' %}
+  <li><a href="{% url 'shard-detail' rule.content_object.shard.id %}" title="Shard">{{ rule.content_object.shard.name }}</a></li>
+  <li><a href="{% url 'service-detail' rule.content_object.id %}" title="Service">{{ rule.content_object.name }}</a></li>
+{% endif %}
+{% if rule.content_type.name == 'project' %}
+  <li><a href="{% url 'shard-detail' rule.content_object.service.shard.id %}" title="Shard">{{ rule.content_object.service.shard.name }}</a></li>
+  <li><a href="{% url 'service-detail' rule.content_object.service.id %}" title="Service">{{ rule.content_object.service.name }}</a></li>
+  <li><a href="{% url 'project-detail' rule.content_object.id %}" title="Project">{{ rule.content_object.name }}</a></li>
+{% endif %}
   <li class="active">{{ active }}</li>
 </ol>
 {% endif %}
