@@ -3,4 +3,4 @@
 {{ k }}: {{ v }}{% endfor %}
 
 Prometheus: {{ alert.generatorURL }}
-Alert Manager: {{ externalURL }}{% endautoescape %}
+{% endautoescape %}

@@ -12,28 +12,47 @@ from promgen.notification.webhook import NotificationWebhook
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
 _PARAM1 = {
-    'alertmanager': 'https://am.promehteus.localhost',
-    'alertname': 'node_down',
-    'description': 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
-    'env': 'prod',
-    'farm': 'foo-BETA',
-    'instance': 'testhost.localhost:9100',
-    'job': 'node',
-    'project': 'Project 1',
-    'prometheus': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
-    'service': 'Service 1',
-    'severity': 'critical',
-    'status': 'firing',
-    'summary': 'Instance testhost.localhost:9100 down',
+    'externalURL': 'https://am.promehteus.localhost',
+    'alert': {
+        'labels': {
+            'severity': 'critical',
+            'env': 'prod',
+            'service': 'Service 1',
+            'project': 'Project 1',
+            'alertname': 'node_down',
+            'instance': 'testhost.localhost:9100',
+            'job': 'node',
+            'farm': 'foo-BETA'
+        },
+        'annotations': {
+            'service': 'http://example.com/service/{service.id}/',
+            'description': 'testhost.localhost:9100 of job node has been down for more than 5 minutes.',
+            'summary': 'Instance testhost.localhost:9100 down',
+            'project': 'http://example.com/project/{project.id}/'
+        },
+        'generatorURL': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
+        'endsAt': '2016-04-21T20:15:37.698Z',
+        'startsAt': '2016-04-21T20:14:37.698Z',
+        'status': 'firing'
+    }
 }
 
 _PARAM2 = {
-    'alertmanager': 'https://am.promehteus.localhost',
-    'alertname': 'service_level_alert',
-    'prometheus': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
-    'service': 'Service 2',
-    'severity': 'critical',
-    'status': 'resolved',
+    'externalURL': 'https://am.promehteus.localhost',
+    'alert': {
+        'labels': {
+            'severity': 'critical',
+            'alertname': 'service_level_alert',
+            'service': 'Service 2'
+        },
+        'annotations': {
+            'service': 'http://example.com/service/{service.id}/'
+        },
+        'generatorURL': 'https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D',
+        'endsAt': '2016-04-21T20:15:37.698Z',
+        'startsAt': '2016-04-21T20:14:37.698Z',
+        'status': 'resolved'
+    }
 }
 
 
@@ -66,6 +85,9 @@ class WebhookTest(TestCase):
             data=json.dumps(TEST_ALERT),
             content_type='application/json'
         )
+        _PARAM1['alert']['annotations']['service'] = _PARAM1['alert']['annotations']['service'].format(service=self.service)
+        _PARAM1['alert']['annotations']['project'] = _PARAM1['alert']['annotations']['project'].format(project=self.project)
+        _PARAM2['alert']['annotations']['service'] = _PARAM2['alert']['annotations']['service'].format(service=self.service2)
         mock_post.assert_has_calls([
             mock.call(
                 'http://project.example.com',
