@@ -4,6 +4,7 @@
   <table class="table">
     <tr>
       <th>Name</th>
+      <th>&nbsp;</th>
     {% if project.farm.source == FARM_DEFAULT %}
       <th>&nbsp;</th>
     {% endif %}
@@ -11,7 +12,6 @@
   {% for host in project.farm.host_set.all %}
     <tr>
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
-      {% if project.farm.source == FARM_DEFAULT %}
       <td>
         <a
           class="btn btn-warning btn-xs"
@@ -20,6 +20,7 @@
           style="display: inline-block;"
         >{% trans "Silence" %}</a>
       </td>
+      {% if project.farm.source == FARM_DEFAULT %}
       <td>
         <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
           {% csrf_token %}
