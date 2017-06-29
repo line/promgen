@@ -58,7 +58,12 @@ def render_rules(rules=None):
 def render_urls():
     urls = collections.defaultdict(list)
 
-    for url in models.URL.objects.all():
+    for url in models.URL.objects.prefetch_related(
+            'project__farm__host_set',
+            'project__farm',
+            'project__service__shard',
+            'project__service',
+            'project'):
         urls[(
             url.project.name, url.project.service.name, url.project.service.shard.name,
         )].append(url.url)

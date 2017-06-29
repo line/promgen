@@ -11,17 +11,17 @@
   <li class="active">List Rules</li>
 </ol>
 
-{% regroup rule_list by content_object as service_list %}
+{% regroup rule_list by content_object as grouped_rule_list %}
 
-{% for service in service_list %}
+{% for group in grouped_rule_list %}
 <h2>
-  <a href="{{ service.grouper.get_absolute_url }}">{{ service.grouper }}</a>
+  <a href="{{ group.grouper.get_absolute_url }}">{{ group.grouper }}</a>
   <span class="pull-right form-inline">
-    <a href="{% url 'rule-new' 'service' service.grouper.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
+    <a href="{% url 'rule-new' 'service' group.grouper.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
   </span>
 </h2>
 <div class="panel panel-default">
-{% include "promgen/rule_block.html" with rule_list=service.list %}
+{% include "promgen/rule_block.html" with rule_list=group.list %}
 </div>
 {% endfor %}
 

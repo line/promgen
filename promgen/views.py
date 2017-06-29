@@ -85,10 +85,12 @@ class ServiceList(ListView):
         .prefetch_related(
             'notifiers',
             'rule_set',
+            'rule_set__parent',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__notifiers')
+            'project_set__notifiers'
+        )
 
 
 class HostList(ListView):
@@ -252,9 +254,11 @@ class HostDelete(DeleteView):
 class ProjectDetail(DetailView):
     queryset = models.Project.objects.prefetch_related(
         'rule_set',
+        'rule_set__parent',
         'notifiers',
         'service',
         'service__rule_set',
+        'service__rule_set__parent',
     )
 
     def get_context_data(self, **kwargs):
@@ -263,7 +267,7 @@ class ProjectDetail(DetailView):
             entry.name for entry in plugins.discovery()
         ]
         context['global'] = models.Service.default()
-        prefetch_related_objects([context['global']], 'rule_set',)
+        prefetch_related_objects([context['global']], 'rule_set')
         return context
 
 
@@ -330,11 +334,11 @@ class RulesList(ListView, ServiceMixin):
 
         service_rules = models.Rule.objects.filter(
             content_type__model='service'
-        ).prefetch_related('content_object', 'content_object__shard', 'rulelabel_set', 'ruleannotation_set')
+        ).prefetch_related('content_object', 'content_object__shard', 'rulelabel_set', 'ruleannotation_set', 'parent')
 
         project_rules = models.Rule.objects.filter(
             content_type__model='project'
-        ).prefetch_related('content_object', 'content_object__service', 'rulelabel_set', 'ruleannotation_set')
+        ).prefetch_related('content_object', 'content_object__service', 'rulelabel_set', 'ruleannotation_set', 'parent')
 
         context['rule_list'] = chain(service_rules, project_rules)
 
@@ -496,7 +500,6 @@ class RuleUpdate(UpdateView):
     queryset = models.Rule.objects.prefetch_related(
         'content_object',
         'overrides',
-        'overrides__content_object',
         'overrides__content_object',
     )
     template_name = 'promgen/rule_form.html'
@@ -751,10 +754,15 @@ class Metrics(View):
 
 class Status(View):
     def get(self, request):
+        if settings.DEBUG:
+            #prometheus.render_urls()
+            prometheus.render_rules()
+            #prometheus.render_config()
+
+
         return render(request, 'promgen/status.html', {
             'discovery_plugins': [entry for entry in plugins.discovery()],
             'notifier_plugins': [entry for entry in plugins.notifications()],
-            'config': prometheus.render_rules(),
         })
 
 
