@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import collections
+import concurrent.futures
 import datetime
 import json
 import logging
@@ -1014,3 +1015,71 @@ class AjaxSilence(View):
         context['#silence-load'] = render_to_string('promgen/ajax_silence_button.html', {'silences': silences['silence-all'], 'key': 'silence-all'}).strip()
 
         return JsonResponse(context)
+
+
+class ProxyLabel(View):
+    def get(self, request, label):
+        data = set()
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            for host in models.Shard.objects.filter(proxy=True):
+                futures.append(executor.submit(util.get, '{}/api/v1/label/{}/values'.format(host.url, label)))
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    result = future.result()
+                    data.update(result.json()['data'])
+                except:
+                    logger.exception('Missing data result')
+
+        return JsonResponse({
+            'status': 'success',
+            'data': list(data)
+        })
+
+
+class ProxySeries(View):
+    def get(self, request):
+        data = []
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            for host in models.Shard.objects.filter(proxy=True):
+                futures.append(executor.submit(util.get, '{}/api/v1/series?{}'.format(host.url, request.META['QUERY_STRING'])))
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    result = future.result()
+                    logger.debug('Appending data from %s', result.request.url)
+                    data += result.json()['data']
+                except:
+                    logger.exception('Missing data result')
+
+        return JsonResponse({
+            'status': 'success',
+            'data': data
+        })
+
+
+class ProxyQueryRange(View):
+    def get(self, request):
+        data = []
+        futures = []
+        resultType = None
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            for host in models.Shard.objects.filter(proxy=True):
+                futures.append(executor.submit(util.get, '{}/api/v1/query_range?{}'.format(host.url, request.META['QUERY_STRING'])))
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    result = future.result()
+                    logger.debug('Appending data from %s', result.request.url)
+                    _json = result.json()
+                    data += _json['data']['result']
+                    resultType = _json['data']['resultType']
+                except:
+                    logger.exception('Error with response')
+
+        return JsonResponse({
+            'status': 'success',
+            'data': {
+                'resultType': resultType,
+                'result': data,
+            }
+        })

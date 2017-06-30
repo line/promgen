@@ -15,7 +15,7 @@ class PrometheusInline(admin.TabularInline):
 
 @admin.register(models.Shard)
 class ShardAdmin(admin.ModelAdmin):
-    list_display = ('name', 'url')
+    list_display = ('name', 'url', 'proxy')
     inlines = [PrometheusInline]
 
 
