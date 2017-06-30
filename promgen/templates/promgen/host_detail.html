@@ -82,20 +82,15 @@
 </div></div>
 </div>
 
-{% if rule_list.count %}
-<div class="panel panel-primary">
-  <div class="panel-heading">Rules</div>
-  {% include "promgen/rule_block.html" %}
-</div>
-{% endif %}
+{% if rule_list %}
+{% regroup rule_list by content_object as service_list %}
 
-{% if global.rule_set.count %}
+{% for service in service_list %}
 <div class="panel panel-default">
-  <div class="panel-heading">
-    Common Rules
-  </div>
-  {% include "promgen/rule_block.html" with rule_list=global.rule_set.all %}
+  <div class="panel-heading">Rules from <a href="{{ service.grouper.get_absolute_url }}">{{ service.grouper }}</a></div>
+{% include "promgen/rule_block.html" with rule_list=service.list %}
 </div>
+{% endfor %}
 {% endif %}
 
 {% endblock %}

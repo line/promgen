@@ -75,8 +75,7 @@ class RuleAnnotationInline(admin.TabularInline):
 
 @admin.register(models.Rule)
 class RuleAdmin(admin.ModelAdmin):
-    list_display = ('name', 'clause', 'duration', 'labels', 'annotations', 'service')
-    list_filter = ('service',)
+    list_display = ('name', 'clause', 'duration', 'content_object')
     inlines = [RuleLabelInline, RuleAnnotationInline]
 
 

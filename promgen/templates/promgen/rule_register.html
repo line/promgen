@@ -26,7 +26,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">New Rule</div>
   <div class="panel-body">
-    <form action="{% url 'rule-new' service.id %}" method="post">{% csrf_token %}
+    <form action="" method="post">{% csrf_token %}
       <div>
         {{ form.name.label_tag }}
         {{ form.name.errors }}
@@ -53,20 +53,9 @@
 </div>
 
 <div class="panel panel-default">
-  <div class="panel-heading">Duplicate Rule</div>
-  <div class="panel-body">
-    <form action="{% url 'rule-copy' service.id %}" method="post" style="display: inline">
-        {% csrf_token %}
-        {{ view.rule_copy_form.rule_id }}
-        <button class="btn btn-primary btn-xs">Duplicate Rule</button>
-    </form>
-  </div>
-</div>
-
-<div class="panel panel-default">
   <div class="panel-heading">Import Rule</div>
   <div class="panel-body">
-    <form action="{% url 'rule-new' service.id %}" method="post">{% csrf_token %}
+    <form action="" method="post">{% csrf_token %}
         <textarea class="form-control" name="rules"></textarea>
         <button class="btn btn-primary">Import Rule</button>
     </form>

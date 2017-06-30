@@ -13,7 +13,7 @@
   <div class="panel panel-default">
     <div class="panel-body">
       <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>
-      <a href="{% url 'rule-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
+      <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
       <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
 
       <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
@@ -46,7 +46,7 @@
         Show Common Rules
       </a>
     </div>
-{% include "promgen/rule_block.html" with rule_list=global_rule_set.all show_overwrite=service.id collapse="show-global-rules" %}
+{% include "promgen/rule_block.html" with rule_list=global_rule_set.all content_type='service' show_overwrite=service.id collapse="show-global-rules" %}
 {% endif %}
   </div>
 {% endif %}

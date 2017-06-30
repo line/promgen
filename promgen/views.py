@@ -6,6 +6,7 @@ import datetime
 import json
 import logging
 import time
+from itertools import chain
 from urllib.parse import urljoin
 
 import requests
@@ -13,7 +14,7 @@ from dateutil import parser
 from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, prefetch_related_objects
 from django.db.utils import IntegrityError
 from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -84,10 +85,12 @@ class ServiceList(ListView):
         .prefetch_related(
             'notifiers',
             'rule_set',
+            'rule_set__parent',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__notifiers')
+            'project_set__notifiers'
+        )
 
 
 class HostList(ListView):
@@ -111,7 +114,7 @@ class HostDetail(View):
     def get(self, request, slug):
         context = {}
         context['slug'] = self.kwargs['slug']
-        context['global'] = models.Service.default()
+
         context['host_list'] = models.Host.objects\
             .filter(name__icontains=self.kwargs['slug'])\
             .prefetch_related('farm')
@@ -119,25 +122,28 @@ class HostDetail(View):
         if not context['host_list']:
             return render(request, 'promgen/host_404.html', context, status=404)
 
-        context['farm_list'] = [host.farm for host in context['host_list']]
+        context['farm_list'] = models.Farm.objects.filter(
+            id__in=context['host_list'].values_list('farm_id', flat=True)
+        )
 
-        context['project_list'] = models.Project.objects.filter(farm_id__in=[
-            farm.id for farm in context['farm_list']
-        ]).prefetch_related('notifiers', 'service', 'service__notifiers')
+        context['project_list'] = models.Project.objects.filter(
+            id__in=context['farm_list'].values_list('project__id', flat=True)
+        ).prefetch_related('notifiers', 'rule_set')
 
-        context['rule_list'] = models.Rule.objects.filter(service_id__in=[
-            project.service_id for project in context['project_list']
-        ]).prefetch_related('service')
+        context['service_list'] = models.Service.objects.filter(
+            id__in=context['project_list'].values_list('service__id', flat=True)
+        ).prefetch_related('notifiers', 'rule_set')
 
-        context['exporter_list'] = models.Exporter.objects.filter(project_id__in=[
-            project.id for project in context['project_list']
-        ]).prefetch_related('project', 'project__service')
+        context['rule_list'] = models.Rule.objects.filter(
+            Q(id__in=context['project_list'].values_list('rule_set__id')) |
+            Q(id__in=context['service_list'].values_list('rule_set__id')) |
+            Q(id__in=models.Service.default().rule_set.values_list('id'))
+        ).select_related('content_type').prefetch_related('content_object')
 
-        context['notifier_list'] = [
-            sender for project in context['project_list'] for sender in project.notifiers.all()
-        ] + [
-            sender for project in context['project_list'] for sender in project.service.notifiers.all()
-        ]
+        context['notifier_list'] = models.Sender.objects.filter(
+            Q(id__in=context['project_list'].values_list('notifiers__id')) |
+            Q(id__in=context['service_list'].values_list('notifiers__id'))
+        ).select_related('content_type').prefetch_related('content_object')
 
         return render(request, 'promgen/host_detail.html', context)
 
@@ -155,6 +161,8 @@ class AuditList(ListView):
 class ServiceDetail(GlobalRulesMixin, DetailView):
     queryset = models.Service.objects\
         .prefetch_related(
+            'rule_set',
+            'notifiers',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
@@ -225,7 +233,7 @@ class RuleDelete(DeleteView):
     model = models.Rule
 
     def get_success_url(self):
-        return reverse('service-detail', args=[self.object.service_id])
+        return self.object.content_object.get_absolute_url()
 
 
 class RuleToggle(View):
@@ -244,7 +252,14 @@ class HostDelete(DeleteView):
 
 
 class ProjectDetail(DetailView):
-    model = models.Project
+    queryset = models.Project.objects.prefetch_related(
+        'rule_set',
+        'rule_set__parent',
+        'notifiers',
+        'service',
+        'service__rule_set',
+        'service__rule_set__parent',
+    )
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
@@ -252,6 +267,7 @@ class ProjectDetail(DetailView):
             entry.name for entry in plugins.discovery()
         ]
         context['global'] = models.Service.default()
+        prefetch_related_objects([context['global']], 'rule_set')
         return context
 
 
@@ -310,24 +326,32 @@ class UnlinkFarm(View):
 
 class RulesList(ListView, ServiceMixin):
     template_name = 'promgen/rule_list.html'
+    queryset = models.Rule.objects\
+        .prefetch_related('content_type', 'content_object')
 
-    def get_queryset(self):
-        if 'pk' in self.kwargs:
-            self.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
-            return models.Rule.objects.filter(service=self.service)
-        return models.Rule.objects\
-            .prefetch_related('service', 'rulelabel_set', 'ruleannotation_set')
+    def get_context_data(self, **kwargs):
+        context = super(RulesList, self).get_context_data(**kwargs)
+
+        service_rules = models.Rule.objects.filter(
+            content_type__model='service'
+        ).prefetch_related('content_object', 'content_object__shard', 'rulelabel_set', 'ruleannotation_set', 'parent')
+
+        project_rules = models.Rule.objects.filter(
+            content_type__model='project'
+        ).prefetch_related('content_object', 'content_object__service', 'rulelabel_set', 'ruleannotation_set', 'parent')
+
+        context['rule_list'] = chain(service_rules, project_rules)
+
+        return context
 
 
 class RulesCopy(View):
     def post(self, request, pk):
-        service = get_object_or_404(models.Service, id=pk)
+        original = get_object_or_404(models.Rule, id=pk)
         form = forms.RuleCopyForm(request.POST)
 
         if form.is_valid():
-            data = form.clean()
-            original = get_object_or_404(models.Rule, id=data['rule_id'])
-            rule = original.copy_to(service)
+            rule = original.copy_to(**form.clean())
             return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
         else:
             return HttpResponseRedirect(reverse('service-detail', args=[pk]))
@@ -474,11 +498,9 @@ class ServiceUpdate(UpdateView):
 
 class RuleUpdate(UpdateView):
     queryset = models.Rule.objects.prefetch_related(
-        'service',
-        'service__shard',
+        'content_object',
         'overrides',
-        'overrides__service',
-        'overrides__service__shard',
+        'overrides__content_object',
     )
     template_name = 'promgen/rule_form.html'
     form_class = forms.RuleForm
@@ -494,7 +516,6 @@ class RuleUpdate(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(RuleUpdate, self).get_context_data(**kwargs)
-        context['service'] = self.object.service
         context['label_set'] = self.LabelForm(instance=self.object)
         context['annotation_set'] = self.AnnotationForm(instance=self.object)
         context['macro'] = macro.EXCLUSION_MACRO
@@ -539,21 +560,25 @@ class RuleRegister(FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.NewRuleForm
-    rule_copy_form = forms.RuleCopyForm()
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, content_type, object_id):
         form = self.get_form()
         if form.is_valid():
+            form.instance.set_object(content_type, object_id)
+            prometheus.check_rules([form.instance])
+
             try:
                 # Set an instance of our service here so that we can pass it
                 # along for promtool to render
-                form.instance.service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+                form.instance.set_object(content_type, object_id)
                 prometheus.check_rules([form.instance])
             except Exception as e:
                 form._update_errors(e)
                 return self.form_invalid(form)
 
-            return self.form_valid(form)
+            form.instance.save()
+            return HttpResponseRedirect(form.instance.get_absolute_url())
+
         if 'rules' not in request.POST:
             return self.form_invalid(form)
 
@@ -564,13 +589,8 @@ class RuleRegister(FormView, ServiceMixin):
             counters = prometheus.import_rules(data['rules'], service)
             messages.info(request, 'Imported %s' % counters)
             return HttpResponseRedirect(service.get_absolute_url())
-        return self.form_invalid(form)
 
-    def form_valid(self, form):
-        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
-        rule, _ = models.Rule.objects.get_or_create(service=service, **form.clean())
-        rule.add_label('service', service.name)
-        return HttpResponseRedirect(reverse('rule-edit', args=[rule.id]))
+        return self.form_invalid(form)
 
 
 class ServiceRegister(FormView):
@@ -734,10 +754,15 @@ class Metrics(View):
 
 class Status(View):
     def get(self, request):
+        if settings.DEBUG:
+            #prometheus.render_urls()
+            prometheus.render_rules()
+            #prometheus.render_config()
+
+
         return render(request, 'promgen/status.html', {
             'discovery_plugins': [entry for entry in plugins.discovery()],
             'notifier_plugins': [entry for entry in plugins.notifications()],
-            'config': prometheus.render_config(),
         })
 
 
@@ -756,7 +781,7 @@ class Search(View):
                     Q(name__icontains=request.GET.get('search')) |
                     Q(clause__icontains=request.GET.get('search'))
                 )
-                .prefetch_related('service', 'ruleannotation_set', 'rulelabel_set'),
+                .prefetch_related('content_object', 'ruleannotation_set', 'rulelabel_set'),
             'service_list': models.Service.objects
                 .filter(name__icontains=request.GET.get('search'))
                 .prefetch_related('project_set', 'rule_set', 'notifiers'),

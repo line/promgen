@@ -44,14 +44,26 @@ def check_rules(rules):
 
 def render_rules(rules=None):
     if rules is None:
-        rules = models.Rule.objects.filter(enabled=True)
+        rules = models.Rule.objects.filter(enabled=True).prefetch_related(
+            'content_object',
+            'content_type',
+            'overrides__content_object',
+            'overrides__content_type',
+            'ruleannotation_set',
+            'rulelabel_set',
+        )
     return render_to_string('promgen/prometheus.rule', {'rules': rules})
 
 
 def render_urls():
     urls = collections.defaultdict(list)
 
-    for url in models.URL.objects.all():
+    for url in models.URL.objects.prefetch_related(
+            'project__farm__host_set',
+            'project__farm',
+            'project__service__shard',
+            'project__service',
+            'project'):
         urls[(
             url.project.name, url.project.service.name, url.project.service.shard.name,
         )].append(url.url)
@@ -189,12 +201,12 @@ def import_rules(config, default_service=None):
             except models.Service.DoesNotExist:
                 service = models.Service.default()
 
-        rule, created = models.Rule.objects.get_or_create(
+        rule, created = models.Rule.get_or_create(
             name=tokens['ALERT'],
             defaults={
                 'clause': tokens['IF'],
                 'duration': tokens['FOR'],
-                'service': service,
+                'obj': service,
             }
         )
 

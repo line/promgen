@@ -107,6 +107,7 @@ class Shard(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
     notifiers = GenericRelation(Sender)
+    rule_set = GenericRelation('Rule')
     shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
 
     class Meta:
@@ -149,6 +150,7 @@ class Project(models.Model):
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
     farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
     notifiers = GenericRelation(Sender)
+    rule_set = GenericRelation('Rule')
 
     class Meta:
         ordering = ['name']
@@ -256,7 +258,7 @@ def validate_json_or_empty(value):
         raise ValidationError('Requires json value')
 
 
-class Rule(models.Model):
+class Rule(DynamicParent):
     name = models.CharField(max_length=128, unique=True, validators=[alphanumeric])
     clause = models.TextField()
     duration = models.CharField(max_length=128, choices=[
@@ -264,7 +266,6 @@ class Rule(models.Model):
         ('1m', '1m'),
         ('5m', '5m'),
     ])
-    service = models.ForeignKey('Service', on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
     parent = models.ForeignKey(
         'Rule',
@@ -273,8 +274,14 @@ class Rule(models.Model):
         on_delete=models.SET_NULL
     )
 
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=(
+        models.Q(app_label='promgen', model='project') | models.Q(app_label='promgen', model='service'))
+    )
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
     class Meta:
-        ordering = ['service', 'name']
+        ordering = ['content_type', 'object_id', 'name']
 
     @cached_property
     def labels(self):
@@ -289,16 +296,29 @@ class Rule(models.Model):
     @cached_property
     def annotations(self):
         _annotations = {obj.name: obj.value for obj in self.ruleannotation_set.all()}
-        _annotations['rule'] = resolve_domain('rule-edit', pk=self.pk)
+        # Skip when pk is not set, such as when test rendering a rule
+        if self.pk and 'rule' not in _annotations:
+            _annotations['rule'] = resolve_domain('rule-edit', pk=self.pk)
         return _annotations
 
+    @cached_property
+    def service(self):
+        logger.warn('Called rule.service')
+        if self.content_type.model == 'service':
+            return self.content_object
+        return self.content_object.service
+
     def __str__(self):
-        return '{} [{}]'.format(self.name, self.service.name)
+        return '{} [{}]'.format(self.name, self.content_object.name)
 
     def get_absolute_url(self):
         return reverse('rule-edit', kwargs={'pk': self.pk})
 
-    def copy_to(self, service):
+    def set_object(self, content_type, object_id):
+        self.content_type = ContentType.objects.get(model=content_type, app_label='promgen')
+        self.object_id = object_id
+
+    def copy_to(self, content_type, object_id):
         '''
         Make a copy under a new service
 
@@ -307,26 +327,33 @@ class Rule(models.Model):
         to the end of the name
         '''
         with transaction.atomic():
+            content_type = ContentType.objects.get(model=content_type, app_label='promgen')
+
             # First check to see if this rule is already overwritten
-            for rule in Rule.objects.filter(parent_id=self.pk, service_id=service.id):
+            for rule in Rule.objects.filter(parent_id=self.pk, content_type=content_type, object_id=object_id):
                 return rule
+
+            content_object = content_type.get_object_for_this_type(pk=object_id)
 
             orig_pk = self.pk
             self.pk = None
             self.parent_id = orig_pk
-            self.name = '{}_{}'.format(self.name, slugify(service.name)).replace('-', '_')
-            self.service = service
+            self.name = '{}_{}'.format(self.name, slugify(content_object.name)).replace('-', '_')
+            self.content_type = content_type
+            self.object_id = object_id
             self.enabled = False
-            self.clause = self.clause.replace(macro.EXCLUSION_MACRO, 'service="{}"'.format(service.name))
+            self.clause = self.clause.replace(macro.EXCLUSION_MACRO, '{}="{}",{}'.format(
+                content_type.model, content_object.name, macro.EXCLUSION_MACRO
+            ))
             self.save()
 
-            # Add a service label to our new rule, to help ensure notifications
-            # get routed to the service we expect
-            self.add_label('service', service.name)
+            # Add a label to our new rule by default, to help ensure notifications
+            # get routed to the notfier we expect
+            self.add_label(content_type.model, content_object.name)
 
             for label in RuleLabel.objects.filter(rule_id=orig_pk):
                 # Skip service labels from our previous rule
-                if label.name in ['service']:
+                if label.name in ['service', 'project']:
                     logger.debug('Skipping %s: %s', label.name, label.value)
                     continue
                 logger.debug('Copying %s to %s', label, self)

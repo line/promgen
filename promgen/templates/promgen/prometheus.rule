@@ -1,6 +1,4 @@
-{% load promgen %}{% for rule in rules %}# Service: {{ rule.service.name }}
-# Service URL: {% url 'service-detail' rule.service.id %}
-{% autoescape off %}ALERT {{ rule.name }}
+{% load promgen %}{% for rule in rules %}{% autoescape off %}ALERT {{ rule.name }}
   IF {{ rule.clause|rulemacro:rule }}
   FOR {{ rule.duration}}
 {% if rule.labels %}  LABELS {{ rule.labels|to_prom }}
