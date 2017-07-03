@@ -30,7 +30,8 @@ from django.views.generic.edit import DeleteView, FormView
 from prometheus_client import Gauge, generate_latest
 
 import promgen.templatetags.promgen as macro
-from promgen import forms, models, plugins, prometheus, signals, util, version
+from promgen import (celery, forms, models, plugins, prometheus, signals, util,
+                     version)
 
 logger = logging.getLogger(__name__)
 
@@ -752,12 +753,18 @@ class Alert(View):
 class Metrics(View):
     version = Gauge('promgen_build_info', 'Promgen Information', ['version', 'python'])
     sender = Gauge('promgen_notifiers', 'Registered Notifiers', ['type', 'sender'])
+    queues = Gauge('promgen_queues', 'Queue Size', ['name'])
 
     def get(self, request, *args, **kwargs):
         self.version.labels(version.__version__, platform.python_version()).set(1)
 
         for entry in models.Sender.objects.values('content_type__model', 'sender').annotate(Count('sender'), count=Count('content_type')):
             self.sender.labels(entry['content_type__model'], entry['sender']).set(entry['count'])
+
+        with celery.app.connection_or_acquire() as conn:
+            client = conn.channel().client
+            for queue in ['celery'] + [host.host for host in models.Prometheus.objects.all()]:
+                self.queues.labels(queue).set(client.llen(queue))
 
         return HttpResponse(generate_latest(), content_type='text/plain')
 
