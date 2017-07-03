@@ -1017,13 +1017,27 @@ class AjaxSilence(View):
         return JsonResponse(context)
 
 
-class ProxyLabel(View):
+class PrometheusProxy(View):
+    proxy_headers = [
+        # 'CONTENT_TYPE',
+        # 'HTTP_ACCEPT_ENCODING',
+        # 'HTTP_ACCEPT_LANGUAGE',
+        # 'HTTP_ACCEPT',
+        'HTTP_REFERER',
+    ]
+
+    @property
+    def headers(self):
+        return {k: self.request.META[k] for k in self.proxy_headers if k in self.request.META}
+
+
+class ProxyLabel(PrometheusProxy):
     def get(self, request, label):
         data = set()
         futures = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             for host in models.Shard.objects.filter(proxy=True):
-                futures.append(executor.submit(util.get, '{}/api/v1/label/{}/values'.format(host.url, label)))
+                futures.append(executor.submit(util.get, '{}/api/v1/label/{}/values'.format(host.url, label), headers=self.headers))
             for future in concurrent.futures.as_completed(futures):
                 try:
                     result = future.result()
@@ -1037,13 +1051,14 @@ class ProxyLabel(View):
         })
 
 
-class ProxySeries(View):
+class ProxySeries(PrometheusProxy):
     def get(self, request):
+        print(self.headers)
         data = []
         futures = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             for host in models.Shard.objects.filter(proxy=True):
-                futures.append(executor.submit(util.get, '{}/api/v1/series?{}'.format(host.url, request.META['QUERY_STRING'])))
+                futures.append(executor.submit(util.get, '{}/api/v1/series?{}'.format(host.url, request.META['QUERY_STRING']), headers=self.headers))
             for future in concurrent.futures.as_completed(futures):
                 try:
                     result = future.result()
@@ -1058,14 +1073,14 @@ class ProxySeries(View):
         })
 
 
-class ProxyQueryRange(View):
+class ProxyQueryRange(PrometheusProxy):
     def get(self, request):
         data = []
         futures = []
         resultType = None
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
             for host in models.Shard.objects.filter(proxy=True):
-                futures.append(executor.submit(util.get, '{}/api/v1/query_range?{}'.format(host.url, request.META['QUERY_STRING'])))
+                futures.append(executor.submit(util.get, '{}/api/v1/query_range?{}'.format(host.url, request.META['QUERY_STRING']), headers=self.headers))
             for future in concurrent.futures.as_completed(futures):
                 try:
                     result = future.result()
