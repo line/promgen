@@ -773,10 +773,13 @@ class Metrics(View):
         self.rules.set(models.Rule.objects.count())
         self.hosts.set(len(models.Host.objects.values('name').annotate(Count('name'))))
 
-        with celery.app.connection_or_acquire() as conn:
-            client = conn.channel().client
-            for queue in ['celery'] + [host.host for host in models.Prometheus.objects.all()]:
-                self.queues.labels(queue).set(client.llen(queue))
+        # TODO: This is likely far from optimal and should be re-done in a way
+        # that is not redis specific, but this should work for the short term
+        if hasattr(settings, 'CELERY_BROKER_URL'):
+            with celery.app.connection_for_write() as conn:
+                with conn.channel() as channel:
+                    for queue in ['celery'] + [host.host for host in models.Prometheus.objects.all()]:
+                        self.queues.labels(queue).set(channel.client.llen(queue))
 
         return HttpResponse(generate_latest(), content_type='text/plain')
 
