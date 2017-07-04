@@ -753,13 +753,24 @@ class Alert(View):
 class Metrics(View):
     version = Gauge('promgen_build_info', 'Promgen Information', ['version', 'python'])
     sender = Gauge('promgen_notifiers', 'Registered Notifiers', ['type', 'sender'])
-    queues = Gauge('promgen_queues', 'Queue Size', ['name'])
+    services = Gauge('promgen_services', 'Registered Services')
+    projects = Gauge('promgen_projects', 'Registered Projects')
+    hosts = Gauge('promgen_hosts', 'Registered Hosts')
+    exporters = Gauge('promgen_exporters', 'Registered Exporters')
+    rules = Gauge('promgen_rules', 'Registered Rules')
+    queues = Gauge('promgen_queue_length', 'Queue Size', ['name'])
 
     def get(self, request, *args, **kwargs):
         self.version.labels(version.__version__, platform.python_version()).set(1)
 
         for entry in models.Sender.objects.values('content_type__model', 'sender').annotate(Count('sender'), count=Count('content_type')):
             self.sender.labels(entry['content_type__model'], entry['sender']).set(entry['count'])
+
+        self.services.set(models.Service.objects.count())
+        self.projects.set(models.Project.objects.count())
+        self.exporters.set(models.Exporter.objects.count())
+        self.rules.set(models.Rule.objects.count())
+        self.hosts.set(len(models.Host.objects.values('name').annotate(Count('name'))))
 
         with celery.app.connection_or_acquire() as conn:
             client = conn.channel().client
