@@ -85,6 +85,10 @@ urlpatterns = [
     url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
     url(r'^api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
 
+    url(r'^api/v1/label/(.+)/values', views.ProxyLabel.as_view()),
+    url(r'^api/v1/query_range', views.ProxyQueryRange.as_view()),
+    url(r'^api/v1/series', views.ProxySeries.as_view()),
+
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
     url(r'^status/$', views.Status.as_view(), name='status'),
     url(r'^import/$', views.Import.as_view(), name='import'),
