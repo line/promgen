@@ -78,6 +78,12 @@ class ExporterForm(forms.ModelForm):
         model = models.Exporter
         exclude = ['project']
 
+        widgets = {
+            'job': forms.TextInput(attrs={'class': 'form-control'}),
+            'port': forms.TextInput(attrs={'class': 'form-control', 'type': 'number'}),
+            'path': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '/metrics'}),
+        }
+
 
 class ServiceForm(forms.ModelForm):
     class Meta:
