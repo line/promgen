@@ -3,19 +3,32 @@
 
 import logging
 
+from django import forms
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
-
 from promgen.celery import app as celery
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
+class FormEmail(forms.Form):
+    value = forms.CharField(
+        required=True,
+        label='Email Address'
+    )
+    alias = forms.CharField(
+        required=False,
+        help_text='Use to hide email from being displayed'
+    )
+
+
 class NotificationEmail(NotificationBase):
     '''
     Simple plaintext Email notification
     '''
+
+    form = FormEmail
 
     @celery.task(bind=True)
     def _send(task, address, alert, data):

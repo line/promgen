@@ -19,10 +19,16 @@ logger = logging.getLogger(__name__)
 
 
 class FormWebhook(forms.Form):
-    value = forms.CharField(required=True)
+    value = forms.CharField(
+        required=True,
+        label='URL'
+    )
 
 
 class NotificationWebhook(NotificationBase):
+    '''
+    Post notifications to a specific web endpoint
+    '''
     form = FormWebhook
 
     @celery.task(bind=True)

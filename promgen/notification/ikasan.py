@@ -3,6 +3,7 @@
 
 import logging
 
+from django import forms
 from django.template.loader import render_to_string
 
 from promgen import util
@@ -12,12 +13,26 @@ from promgen.notification import NotificationBase
 logger = logging.getLogger(__name__)
 
 
+class FormIkasan(forms.Form):
+    value = forms.CharField(
+        required=True,
+        label='Channel'
+    )
+    alias = forms.CharField(
+        required=False,
+        help_text='Used to hide chanel from being shown'
+    )
+
+
 class NotificationIkasan(NotificationBase):
     '''
     Send messages to Hipchat using Ikasan Hipchat bridge
 
     https://github.com/studio3104/ikasan
     '''
+
+    form = FormIkasan
+
     @celery.task(bind=True)
     def _send(task, channel, alert, data):
         self = NotificationIkasan()  # Rebind self

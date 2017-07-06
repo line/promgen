@@ -11,9 +11,9 @@
 </div>
 
 {% if project %}
-{% include 'promgen/breadcrumb.html' with project=project label='Register Exporter' only %}
+{% include 'promgen/breadcrumb.html' with project=project label='Register Notifier' only %}
 {% else %}
-{% include 'promgen/breadcrumb.html' with service=service label='Register Exporter' only %}
+{% include 'promgen/breadcrumb.html' with service=service label='Register Notifier' only %}
 {% endif %}
 
 <div class="row">
@@ -34,12 +34,12 @@
         <form action="" method="post">{% csrf_token %}
           <input type="hidden" name="sender" value="{{k}}" />
           <div class="panel-body">
-            <pre class="help-block">{{ v.help }}</pre>
+            <pre class="help-block">{{ v.help|urlize }}</pre>
           </div>
           <table class="table">
             {{ v.form.as_table }}
           </table>
-          <div class="panel-body">
+          <div class="panel-footer">
             <button class="btn btn-primary">Register Notifier</button>
           </div>
           </form>

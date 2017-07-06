@@ -3,6 +3,7 @@
 
 import logging
 
+from django import forms
 from django.template.loader import render_to_string
 
 from promgen import util
@@ -12,12 +13,26 @@ from promgen.notification import NotificationBase
 logger = logging.getLogger(__name__)
 
 
+class FormLineNotify(forms.Form):
+    value = forms.CharField(
+        required=True,
+        label='LINE Notify Token'
+    )
+    alias = forms.CharField(
+        required=True,
+        help_text='Use to hide token from being displayed'
+    )
+
+
 class NotificationLineNotify(NotificationBase):
     '''
     Send messages to line notify
 
     https://notify-bot.line.me/en/
     '''
+
+    form = FormLineNotify
+
     @celery.task(bind=True)
     def _send(task, token, alert, data):
         self = NotificationLineNotify()  # Rebind self
