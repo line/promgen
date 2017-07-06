@@ -7,7 +7,7 @@
   <h1>{{ rule.content_type.name }}: {{ rule.content_object.name }}</h1>
 </div>
 
-{% include 'promgen/breadcrumb.html' with rule=rule active='New Rule' only %}
+{% include 'promgen/breadcrumb.html' with rule=rule active='Edit Rule' only %}
 
 {% if rule.parent %}
 <div class="panel panel-default">
@@ -66,76 +66,7 @@
   {% endif %}
 
 <div class="col-md-6">
-  <div class="panel panel-primary">
-    <div class="panel-heading">{{ form.name.label_tag }}</div>
-    <div class="panel-body">
-      {{ form.name.errors }}
-      {{ form.name }}
-
-      {{ form.enabled.label_tag }}
-      {{ form.enabled.errors }}
-      {{ form.enabled }}
-    </div>
-  </div>
-
-  <div class="panel panel-primary">
-    <div class="panel-heading">
-      {{ form.clause.label_tag }}
-    </div>
-
-    <div class="panel-body">
-        <ul class="list-inline">
-          <li>Prometheus Documentation:</li>
-          <li><a href="https://prometheus.io/docs/querying/basics/">Basics</a></li>
-          <li><a href="https://prometheus.io/docs/querying/operators/">Operators</a></li>
-          <li><a href="https://prometheus.io/docs/querying/functions/">Functions</a></li>
-          <li><a href="https://prometheus.io/docs/querying/examples/">Examples</a></li>
-        </ul>
-    </div>
-
-    <div class="panel-body">
-      {{ form.clause.errors }}
-      {{ form.clause }}
-    </div>
-    <div class="panel-body">
-      <a
-        class="btn btn-primary btn-sm"
-        data-href="{% url 'rule-test' rule.id %}"
-        data-source="#id_clause"
-        data-target="#ajax-clause-check"
-        >Test Query</a>
-    </div>
-    <div id="ajax-clause-check" class="panel-body" style="display:none;"></div>
-
-    <ul class="list-group">
-      <li class="list-group-item">Simple Examples</li>
-      <li class="list-group-item">
-        <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
-          node_load1{service="{{ service.name }}"} > 5
-        </code>
-      </li>
-      <li class="list-group-item">
-        <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
-          api_http_request_latencies_second{quantile="0.5"} > 1
-        </code>
-      </li>
-      <li class="list-group-item">Promgen Exclusion Macro</li>
-      <li class="list-group-item">
-        <code data-href="{% url 'rule-test' rule.id %}" data-source="self" data-target="#ajax-clause-check">
-          node_memory_MemFree{% templatetag openbrace %}{{ macro }}{% templatetag closebrace %} / node_memory_MemTotal{% templatetag openbrace %}{{ macro }}{% templatetag closebrace %} < 0.05
-        </code>
-      </li>
-    </ul>
-  </div>
-
-  <div class="panel panel-primary">
-    <div class="panel-heading">{{ form.duration.label_tag }}</div>
-    <div class="panel-body">
-      {{ form.duration.errors }}
-      {{ form.duration }}
-      <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
-    </div>
-  </div>
+{% include 'promgen/rule_form_block.html' %}
 </div>
 
 <div class="col-md-6">
