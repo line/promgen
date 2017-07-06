@@ -3,16 +3,11 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>{{ view.button_label }}</h1>
+  <h1>{{ rule.content_type.name }}: {{ rule.content_object.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-{% if service %}
-  <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
-{% endif %}
-  <li class="active">New Rule</li>
-</ol>
+{% include 'promgen/breadcrumb.html' with rule=rule active='New Rule' only %}
+
 
 {% if form.non_field_errors  %}
 <div class="panel panel-danger">
@@ -23,39 +18,20 @@
 </div>
 {% endif %}
 
-<div class="panel panel-default">
-  <div class="panel-heading">New Rule</div>
+<form action="{{ request.get_full_path }}" method="post">{% csrf_token %}
+{% include 'promgen/rule_form_block.html' %}
+<div class="panel panel-primary">
   <div class="panel-body">
-    <form action="" method="post">{% csrf_token %}
-      <div>
-        {{ form.name.label_tag }}
-        {{ form.name.errors }}
-        {{ form.name }}
-      </div>
-      <div>
-        {{ form.enabled.label_tag }}
-        {{ form.enabled.errors }}
-        {{ form.enabled }}
-      </div>
-      <div>
-        {{ form.clause.label_tag }}
-        {{ form.clause.errors }}
-        {{ form.clause }}
-      </div>
-      <div>
-        {{ form.duration.label_tag }}
-        {{ form.duration.errors }}
-        {{ form.duration }}
-      </div>
-      <button class="btn btn-primary">Register Rule</button>
-    </form>
+    <button class="btn btn-primary">Register Rule</button>
   </div>
 </div>
+</form>
 
 <div class="panel panel-default">
   <div class="panel-heading">Import Rule</div>
   <div class="panel-body">
-    <form action="" method="post">{% csrf_token %}
+    <p class="help-block">Copy and Paste a rule from a different Prometheus server</p>
+    <form action="{{ request.get_full_path }}" method="post">{% csrf_token %}
         <textarea class="form-control" name="rules"></textarea>
         <button class="btn btn-primary">Import Rule</button>
     </form>

@@ -50,11 +50,9 @@ $(document).ready(function() {
     var query = btn.data('source') == 'self' ? btn.text()  : $(btn.data('source')).val();
 
     $(btn.data('target')).html('Loading...').show();
+    btn.data('query', query)
     console.log("Testing Query: %s", query)
-    $.post(btn.data('href'), {
-      'query': query,
-      'target': btn.data('target')
-    }).done(update_page);
+    $.post(btn.data('href'), btn.data()).done(update_page);
   })
 
   $('.silence_start').datetimepicker({

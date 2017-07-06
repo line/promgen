@@ -506,7 +506,7 @@ class RuleUpdate(UpdateView):
         'overrides',
         'overrides__content_object',
     )
-    template_name = 'promgen/rule_form.html'
+    template_name = 'promgen/rule_update.html'
     form_class = forms.RuleForm
 
     LabelForm = inlineformset_factory(models.Rule, models.RuleLabel, fields=('name', 'value'), widgets={
@@ -564,6 +564,15 @@ class RuleRegister(FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.NewRuleForm
+
+    def get_context_data(self, **kwargs):
+        context = super(RuleRegister, self).get_context_data(**kwargs)
+        # Set a dummy rule, so that our header/breadcrumbs render correctly
+        context['rule'] = models.Rule()
+        context['rule'].pk = 0
+        context['rule'].set_object(self.kwargs['content_type'], self.kwargs['object_id'])
+        context['macro'] = macro.EXCLUSION_MACRO
+        return context
 
     def post(self, request, content_type, object_id):
         form = self.get_form()
@@ -982,7 +991,12 @@ class AjaxAlert(View):
 
 class RuleTest(View):
     def post(self, request, pk):
-        rule = get_object_or_404(models.Rule, id=pk)
+        if pk == '0':
+            rule = models.Rule()
+            rule.set_object(request.POST['content_type'], request.POST['object_id'])
+        else:
+            rule = get_object_or_404(models.Rule, id=pk)
+
         query = macro.rulemacro(request.POST['query'], rule)
 
         url = '{}/api/v1/query'.format(rule.service.shard.url)
