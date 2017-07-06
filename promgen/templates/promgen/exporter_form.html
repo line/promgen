@@ -10,30 +10,34 @@
 
 <div class="row">
 
-  <div class="col-md-6">
+<form action="{% url 'project-exporter' project.id %}" method="post">{% csrf_token %}
+  <div class="col-md-8">
     <div class="panel panel-default">
       <div class="panel-heading">Exporter</div>
-      <form action="{% url 'project-exporter' project.id %}" method="post">{% csrf_token %}
-        <table>
+        <table class="table">
           {{ form.as_table }}
         </table>
+      <div class="panel-footer">
           <button class="btn btn-primary">Register Exporter</button>
-      </form>
+        </div>
     </div>
   </div>
+</form>
 
-  <div class="col-md-6">
+  <div class="col-md-4">
     <div class="panel panel-default">
       <div class="panel-heading">Presets</div>
+      <div class="panel-body">
 {% for job, port in exporters.items %}
       <form action="{% url 'project-exporter' project.id %}" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="job" value="{{ job }}" />
-        <input type="hidden" name="port" value="{{ port }}" />
-        <input type="hidden" name="enabled" value="1" />
-        <button class="btn btn-primary">Register {{ job }} (Port: {{ port }})</button>
+          {% csrf_token %}
+          <input type="hidden" name="job" value="{{ job }}" />
+          <input type="hidden" name="port" value="{{ port }}" />
+          <input type="hidden" name="enabled" value="1" />
+          <button style="width:100%" class="btn btn-primary">Register {{ job }} (Port: {{ port }})</button>
       </form>
 {% endfor %}
+      </div>
     </div>
   </div>
 
