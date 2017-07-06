@@ -753,12 +753,15 @@ class Alert(View):
 
 class Metrics(View):
     version = Gauge('promgen_build_info', 'Promgen Information', ['version', 'python'])
+    # Promgen Objects
+    exporters = Gauge('promgen_exporters', 'Registered Exporters')
+    hosts = Gauge('promgen_hosts', 'Registered Hosts')
+    projects = Gauge('promgen_projects', 'Registered Projects')
+    rules = Gauge('promgen_rules', 'Registered Rules')
     sender = Gauge('promgen_notifiers', 'Registered Notifiers', ['type', 'sender'])
     services = Gauge('promgen_services', 'Registered Services')
-    projects = Gauge('promgen_projects', 'Registered Projects')
-    hosts = Gauge('promgen_hosts', 'Registered Hosts')
-    exporters = Gauge('promgen_exporters', 'Registered Exporters')
-    rules = Gauge('promgen_rules', 'Registered Rules')
+    urls = Gauge('promgen_urls', 'Registered URLs')
+    # Celery Queues
     queues = Gauge('promgen_queue_length', 'Queue Size', ['name'])
 
     def get(self, request, *args, **kwargs):
@@ -771,6 +774,7 @@ class Metrics(View):
         self.projects.set(models.Project.objects.count())
         self.exporters.set(models.Exporter.objects.count())
         self.rules.set(models.Rule.objects.count())
+        self.urls.set(models.URL.objects.count())
         self.hosts.set(len(models.Host.objects.values('name').annotate(Count('name'))))
 
         # TODO: This is likely far from optimal and should be re-done in a way
