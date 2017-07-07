@@ -686,8 +686,22 @@ class ApiConfig(View):
     def get(self, request):
         return HttpResponse(prometheus.render_config(), content_type='application/json')
 
+    def post(self, request, *args, **kwargs):
+        try:
+            body = json.loads(request.body.decode('utf-8'))
+
+            prometheus.import_config(body, **kwargs)
+        except Exception as e:
+            return HttpResponse(e, status=400)
+
+        return HttpResponse('Success', status=202)
+
+
+class ApiQueue(View):
     def post(self, request):
         signals.trigger_write_config.send(request)
+        signals.trigger_write_rules.send(request)
+        signals.trigger_write_urls.send(request)
         return HttpResponse('OK', status=202)
 
 
