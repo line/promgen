@@ -80,15 +80,6 @@ urlpatterns = [
     url(r'^rule/(?P<pk>[0-9]+)/test$', csrf_exempt(views.RuleTest.as_view()), name='rule-test'),
     url(r'^rule/(?P<pk>[0-9]+)/duplicate$', views.RulesCopy.as_view(), name='rule-overwrite'),
 
-
-    url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
-    url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
-    url(r'^api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
-
-    url(r'^api/v1/label/(.+)/values', views.ProxyLabel.as_view()),
-    url(r'^api/v1/query_range', views.ProxyQueryRange.as_view()),
-    url(r'^api/v1/series', views.ProxySeries.as_view()),
-
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
     url(r'^status/$', views.Status.as_view(), name='status'),
     url(r'^import/$', views.Import.as_view(), name='import'),
@@ -97,12 +88,29 @@ urlpatterns = [
     url(r'^silence/expire$', views.SilenceExpire.as_view(), name='silence-expire'),
 
     url(r'^search/$', views.Search.as_view(), name='search'),
-    url(r'^alert$', csrf_exempt(views.Alert.as_view()), name='alert'),
+
     url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
     url(r'^commit$', csrf_exempt(views.Commit.as_view()), name='commit'),
 
     url(r'^ajax/silence$', csrf_exempt(views.AjaxSilence.as_view()), name='ajax-silence'),
     url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
+
+    # Public API
+
+    # Legacy API
+    url(r'^alert$', csrf_exempt(views.Alert.as_view())),
+    url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view())),
+
+    # Promgen API
+    url(r'^api/v1/targets', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
+    url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
+    url(r'^api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
+    url(r'^api/v1/alerts', csrf_exempt(views.Alert.as_view()), name='alert'),
+
+    # Prometheus Proxy
+    url(r'^api/v1/label/(.+)/values', views.ProxyLabel.as_view()),
+    url(r'^api/v1/query_range', views.ProxyQueryRange.as_view()),
+    url(r'^api/v1/series', views.ProxySeries.as_view()),
 ]
 
 if settings.DEBUG:
