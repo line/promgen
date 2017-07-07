@@ -19,6 +19,7 @@ import warnings
 import dj_database_url
 import raven
 import yaml
+from django.urls import reverse_lazy
 
 from promgen.plugins import apps_from_setuptools
 from promgen.version import __version__
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
     'django.contrib.staticfiles',
+    'social_django',
     'promgen',
 ] + apps_from_setuptools
 
@@ -74,8 +76,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'promgen.middleware.RequireLoginMiddleware',
     'promgen.middleware.RemoteTriggerMiddleware',
 ]
+
+SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
+LOGIN_URL = reverse_lazy('login')
+LOGIN_REDIRECT_URL = reverse_lazy('home')
+LOGOUT_REDIRECT_URL = reverse_lazy('home')
 
 ROOT_URLCONF = 'promgen.urls'
 
@@ -91,6 +99,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'promgen.context_processors.settings_in_view',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -199,3 +209,7 @@ if DEBUG:
         INTERNAL_IPS = ['127.0.0.1']
     except:
         pass
+
+# Load overrides from PROMGEN to replace Django settings
+for k, v in PROMGEN.pop('django', {}).items():
+    globals()[k] = v

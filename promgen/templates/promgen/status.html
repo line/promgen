@@ -17,7 +17,7 @@
     <td>Discovery Plugins</td>
     <td>
       <ul>
-{% for plugin in discovery_plugins %}
+{% for plugin in discovery_plugins|dictsort:"name" %}
       <li>{{ plugin.name }} - {{ plugin.module_name }}</li>
 {% endfor %}
     </td>
@@ -26,7 +26,7 @@
     <td>Notifier Plugins</td>
     <td>
       <ul>
-{% for notifier in notifier_plugins %}
+{% for notifier in notifier_plugins|dictsort:"name" %}
       <li>{{ notifier.name }} - {{ notifier.module_name }}</li>
 {% endfor %}
     </td>

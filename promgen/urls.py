@@ -95,6 +95,9 @@ urlpatterns = [
     url(r'^ajax/silence$', csrf_exempt(views.AjaxSilence.as_view()), name='ajax-silence'),
     url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
 
+    url('', include('django.contrib.auth.urls')),
+    url('', include('social_django.urls', namespace='social')),
+
     # Public API
 
     # Legacy API
@@ -106,6 +109,7 @@ urlpatterns = [
     url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
     url(r'^api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
     url(r'^api/v1/alerts', csrf_exempt(views.Alert.as_view()), name='alert'),
+    url(r'^api/v1/host/(?P<slug>\S+)', views.HostDetail.as_view()),
 
     # Prometheus Proxy
     url(r'^api/v1/label/(.+)/values', views.ProxyLabel.as_view()),

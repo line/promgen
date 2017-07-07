@@ -38,6 +38,7 @@ setup(
         'pyyaml',
         'raven',
         'requests',
+        'social-auth-app-django',
     ],
     extras_require={
         'dev': [

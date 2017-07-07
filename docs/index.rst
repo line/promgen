@@ -16,6 +16,7 @@ Welcome to Promgen's documentation!
 .. toctree::
   :hidden:
 
+  plugin/auth
   plugin/discovery
   plugin/notification
 

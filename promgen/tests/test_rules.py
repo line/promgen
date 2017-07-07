@@ -3,6 +3,7 @@
 
 from unittest import mock
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
@@ -26,6 +27,7 @@ class RuleTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     @mock.patch('django.db.models.signals.pre_save', mock.Mock())
     def setUp(self):
+        self.client.force_login(User.objects.create_user(id=999, username="Foo"), 'django.contrib.auth.backends.ModelBackend')
         self.shard = models.Shard.objects.create(name='Shard 1')
         self.service = models.Service.objects.create(id=1, name='Service 1', shard=self.shard)
         self.rule = models.Rule.create(
