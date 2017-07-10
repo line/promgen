@@ -15,7 +15,7 @@
     <tr>
       <td>{{ exporter.job }}</td>
       <td>{{ exporter.port }}</td>
-      <td>{{ exporter.path }}</td>
+      <td>{{ exporter.path | default:"/metrics" }}</td>
       <td style="white-space: nowrap">
         <form method="post" action="{% url 'exporter-toggle' exporter.id %}" style="display: inline">
           {% csrf_token %}
