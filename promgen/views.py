@@ -245,7 +245,7 @@ class RuleToggle(View):
         rule = get_object_or_404(models.Rule, id=pk)
         rule.enabled = not rule.enabled
         rule.save()
-        return HttpResponseRedirect(reverse('service-detail', args=[rule.service_id]))
+        return redirect(rule.content_object)
 
 
 class HostDelete(DeleteView):
