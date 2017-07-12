@@ -12,3 +12,8 @@ test:
   post:
     - coverage html -d $CIRCLE_ARTIFACTS
     - codecov
+
+general:
+  branches:
+    ignore:
+      - gh-pages
