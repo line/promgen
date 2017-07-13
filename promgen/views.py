@@ -983,12 +983,9 @@ class AjaxAlert(View):
                 # Requires newer 0.7 alert manager release to have the status
                 # information with silenced and inhibited alerts
                 if 'status' in alert:
-                    if alert['status'].get('silencedBy'):
+                    if alert['status'].get('silencedBy') or alert['status'].get('inhibitedBy'):
                         continue
-                    if alert['status'].get('inhibitedBy'):
-                        continue
-                if key in alert['labels']:
-                    if alert['labels'][key]:
+                if key in alert['labels'] and alert['labels'][key]:
                         alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
 
         context = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request).strip() for key in alerts}
@@ -1110,7 +1107,6 @@ class ProxyLabel(PrometheusProxy):
 
 class ProxySeries(PrometheusProxy):
     def get(self, request):
-        print(self.headers)
         data = []
         futures = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:

@@ -34,7 +34,7 @@ def run_once(signal):
 
     Certain actions we want to run only once, at the end of
     processing so we wrap our function in a special decorator
-    that uses Django's caching system to set wheather we
+    that uses Django's caching system to set whether we
     want to run it or not, and trigger the actual run with
     a force keyword at the end of the request when we run to run it
     '''

@@ -170,18 +170,18 @@ class Farm(models.Model):
 
     class Meta:
         ordering = ['name']
-        unique_together = (('name', 'source',))
+        unique_together = (('name', 'source',),)
 
     def get_absolute_url(self):
         return reverse('farm-detail', kwargs={'pk': self.pk})
 
     def refresh(self):
+        target = set()
         current = set(host.name for host in self.host_set.all())
         for entry in plugins.discovery():
             if self.source == entry.name:
-                target = set(entry.load()().fetch(self.name))
+                target.update(entry.load()().fetch(self.name))
 
-        keep = current & target
         remove = current - target
         add = target - current
 
@@ -194,7 +194,6 @@ class Farm(models.Model):
         if remove:
             Audit.log('Removing {} from {}'.format(add, self), self)
             Host.objects.filter(farm=self, name__in=remove).delete()
-
 
     @classmethod
     def fetch(cls, source):
@@ -213,7 +212,7 @@ class Host(models.Model):
 
     class Meta:
         ordering = ['name']
-        unique_together = (('name', 'farm'))
+        unique_together = (('name', 'farm',),)
 
     def get_absolute_url(self):
         return reverse('host-detail', kwargs={'slug': self.name})
@@ -231,7 +230,7 @@ class Exporter(models.Model):
 
     class Meta:
         ordering = ['job', 'port']
-        unique_together = (('job', 'port', 'project'))
+        unique_together = (('job', 'port', 'project',),)
 
     def __str__(self):
         return '{}:{}:{} ({})'.format(self.job, self.port, self.path, self.project)
@@ -350,7 +349,7 @@ class Rule(DynamicParent):
             self.save()
 
             # Add a label to our new rule by default, to help ensure notifications
-            # get routed to the notfier we expect
+            # get routed to the notifier we expect
             self.add_label(content_type.model, content_object.name)
 
             for label in RuleLabel.objects.filter(rule_id=orig_pk):
@@ -434,5 +433,5 @@ class Prometheus(models.Model):
 
     class Meta:
         ordering = ['shard', 'host']
-        unique_together = (('host', 'port'))
+        unique_together = (('host', 'port',),)
         verbose_name_plural = 'prometheis'
