@@ -120,12 +120,9 @@ class NewRuleForm(forms.ModelForm):
 
 
 class RuleForm(forms.ModelForm):
-    # Manually specify service here so we can prefetch objects for faster rendering
-    service = forms.ModelChoiceField(queryset=models.Service.objects.select_related('shard'))
-
     class Meta:
         model = models.Rule
-        exclude = ['parent']
+        exclude = ['parent', 'content_type', 'object_id']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
