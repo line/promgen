@@ -4,6 +4,7 @@
 import json
 import logging
 
+from django.conf import settings
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
@@ -393,6 +394,8 @@ class Audit(models.Model):
     object_id = models.PositiveIntegerField(default=0)
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
+
     @property
     def hilight(self):
         if self.body.startswith('Created'):
@@ -405,8 +408,11 @@ class Audit(models.Model):
 
     @classmethod
     def log(cls, body, instance=None, old=None, **kwargs):
+        from promgen.middleware import get_current_user
+
         kwargs['body'] = body
         kwargs['created'] = timezone.now()
+        kwargs['user'] = get_current_user()
 
         if instance:
             kwargs['content_type'] = ContentType.objects.get_for_model(instance)

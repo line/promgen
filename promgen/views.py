@@ -813,12 +813,6 @@ class Metrics(View):
 
 class Status(View):
     def get(self, request):
-        if settings.DEBUG:
-            #prometheus.render_urls()
-            prometheus.render_rules()
-            #prometheus.render_config()
-
-
         return render(request, 'promgen/status.html', {
             'discovery_plugins': [entry for entry in plugins.discovery()],
             'notifier_plugins': [entry for entry in plugins.notifications()],

@@ -3,7 +3,7 @@
 
 import json
 from unittest import mock
-
+from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -13,6 +13,9 @@ from promgen.tests import TEST_ALERT, TEST_IMPORT, TEST_REPLACE, TEST_SETTINGS
 
 class RouteTests(TestCase):
     longMessage = True
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_user(id=999, username="Foo"), 'django.contrib.auth.backends.ModelBackend')
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

@@ -9,8 +9,9 @@ from promgen import models
 
 class SignalTest(TestCase):
     longMessage = True
+    @mock.patch('promgen.models.Audit.log')
     @mock.patch('promgen.signals.trigger_write_config.send')
-    def test_write_signal(self, write_mock):
+    def test_write_signal(self, write_mock, log_mock):
         # Build service trigger
         shard = models.Shard.objects.create(name='Shard')
         service = models.Service.objects.create(name='Service', shard=shard)
@@ -33,8 +34,9 @@ class SignalTest(TestCase):
             mock.call(e1), mock.call(e2)
         ])
 
+    @mock.patch('promgen.models.Audit.log')
     @mock.patch('promgen.signals.trigger_write_config.send')
-    def test_write_and_delete(self, write_mock):
+    def test_write_and_delete(self, write_mock, log_mock):
         # Build service trigger
         shard = models.Shard.objects.create(name='Shard')
         service = models.Service.objects.create(name='Service', shard=shard)
