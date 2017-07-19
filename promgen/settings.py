@@ -55,7 +55,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS = apps_from_setuptools + [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'promgen',
-] + apps_from_setuptools
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
