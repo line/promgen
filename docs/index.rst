@@ -11,6 +11,7 @@ Welcome to Promgen's documentation!
   :hidden:
 
   terms
+  rules
   docker
 
 .. toctree::
@@ -19,14 +20,6 @@ Welcome to Promgen's documentation!
   plugin/auth
   plugin/discovery
   plugin/notification
-
-.. toctree::
-  :hidden:
-
-  modules/discovery
-  modules/models
-  modules/notification
-  modules/prometheus
 
 
 .. image:: images/screenshot.png

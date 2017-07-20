@@ -1101,7 +1101,7 @@ class ProxyLabel(PrometheusProxy):
 
         return JsonResponse({
             'status': 'success',
-            'data': list(data)
+            'data': sorted(data)
         })
 
 

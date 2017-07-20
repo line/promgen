@@ -1,5 +1,7 @@
 {% load i18n %}
-<div id="ajax-clause-check" class="panel-body">
+<div id="ajax-clause-check" class="panel panel-default">
+  <div class="panel-heading">Query Result</div>
+  <div class="panel-body">
   <p>Query Duration: {{ duration }}</p>
   <p><code>{{ query }}</code></p>
 {% if collapse %}
@@ -7,6 +9,7 @@
   Show {{ data.result|length }} Results
 </a>
 {% endif %}
+</div>
 {% if data.result %}
     <table id="prometheus-query-results" class="table table-condensed table-scroll {% if collapse %}collapse{% endif %}">
       <tr class="{{ status }}">

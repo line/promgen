@@ -1,5 +1,5 @@
-Writing Notification Plugins
-============================
+Notification Plugins
+====================
 
 Promgen uses notifier plugins to route notifications to different services such as
 Email or LINE Notify. Sender plugins are registered using setuptools entry_points_.

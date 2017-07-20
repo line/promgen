@@ -1,5 +1,5 @@
-Running Promgen using Docker
-============================
+Running with Docker
+===================
 
 
 .. code-block:: sh
