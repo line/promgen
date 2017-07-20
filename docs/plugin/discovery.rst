@@ -1,5 +1,5 @@
-Writing Discovery Plugins
-=========================
+Discovery Plugins
+=================
 
 Promgen uses discovery plugins to bridge non-natively supported discovery
 mechanisms to Prometheus's file configuration format. They should be registered
