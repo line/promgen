@@ -55,6 +55,35 @@ $(document).ready(function() {
     $.post(btn.data('href'), btn.data()).done(update_page);
   })
 
+  $("select[data-ajax]").each(function(index) {
+    var ele = $(this)
+    var tgt = $(ele.data('target'))
+
+    $.get(ele.data('ajax')).done(function(data){
+      data.data.forEach(function(item){
+        var option = $('<option>')
+        option.html(item)
+        option.val(item)
+        option.appendTo(ele)
+      })
+
+      tgt.typeahead({
+        source: data.data,
+        items: "all",
+        updater: function(item) {
+          return item + ele.data("append")
+        }
+      })
+    })
+
+    ele.change(function(){
+      var replacement = ele.val() ? ele.val() + ele.data("append") : ""
+      tgt.selection("replace", {text: replacement, mode: "before"});
+      tgt.focus()
+    });
+
+  })
+
   $('.silence_start').datetimepicker({
     format: 'YYYY-MM-DD HH:mm'
   });

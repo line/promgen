@@ -33,6 +33,7 @@
     <p class="help-block">Copy and Paste a rule from a different Prometheus server</p>
     <form action="{{ request.get_full_path }}" method="post">{% csrf_token %}
         <textarea class="form-control" name="rules"></textarea>
+        <br />
         <button class="btn btn-primary">Import Rule</button>
     </form>
   </div>
