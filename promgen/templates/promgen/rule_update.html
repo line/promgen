@@ -40,7 +40,7 @@
     <table class="table collapse" id="rule-children">
   {% for r in rule.overrides.all %}
       <tr>
-        <td class="col-xs-2"><a href="{% url 'service-detail' r.content_object.pk %}">{{ r.content_object }}</a></td>
+        <td class="col-xs-2"><a href="{{ r.content_object.get_absolute_url }}">{{ r.content_object }}</a></td>
         <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
         <td class="col-xs-8">
           <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
