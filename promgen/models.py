@@ -9,7 +9,6 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from django.db import models, transaction
 from django.forms.models import model_to_dict
 from django.urls import reverse
@@ -18,13 +17,11 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 import promgen.templatetags.promgen as macro
-from promgen import plugins
+from promgen import plugins, validators
 from promgen.shortcuts import resolve_domain
 
 FARM_DEFAULT = 'default'
 logger = logging.getLogger(__name__)
-
-alphanumeric = RegexValidator(r'^[0-9a-zA-Z_]*$', 'Only alphanumeric characters are allowed.')
 
 
 class DynamicParent(models.Model):
@@ -260,13 +257,12 @@ def validate_json_or_empty(value):
 
 
 class Rule(DynamicParent):
-    name = models.CharField(max_length=128, unique=True, validators=[alphanumeric])
-    clause = models.TextField()
-    duration = models.CharField(max_length=128, choices=[
-        ('1s', '1s'),
-        ('1m', '1m'),
-        ('5m', '5m'),
-    ])
+    name = models.CharField(max_length=128, unique=True, validators=[validators.alphanumeric])
+    clause = models.TextField(help_text='Prometheus query')
+    duration = models.CharField(
+        max_length=128, validators=[validators.prometheusduration],
+        help_text="Duration field with postfix. Example 30s, 5m, 1d"
+        )
     enabled = models.BooleanField(default=True)
     parent = models.ForeignKey(
         'Rule',

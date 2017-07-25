@@ -1,18 +1,23 @@
 <div class="panel panel-primary">
   <div class="panel-heading">Basic</div>
   <div class="panel-body">
-    {{ form.name.label_tag }}
     {{ form.name.errors }}
     {{ form.name }}
     <br />
-    {{ form.enabled.label_tag }}
     {{ form.enabled.errors }}
+    {{ form.enabled.label_tag }}
     {{ form.enabled }}
     <br />
-    {{ form.duration.label_tag }}
     {{ form.duration.errors }}
     {{ form.duration }}
-    <p class="help-block">Prometheus to wait for a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
+    <br />
+    <p class="help-block">Prometheus will wait a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
+    <p class="help-block">
+      Examples:
+      <code data-copyto="#id_duration">30s</code>
+      <code data-copyto="#id_duration">5m</code>
+      <code data-copyto="#id_duration">10m</code>
+    </p>
   </div>
 </div>
 
