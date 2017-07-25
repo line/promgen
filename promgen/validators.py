@@ -12,3 +12,7 @@ def prometheusduration(value):
     # https://prometheus.io/docs/querying/basics/#range-vector-selectors
     if value.lower()[-1:] not in 'smhdwy':
         raise ValidationError('Invalid or missing duration suffix. Example: 30s, 5m, 1h')
+    try:
+        int(value[:-1])
+    except:
+        raise ValidationError("Invalid duraiton. Example: 30s, 5m, 1h")
