@@ -1,14 +1,15 @@
 <div class="panel panel-primary">
   <div class="panel-heading">Basic</div>
   <div class="panel-body">
-    {{ form.name.errors }}
+    {% include 'promgen/error_block.html' with warning=form.name.errors only %}
+    {{ form.name.label_tag }}
     {{ form.name }}
     <br />
-    {{ form.enabled.errors }}
+    {% include 'promgen/error_block.html' with warning=form.enabled.errors only %}
     {{ form.enabled.label_tag }}
     {{ form.enabled }}
     <br />
-    {{ form.duration.errors }}
+    {% include 'promgen/error_block.html' with warning=form.duration.errors only %}
     {{ form.duration }}
     <br />
     <p class="help-block">Prometheus will wait a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
@@ -52,7 +53,7 @@
     </ul>
   </div>
   <div class="panel-body">
-    {{ form.clause.errors }}
+    {% include 'promgen/error_block.html' with errors=form.clause.errors only %}
     {{ form.clause }}
   </div>
   <div class="panel-body">
