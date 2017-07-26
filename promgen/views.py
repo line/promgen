@@ -230,7 +230,7 @@ class ExporterToggle(View):
         exporter.enabled = not exporter.enabled
         exporter.save()
         signals.trigger_write_config.send(request)
-        return HttpResponseRedirect(reverse('project-detail', args=[exporter.project_id]))
+        return JsonResponse({'redirect': exporter.project.get_absolute_url()})
 
 
 class RuleDelete(DeleteView):
@@ -245,7 +245,7 @@ class RuleToggle(View):
         rule = get_object_or_404(models.Rule, id=pk)
         rule.enabled = not rule.enabled
         rule.save()
-        return redirect(rule.content_object)
+        return JsonResponse({'redirect': rule.content_object.get_absolute_url()})
 
 
 class HostDelete(DeleteView):
