@@ -61,15 +61,15 @@ $(document).ready(function() {
     $(ele.data('copyto')).val(ele.text())
   }).css('cursor', 'pointer');
 
-  $('[data-toggle="toggle"]').on('switchChange.bootstrapSwitch', function() {
-    console.log(this);
+  $('[data-toggle="toggle"]').bootstrapSwitch();
+  $('[data-toggle="toggle"][data-action]').on('switchChange.bootstrapSwitch', function() {
     $.post(this.dataset.action, this.dataset).done(function(data){
       // Ideally we would directly update things that need to be updated
       // but a page redraw is a bit easier since that also allows us to
       // update our page messages
       window.location = data.redirect
-    })
-  }).bootstrapSwitch();
+    });
+  })
 
   $("select[data-ajax]").each(function(index) {
     var ele = $(this)
