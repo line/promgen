@@ -252,7 +252,11 @@ class HostDelete(DeleteView):
     model = models.Host
 
     def get_success_url(self):
-        return reverse('project-detail', args=[self.object.farm.project_set.first().id])
+        # If there's only one linked project then we redirect to the project page
+        # otherwise we redirect to our farm page
+        if self.object.farm.project_set.count():
+            return self.object.farm.project_set.first().get_absolute_url()
+        return self.object.farm.get_absolute_url()
 
 
 class ProjectDetail(DetailView):
