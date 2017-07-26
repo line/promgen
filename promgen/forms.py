@@ -115,6 +115,7 @@ class NewRuleForm(forms.ModelForm):
         exclude = ['content_type', 'object_id', 'parent']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'duration': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
         }
 
@@ -125,6 +126,7 @@ class RuleForm(forms.ModelForm):
         exclude = ['parent', 'content_type', 'object_id']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'duration': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
         }
 

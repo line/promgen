@@ -53,7 +53,12 @@ $(document).ready(function() {
     btn.data('query', query)
     console.log("Testing Query: %s", query)
     $.post(btn.data('href'), btn.data()).done(update_page);
-  })
+  }).css('cursor', 'pointer');
+
+  $('[data-copyto]').click(function(){
+    var ele = $(this)
+    $(ele.data('copyto')).val(ele.text())
+  }).css('cursor', 'pointer');
 
   $("select[data-ajax]").each(function(index) {
     var ele = $(this)
