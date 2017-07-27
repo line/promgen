@@ -40,6 +40,7 @@ $(document).ready(function() {
   $("a[data-labels]").click(silence_tag);
   $('[data-toggle="popover"]').popover();
   $('[data-toggle="tooltip"]').tooltip();
+
   $.ajax("/ajax/alert").done(update_page);
   $.post("/ajax/silence", {
     'referer': window.location.toString()
@@ -59,6 +60,16 @@ $(document).ready(function() {
     var ele = $(this)
     $(ele.data('copyto')).val(ele.text())
   }).css('cursor', 'pointer');
+
+  $('[data-toggle="toggle"]').bootstrapSwitch();
+  $('[data-toggle="toggle"][data-action]').on('switchChange.bootstrapSwitch', function() {
+    $.post(this.dataset.action, this.dataset).done(function(data){
+      // Ideally we would directly update things that need to be updated
+      // but a page redraw is a bit easier since that also allows us to
+      // update our page messages
+      window.location = data.redirect
+    });
+  })
 
   $("select[data-ajax]").each(function(index) {
     var ele = $(this)
