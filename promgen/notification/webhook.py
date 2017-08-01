@@ -31,8 +31,7 @@ class NotificationWebhook(NotificationBase):
     '''
     form = FormWebhook
 
-    @celery.task(bind=True)
-    def _send(task, url, alert, data):
+    def _send(self, url, alert, data):
         params = {
             'externalURL': data.get('externalURL'),
             'alert': alert,

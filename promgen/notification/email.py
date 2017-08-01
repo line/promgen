@@ -30,9 +30,7 @@ class NotificationEmail(NotificationBase):
 
     form = FormEmail
 
-    @celery.task(bind=True)
-    def _send(task, address, alert, data):
-        self = NotificationEmail()  # Rebind self
+    def _send(self, address, alert, data):
         subject = render_to_string('promgen/sender/email.subject.txt', {
             'alert': alert,
             'externalURL': data['externalURL'],

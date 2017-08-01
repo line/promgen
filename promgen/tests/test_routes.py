@@ -21,7 +21,7 @@ class RouteTests(TestCase):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert(self):
         response = self.client.post(reverse('alert'), data=json.dumps(TEST_ALERT), content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 202)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

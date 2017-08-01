@@ -33,9 +33,7 @@ class NotificationIkasan(NotificationBase):
 
     form = FormIkasan
 
-    @celery.task(bind=True)
-    def _send(task, channel, alert, data):
-        self = NotificationIkasan()  # Rebind self
+    def _send(self, channel, alert, data):
         url = self.config('server')
 
         params = {

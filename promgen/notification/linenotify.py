@@ -33,9 +33,7 @@ class NotificationLineNotify(NotificationBase):
 
     form = FormLineNotify
 
-    @celery.task(bind=True)
-    def _send(task, token, alert, data):
-        self = NotificationLineNotify()  # Rebind self
+    def _send(self, token, alert, data):
         url = self.config('server')
 
         if alert['status'] == 'resolved':
