@@ -324,9 +324,14 @@ class FarmDelete(RedirectView):
 class UnlinkFarm(View):
     def post(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
-        project.farm = None
+        oldfarm, project.farm = project.farm, None
         project.save()
         signals.trigger_write_config.send(request)
+
+        if oldfarm.project_set.count() == 0 and oldfarm.editable is False:
+            logger.debug('Cleaning up old farm %s', oldfarm)
+            oldfarm.delete()
+
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
