@@ -20,7 +20,6 @@ import promgen.templatetags.promgen as macro
 from promgen import plugins, validators
 from promgen.shortcuts import resolve_domain
 
-FARM_DEFAULT = 'default'
 logger = logging.getLogger(__name__)
 
 

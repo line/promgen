@@ -52,7 +52,7 @@ setup(
             'promgen = promgen.manage:main',
         ],
         'promgen.discovery': [
-            'default = promgen.discovery.default:DiscoveryPromgen',
+            'promgen = promgen.discovery.default:DiscoveryPromgen',
         ],
         'promgen.notification': [
             'ikasan = promgen.notification.ikasan:NotificationIkasan',

@@ -32,7 +32,7 @@ from prometheus_client import Gauge, generate_latest
 
 import promgen.templatetags.promgen as macro
 from promgen import (celery, forms, models, plugins, prometheus, signals, util,
-                     version)
+                     version, discovery)
 
 logger = logging.getLogger(__name__)
 
@@ -387,7 +387,7 @@ class FarmConvert(RedirectView):
 
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
-        farm.source = models.FARM_DEFAULT
+        farm.source = discovery.FARM_DEFAULT
 
         try:
             farm.save()
@@ -633,7 +633,7 @@ class FarmRegsiter(FormView, ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        farm, _ = models.Farm.objects.get_or_create(source=models.FARM_DEFAULT, **form.clean())
+        farm, _ = models.Farm.objects.get_or_create(source=discovery.FARM_DEFAULT, **form.clean())
         project.farm = farm
         project.save()
         return HttpResponseRedirect(project.get_absolute_url())
