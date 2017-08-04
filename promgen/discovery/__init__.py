@@ -3,6 +3,8 @@
 
 
 class DiscoveryBase(object):
+    remote = True
+
     '''
     Basic discovery plugin base
 

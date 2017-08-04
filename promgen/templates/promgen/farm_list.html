@@ -41,7 +41,7 @@
           </ul>
         </td>
         <td>
-          {% if farm.source != FARM_DEFAULT %}
+          {% if farm.driver.remote %}
           <form method="post" action="{% url 'farm-convert' farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
             {% csrf_token %}
             <button class="btn btn-warning">Convert</button>

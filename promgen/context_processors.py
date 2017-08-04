@@ -3,14 +3,12 @@
 
 from django.conf import settings
 
-from promgen.models import FARM_DEFAULT
 from promgen.version import __version__
 
 
 def settings_in_view(request):
     return {
         'EXTERNAL_LINKS': settings.PROMGEN.get('links', {}),
-        'FARM_DEFAULT': FARM_DEFAULT,
         'TIMEZONE': settings.PROMGEN.get('timezone', 'UTC'),
         'VERSION': __version__,
     }

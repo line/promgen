@@ -271,9 +271,7 @@ class ProjectDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
-        context['sources'] = [
-            entry.name for entry in plugins.discovery()
-        ]
+        context['sources'] = models.Farm.choices()
         context['global'] = models.Service.default()
         prefetch_related_objects([context['global']], 'rule_set')
         return context

@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 class DiscoveryPromgen(DiscoveryBase):
+    remote = False
+
     '''Promgen local database discovery plugin
 
     This is the default discovery plugin for farms and hosts stored locally in
