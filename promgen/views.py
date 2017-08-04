@@ -408,7 +408,7 @@ class FarmLink(View):
         context = {
             'source': source,
             'project': get_object_or_404(models.Project, id=pk),
-            'farms': models.Farm.fetch(source=source),
+            'farm_list': sorted(models.Farm.fetch(source=source)),
         }
         return render(request, 'promgen/link_farm.html', context)
 
