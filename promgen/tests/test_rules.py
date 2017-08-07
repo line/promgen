@@ -4,13 +4,14 @@
 from unittest import mock
 
 from django.contrib.auth.models import User
-from django.test import TestCase
 from django.urls import reverse
 
 import promgen.templatetags.promgen as macro
 from promgen import models, prometheus
-from promgen.tests import TEST_RULE
+from promgen.tests import PromgenTest
 
+
+TEST_RULE = PromgenTest.data('import.rule')
 
 _RULES = '''
 ALERT RuleName
@@ -23,7 +24,7 @@ ALERT RuleName
 '''.lstrip()
 
 
-class RuleTest(TestCase):
+class RuleTest(PromgenTest):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     @mock.patch('django.db.models.signals.pre_save', mock.Mock())
     def setUp(self):

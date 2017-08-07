@@ -1,18 +1,21 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-import json
 from unittest import mock
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 
 from promgen import models
 from promgen.notification.webhook import NotificationWebhook
-from promgen.tests import TEST_ALERT, TEST_SETTINGS
+from promgen.tests import PromgenTest
 
 
-class WebhookTest(TestCase):
+TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
+TEST_ALERT = PromgenTest.data('alertmanager.json')
+
+
+class WebhookTest(PromgenTest):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
         self.shard = models.Shard.objects.create(name='Shard 1')
@@ -36,14 +39,19 @@ class WebhookTest(TestCase):
     @mock.patch('promgen.util.post')
     def test_webhook(self, mock_post):
         self.client.post(reverse('alert'),
-            data=json.dumps(TEST_ALERT),
+            data=TEST_ALERT,
             content_type='application/json'
         )
 
         # Our sample is the same as the original, with some annotations added
-        _SAMPLE = TEST_ALERT.copy()
+        _SAMPLE = PromgenTest.data_json('alertmanager.json')
         _SAMPLE['commonAnnotations']['service'] = 'http://example.com' + self.service.get_absolute_url()
         _SAMPLE['commonAnnotations']['project'] = 'http://example.com' + self.project.get_absolute_url()
+
+        from pprint import pprint
+        pprint(TEST_ALERT)
+        pprint(_SAMPLE)
+
         mock_post.assert_has_calls([
             mock.call(
                 'http://project.example.com',

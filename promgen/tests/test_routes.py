@@ -4,14 +4,20 @@
 import json
 from unittest import mock
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 
 from promgen import models
-from promgen.tests import TEST_ALERT, TEST_IMPORT, TEST_REPLACE, TEST_SETTINGS
+from promgen.tests import PromgenTest
 
 
-class RouteTests(TestCase):
+TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
+TEST_ALERT = PromgenTest.data('alertmanager.json')
+TEST_IMPORT = PromgenTest.data('import.json')
+TEST_REPLACE = PromgenTest.data('replace.json')
+
+
+class RouteTests(PromgenTest):
     longMessage = True
 
     def setUp(self):
@@ -20,7 +26,7 @@ class RouteTests(TestCase):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert(self):
-        response = self.client.post(reverse('alert'), data=json.dumps(TEST_ALERT), content_type='application/json')
+        response = self.client.post(reverse('alert'), data=TEST_ALERT, content_type='application/json')
         self.assertEqual(response.status_code, 202)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
@@ -29,7 +35,7 @@ class RouteTests(TestCase):
     @mock.patch('promgen.prometheus.reload_prometheus')
     def test_import(self, mock_write, mock_reload):
         response = self.client.post(reverse('import'), {
-            'config': json.dumps(TEST_IMPORT)
+            'config': TEST_IMPORT
         })
 
         self.assertEqual(response.status_code, 302, 'Redirect to imported object')
@@ -46,12 +52,12 @@ class RouteTests(TestCase):
     @mock.patch('promgen.prometheus.reload_prometheus')
     def test_replace(self, mock_write, mock_reload):
         response = self.client.post(reverse('import'), {
-            'config': json.dumps(TEST_IMPORT)
+            'config': TEST_IMPORT
         })
         self.assertEqual(response.status_code, 302, 'Redirect to imported object')
 
         response = self.client.post(reverse('import'), {
-            'config': json.dumps(TEST_REPLACE)
+            'config': TEST_REPLACE
         })
         self.assertEqual(response.status_code, 302, 'Redirect to imported object (2)')
 

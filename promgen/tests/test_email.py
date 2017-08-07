@@ -1,18 +1,21 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-import json
 from unittest import mock
 
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 
 from promgen import models
 from promgen.notification.email import NotificationEmail
-from promgen.tests import TEST_ALERT, TEST_SETTINGS
+from promgen.tests import PromgenTest
 
 
-class EmailTest(TestCase):
+TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
+TEST_ALERT = PromgenTest.data('alertmanager.json')
+
+
+class EmailTest(PromgenTest):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
         self.shard = models.Shard.objects.create(name='Shard 1')
@@ -40,7 +43,7 @@ class EmailTest(TestCase):
     @mock.patch('promgen.notification.email.send_mail')
     def test_email(self, mock_email):
         self.client.post(reverse('alert'),
-            data=json.dumps(TEST_ALERT),
+            data=TEST_ALERT,
             content_type='application/json'
         )
 

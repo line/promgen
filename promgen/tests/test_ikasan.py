@@ -9,7 +9,10 @@ from django.urls import reverse
 
 from promgen import models
 from promgen.notification.ikasan import NotificationIkasan
-from promgen.tests import TEST_ALERT, TEST_SETTINGS
+from promgen.tests import PromgenTest
+
+TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
+TEST_ALERT = PromgenTest.data('alertmanager.json')
 
 
 class IkasanTest(TestCase):
@@ -29,14 +32,15 @@ class IkasanTest(TestCase):
     @mock.patch('promgen.util.post')
     def test_ikasan(self, mock_post):
         self.client.post(reverse('alert'),
-            data=json.dumps(TEST_ALERT),
+            data=TEST_ALERT,
             content_type='application/json'
         )
 
         # Swap the status to test our resolved alert
-        TEST_ALERT['status'] = 'resolved'
+        SAMPLE = PromgenTest.data_json('alertmanager.json')
+        SAMPLE['status'] = 'resolved'
         self.client.post(reverse('alert'),
-            data=json.dumps(TEST_ALERT),
+            data=json.dumps(SAMPLE),
             content_type='application/json'
         )
 

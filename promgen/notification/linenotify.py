@@ -7,7 +7,6 @@ from django import forms
 from django.template.loader import render_to_string
 
 from promgen import util
-from promgen.celery import app as celery
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
@@ -33,19 +32,13 @@ class NotificationLineNotify(NotificationBase):
 
     form = FormLineNotify
 
-    def _send(self, token, alert, data):
+    def _send(self, token, data):
         url = self.config('server')
 
-        if alert['status'] == 'resolved':
-            message = render_to_string('promgen/sender/linenotify.resolved.txt', {
-                'alert': alert,
-                'externalURL': data['externalURL'],
-            }).strip()
+        if data['status'] == 'resolved':
+            message = render_to_string('promgen/sender/linenotify.resolved.txt', data).strip()
         else:
-            message = render_to_string('promgen/sender/linenotify.body.txt', {
-                'alert': alert,
-                'externalURL': data['externalURL'],
-            }).strip()
+            message = render_to_string('promgen/sender/linenotify.body.txt', data).strip()
 
         params = {
             'message': message,
