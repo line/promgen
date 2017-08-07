@@ -1,1 +1,1 @@
-{% autoescape off %}[{{ alert.status }}]{% for k,v in alert.labels.items|dictsort:0 %} {{ v }}{% endfor %}{% endautoescape %}
+{% autoescape off %}[{{ status }}]{% for k,v in commonLabels.items|dictsort:0 %} {{ v }}{% endfor %}{% endautoescape %}
