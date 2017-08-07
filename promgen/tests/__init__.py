@@ -9,16 +9,16 @@ from django.test import TestCase
 
 class PromgenTest(TestCase):
     @classmethod
-    def data_json(cls, fn):
-        with open(os.path.join(os.path.dirname(__file__), 'examples', fn)) as fp:
+    def data_json(cls, *args):
+        with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
             return json.load(fp)
 
     @classmethod
-    def data_yaml(cls, fn):
-        with open(os.path.join(os.path.dirname(__file__), 'examples', fn)) as fp:
+    def data_yaml(cls, *args):
+        with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
             return yaml.load(fp)
 
     @classmethod
-    def data(cls, fn):
-        with open(os.path.join(os.path.dirname(__file__), 'examples', fn)) as fp:
+    def data(cls, *args):
+        with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
             return fp.read()

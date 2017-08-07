@@ -11,8 +11,8 @@ from promgen.notification.email import NotificationEmail
 from promgen.tests import PromgenTest
 
 
-TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
-TEST_ALERT = PromgenTest.data('alertmanager.json')
+TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
+TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 
 
 class EmailTest(PromgenTest):
@@ -47,10 +47,8 @@ class EmailTest(PromgenTest):
             content_type='application/json'
         )
 
-        with open('promgen/tests/notifications/email.subject.txt') as fp:
-            _SUBJECT = fp.read().strip()
-        with open('promgen/tests/notifications/email.body.txt') as fp:
-            _MESSAGE = fp.read().strip()
+        _SUBJECT = PromgenTest.data('notifications', 'email.subject.txt').strip()
+        _MESSAGE = PromgenTest.data('notifications', 'email.body.txt').strip()
 
         mock_email.assert_has_calls([
             mock.call(

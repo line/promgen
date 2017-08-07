@@ -11,7 +11,7 @@ from promgen import models, prometheus
 from promgen.tests import PromgenTest
 
 
-TEST_RULE = PromgenTest.data('import.rule')
+TEST_RULE = PromgenTest.data('examples', 'import.rule')
 
 _RULES = '''
 ALERT RuleName

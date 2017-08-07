@@ -11,8 +11,8 @@ from promgen.notification.webhook import NotificationWebhook
 from promgen.tests import PromgenTest
 
 
-TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
-TEST_ALERT = PromgenTest.data('alertmanager.json')
+TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
+TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 
 
 class WebhookTest(PromgenTest):
@@ -44,7 +44,7 @@ class WebhookTest(PromgenTest):
         )
 
         # Our sample is the same as the original, with some annotations added
-        _SAMPLE = PromgenTest.data_json('alertmanager.json')
+        _SAMPLE = PromgenTest.data_json('examples', 'alertmanager.json')
         _SAMPLE['commonAnnotations']['service'] = 'http://example.com' + self.service.get_absolute_url()
         _SAMPLE['commonAnnotations']['project'] = 'http://example.com' + self.project.get_absolute_url()
 

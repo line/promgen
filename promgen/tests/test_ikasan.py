@@ -11,8 +11,8 @@ from promgen import models
 from promgen.notification.ikasan import NotificationIkasan
 from promgen.tests import PromgenTest
 
-TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
-TEST_ALERT = PromgenTest.data('alertmanager.json')
+TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
+TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 
 
 class IkasanTest(TestCase):
@@ -37,17 +37,15 @@ class IkasanTest(TestCase):
         )
 
         # Swap the status to test our resolved alert
-        SAMPLE = PromgenTest.data_json('alertmanager.json')
+        SAMPLE = PromgenTest.data_json('examples', 'alertmanager.json')
         SAMPLE['status'] = 'resolved'
         self.client.post(reverse('alert'),
             data=json.dumps(SAMPLE),
             content_type='application/json'
         )
 
-        with open('promgen/tests/notifications/ikasan.body.txt') as fp:
-            _MESSAGE = fp.read().strip()
-        with open('promgen/tests/notifications/ikasan.resolved.txt') as fp:
-            _RESOLVED = fp.read().strip()
+        _MESSAGE = PromgenTest.data('notifications', 'ikasan.body.txt').strip()
+        _RESOLVED = PromgenTest.data('notifications', 'ikasan.resolved.txt').strip()
 
         mock_post.assert_has_calls([
             mock.call(

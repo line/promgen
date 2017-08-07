@@ -11,8 +11,8 @@ from promgen import models
 from promgen.notification.linenotify import NotificationLineNotify
 from promgen.tests import PromgenTest
 
-TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
-TEST_ALERT = PromgenTest.data('alertmanager.json')
+TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
+TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 
 
 class LineNotifyTest(PromgenTest):
@@ -44,7 +44,7 @@ class LineNotifyTest(PromgenTest):
         )
 
         # Swap the status to test our resolved alert
-        SAMPLE = PromgenTest.data_json('alertmanager.json')
+        SAMPLE = PromgenTest.data_json('examples', 'alertmanager.json')
         SAMPLE['status'] = 'resolved'
         SAMPLE['commonLabels']['service'] = self.service2.name
         SAMPLE['commonLabels'].pop('project')
@@ -53,10 +53,8 @@ class LineNotifyTest(PromgenTest):
             content_type='application/json'
         )
 
-        with open('promgen/tests/notifications/linenotify.body.txt') as fp:
-            _MESSAGE = fp.read().strip()
-        with open('promgen/tests/notifications/linenotify.resolved.txt') as fp:
-            _RESOLVED = fp.read().strip()
+        _MESSAGE = PromgenTest.data('notifications', 'linenotify.body.txt').strip()
+        _RESOLVED = PromgenTest.data('notifications', 'linenotify.resolved.txt').strip()
 
         mock_post.assert_has_calls([
             mock.call(

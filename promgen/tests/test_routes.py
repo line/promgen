@@ -1,7 +1,6 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-import json
 from unittest import mock
 from django.contrib.auth.models import User
 from django.test import override_settings
@@ -11,10 +10,10 @@ from promgen import models
 from promgen.tests import PromgenTest
 
 
-TEST_SETTINGS = PromgenTest.data_yaml('promgen.yml')
-TEST_ALERT = PromgenTest.data('alertmanager.json')
-TEST_IMPORT = PromgenTest.data('import.json')
-TEST_REPLACE = PromgenTest.data('replace.json')
+TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
+TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
+TEST_IMPORT = PromgenTest.data('examples', 'import.json')
+TEST_REPLACE = PromgenTest.data('examples', 'replace.json')
 
 
 class RouteTests(PromgenTest):
