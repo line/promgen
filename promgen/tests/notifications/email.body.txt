@@ -1,4 +1,4 @@
-[resolved] node_down prod testhost.localhost:9100 node Project 1 Service 1 critical
+[firing] node_down prod testhost.localhost:9100 node Project 1 Service 1 critical
 
 description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
 project: http://example.com/project/{project.id}/
