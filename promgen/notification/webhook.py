@@ -12,7 +12,6 @@ import logging
 from django import forms
 
 from promgen import util
-from promgen.celery import app as celery
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
@@ -31,11 +30,7 @@ class NotificationWebhook(NotificationBase):
     '''
     form = FormWebhook
 
-    def _send(self, url, alert, data):
-        params = {
-            'externalURL': data.get('externalURL'),
-            'alert': alert,
-        }
-
-        util.post(url, params)
+    def _send(self, url, data):
+        print(data)
+        util.post(url, data)
         return True

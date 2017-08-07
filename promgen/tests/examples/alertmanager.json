@@ -1,6 +1,6 @@
 {
     "receiver": "admins-critical",
-    "status": "resolved",
+    "status": "firing",
     "alerts": [{
         "status": "firing",
         "labels": {
