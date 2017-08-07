@@ -80,29 +80,29 @@ class NotificationBase(object):
         See tests/examples/alertmanager.json for an example payload
         '''
         sent = 0
-        alerts = data.pop('alerts', [])
-        for alert in alerts:
-            alert.setdefault('annotations', {})
-            output = {}
+        output = {}
+        data.setdefault('commonLabels', [])
+        data.setdefault('commonAnnotations', [])
 
-            # Look through our labels and find the object from Promgen's DB
-            # If we find an object in Promgen, add an annotation with a direct link
-            for label, klass in self.MAPPING:
-                if label not in alert['labels']:
-                    logger.debug('Missing label %s', label)
-                    continue
-                # Should only find a single value, but I think filter is a little
-                # bit more forgiving than get in terms of throwing errors
-                for obj in klass.objects.filter(name=alert['labels'][label]):
-                    logger.debug('Found %s %s', label, obj)
-                    output[label] = obj
-                    alert['annotations'][label] = resolve_domain(obj)
+        # Look through our labels and find the object from Promgen's DB
+        # If we find an object in Promgen, add an annotation with a direct link
+        for label, klass in self.MAPPING:
+            if label not in data['commonLabels']:
+                logger.debug('Missing label %s', label)
+                continue
 
-            for label, obj in output.items():
-                for sender in obj.notifiers.filter(sender=self.__module__):
-                    logger.debug('Sending to %s', sender)
-                    if self._send(sender.value, alert, data):
-                        sent += 1
+            # Should only find a single value, but I think filter is a little
+            # bit more forgiving than get in terms of throwing errors
+            for obj in klass.objects.filter(name=data['commonLabels'][label]):
+                logger.debug('Found %s %s', label, obj)
+                output[label] = obj
+                data['commonAnnotations'][label] = resolve_domain(obj)
+
+        for label, obj in output.items():
+            for sender in obj.notifiers.filter(sender=self.__module__):
+                logger.debug('Sending to %s', sender)
+                if self._send(sender.value, data):
+                    sent += 1
         if sent == 0:
             logger.debug('No senders configured for project or service')
         return sent

@@ -11,16 +11,6 @@ from promgen import models
 from promgen.notification.email import NotificationEmail
 from promgen.tests import TEST_ALERT, TEST_SETTINGS
 
-_SUBJECT = '[firing] node_down prod foo-BETA testhost.localhost:9100 node Project 1 Service 1 critical'
-_MESSAGE = '''[firing] node_down prod foo-BETA testhost.localhost:9100 node Project 1 Service 1 critical
-
-description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
-project: http://example.com/project/{project.id}/
-service: http://example.com/service/{service.id}/
-summary: Instance testhost.localhost:9100 down
-
-Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D'''
-
 
 class EmailTest(TestCase):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
@@ -53,6 +43,12 @@ class EmailTest(TestCase):
             data=json.dumps(TEST_ALERT),
             content_type='application/json'
         )
+
+        with open('promgen/tests/notifications/email.subject.txt') as fp:
+            _SUBJECT = fp.read().strip()
+        with open('promgen/tests/notifications/email.body.txt') as fp:
+            _MESSAGE = fp.read().strip()
+
         mock_email.assert_has_calls([
             mock.call(
                 _SUBJECT,
