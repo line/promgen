@@ -44,7 +44,10 @@ class NotificationBase(object):
         a notifier may want to immediately process it or otherwise send a message, so we
         provide this entry hook
         '''
-        tasks.send_notification.delay(cls.__module__, data)
+        params = {'args': (cls.__module__, data)}
+        if hasattr(cls, 'queue'):
+            params['queue'] = getattr(cls, 'queue')
+        tasks.send_notification.apply_async(**params)
 
     def _send(self, target, alert, data):
         '''
