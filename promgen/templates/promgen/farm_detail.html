@@ -20,14 +20,14 @@
     <table class="table">
       <tr>
         <th>Name</th>
-      {% if farm.source == FARM_DEFAULT %}
+      {% if farm.editable %}
         <th>&nbsp;</th>
       {% endif %}
       </tr>
     {% for host in farm.host_set.all %}
       <tr>
         <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
-        {% if farm.source == FARM_DEFAULT %}
+        {% if farm.editable %}
         <td>
           <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
             {% csrf_token %}
@@ -40,7 +40,7 @@
     </table>
 
     <div class="panel-footer">
-  {% if farm.source == FARM_DEFAULT %}
+  {% if farm.editable %}
       <a href="{% url 'hosts-add' farm.id %}" class="btn btn-primary">Add new host</a>
   {% endif %}
     <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">

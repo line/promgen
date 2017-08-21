@@ -100,6 +100,14 @@ $(document).ready(function() {
 
   })
 
+  $('[data-filter]').change(function(){
+    var search = this.value.toUpperCase()
+    $(this.dataset.filter).each(function(i, ele){
+      var txt = $(this).text().toUpperCase();
+      ele.style.display = txt.indexOf(search) > -1 ? "" : "none"
+    })
+  })
+
   $('.silence_start').datetimepicker({
     format: 'YYYY-MM-DD HH:mm'
   });

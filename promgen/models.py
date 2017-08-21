@@ -20,7 +20,6 @@ import promgen.templatetags.promgen as macro
 from promgen import plugins, validators
 from promgen.shortcuts import resolve_domain
 
-FARM_DEFAULT = 'default'
 logger = logging.getLogger(__name__)
 
 
@@ -198,6 +197,21 @@ class Farm(models.Model):
             if entry.name == source:
                 for farm in entry.load()().farms():
                     yield farm
+
+    @cached_property
+    def driver(self):
+        for entry in plugins.discovery():
+            if entry.name == self.source:
+                return entry.load()()
+
+    @property
+    def editable(self):
+        return not self.driver.remote
+
+    @classmethod
+    def choices(cls):
+        for entry in plugins.discovery():
+            yield entry.name, entry.load()()
 
     def __str__(self):
         return '{} ({})'.format(self.name, self.source)

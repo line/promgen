@@ -6,12 +6,14 @@ import logging
 from django.shortcuts import get_object_or_404
 
 from promgen import models
-from promgen.discovery import DiscoveryBase
+from promgen import discovery
 
 logger = logging.getLogger(__name__)
 
 
-class DiscoveryPromgen(DiscoveryBase):
+class DiscoveryPromgen(discovery.DiscoveryBase):
+    remote = False
+
     '''Promgen local database discovery plugin
 
     This is the default discovery plugin for farms and hosts stored locally in
@@ -26,5 +28,5 @@ class DiscoveryPromgen(DiscoveryBase):
 
     def farms(self):
         '''Fetch farms from local database'''
-        for farm in models.Farm.objects.filter(source=models.FARM_DEFAULT):
+        for farm in models.Farm.objects.filter(source=discovery.FARM_DEFAULT):
             yield farm.name

@@ -13,14 +13,23 @@
   <li class="active">Link Farm {{ source }}</li>
 </ol>
 
-{% for farm in farms %}
-
-<form action="{% url 'farm-link' project.id source %}" method="post">
-    {% csrf_token %}
-    <input type="hidden" name="farm" value="{{ farm }}" />
-    <button type="submit" class="btn btn-danger" />{{ farm }}</button>
-</form>
-
-{% endfor %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <input class="form-control" data-filter="div.row div" placeholder="Type to filter">
+  </div>
+  <div class="panel-body">
+    <div class="row">
+      {% for farm in farm_list %}
+      <div class="col-md-4">
+        <form action="{% url 'farm-link' project.id source %}" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="farm" value="{{ farm }}" />
+          <button type="submit" class="btn btn-danger btn-block" />{{ farm }}</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 
 {% endblock %}
