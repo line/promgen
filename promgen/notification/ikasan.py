@@ -7,7 +7,6 @@ from django import forms
 from django.template.loader import render_to_string
 
 from promgen import util
-from promgen.celery import app as celery
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
@@ -33,9 +32,7 @@ class NotificationIkasan(NotificationBase):
 
     form = FormIkasan
 
-    @celery.task(bind=True)
-    def _send(task, channel, alert, data):
-        self = NotificationIkasan()  # Rebind self
+    def _send(self, channel, data):
         url = self.config('server')
 
         params = {
@@ -43,18 +40,12 @@ class NotificationIkasan(NotificationBase):
             'message_format': 'text',
         }
 
-        if alert['status'] == 'resolved':
+        if data['status'] == 'resolved':
             params['color'] = 'green'
-            params['message'] = render_to_string('promgen/sender/ikasan.resolved.txt', {
-                'alert': alert,
-                'externalURL': data['externalURL'],
-            }).strip()
+            params['message'] = render_to_string('promgen/sender/ikasan.resolved.txt', data).strip()
         else:
             params['color'] = 'red'
-            params['message'] = render_to_string('promgen/sender/ikasan.body.txt', {
-                'alert': alert,
-                'externalURL': data['externalURL'],
-            }).strip()
+            params['message'] = render_to_string('promgen/sender/ikasan.body.txt', data).strip()
 
         util.post(url, params)
         return True

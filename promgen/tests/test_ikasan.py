@@ -9,18 +9,10 @@ from django.urls import reverse
 
 from promgen import models
 from promgen.notification.ikasan import NotificationIkasan
-from promgen.tests import TEST_ALERT, TEST_SETTINGS
+from promgen.tests import PromgenTest
 
-
-_RESOLVED = '[resolved] service_level_alert Service 2 critical'
-_MESSAGE = '''[firing] node_down prod foo-BETA testhost.localhost:9100 node Project 1 Service 1 critical
-
-description: testhost.localhost:9100 of job node has been down for more than 5 minutes.
-project: http://example.com/project/{project.id}/
-service: http://example.com/service/{service.id}/
-summary: Instance testhost.localhost:9100 down
-
-Prometheus: https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D'''
+TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
+TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 
 
 class IkasanTest(TestCase):
@@ -34,21 +26,27 @@ class IkasanTest(TestCase):
             sender=NotificationIkasan.__module__,
             value='#1',
         )
-        self.service2 = models.Service.objects.create(name='Service 2', shard=self.shard)
-        self.sender2 = models.Sender.create(
-            obj=self.service2,
-            sender=NotificationIkasan.__module__,
-            value='#2',
-        )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.util.post')
     def test_ikasan(self, mock_post):
         self.client.post(reverse('alert'),
-            data=json.dumps(TEST_ALERT),
+            data=TEST_ALERT,
             content_type='application/json'
         )
+
+        # Swap the status to test our resolved alert
+        SAMPLE = PromgenTest.data_json('examples', 'alertmanager.json')
+        SAMPLE['status'] = 'resolved'
+        self.client.post(reverse('alert'),
+            data=json.dumps(SAMPLE),
+            content_type='application/json'
+        )
+
+        _MESSAGE = PromgenTest.data('notifications', 'ikasan.body.txt').strip()
+        _RESOLVED = PromgenTest.data('notifications', 'ikasan.resolved.txt').strip()
+
         mock_post.assert_has_calls([
             mock.call(
                 'http://ikasan.example', {
@@ -60,7 +58,7 @@ class IkasanTest(TestCase):
             mock.call(
                 'http://ikasan.example', {
                 'color': 'green',
-                'channel': '#2',
+                'channel': '#1',
                 'message_format': 'text',
                 'message': _RESOLVED}
             ),

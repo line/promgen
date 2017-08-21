@@ -1,5 +1,8 @@
-[{{ alert.status }}] {{ alert.labels.alertname }} {{ alert.labels.farm }} {{ alert.labels.instance }} {{ alert.labels.job }}
-{% for k,v in alert.annotations.items|dictsort:0 %}
+[{{ status }}]{% for k,v in commonLabels.items|dictsort:0 %} {{ v }}{% endfor %}
+{% for k,v in commonAnnotations.items|dictsort:0 %}
 {{ k }}: {{ v }}{% endfor %}
-
+{% for alert in alerts %}
+{% for k,v in alert.labels.items|dictsort:0 %} {{ v }}{% endfor %}{% for k,v in alert.annotations.items|dictsort:0 %}
+{{ k }}: {{ v }}{% endfor %}
 Prometheus: {{ alert.generatorURL }}
+{% endfor %}
