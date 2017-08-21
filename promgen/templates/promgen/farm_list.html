@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% block content %}
 
 <div class="page-header">
@@ -25,7 +25,12 @@
 {% for farm in farm_list %}
       <tr>
         <td><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></td>
-        <td>{{ farm.source }}</td>
+        <td>
+          {% if farm.driver.remote %}
+            <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
+          {% endif %}
+          {{ farm.source }}
+        </td>
         <td>
           <ul>
 {% for host in farm.host_set.all %}
@@ -41,15 +46,15 @@
           </ul>
         </td>
         <td>
-          {% if farm.source != FARM_DEFAULT %}
+          {% if farm.driver.remote %}
           <form method="post" action="{% url 'farm-convert' farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
             {% csrf_token %}
-            <button class="btn btn-warning">Convert</button>
+            <button class="btn btn-warning">{% trans "Convert to Local Farm" %}</button>
           </form>
           {% endif %}
           <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
             {% csrf_token %}
-            <button class="btn btn-danger">Delete</button>
+            <button class="btn btn-danger">{% trans "Delete" %}</button>
           </form>
         </td>
       </tr>

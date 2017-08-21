@@ -2,7 +2,12 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 
+FARM_DEFAULT = 'promgen'
+
+
 class DiscoveryBase(object):
+    remote = True
+
     '''
     Basic discovery plugin base
 

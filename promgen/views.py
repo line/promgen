@@ -32,7 +32,7 @@ from prometheus_client import Gauge, generate_latest
 
 import promgen.templatetags.promgen as macro
 from promgen import (celery, forms, models, plugins, prometheus, signals, util,
-                     version)
+                     version, discovery)
 
 logger = logging.getLogger(__name__)
 
@@ -271,9 +271,7 @@ class ProjectDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
-        context['sources'] = [
-            entry.name for entry in plugins.discovery()
-        ]
+        context['sources'] = models.Farm.choices()
         context['global'] = models.Service.default()
         prefetch_related_objects([context['global']], 'rule_set')
         return context
@@ -326,9 +324,14 @@ class FarmDelete(RedirectView):
 class UnlinkFarm(View):
     def post(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
-        project.farm = None
+        oldfarm, project.farm = project.farm, None
         project.save()
         signals.trigger_write_config.send(request)
+
+        if oldfarm.project_set.count() == 0 and oldfarm.editable is False:
+            logger.debug('Cleaning up old farm %s', oldfarm)
+            oldfarm.delete()
+
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -384,7 +387,7 @@ class FarmConvert(RedirectView):
 
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
-        farm.source = models.FARM_DEFAULT
+        farm.source = discovery.FARM_DEFAULT
 
         try:
             farm.save()
@@ -405,7 +408,7 @@ class FarmLink(View):
         context = {
             'source': source,
             'project': get_object_or_404(models.Project, id=pk),
-            'farms': models.Farm.fetch(source=source),
+            'farm_list': sorted(models.Farm.fetch(source=source)),
         }
         return render(request, 'promgen/link_farm.html', context)
 
@@ -630,7 +633,7 @@ class FarmRegsiter(FormView, ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        farm, _ = models.Farm.objects.get_or_create(source=models.FARM_DEFAULT, **form.clean())
+        farm, _ = models.Farm.objects.get_or_create(source=discovery.FARM_DEFAULT, **form.clean())
         project.farm = farm
         project.save()
         return HttpResponseRedirect(project.get_absolute_url())
