@@ -48,7 +48,7 @@ msgstr "Projectをエクスポート"
 
 #: templates/promgen/project_detail_configuration.html:7
 msgid "Update Project"
-msgstr "Projectを更新"
+msgstr "Projectを編集"
 
 #: templates/promgen/project_detail_configuration.html:8
 msgid "Delete this Project?"
@@ -102,7 +102,7 @@ msgstr "FarmをLocalに変更"
 
 #: templates/promgen/project_detail_hosts.html:55
 msgid "Refresh Farm"
-msgstr "Farmを更新"
+msgstr "Farmを編集"
 
 #: templates/promgen/project_detail_hosts.html:58
 msgid "New Farm"
