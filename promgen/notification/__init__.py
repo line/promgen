@@ -49,7 +49,7 @@ class NotificationBase(object):
             params['queue'] = getattr(cls, 'queue')
         tasks.send_notification.apply_async(**params)
 
-    def _send(self, target, alert, data):
+    def _send(self, target, alert):
         '''
         Sender specific implmentation
 
