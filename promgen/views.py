@@ -1084,9 +1084,16 @@ class ProxyLabel(PrometheusProxy):
             for future in concurrent.futures.as_completed(futures):
                 try:
                     result = future.result()
-                    data.update(result.json()['data'])
+                    # Need to try to decode the json BEFORE we raise_for_status
+                    # so that we can pass back the error message from Prometheus
+                    _json = result.json()
+                    result.raise_for_status()
+                    logger.debug('Appending data from %s', result.request.url)
+                    data.update(_json['data'])
                 except:
-                    logger.exception('Missing data result')
+                    logger.exception('Error with response')
+                    _json['promgen_proxy_request'] = result.request.url
+                    return JsonResponse(_json, status=result.status_code)
 
         return JsonResponse({
             'status': 'success',
@@ -1104,10 +1111,16 @@ class ProxySeries(PrometheusProxy):
             for future in concurrent.futures.as_completed(futures):
                 try:
                     result = future.result()
+                    # Need to try to decode the json BEFORE we raise_for_status
+                    # so that we can pass back the error message from Prometheus
+                    _json = result.json()
+                    result.raise_for_status()
                     logger.debug('Appending data from %s', result.request.url)
-                    data += result.json()['data']
+                    data += _json['data']
                 except:
-                    logger.exception('Missing data result')
+                    logger.exception('Error with response')
+                    _json['promgen_proxy_request'] = result.request.url
+                    return JsonResponse(_json, status=result.status_code)
 
         return JsonResponse({
             'status': 'success',
@@ -1126,12 +1139,17 @@ class ProxyQueryRange(PrometheusProxy):
             for future in concurrent.futures.as_completed(futures):
                 try:
                     result = future.result()
-                    logger.debug('Appending data from %s', result.request.url)
+                    # Need to try to decode the json BEFORE we raise_for_status
+                    # so that we can pass back the error message from Prometheus
                     _json = result.json()
+                    result.raise_for_status()
+                    logger.debug('Appending data from %s', result.request.url)
                     data += _json['data']['result']
                     resultType = _json['data']['resultType']
                 except:
                     logger.exception('Error with response')
+                    _json['promgen_proxy_request'] = result.request.url
+                    return JsonResponse(_json, status=result.status_code)
 
         return JsonResponse({
             'status': 'success',
