@@ -727,7 +727,7 @@ class ServiceTargets(View):
 class ServiceRules(View):
     def get(self, request, pk):
         service = get_object_or_404(models.Service, id=pk)
-        rules = models.Rule.objects.filter(service=service)
+        rules = models.Rule.filter(obj=service)
         return HttpResponse(prometheus.render_rules(rules), content_type='text/plain; charset=utf-8')
 
 
