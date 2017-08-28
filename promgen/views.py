@@ -21,6 +21,7 @@ from django.db.utils import IntegrityError
 from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template import defaultfilters
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.text import slugify
@@ -31,8 +32,8 @@ from django.views.generic.edit import DeleteView, FormView
 from prometheus_client import Gauge, generate_latest
 
 import promgen.templatetags.promgen as macro
-from promgen import (celery, forms, models, plugins, prometheus, signals, util,
-                     version, discovery)
+from promgen import (celery, discovery, forms, models, plugins, prometheus,
+                     signals, util, version)
 
 logger = logging.getLogger(__name__)
 
@@ -953,7 +954,7 @@ class SilenceExpire(FormView):
 
 class AjaxAlert(View):
     def get(self, request):
-        alerts = collections.defaultdict(list)
+        alerts = []
         try:
             url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/alerts')
             response = util.get(url)
@@ -965,25 +966,18 @@ class AjaxAlert(View):
         if data is None:
             # Return an empty alert-all if there are no active alerts from AM
             return JsonResponse({})
+
         for alert in data:
+            alert.setdefault('annotations', {})
+            # Humanize dates for frontend
             for key in ['startsAt', 'endsAt']:
                 if key in alert:
                     alert[key] = parser.parse(alert[key])
-
-            alerts['alert-all'].append(alert)
-            for key in ['project', 'service']:
-                # Requires newer 0.7 alert manager release to have the status
-                # information with silenced and inhibited alerts
-                if 'status' in alert:
-                    if alert['status'].get('silencedBy') or alert['status'].get('inhibitedBy'):
-                        continue
-                if key in alert['labels'] and alert['labels'][key]:
-                        alerts['alert-{}-{}'.format(key, alert['labels'][key])].append(alert)
-
-        context = {'#' + slugify(key): render_to_string('promgen/ajax_alert.html', {'alerts': alerts[key], 'key': key}, request).strip() for key in alerts}
-        context['#alert-load'] = render_to_string('promgen/ajax_alert_button.html', {'alerts': alerts['alert-all'], 'key': 'alert-all'}).strip()
-
-        return JsonResponse(context)
+            # Convert any links to <a> for frontend
+            for k, v in alert['annotations'].items():
+                alert['annotations'][k] = defaultfilters.urlize(v)
+            alerts.append(alert)
+        return JsonResponse(alerts, safe=False)
 
 
 class RuleTest(View):

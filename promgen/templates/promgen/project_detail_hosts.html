@@ -14,8 +14,10 @@
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       <td>
         <a
-          class="btn btn-warning btn-xs"
-          data-labels='{"instance":"{{host.name}}:[0-9]*","project":"{{project.name}}","service":"{{project.service.name}}"}'
+          class="btn btn-warning btn-xs promgen-silence"
+          data-instance="{{host.name}}:[0-9]*"
+          data-project="{{project.name}}"
+          data-service="{{project.service.name}}"
           href="#"
           style="display: inline-block;"
         >{% trans "Silence" %}</a>

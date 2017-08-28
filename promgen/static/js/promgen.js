@@ -3,8 +3,10 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 */
 
+var tmpl = {}
+
 function silence_tag() {
-  var labels = $.parseJSON(this.dataset.labels);
+  var labels = this.dataset;
   var form = $('#silence-form')
   for (var label in labels) {
     var value = labels[label]
@@ -31,17 +33,83 @@ function update_page(data) {
   for (var key in data) {
     console.log("Replacing %s", key)
     var ele = $(data[key])
-    ele.find("a[data-labels]").click(silence_tag);
+    ele.find("a.promgen-silence").click(silence_tag);
     $(key).replaceWith(ele)
   }
 }
 
+
+function label(key, value) {
+  var tmpl = document.querySelector('template.label');
+  var ele = document.importNode(tmpl.content, true)
+  var a = ele.querySelector('a')
+  a.text = key + ':' + value
+  a.dataset[key] = value
+  return ele
+}
+
+function row(href, text) {
+  var tmpl = document.querySelector('template.alertrow');
+  var ele = document.importNode(tmpl.content, true)
+  var a = ele.querySelector('td a')
+  a.href = href
+  a.text = text
+  return ele
+}
+
+function annotation(dt, dd) {
+  var tmpl = document.querySelector('template.annotation');
+  var ele = document.importNode(tmpl.content, true)
+  ele.querySelector('dt').textContent = dt
+  ele.querySelector('dd').innerHTML = dd
+  return ele
+}
+
 $(document).ready(function() {
-  $("a[data-labels]").click(silence_tag);
+  $("a.promgen-silence").click(silence_tag);
   $('[data-toggle="popover"]').popover();
   $('[data-toggle="tooltip"]').tooltip();
 
-  $.ajax("/ajax/alert").done(update_page);
+  $.ajax("/ajax/alert").done(function(alerts){
+    var btn = document.getElementById('alert-load')
+    var panel = document.getElementById('alert-all')
+
+    for (var alert of alerts) {
+      var r = row(alert.generatorURL, alert.startsAt)
+      var labels = annotation('labels', '')
+      for (var k in alert.labels) {
+        var l = label(k, alert.labels[k])
+        labels.querySelector('dd').appendChild(l)
+      }
+      r.querySelector('dl').appendChild(labels)
+
+      for (var k in alert.annotations) {
+        var a = annotation(k, alert.annotations[k])
+        r.querySelector('dl').appendChild(a)
+      }
+
+      for (var k in alert.labels) {
+        var sel = '.promgen-alert[data-'+k+'^="'+alert.labels[k].split(':')[0]+'"]'
+        console.debug('Searching for', sel)
+        target = document.querySelector('.promgen-alert[data-'+k+'^="'+alert.labels[k].split(':')[0]+'"]')
+        if (target) {
+          target.querySelector('table').appendChild(r.cloneNode(true))
+          target.style.display = 'block'
+        }
+      }
+      panel.querySelector('table').appendChild(r)
+    }
+
+    if (alerts.length > 0) {
+      btn.classList.remove('btn-default')
+      btn.classList.add('btn-danger')
+      btn.text = 'Alerts ' + alerts.length
+    }
+    document.querySelectorAll('a.promgen-silence').forEach(function(ele){
+      ele.onclick = silence_tag
+    });
+  });
+
   $.post("/ajax/silence", {
     'referer': window.location.toString()
   }).done(update_page);
