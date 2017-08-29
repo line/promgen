@@ -373,7 +373,10 @@ class FarmRefresh(RedirectView):
 
     def post(self, request, pk):
         farm = get_object_or_404(models.Farm, id=pk)
-        farm.refresh()
+        # If any hosts are added or removed, then we want to
+        # trigger a config refresh
+        if any(farm.refresh()):
+            signals.trigger_write_config.send(request)
         messages.info(request, 'Refreshed hosts')
         if 'next' in request.POST:
             return HttpResponseRedirect(request.POST['next'])
