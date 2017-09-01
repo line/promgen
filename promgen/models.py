@@ -191,6 +191,8 @@ class Farm(models.Model):
             Audit.log('Removing {} from {}'.format(add, self), self)
             Host.objects.filter(farm=self, name__in=remove).delete()
 
+        return add, remove
+
     @classmethod
     def fetch(cls, source):
         for entry in plugins.discovery():
