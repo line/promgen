@@ -101,8 +101,8 @@ msgid "Convert to Local Farm"
 msgstr "FarmをLocalに変更"
 
 #: templates/promgen/project_detail_hosts.html:55
-msgid "Refresh Farm"
-msgstr "Farmを編集"
+msgid "Sync Farm"
+msgstr "Farmを同期"
 
 #: templates/promgen/project_detail_hosts.html:58
 msgid "New Farm"
