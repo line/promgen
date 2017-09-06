@@ -3,27 +3,25 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 */
 
-var tmpl = {}
-
 function silence_tag() {
   var labels = this.dataset;
-  var form = $('#silence-form')
+  var form = $('#silence-form');
   for (var label in labels) {
-    var value = labels[label]
-    console.log('Adding %s %s', label, value)
+    var value = labels[label];
+    console.debug('Adding %s %s', label, value);
 
-    form.find('a.' + label).remove()
+    form.find('a.' + label).remove();
 
-    input = $('<input type="hidden" class="form-control" />')
-    input.val(value).attr('name', 'label.' + label)
+    input = $('<input type="hidden" class="form-control" />');
+    input.val(value).attr('name', 'label.' + label);
 
-    span = $('<a class="label label-warning"></a>').addClass(label)
-    span.attr('onclick', 'this.parentNode.removeChild(this); return false;')
-    span.text(label + ':' + value)
-    span.append(input)
-    span.append($('<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>'))
+    span = $('<a class="label label-warning"></a>').addClass(label);
+    span.attr('onclick', 'this.parentNode.removeChild(this); return false;');
+    span.text(label + ':' + value);
+    span.append(input);
+    span.append($('<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>'));
 
-    form.find('div.labels').append(span)
+    form.find('div.labels').append(span);
   }
 
   form.show();
@@ -41,28 +39,28 @@ function update_page(data) {
 
 function label(key, value) {
   var tmpl = document.querySelector('template.label');
-  var ele = document.importNode(tmpl.content, true)
-  var a = ele.querySelector('a')
-  a.text = key + ':' + value
-  a.dataset[key] = value
-  return ele
+  var ele = document.importNode(tmpl.content, true);
+  var a = ele.querySelector('a');
+  a.text = key + ':' + value;
+  a.dataset[key] = value;
+  return ele;
 }
 
 function row(href, text) {
   var tmpl = document.querySelector('template.alertrow');
-  var ele = document.importNode(tmpl.content, true)
-  var a = ele.querySelector('td a')
-  a.href = href
-  a.text = text
-  return ele
+  var ele = document.importNode(tmpl.content, true);
+  var a = ele.querySelector('td a');
+  a.href = href;
+  a.text = text;
+  return ele;
 }
 
 function annotation(dt, dd) {
   var tmpl = document.querySelector('template.annotation');
-  var ele = document.importNode(tmpl.content, true)
-  ele.querySelector('dt').textContent = dt
-  ele.querySelector('dd').innerHTML = dd
-  return ele
+  var ele = document.importNode(tmpl.content, true);
+  ele.querySelector('dt').textContent = dt;
+  ele.querySelector('dd').innerHTML = dd;
+  return ele;
 }
 
 $(document).ready(function() {
@@ -71,42 +69,42 @@ $(document).ready(function() {
   $('[data-toggle="tooltip"]').tooltip();
 
   $.ajax("/ajax/alert").done(function(alerts){
-    var btn = document.getElementById('alert-load')
-    var panel = document.getElementById('alert-all')
+    var btn = document.getElementById('alert-load');
+    var panel = document.getElementById('alert-all');
 
-    for (var alert of alerts) {
-      var r = row(alert.generatorURL, alert.startsAt)
-      var labels = annotation('labels', '')
+    for (var alert in alerts) {
+      var r = row(alert.generatorURL, alert.startsAt);
+      var labels = annotation('labels', '');
       for (var k in alert.labels) {
-        var l = label(k, alert.labels[k])
-        labels.querySelector('dd').appendChild(l)
+        var l = label(k, alert.labels[k]);
+        labels.querySelector('dd').appendChild(l);
       }
-      r.querySelector('dl').appendChild(labels)
+      r.querySelector('dl').appendChild(labels);
 
       for (var k in alert.annotations) {
-        var a = annotation(k, alert.annotations[k])
-        r.querySelector('dl').appendChild(a)
+        var a = annotation(k, alert.annotations[k]);
+        r.querySelector('dl').appendChild(a);
       }
 
       for (var k in alert.labels) {
-        var sel = '.promgen-alert[data-'+k+'^="'+alert.labels[k].split(':')[0]+'"]'
-        console.debug('Searching for', sel)
-        target = document.querySelector('.promgen-alert[data-'+k+'^="'+alert.labels[k].split(':')[0]+'"]')
+        var sel = '.promgen-alert[data-'+k+'^="'+alert.labels[k].split(':')[0]+'"]';
+        console.debug('Searching for', sel);
+        var target = document.querySelector('.promgen-alert[data-'+k+'^="'+alert.labels[k].split(':')[0]+'"]');
         if (target) {
-          target.querySelector('table').appendChild(r.cloneNode(true))
-          target.style.display = 'block'
+          target.querySelector('table').appendChild(r.cloneNode(true));
+          target.style.display = 'block';
         }
       }
-      panel.querySelector('table').appendChild(r)
+      panel.querySelector('table').appendChild(r);
     }
 
     if (alerts.length > 0) {
-      btn.classList.remove('btn-default')
-      btn.classList.add('btn-danger')
-      btn.text = 'Alerts ' + alerts.length
+      btn.classList.remove('btn-default');
+      btn.classList.add('btn-danger');
+      btn.text = 'Alerts ' + alerts.length;
     }
     document.querySelectorAll('a.promgen-silence').forEach(function(ele){
-      ele.onclick = silence_tag
+      ele.onclick = silence_tag;
     });
   });
 
