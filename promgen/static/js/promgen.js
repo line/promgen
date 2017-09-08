@@ -72,7 +72,8 @@ $(document).ready(function() {
     var btn = document.getElementById('alert-load');
     var panel = document.getElementById('alert-all');
 
-    for (var alert in alerts) {
+    for (var alert_id in alerts) {
+      var alert = alerts[alert_id]
       var r = row(alert.generatorURL, alert.startsAt);
       var labels = annotation('labels', '');
       for (var k in alert.labels) {
