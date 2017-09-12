@@ -9,6 +9,11 @@
 
 {% include 'promgen/breadcrumb.html' with rule=rule active='Edit Rule' only %}
 
+<div style="display:none" data-alertname="{{rule.name}}" class="panel panel-danger promgen-alert">
+  <div class="panel-heading">Alerts</div>
+  <table class="table table-bordered table-condensed"></table>
+</div>
+
 {% if rule.parent %}
 <div class="panel panel-default">
   <div class="panel-heading">

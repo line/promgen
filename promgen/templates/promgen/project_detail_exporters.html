@@ -28,8 +28,10 @@
       </td>
       <td>
         <a
-          class="btn btn-warning btn-xs"
-          data-labels='{"job":"{{exporter.job}}","project":"{{project.name}}","service":"{{project.service.name}}"}'
+          class="btn btn-warning btn-xs promgen-silence"
+          data-job="{{exporter.job}}"
+          data-project="{{project.name}}"
+          data-service="{{project.service.name}}"
           href="#"
           style="display: inline-block;"
         >{% trans "Silence" %}</a>

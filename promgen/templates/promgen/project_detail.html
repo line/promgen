@@ -15,7 +15,10 @@
   {% trans 'No notifications configured for this project. Please configure some' %}
 </div>
 {% endif %}
-<div style="display:none" id="alert-project-{{ project.name|slugify }}"></div>
+<div style="display:none" data-project="{{project.name}}" class="panel panel-danger promgen-alert">
+  <div class="panel-heading">Alerts</div>
+  <table class="table table-bordered table-condensed"></table>
+</div>
 <div style="display:none" id="silence-project-{{ project.name|slugify }}"></div>
 
 {% include "promgen/project_detail_configuration.html" %}

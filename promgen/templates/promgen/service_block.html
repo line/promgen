@@ -7,7 +7,10 @@
     {% trans 'This service does not have any notifications configured. Please configure notifications to properly route alerts' %}
   </div>
 {% endif %}
-  <div style="display:none" id="alert-service-{{ service.name|slugify }}"></div>
+  <div style="display:none" data-service="{{service.name}}" class="panel panel-danger promgen-alert">
+    <div class="panel-heading">Alerts</div>
+    <table class="table table-bordered table-condensed"></table>
+  </div>
   <div style="display:none" id="silence-service-{{ service.name|slugify }}"></div>
 
   <div class="panel panel-default">
@@ -17,7 +20,7 @@
       <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
 
       <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
-      <a data-labels='{"service":"{{service.name}}"}' href="#" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
+      <a data-service="{{service.name}}" href="#" class="btn btn-warning btn-sm promgen-silence">{% trans "Silence" %}</a>
 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -110,7 +113,12 @@
       </table>
     </td>
     <td>
-      <a data-labels='{"service":"{{service.name}}","project":"{{project.name}}"}' href="#" class="btn btn-warning btn-xs">{% trans "Silence" %}</a>
+      <a
+        class="btn btn-warning btn-xs promgen-silence"
+        data-project="{{project.name}}"
+        data-service="{{service.name}}"
+        href="#"
+      >{% trans "Silence" %}</a>
     </td>
   </tr>
 {% endfor %}

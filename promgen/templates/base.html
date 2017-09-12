@@ -71,7 +71,9 @@
                       <input name="next" type="hidden" value="{{ request.get_full_path }}" />
                       <button type="submit" class="btn btn-warning">Commit</button>
                     </form>
-                    <span id="alert-load" class="btn btn-default navbar-btn">Alerts</span>
+                    <a id="alert-load" class="btn btn-default navbar-btn" role="button" data-toggle="collapse" href="#alert-all" aria-expanded="false" aria-controls="collapseExample">
+                      Alerts
+                    </a>
                     <span id="silence-load" class="btn btn-default navbar-btn">Silences</span>
                   {% else %}
                       {# This looks like a bug, but if we're not logged in, we need to close the list tag #}
@@ -81,7 +83,7 @@
                 </div><!-- /.navbar-collapse -->
             </nav><!-- /.container-fluid -->
         </header>
-        <div class="container">
+        <div id="vue" class="container">
           {% if messages %}
               {% for message in messages %}
               <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
@@ -94,7 +96,35 @@
           {% endif %}
             <div>
 {% include 'promgen/silence_form.html' %}
-<div class="panel panel-default" style="display:none" id="alert-all"></div>
+<div class="panel panel-danger collapse" id="alert-all">
+  <div class="panel-heading">
+    Alerts
+    <button type="button" class="close" data-toggle="collapse" href="#alert-all" aria-expanded="false" aria-controls="collapseExample">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <table class="table table-bordered table-condensed">
+    <template class="alertrow">
+      <tr>
+        <td><a href="#"></a></td>
+        <td>
+          <dl class="dl-horizontal"></dl>
+        </td>
+      </tr>
+    </template>
+    <template class="annotation">
+      <dt>k</dt>
+      <dd>v</dd>
+    </template>
+    <template class="label">
+      <a
+        class="label label-warning promgen-silence"
+        href="#"
+        style="display: inline-block;"
+      >k:v</a>
+    </template>
+  </table>
+</div>
 <div class="panel panel-default" style="display:none" id="silence-all"></div>
 {% block content %}{% endblock %}
             </div>

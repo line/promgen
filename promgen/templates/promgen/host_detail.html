@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% block content %}
 
 <div class="page-header">
@@ -10,6 +10,22 @@
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li class="active">{{ slug }}</li>
 </ol>
+
+<div style="display:none" data-instance="{{slug}}" class="panel panel-danger promgen-alert">
+  <div class="panel-heading">Alerts</div>
+  <table class="table table-bordered table-condensed"></table>
+</div>
+
+<div class="panel panel-primary">
+  <div class="panel-body">
+    <a
+    class="btn btn-warning promgen-silence"
+    data-instance="{{slug}}:[0-9]*"
+    href="#"
+    style="display: inline-block;"
+  >{% trans "Silence" %}</a>
+  </div>
+</div>
 
 <div class="row">
 
