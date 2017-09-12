@@ -86,6 +86,16 @@ class Sender(DynamicParent):
             except ImportError:
                 logger.warning('Error importing %s', entry.module_name)
 
+    def test(self):
+        '''Test sender plugin'''
+        kwargs = {
+            'commonLabels': {self.content_type.name: self.content_object.name}
+        }
+        for entry in plugins.notifications():
+            if entry.module_name == self.sender:
+                plugin = entry.load()()
+                plugin.test(self.value, kwargs)
+
 
 class Shard(models.Model):
     name = models.CharField(max_length=128, unique=True)
