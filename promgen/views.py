@@ -814,24 +814,66 @@ class Status(View):
 
 class Search(View):
     def get(self, request):
-        return render(request, 'promgen/search.html', {
-            'farm_list': models.Farm.objects
-                .filter(name__icontains=request.GET.get('search'))
-                .prefetch_related('project_set', 'host_set'),
-            'host_list': models.Host.objects.filter(name__icontains=request.GET.get('search')),
-            'project_list': models.Project.objects
-                .filter(name__icontains=request.GET.get('search'))
-                .prefetch_related('service', 'notifiers', 'exporter_set'),
-            'rule_list': models.Rule.objects
-                .filter(
-                    Q(name__icontains=request.GET.get('search')) |
-                    Q(clause__icontains=request.GET.get('search'))
-                )
-                .prefetch_related('content_object', 'ruleannotation_set', 'rulelabel_set'),
-            'service_list': models.Service.objects
-                .filter(name__icontains=request.GET.get('search'))
-                .prefetch_related('project_set', 'rule_set', 'notifiers'),
-        })
+        MAPPING = {
+            'farm_list': {
+                'field': ('name__icontains',),
+                'model': models.Farm,
+                'prefetch': ('project_set', 'host_set'),
+                'query': ('search', 'var-farm'),
+            },
+            'host_list': {
+                'field': ('name__icontains',),
+                'model': models.Host,
+                'query': ('search', 'var-instance'),
+            },
+            'project_list': {
+                'field': ('name__icontains',),
+                'model': models.Project,
+                'prefetch': ('service', 'notifiers', 'exporter_set'),
+                'query': ('search', 'var-project'),
+            },
+            'rule_list': {
+                'field': ('name__icontains', 'clause__icontains'),
+                'model': models.Rule,
+                'prefetch': ('content_object', 'ruleannotation_set', 'rulelabel_set'),
+                'query': ('search', ),
+            },
+            'service_list': {
+                'field': ('name__icontains',),
+                'model': models.Service,
+                'prefetch': ('project_set', 'rule_set', 'notifiers', 'shard'),
+                'query': ('search', 'var-project'),
+            }
+        }
+
+        context = {}
+        for target, obj in MAPPING.items():
+            # If our potential search keys are not in our query string
+            # then we can bail out quickly
+            query = set(obj['query']).intersection(request.GET.keys())
+            if not query:
+                logger.info('query for %s: <skipping>', target)
+                continue
+            logger.info('query for %s: %s', target, query)
+
+            qs = obj['model'].objects
+            if 'prefetch' in obj:
+                qs = qs.prefetch_related(*obj['prefetch'])
+
+            # Build our OR query by combining Q lookups
+            filters = None
+            for var in query:
+                for field in obj['field']:
+                    if filters:
+                        filters |= Q(**{field: request.GET[var]})
+                    else:
+                        filters = Q(**{field: request.GET[var]})
+            logger.info('filtering %s by %s', target, filters)
+
+            qs = qs.filter(filters)
+            context[target] = qs
+
+        return render(request, 'promgen/search.html', context)
 
 
 class Import(FormView):
