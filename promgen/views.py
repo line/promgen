@@ -833,7 +833,7 @@ class Search(View):
                 'field': ('name__icontains',),
                 'model': models.Service,
                 'prefetch': ('project_set', 'rule_set', 'notifiers', 'shard'),
-                'query': ('search', 'var-project'),
+                'query': ('search', 'var-service'),
             }
         }
 
