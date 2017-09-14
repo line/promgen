@@ -1,17 +1,32 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
+import copy
 import logging
 import textwrap
 
 from django import forms
 from django.conf import settings
 
+from promgen import tasks
 from promgen.models import Project, Service
 from promgen.shortcuts import resolve_domain
-from promgen import tasks
 
 logger = logging.getLogger(__name__)
+
+
+TEST_NOTIFICATION = {
+    'receiver': 'PromgenTest',
+    'status': 'firing',
+    'alerts': [{
+        'labels': {'alertname': 'Test Message'},
+        'annotations': {'summary': 'Test Alert Summary'},
+        'generatorURL': 'http://prometheus.example.org'
+    }],
+    'commonLabels': {'common-label': 'Test Label'},
+    'commonAnnotations': {'common-annotation': 'A longer test annotation'},
+    'externalURL': 'http://example.com',
+}
 
 
 class FormSenderBase(forms.Form):
@@ -118,4 +133,6 @@ class NotificationBase(object):
         parameters for our sender child classes
         '''
         logger.debug('Sending test message to %s', target)
-        self._send(target, alert, {'externalURL': ''})
+        data = copy.deepcopy(TEST_NOTIFICATION)
+        data.update(alert)
+        self._send(target, data)

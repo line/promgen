@@ -198,22 +198,13 @@ class NotifierDelete(DeleteView):
 class NotifierTest(View):
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
-        for entry in plugins.notifications():
-            if entry.module_name == sender.sender:
-                try:
-                    entry.load()().test(sender.value, {
-                        'generatorURL': 'Promgen',
-                        'status': 'Test',
-                        'labels': {},
-                        'annotations': {
-                            'alertname': 'Test Alert',
-                        },
-                    })
-                except:
-                    logger.exception('Error sending test message with %s', entry.module_name)
-                    messages.warning(request, 'Error sending test message with ' + entry.module_name)
-                else:
-                    messages.info(request, 'Sent test message with ' + entry.module_name)
+        try:
+            sender.test()
+        except:
+            logger.exception('Error sending test message with %s', sender.sender)
+            messages.warning(request, 'Error sending test message with ' + sender.sender)
+        else:
+            messages.info(request, 'Sent test message with ' + sender.sender)
 
         return HttpResponseRedirect(sender.content_object.get_absolute_url())
 
