@@ -1,6 +1,14 @@
 # Changelog
 
-## v1.0
+## v0.20
+
+* [BUGFIX] Return upstream Prometheus error when proxying requests
+* [IMPROVEMENT] Notifications are grouped as they are received from Alert Manager
+* [IMPROVEMENT] Refactor Alerts to be rendered mostly client side
+* [IMPROVEMENT] Refactor search page to accept searches from Grafana links
+* [IMPROVEMENT] Refactored Farm buttons to better indicate local (promgen) or remote
+
+## Rewrite
 *  Rewrote in Django and Celery
   * Use Django to take advantage of more robust ORM and admin site.
   * Use Celery for writing configuration files to Prometheus nodes. This allows
