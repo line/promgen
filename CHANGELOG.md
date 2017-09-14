@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.21
+
 ## v0.20
 
 * [BUGFIX] Return upstream Prometheus error when proxying requests
