@@ -29,6 +29,9 @@ Initialize Promgen using Docker.
 docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest bootstrap
 # Apply database updates
 docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest migrate
+# Create initial login user. This is the same as the default django-admin command
+# https://docs.djangoproject.com/en/1.10/ref/django-admin/#django-admin-createsuperuser
+docker run --rm -it --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest createsuperuser
 ```
 
 You can then use your favorite configuration management system to deploy to each worker.
