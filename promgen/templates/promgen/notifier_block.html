@@ -6,7 +6,7 @@
   </tr>
   {% for notifier in object.notifiers.all %}
   <tr>
-    <td>{{ notifier.sender }}</td>
+    <td title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
     <td>{{ notifier.show_value }}</td>
 {% if show_edit %}
     <td>

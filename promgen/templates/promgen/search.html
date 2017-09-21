@@ -68,7 +68,7 @@
       <td>
         <dl class="dl-horizontal">
   {% for notifier in project.notifiers.all %}
-          <dt>{{ notifier.sender }}</dt>
+          <dt title="Added by: {{notifier.owner}}">{{ notifier.sender }}</dt>
           <dd>{{ notifier.show_value }}</dd>
   {% endfor %}
         </dl>

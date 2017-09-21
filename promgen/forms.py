@@ -151,7 +151,7 @@ class SenderForm(forms.ModelForm):
 
     class Meta:
         model = models.Sender
-        exclude = ['content_type', 'object_id']
+        exclude = ['content_type', 'object_id', 'owner']
 
 
 class HostForm(forms.Form):

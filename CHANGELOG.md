@@ -2,6 +2,8 @@
 
 ## v0.21
 
+* [IMPROVEMENT] Adds owner field to Notifier object for security auditing purposes
+
 ## v0.20
 
 * [BUGFIX] Return upstream Prometheus error when proxying requests

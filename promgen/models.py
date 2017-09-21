@@ -68,6 +68,8 @@ class Sender(DynamicParent):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+
     def show_value(self):
         if self.alias:
             return self.alias

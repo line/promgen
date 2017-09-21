@@ -168,10 +168,13 @@ class ServiceDetail(GlobalRulesMixin, DetailView):
         .prefetch_related(
             'rule_set',
             'notifiers',
+            'notifiers__owner',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__notifiers')
+            'project_set__notifiers',
+            'project_set__notifiers__owner'
+            )
 
 
 class ServiceDelete(DeleteView):
@@ -256,6 +259,7 @@ class ProjectDetail(DetailView):
         'rule_set',
         'rule_set__parent',
         'notifiers',
+        'notifiers__owner',
         'service',
         'service__rule_set',
         'service__rule_set__parent',
@@ -641,7 +645,7 @@ class ProjectNotifierRegister(FormView, ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        sender, _ = models.Sender.get_or_create(obj=project, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=project, owner=self.request.user, **form.clean())
         return HttpResponseRedirect(project.get_absolute_url())
 
 
@@ -652,7 +656,7 @@ class ServiceNotifierRegister(FormView, ServiceMixin):
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
-        sender, _ = models.Sender.get_or_create(obj=service, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=service, owner=self.request.user, **form.clean())
         return HttpResponseRedirect(service.get_absolute_url())
 
 
@@ -820,7 +824,7 @@ class Search(View):
             'project_list': {
                 'field': ('name__icontains',),
                 'model': models.Project,
-                'prefetch': ('service', 'notifiers', 'exporter_set'),
+                'prefetch': ('service', 'notifiers', 'exporter_set', 'notifiers__owner'),
                 'query': ('search', 'var-project'),
             },
             'rule_list': {
@@ -832,7 +836,7 @@ class Search(View):
             'service_list': {
                 'field': ('name__icontains',),
                 'model': models.Service,
-                'prefetch': ('project_set', 'rule_set', 'notifiers', 'shard'),
+                'prefetch': ('project_set', 'rule_set', 'notifiers', 'shard', 'notifiers__owner'),
                 'query': ('search', 'var-service'),
             }
         }

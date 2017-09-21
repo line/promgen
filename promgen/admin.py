@@ -42,7 +42,7 @@ class SenderForm(forms.ModelForm):
 
 @admin.register(models.Sender)
 class SenderAdmin(admin.ModelAdmin):
-    list_display = ('content_object', 'content_type', 'sender', 'show_value')
+    list_display = ('content_object', 'content_type', 'sender', 'show_value', 'owner')
     form = SenderForm
     list_filter = ('sender', 'content_type')
 

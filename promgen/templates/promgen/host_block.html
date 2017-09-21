@@ -25,7 +25,7 @@
       <table class="table">
 {% for notifier in project.notifiers.all %}
         <tr>
-          <th>{{ notifier.sender }}</th>
+          <th title="Added by: {{notifier.owner}}">{{ notifier.sender }}</th>
           <td>{{ notifier.show_value }}</td>
         </tr>
 {% endfor %}
