@@ -16,6 +16,7 @@ from dateutil import parser
 from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q, prefetch_related_objects
 from django.db.utils import IntegrityError
 from django.forms import inlineformset_factory
@@ -154,11 +155,58 @@ class HostDetail(View):
 
 
 class AuditList(ListView):
-    queryset = models.Audit.objects\
-        .order_by('-created')\
-        .prefetch_related(
-            'content_object',
-        )
+    model = models.Audit
+
+    FILTERS = {
+        'project': models.Project,
+        'service': models.Service,
+        'rule': models.Rule,
+    }
+
+    def get_queryset(self):
+        queryset = self.model.objects\
+            .order_by('-created')\
+            .prefetch_related(
+                'content_object', 'user'
+            )
+
+        for key in self.FILTERS:
+            if key in self.request.GET:
+                obj = self.FILTERS[key].objects.get(pk=self.request.GET[key])
+                # Get any log entries for the object itself
+                qset = Q(
+                    object_id=obj.id,
+                    content_type_id=ContentType.objects.get_for_model(obj).id,
+                )
+                if key in ['project', 'service']:
+                    # Look for any registered notifiers
+                    qset |= Q(
+                        content_type_id=ContentType.objects.get_for_model(models.Sender).id,
+                        object_id__in=obj.notifiers.values_list('id', flat=True)
+                    )
+                    # Look for any registered rules
+                    qset |= Q(
+                        content_type_id=ContentType.objects.get_for_model(models.Rule).id,
+                        object_id__in=obj.rule_set.values_list('id', flat=True)
+                    )
+                if key == 'project':
+                    # Only projects may have exporters
+                    qset |= Q(
+                        content_type_id=ContentType.objects.get_for_model(models.Exporter).id,
+                        object_id__in=obj.exporter_set.values_list('id', flat=True)
+                    )
+                    # Only projects may have URLs
+                    qset |= Q(
+                        content_type_id=ContentType.objects.get_for_model(models.URL).id,
+                        object_id__in=obj.url_set.values_list('id', flat=True)
+                    )
+                queryset = queryset.filter(qset)
+        if 'user' in self.request.GET:
+            queryset = queryset.filter(
+                user_id=self.request.GET['user']
+            )
+
+        return queryset
 
     paginate_by = 50
 

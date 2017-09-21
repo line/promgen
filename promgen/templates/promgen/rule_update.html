@@ -130,6 +130,7 @@
 <div class="panel panel-primary">
   <div class="panel-body">
     <button class="btn btn-primary">Save Rule</button>
+    <a href="{% url 'audit-list'  %}?rule={{rule.id}}" class="btn btn-info">{% trans "Edit History" %}</a>
   </div>
 </div>
 </form>

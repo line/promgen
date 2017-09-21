@@ -1,9 +1,22 @@
 {% extends "base.html" %}
-
+{% load promgen %}
 {% block content %}
 <div class="page-header">
   <h1>Log</h1>
 </div>
+
+{% if request.GET %}
+<ul class="list-inline">
+  <li>Filters</li>
+{% for k in request.GET %}
+<li>
+  <a
+    class="btn btn-danger btn-xs"
+    href="{% url 'audit-list' %}?{% qsfilter request k None %}"
+    >{{k}} &times;</a>
+{% endfor %}
+</ul>
+{% endif %}
 
 <div class="panel panel-default">
     <table class="table table-bordered table-condensed">
@@ -18,7 +31,9 @@
 {% for entry in audit_list %}
       <tr class="{{ entry.hilight }}">
         <td>{{ entry.created }}</td>
-        <td>{{ entry.user }}</td>
+        <td>
+          <a href="{% url 'audit-list' %}?{% qsfilter request 'user' entry.user.id %}">{{ entry.user }}</a>
+        </td>
         <td>
           {{ entry.body }}
 
@@ -28,8 +43,11 @@
             Show
           </a>
           <div class="collapse" id="collapse-log-{{entry.id}}">
-            {% if entry.old %}<pre>{{ entry.old }}</pre> to{% endif %}
-            <pre>{{ entry.data }}</pre>
+            {% if entry.old %}
+            <pre>{% diff_json entry.old entry.data %}</pre>
+            {% else %}
+            <pre>{{ entry.data|pretty_json}}</pre>
+            {% endif %}
           </div>
           {% endif %}
         </td>
@@ -48,13 +66,13 @@
         <div class="pagination">
             <span class="page-links">
                 {% if page_obj.has_previous %}
-                    <a href="{% url 'audit-list' %}?page={{ page_obj.previous_page_number }}">previous</a>
+                    <a href="{% url 'audit-list' %}?{% qsfilter request 'page' page_obj.previous_page_number %}">previous</a>
                 {% endif %}
                 <span class="page-current">
                     Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
                 </span>
                 {% if page_obj.has_next %}
-                    <a href="{% url 'audit-list' %}?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="{% url 'audit-list' %}?{% qsfilter request 'page' page_obj.next_page_number %}">next</a>
                 {% endif %}
             </span>
         </div>

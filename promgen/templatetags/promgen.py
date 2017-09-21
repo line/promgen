@@ -2,6 +2,8 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import collections
+import difflib
+import json
 
 from django import template
 
@@ -51,3 +53,47 @@ def rulemacro(value, rule):
         sorted('{}!~"{}"'.format(k, v) for k, v in filters.items())
     )
     return value.replace(EXCLUSION_MACRO, macro)
+
+
+@register.simple_tag
+def qsfilter(request, k, v):
+    '''
+    Helper to rewrite query string for URLs
+
+    {% qsfilter request 'foo' 'baz' %}
+    When passed the request object, it will take a querystring like
+    ?foo=bar&donottouch=1
+    and change it to
+    ?foo=baz&donottouch=1
+
+    Useful when working with filtering on a page that also uses pagination to
+    avoid losing other query strings
+    {% qsfilter request 'page' page_obj.previous_page_number %}
+    '''
+    dict_ = request.GET.copy()
+    if v:
+        dict_[k] = v
+    else:
+        dict_.pop(k, None)
+    return dict_.urlencode()
+
+
+@register.simple_tag
+def diff_json(a, b):
+    if isinstance(a, str):
+        a = json.loads(a)
+    if isinstance(b, str):
+        b = json.loads(b)
+    a = json.dumps(a, indent=4, sort_keys=True).splitlines(keepends=True)
+    b = json.dumps(b, indent=4, sort_keys=True).splitlines(keepends=True)
+    diff = ''.join(difflib.unified_diff(a, b))
+    if diff:
+        return diff
+    return 'No Changes'
+
+
+@register.filter()
+def pretty_json(data):
+    if isinstance(data, str):
+        data = json.loads(data)
+    return json.dumps(data, indent=4, sort_keys=True)
