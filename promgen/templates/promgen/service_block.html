@@ -13,6 +13,14 @@
   </div>
   <div style="display:none" id="silence-service-{{ service.name|slugify }}"></div>
 
+{% if service.description %}
+  <div class="panel panel-default">
+    <div class="panel-body">
+      {{service.description|linebreaksbr|urlize}}
+    </div>
+  </div>
+{% endif %}
+
   <div class="panel panel-default">
     <div class="panel-body">
       <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>

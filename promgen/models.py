@@ -119,6 +119,7 @@ class Service(models.Model):
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation('Rule')
     shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
+    description = models.TextField(blank=True)
 
     class Meta:
         ordering = ['shard', 'name']
@@ -161,6 +162,7 @@ class Project(models.Model):
     farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation('Rule')
+    description = models.TextField(blank=True)
 
     class Meta:
         ordering = ['name']

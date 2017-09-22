@@ -21,6 +21,14 @@
 </div>
 <div style="display:none" id="silence-project-{{ project.name|slugify }}"></div>
 
+{% if project.description %}
+  <div class="panel panel-default">
+    <div class="panel-body">
+      {{project.description|linebreaksbr|urlize}}
+    </div>
+  </div>
+{% endif %}
+
 {% include "promgen/project_detail_configuration.html" %}
 
 <div class="row">
