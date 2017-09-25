@@ -1143,17 +1143,22 @@ class AjaxSilence(View):
 
 
 class PrometheusProxy(View):
-    proxy_headers = [
-        # 'CONTENT_TYPE',
-        # 'HTTP_ACCEPT_ENCODING',
-        # 'HTTP_ACCEPT_LANGUAGE',
-        # 'HTTP_ACCEPT',
-        'HTTP_REFERER',
-    ]
+    # Map Django request headers to our sub-request headers
+    proxy_headers = {
+        'HTTP_REFERER': 'Referer'
+    }
 
     @property
     def headers(self):
-        return {k: self.request.META[k] for k in self.proxy_headers if k in self.request.META}
+        # Loop through the headers from our request, and decide which ones
+        # we should pass through upstream. Currently, our 'Referer' header is
+        # the main one we are interested in, since this can help us debug which
+        # grafana dashboard is responsible for the query.
+        return {
+            self.proxy_headers[k]: self.request.META[k]
+            for k in self.proxy_headers
+            if k in self.request.META
+        }
 
 
 class ProxyLabel(PrometheusProxy):
