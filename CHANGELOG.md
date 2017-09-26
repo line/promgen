@@ -2,7 +2,10 @@
 
 ## v0.21
 
-* [IMPROVEMENT] Adds owner field to Notifier object for security auditing purposes
+* [BUGFIX] Fix headers for Prometheus Proxy
+* [IMPROVEMENT] Add description field to Project and Service for adding additional context information
+* [IMPROVEMENT] Add filters to audit log, so that history can be filtered by object
+* [IMPROVEMENT] Add owner field to Notifier object for security auditing purposes
 
 ## v0.20
 
