@@ -4,7 +4,6 @@
 import logging
 
 from django import forms
-from django.template.loader import render_to_string
 
 from promgen import util
 from promgen.notification import NotificationBase
@@ -42,10 +41,10 @@ class NotificationIkasan(NotificationBase):
 
         if data['status'] == 'resolved':
             params['color'] = 'green'
-            params['message'] = render_to_string('promgen/sender/ikasan.resolved.txt', data).strip()
+            params['message'] = self.render('promgen/sender/ikasan.resolved.txt', data)
         else:
             params['color'] = 'red'
-            params['message'] = render_to_string('promgen/sender/ikasan.body.txt', data).strip()
+            params['message'] = self.render('promgen/sender/ikasan.body.txt', data)
 
         util.post(url, params)
         return True

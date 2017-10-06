@@ -5,7 +5,6 @@ import logging
 
 from django import forms
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
@@ -30,8 +29,8 @@ class NotificationEmail(NotificationBase):
     form = FormEmail
 
     def _send(self, address, data):
-        subject = render_to_string('promgen/sender/email.subject.txt', data).strip()
-        body = render_to_string('promgen/sender/email.body.txt', data).strip()
+        subject = self.render('promgen/sender/email.subject.txt', data)
+        body = self.render('promgen/sender/email.body.txt', data)
         send_mail(
             subject,
             body,

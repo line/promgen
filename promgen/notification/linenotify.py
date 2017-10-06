@@ -4,7 +4,6 @@
 import logging
 
 from django import forms
-from django.template.loader import render_to_string
 
 from promgen import util
 from promgen.notification import NotificationBase
@@ -36,9 +35,9 @@ class NotificationLineNotify(NotificationBase):
         url = self.config('server')
 
         if data['status'] == 'resolved':
-            message = render_to_string('promgen/sender/linenotify.resolved.txt', data).strip()
+            message = self.render('promgen/sender/linenotify.resolved.txt', data)
         else:
-            message = render_to_string('promgen/sender/linenotify.body.txt', data).strip()
+            message = self.render('promgen/sender/linenotify.body.txt', data)
 
         params = {
             'message': message,

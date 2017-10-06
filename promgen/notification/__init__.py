@@ -7,7 +7,7 @@ import textwrap
 
 from django import forms
 from django.conf import settings
-
+from django.template.loader import render_to_string
 from promgen import tasks
 from promgen.models import Project, Service
 from promgen.shortcuts import resolve_domain
@@ -99,8 +99,8 @@ class NotificationBase(object):
         '''
         sent = 0
         output = {}
-        data.setdefault('commonLabels', [])
-        data.setdefault('commonAnnotations', [])
+        data.setdefault('commonLabels', {})
+        data.setdefault('commonAnnotations', {})
 
         # Look through our labels and find the object from Promgen's DB
         # If we find an object in Promgen, add an annotation with a direct link
@@ -136,3 +136,10 @@ class NotificationBase(object):
         data = copy.deepcopy(TEST_NOTIFICATION)
         data.update(alert)
         self._send(target, data)
+
+    def render(self, template, context):
+        s = render_to_string(template, context).strip()
+        # Uncomment to re-generate test templates
+        # with open(template.replace('sender', 'tests/notifications'), 'w+') as fp:
+        #     fp.write(s)
+        return s
