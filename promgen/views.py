@@ -496,6 +496,47 @@ class ExporterRegister(FormView, ProjectMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
+class ExporterScrape(FormView):
+    model = models.Exporter
+    form_class = forms.ExporterForm
+
+    def form_valid(self, form):
+        project = get_object_or_404(models.Project, id=self.kwargs['pk'])
+
+        futures = []
+        context = {
+            'target': self.request.POST['target'].strip('#'),
+            'results': [],
+            'errors': [],
+        }
+        headers = {
+            'referer': project.get_absolute_url()
+        }
+
+        # Default /metrics path
+        if not form.cleaned_data['path']:
+            form.cleaned_data['path'] = 'metrics'
+
+        if not project.farm:
+            context['errors'].append({'url': headers['referer'], 'message': 'Missing Farm'})
+        else:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+                for host in project.farm.host_set.all():
+                    futures.append(executor.submit(util.get, 'http://{}:{}/{}'.format(
+                        host.name, form.cleaned_data['port'], form.cleaned_data['path']
+                    ), headers=headers))
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        result = future.result()
+                        context['results'].append(result)
+                    except:
+                        result = future.exception()
+                        logger.warning('Error with response')
+                        context['errors'].append({'url': result.request.url, 'message': result})
+
+        return JsonResponse({'#' + context['target']: render_to_string('promgen/ajax_exporter.html', context)})
+
+
 class URLRegister(FormView, ProjectMixin):
     model = models.URL
     template_name = 'promgen/url_form.html'

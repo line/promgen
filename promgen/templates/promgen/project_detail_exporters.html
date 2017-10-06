@@ -27,6 +27,21 @@
         />
       </td>
       <td>
+        <form id="{{exporter.job}}_{{exporter.port}}">
+          {% csrf_token %}
+          <input type="hidden" name="job" value="{{ exporter.job }}" />
+          <input type="hidden" name="port" value="{{ exporter.port }}" />
+          <input type="hidden" name="path" value="{{ exporter.path }}" />
+        </form>
+        <a
+          href="#"
+          class="btn btn-info btn-xs promgen-exporter"
+          data-href="{% url 'exporter-scrape' project.id %}"
+          data-form="#{{exporter.job}}_{{exporter.port}}"
+          data-target="#exporterresult"
+          >{% trans "Test" %}</a>
+      </td>
+      <td>
         <a
           class="btn btn-warning btn-xs promgen-silence"
           data-job="{{exporter.job}}"
@@ -49,3 +64,5 @@
     <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary">{% trans "Register Exporter" %}</a>
   </div>
 </div>
+
+<div id="exporterresult" class="panel-body" style="display:none;"></div>

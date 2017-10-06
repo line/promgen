@@ -1,0 +1,20 @@
+<div id="{{target}}" class="panel panel-default">
+  <table class="table">
+    <tr>
+      <th>URL</th>
+      <th>Status</th>
+    </tr>
+{% for error in errors %}
+    <tr>
+      <td>{{error.url}}</td>
+      <td>{{error.message}}</td>
+    </tr>
+{% endfor %}
+{% for result in results %}
+    <tr>
+      <td>{{result.request.url}}</td>
+      <td>{{result.status_code}}</td>
+    </tr>
+{% endfor %}
+  </table>
+</div>

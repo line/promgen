@@ -123,6 +123,19 @@ $(document).ready(function() {
     $.post(btn.data('href'), btn.data()).done(update_page);
   }).css('cursor', 'pointer');
 
+  $('[data-form]').click(function() {
+    var form = document.querySelector(this.dataset.form);
+    $(this.dataset.target).html('Loading...').show();
+    // TODO: Make this more general ?
+    $.post(this.dataset.href, {
+      'target': this.dataset.target,
+      'job': form.elements.job.value,
+      'port': form.elements.port.value,
+      'path': form.elements.path.value,
+      'csrfmiddlewaretoken': form.elements.csrfmiddlewaretoken.value,
+    }).done(update_page);
+  }).css('cursor', 'pointer');
+
   $('[data-copyto]').click(function(){
     var ele = $(this)
     $(ele.data('copyto')).val(ele.text())
