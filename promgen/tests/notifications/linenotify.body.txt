@@ -1,15 +1,13 @@
 [firing] test.alert test.project test.service
 
-grafana: http://grafana.example
-project: http://example.com/project/{project.id}/
-service: http://example.com/service/{service.id}/
+Grafana: http://grafana.example
+Project: http://example.com/project/{project.id}/
+Service: http://example.com/service/{service.id}/
 
- test.alert a.example test.project test.service
-grafana: http://grafana.example
-summary: Error on a.example
-Prometheus: http://prometheus.example
+Labels: a.example
+Summary: Error on a.example
+Source: http://prometheus.example
 
- test.alert b.example test.project test.service
-grafana: http://grafana.example
-summary: Error on b.example
-Prometheus: http://prometheus.example
+Labels: b.example
+Summary: Error on b.example
+Source: http://prometheus.example

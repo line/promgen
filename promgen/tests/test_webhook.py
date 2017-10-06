@@ -48,10 +48,6 @@ class WebhookTest(PromgenTest):
         _SAMPLE['commonAnnotations']['service'] = 'http://example.com' + self.service.get_absolute_url()
         _SAMPLE['commonAnnotations']['project'] = 'http://example.com' + self.project.get_absolute_url()
 
-        from pprint import pprint
-        pprint(TEST_ALERT)
-        pprint(_SAMPLE)
-
         mock_post.assert_has_calls([
             mock.call(
                 'http://project.example.com',
