@@ -4,10 +4,10 @@ Grafana: http://grafana.example
 Project: http://example.com/project/{project.id}/
 Service: http://example.com/service/{service.id}/
 
-Labels: a.example
+Labels: a.example 
 Summary: Error on a.example
 Source: http://prometheus.example
 
-Labels: b.example
+Labels: b.example 
 Summary: Error on b.example
 Source: http://prometheus.example

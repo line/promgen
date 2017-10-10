@@ -17,7 +17,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 import promgen.templatetags.promgen as macro
-from promgen import plugins, validators
+from promgen import plugins, tests, validators
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
@@ -89,14 +89,21 @@ class Sender(DynamicParent):
                 logger.warning('Error importing %s', entry.module_name)
 
     def test(self):
-        '''Test sender plugin'''
-        kwargs = {
-            'commonLabels': {self.content_type.name: self.content_object.name}
-        }
+        '''
+        Test sender plugin
+
+        Uses the same test json from our unittests but subs in the currently
+        tested object as part of the test data
+        '''
+        data = tests.PromgenTest.data_json('examples', 'alertmanager.json')
+        data['commonLabels'][self.content_type.name] = self.content_object.name
+        for alert in data.get('alerts', []):
+            alert['labels'][self.content_type.name] = self.content_object.name
+
         for entry in plugins.notifications():
             if entry.module_name == self.sender:
                 plugin = entry.load()()
-                plugin.test(self.value, kwargs)
+                plugin.test(self.value, data)
 
 
 class Shard(models.Model):
