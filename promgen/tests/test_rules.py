@@ -25,10 +25,10 @@ ALERT RuleName
 
 
 class RuleTest(PromgenTest):
-    @mock.patch('django.db.models.signals.post_save', mock.Mock())
-    @mock.patch('django.db.models.signals.pre_save', mock.Mock())
-    def setUp(self):
-        self.client.force_login(User.objects.create_user(id=999, username="Foo"), 'django.contrib.auth.backends.ModelBackend')
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def setUp(self, mock_signal):
+        self.user = User.objects.create_user(id=999, username="Foo")
+        self.client.force_login(self.user)
         self.shard = models.Shard.objects.create(name='Shard 1')
         self.service = models.Service.objects.create(id=1, name='Service 1', shard=self.shard)
         self.rule = models.Rule.create(
@@ -40,13 +40,13 @@ class RuleTest(PromgenTest):
         models.RuleLabel.objects.create(name='severity', value='severe', rule=self.rule)
         models.RuleAnnotation.objects.create(name='summary', value='Test case', rule=self.rule)
 
-    @mock.patch('django.db.models.signals.post_save')
-    def test_write(self, mock_render):
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_write(self, mock_post):
         result = prometheus.render_rules()
         self.assertEqual(result, _RULES % self.rule.id)
 
-    @mock.patch('django.db.models.signals.post_save')
-    def test_copy(self, mock_render):
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_copy(self, mock_post):
         service = models.Service.objects.create(name='Service 2', shard=self.shard)
         copy = self.rule.copy_to(content_type='service', object_id=service.id)
         # Test that our copy has the same labels and annotations
@@ -56,8 +56,8 @@ class RuleTest(PromgenTest):
         self.assertEqual(models.RuleLabel.objects.count(), 3, 'Copied rule has exiting labels + service label')
         self.assertEqual(models.RuleAnnotation.objects.count(), 2)
 
-    @mock.patch('django.db.models.signals.post_save')
-    def test_import(self, mock_render):
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_import(self, mock_post):
         self.client.post(reverse('import'), {
             'rules': TEST_RULE
         })
@@ -67,8 +67,8 @@ class RuleTest(PromgenTest):
         self.assertEqual(models.RuleLabel.objects.count(), 4, 'Missing labels')
         self.assertEqual(models.RuleAnnotation.objects.count(), 7, 'Missing annotations')
 
-    @mock.patch('django.db.models.signals.post_save')
-    def test_macro(self, mock_signals):
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_macro(self, mock_post):
         self.project = models.Project.objects.create(name='Project 1', service=self.service)
         clause = 'up{%s}' % macro.EXCLUSION_MACRO
 

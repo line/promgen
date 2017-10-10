@@ -1,8 +1,8 @@
 atomicwrites==1.1.5
-celery==4.0.2
+celery==4.1.0
 dj-database-url
 django_nose
-Django==1.10.6
+Django==1.11.6
 envdir
 gunicorn
 mysqlclient
