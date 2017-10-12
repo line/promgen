@@ -31,6 +31,5 @@ class NotificationWebhook(NotificationBase):
     form = FormWebhook
 
     def _send(self, url, data):
-        print(data)
         util.post(url, data)
         return True

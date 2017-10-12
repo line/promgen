@@ -1,50 +1,53 @@
 {
-    "receiver": "admins-critical",
-    "status": "firing",
-    "alerts": [{
-        "status": "firing",
-        "labels": {
-            "alertname": "node_down",
-            "env": "prod",
-            "instance": "testhost.localhost:9100",
-            "job": "node",
-            "service": "Service 1",
-            "farm": "foo-BETA",
-            "project": "Project 1",
-            "severity": "critical"
+    "alerts": [
+        {
+            "annotations": {
+                "grafana": "http://grafana.example",
+                "summary": "Error on a.example"
+            },
+            "endsAt": "0001-01-01T00:00:00Z",
+            "generatorURL": "http://prometheus.example",
+            "labels": {
+                "alertname": "test.alert",
+                "instance": "a.example",
+                "project": "test.project",
+                "service": "test.service"
+            },
+            "startsAt": "2017-10-06T16:21:28.214665326+09:00",
+            "status": "firing"
         },
-        "annotations": {
-            "description": "testhost.localhost:9100 of job node has been down for more than 5 minutes.",
-            "summary": "Instance testhost.localhost:9100 down"
-        },
-        "startsAt": "2016-04-21T20:14:37.698Z",
-        "endsAt": "2016-04-21T20:15:37.698Z",
-        "generatorURL": "https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D"
-    },{
-        "status": "resolved",
-        "labels": {
-            "alertname": "service_level_alert",
-            "service": "Service 2",
-            "severity": "critical"
-        },
-        "startsAt": "2016-04-21T20:14:37.698Z",
-        "endsAt": "2016-04-21T20:15:37.698Z",
-        "generatorURL": "https://monitoring.promehteus.localhost/graph#%5B%7B%22expr%22%3A%22up%20%3D%3D%200%22%2C%22tab%22%3A0%7D%5D"
-    }],
-    "commonLabels": {
-        "alertname": "node_down",
-        "env": "prod",
-        "instance": "testhost.localhost:9100",
-        "job": "node",
-        "project": "Project 1",
-        "service": "Service 1",
-        "severity": "critical"
-    },
+        {
+            "annotations": {
+                "grafana": "http://grafana.example",
+                "summary": "Error on b.example"
+            },
+            "endsAt": "0001-01-01T00:00:00Z",
+            "generatorURL": "http://prometheus.example",
+            "labels": {
+                "alertname": "test.alert",
+                "instance": "b.example",
+                "project": "test.project",
+                "service": "test.service"
+            },
+            "startsAt": "2017-10-06T16:21:28.214665326+09:00",
+            "status": "firing"
+        }
+    ],
     "commonAnnotations": {
-        "description": "testhost.localhost:9100 of job node has been down for more than 5 minutes.",
-        "summary": "Instance testhost.localhost:9100 down"
+        "grafana": "http://grafana.example"
     },
-    "externalURL": "https://am.promehteus.localhost",
-    "version": "3",
-    "groupKey": 353151
+    "commonLabels": {
+        "alertname": "test.alert",
+        "project": "test.project",
+        "service": "test.service"
+    },
+    "externalURL": "http://alertmanager.example",
+    "groupKey": "{}:{project=\"test.project\", service=\"test.service\"}",
+    "groupLabels": {
+        "project": "test.project",
+        "service": "test.service"
+    },
+    "receiver": "default",
+    "status": "firing",
+    "version": "4"
 }

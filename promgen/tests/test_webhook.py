@@ -18,9 +18,9 @@ TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 class WebhookTest(PromgenTest):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
-        self.shard = models.Shard.objects.create(name='Shard 1')
-        self.service = models.Service.objects.create(name='Service 1', shard=self.shard)
-        self.project = models.Project.objects.create(name='Project 1', service=self.service)
+        self.shard = models.Shard.objects.create(name='test.shard')
+        self.service = models.Service.objects.create(name='test.service', shard=self.shard)
+        self.project = models.Project.objects.create(name='test.project', service=self.service)
 
         self.sender = models.Sender.create(
             obj=self.project,
@@ -47,10 +47,6 @@ class WebhookTest(PromgenTest):
         _SAMPLE = PromgenTest.data_json('examples', 'alertmanager.json')
         _SAMPLE['commonAnnotations']['service'] = 'http://example.com' + self.service.get_absolute_url()
         _SAMPLE['commonAnnotations']['project'] = 'http://example.com' + self.project.get_absolute_url()
-
-        from pprint import pprint
-        pprint(TEST_ALERT)
-        pprint(_SAMPLE)
 
         mock_post.assert_has_calls([
             mock.call(

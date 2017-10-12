@@ -1,32 +1,17 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-import copy
 import logging
 import textwrap
 
 from django import forms
 from django.conf import settings
-
+from django.template.loader import render_to_string
 from promgen import tasks
 from promgen.models import Project, Service
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
-
-
-TEST_NOTIFICATION = {
-    'receiver': 'PromgenTest',
-    'status': 'firing',
-    'alerts': [{
-        'labels': {'alertname': 'Test Message'},
-        'annotations': {'summary': 'Test Alert Summary'},
-        'generatorURL': 'http://prometheus.example.org'
-    }],
-    'commonLabels': {'common-label': 'Test Label'},
-    'commonAnnotations': {'common-annotation': 'A longer test annotation'},
-    'externalURL': 'http://example.com',
-}
 
 
 class FormSenderBase(forms.Form):
@@ -87,20 +72,18 @@ class NotificationBase(object):
         except KeyError:
             logger.error('Undefined setting. Please check for %s under %s in settings.yml', key, self.__module__)
 
-    def send(self, data):
+    def expand(self, data):
         '''
-        Send out an alert
+        Look through our alert and expand any objects we find
 
-        This handles looping through the alerts from Alert Manager and checks
-        to see if there are any notification senders configured for the
-        combination of project/service and sender type.
-
-        See tests/examples/alertmanager.json for an example payload
+        This is responsible for looking through our alerts and finding any
+        supported labels (like Projects and Services) that we can expand into
+        an annotation
         '''
-        sent = 0
         output = {}
-        data.setdefault('commonLabels', [])
-        data.setdefault('commonAnnotations', [])
+
+        data.setdefault('commonLabels', {})
+        data.setdefault('commonAnnotations', {})
 
         # Look through our labels and find the object from Promgen's DB
         # If we find an object in Promgen, add an annotation with a direct link
@@ -115,6 +98,20 @@ class NotificationBase(object):
                 logger.debug('Found %s %s', label, obj)
                 output[label] = obj
                 data['commonAnnotations'][label] = resolve_domain(obj)
+        return output
+
+    def send(self, data):
+        '''
+        Send out an alert
+
+        This handles looping through the alerts from Alert Manager and checks
+        to see if there are any notification senders configured for the
+        combination of project/service and sender type.
+
+        See tests/examples/alertmanager.json for an example payload
+        '''
+        sent = 0
+        output = self.expand(data)
 
         for label, obj in output.items():
             for sender in obj.notifiers.filter(sender=self.__module__):
@@ -125,7 +122,7 @@ class NotificationBase(object):
             logger.debug('No senders configured for project or service')
         return sent
 
-    def test(self, target, alert):
+    def test(self, target, data):
         '''
         Send out test notification
 
@@ -133,6 +130,12 @@ class NotificationBase(object):
         parameters for our sender child classes
         '''
         logger.debug('Sending test message to %s', target)
-        data = copy.deepcopy(TEST_NOTIFICATION)
-        data.update(alert)
+        self.expand(data)
         self._send(target, data)
+
+    def render(self, template, context):
+        s = render_to_string(template, context).strip()
+        # Uncomment to re-generate test templates
+        # with open(template.replace('sender', 'tests/notifications'), 'w+') as fp:
+        #     fp.write(s)
+        return s

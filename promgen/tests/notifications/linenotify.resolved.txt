@@ -1,1 +1,1 @@
-[resolved] node_down prod testhost.localhost:9100 node Service 2 critical
+[resolved] test.alert other.service

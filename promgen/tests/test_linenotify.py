@@ -18,16 +18,16 @@ TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 class LineNotifyTest(PromgenTest):
     @mock.patch('django.db.models.signals.post_save', mock.Mock())
     def setUp(self):
-        self.shard = models.Shard.objects.create(name='Shard 1')
-        self.service = models.Service.objects.create(name='Service 1', shard=self.shard)
-        self.project = models.Project.objects.create(name='Project 1', service=self.service)
+        self.shard = models.Shard.objects.create(name='test.shard')
+        self.service = models.Service.objects.create(name='test.service', shard=self.shard)
+        self.project = models.Project.objects.create(name='test.project', service=self.service)
         self.sender = models.Sender.create(
             obj=self.project,
             sender=NotificationLineNotify.__module__,
             value='hogehoge',
         )
 
-        self.service2 = models.Service.objects.create(name='Service 2', shard=self.shard)
+        self.service2 = models.Service.objects.create(name='other.service', shard=self.shard)
         self.sender2 = models.Sender.create(
             obj=self.service2,
             sender=NotificationLineNotify.__module__,

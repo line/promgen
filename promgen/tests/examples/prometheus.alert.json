@@ -1,0 +1,28 @@
+[
+    {
+        "annotations": {
+            "grafana": "http://grafana.example",
+            "summary": "Error on a.example"
+        },
+        "generatorURL": "http://prometheus.example",
+        "labels": {
+            "alertname": "test.alert",
+            "instance": "a.example",
+            "project": "test.project",
+            "service": "test.service"
+        }
+    },
+    {
+        "annotations": {
+            "grafana": "http://grafana.example",
+            "summary": "Error on b.example"
+        },
+        "generatorURL": "http://prometheus.example",
+        "labels": {
+            "alertname": "test.alert",
+            "instance": "b.example",
+            "project": "test.project",
+            "service": "test.service"
+        }
+    }
+]
