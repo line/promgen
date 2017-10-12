@@ -115,8 +115,11 @@ class NotificationBase(object):
 
         for label, obj in output.items():
             for sender in obj.notifiers.filter(sender=self.__module__):
-                logger.debug('Sending to %s', sender)
-                if self._send(sender.value, data):
+                try:
+                    self._send(sender.value, data)
+                except:
+                    logger.exception('Error sending notification')
+                else:
                     sent += 1
         if sent == 0:
             logger.debug('No senders configured for project or service')

@@ -46,5 +46,4 @@ class NotificationIkasan(NotificationBase):
             params['color'] = 'red'
             params['message'] = self.render('promgen/sender/ikasan.body.txt', data)
 
-        util.post(url, params)
-        return True
+        util.post(url, params).raise_for_status()

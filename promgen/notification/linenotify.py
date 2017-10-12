@@ -47,5 +47,4 @@ class NotificationLineNotify(NotificationBase):
             'Authorization': 'Bearer %s' % token
         }
 
-        util.post(url, data=params, headers=headers)
-        return True
+        util.post(url, data=params, headers=headers).raise_for_status()
