@@ -117,7 +117,8 @@ class NewRuleForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'duration': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-            'enabled': forms.CheckboxInput(attrs={'data-toggle': 'toggle', 'data-size': 'mini'})
+            'enabled': forms.CheckboxInput(attrs={'data-toggle': 'toggle', 'data-size': 'mini'}),
+            'description': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
         }
 
 
@@ -129,7 +130,8 @@ class RuleForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'duration': forms.TextInput(attrs={'class': 'form-control'}),
             'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-            'enabled': forms.CheckboxInput(attrs={'data-toggle': 'toggle', 'data-size': 'mini'})
+            'enabled': forms.CheckboxInput(attrs={'data-toggle': 'toggle', 'data-size': 'mini'}),
+            'description': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
         }
 
 

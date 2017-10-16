@@ -313,6 +313,7 @@ class Rule(DynamicParent):
     )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
+    description = models.TextField(blank=True)
 
     class Meta:
         ordering = ['content_type', 'object_id', 'name']
