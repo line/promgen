@@ -1166,6 +1166,8 @@ class AjaxSilence(View):
         currentAt = datetime.datetime.now(datetime.timezone.utc)
 
         for silence in data:
+            if 'comment' in silence:
+                silence['comment'] = defaultfilters.urlize(silence['comment'])
             # Since there is no status field, compare endsAt with the current time
             if 'endsAt' in silence:
                 silence['endsAt'] = parser.parse(silence['endsAt'])
