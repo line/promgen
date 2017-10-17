@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.22.1
+
+* [BUGFIX] Fix double escaped links in alerts
+
 ## v0.22
 
 * [IMPROVEMENT] Add test button to test exporters from Promgen
