@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.22
+
+* [IMPROVEMENT] Add test button to test exporters from Promgen
+* [IMPROVEMENT] Further simplify notifications by dedeuplicating labels/annotations
+* [BUGFIX] Ensure we properly raise Exceptions if a sender fails
+* [IMPROVEMENT] Urlize comments in Silence list (for linking to bug tracker)
+* [IMPROVEMENT] Add description field to rules so developers can add additional context
+* [IMPROVEMENT] Update Django to 1.11
+
+
 ## v0.21
 
 * [BUGFIX] Fix headers for Prometheus Proxy
