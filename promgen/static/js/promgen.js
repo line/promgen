@@ -29,10 +29,10 @@ function silence_tag() {
 
 function update_page(data) {
   for (var key in data) {
-    console.log("Replacing %s", key)
-    var ele = $(data[key])
+    console.log("Replacing %s", key);
+    var ele = $(data[key]);
     ele.find("a.promgen-silence").click(silence_tag);
-    $(key).replaceWith(ele)
+    $(key).replaceWith(ele);
   }
 }
 
@@ -73,7 +73,7 @@ $(document).ready(function() {
     var panel = document.getElementById('alert-all');
 
     for (var alert_id in alerts) {
-      var alert = alerts[alert_id]
+      var alert = alerts[alert_id];
       var r = row(alert.generatorURL, alert.startsAt);
       var labels = annotation('labels', '');
       for (var k in alert.labels) {
@@ -114,12 +114,12 @@ $(document).ready(function() {
   }).done(update_page);
 
   $('[data-source]').click(function() {
-    var btn = $(this)
-    var query = btn.data('source') == 'self' ? btn.text()  : $(btn.data('source')).val();
+    var btn = $(this);
+    var query = btn.data('source') === 'self' ? btn.text() : $(btn.data('source')).val();
 
     $(btn.data('target')).html('Loading...').show();
-    btn.data('query', query)
-    console.log("Testing Query: %s", query)
+    btn.data('query', query);
+    console.log("Testing Query: %s", query);
     $.post(btn.data('href'), btn.data()).done(update_page);
   }).css('cursor', 'pointer');
 
@@ -132,12 +132,12 @@ $(document).ready(function() {
       'job': form.elements.job.value,
       'port': form.elements.port.value,
       'path': form.elements.path.value,
-      'csrfmiddlewaretoken': form.elements.csrfmiddlewaretoken.value,
+      'csrfmiddlewaretoken': form.elements.csrfmiddlewaretoken.value
     }).done(update_page);
   }).css('cursor', 'pointer');
 
   $('[data-copyto]').click(function(){
-    var ele = $(this)
+    var ele = $(this);
     $(ele.data('copyto')).val(ele.text())
   }).css('cursor', 'pointer');
 
@@ -149,19 +149,19 @@ $(document).ready(function() {
       // update our page messages
       window.location = data.redirect
     });
-  })
+  });
 
   $("select[data-ajax]").each(function(index) {
-    var ele = $(this)
-    var tgt = $(ele.data('target'))
+    var ele = $(this);
+    var tgt = $(ele.data('target'));
 
     $.get(ele.data('ajax')).done(function(data){
       data.data.forEach(function(item){
-        var option = $('<option>')
-        option.html(item)
-        option.val(item)
-        option.appendTo(ele)
-      })
+        var option = $('<option>');
+        option.html(item);
+        option.val(item);
+        option.appendTo(ele);
+      });
 
       tgt.typeahead({
         source: data.data,
@@ -170,23 +170,23 @@ $(document).ready(function() {
           return item + ele.data("append")
         }
       })
-    })
-
-    ele.change(function(){
-      var replacement = ele.val() ? ele.val() + ele.data("append") : ""
-      tgt.selection("replace", {text: replacement, mode: "before"});
-      tgt.focus()
     });
 
-  })
+    ele.change(function(){
+      var replacement = ele.val() ? ele.val() + ele.data("append") : "";
+      tgt.selection("replace", {text: replacement, mode: "before"});
+      tgt.focus();
+    });
+
+  });
 
   $('[data-filter]').change(function(){
-    var search = this.value.toUpperCase()
+    var search = this.value.toUpperCase();
     $(this.dataset.filter).each(function(i, ele){
       var txt = $(this).text().toUpperCase();
       ele.style.display = txt.indexOf(search) > -1 ? "" : "none"
     })
-  })
+  });
 
   $('.silence_start').datetimepicker({
     format: 'YYYY-MM-DD HH:mm'
