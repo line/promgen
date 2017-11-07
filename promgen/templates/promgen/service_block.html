@@ -26,6 +26,13 @@
       <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>
       <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
       <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
+
+      <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post">{% csrf_token %}
+        <input type="hidden" name="sender" value="promgen.notification.user">
+        <input type="hidden" name="value" value="{{request.user.username}}"/>
+        <button class="btn btn-primary btn-sm">{% trans "Subscribe to Notifications" %}</button>
+      </form>
+
       <a href="{% url 'audit-list'  %}?service={{service.id}}" class="btn btn-info btn-sm">{% trans "Service History" %}</a>
 
       <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>

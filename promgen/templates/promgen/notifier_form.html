@@ -1,13 +1,9 @@
 {% extends "base.html" %}
-
+{% load promgen %}
 {% block content %}
 
 <div class="page-header">
-  {% if project %}
-  <h1>Project: {{ project.name }}</h1>
-  {% else %}
-  <h1>Service: {{ service.name }}</h1>
-  {% endif %}
+  <h1>{{object|klass}}: {{object.name}}</h1>
 </div>
 
 {% if project %}
@@ -19,7 +15,7 @@
 <div class="row">
   <div class="col-md-3">
     <ul class="nav nav-pills nav-stacked" role="tablist">
-      {% for k, v in view.model.plugins|dictsort:0 %}
+      {% for k, v in view.model.driver_set|dictsort:0 %}
       <li role="presentation">
         <a href="#{{ k|slugify }}" aria-controls="{{ k|slugify }}" role="tab" data-toggle="tab">{{ k }}</a>
       </li>
@@ -28,7 +24,7 @@
   </div>
 
   <div class="col-md-8 tab-content">
-    {% for k, v in view.model.plugins|dictsort:0 %}
+    {% for k, v in view.model.driver_set|dictsort:0 %}
 
     <div role="tabpanel" class="tab-pane panel panel-default" id="{{ k|slugify }}">
         <form action="" method="post">{% csrf_token %}
