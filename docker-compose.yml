@@ -7,12 +7,12 @@ services:
     build: .
     image: promgen
     network_mode: bridge
-    command: sh -c "promgen migrate && promgen register docker-demo localhost 9090"
     external_links:
       - mysql
-      - redis
+      - rabbitmq
+    command: sh -c "promgen migrate && promgen register promgen-fndev localhost 9090"
     environment:
-      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       DATABASE_URL: mysql://promgen:promgen@mysql:3306/pypromgen
       SECRET_KEY: asdf
 
@@ -21,6 +21,8 @@ services:
     command: promgen runserver 0.0.0.0:8000
     ports:
       - "8080:8000"
+    links:
+      - alertmanager
     environment:
       DEBUG: 1
 
@@ -53,8 +55,6 @@ services:
     image: prom/alertmanager
     command: -config.file=/etc/prometheus/alertmanager.yml
     network_mode: bridge
-    links:
-      - web
     ports:
       - "9093:9093"
     volumes:
