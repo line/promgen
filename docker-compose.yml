@@ -10,7 +10,7 @@ services:
     external_links:
       - mysql
       - rabbitmq
-    command: sh -c "promgen migrate && promgen register docker-demo localhost 9090"
+    command: sh -c "promgen migrate && promgen register promgen-fndev localhost 9090"
     environment:
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq:5672//
       DATABASE_URL: mysql://promgen:promgen@mysql:3306/pypromgen

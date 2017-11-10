@@ -21,7 +21,7 @@ scrape_configs:
         - "/etc/prometheus/promgen.json"
     relabel_configs:
     - source_labels: [__shard]
-      regex: docker-demo
+      regex: promgen-fndev
       action: keep
 
   - job_name: 'blackbox'
