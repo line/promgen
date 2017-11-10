@@ -1,35 +1,95 @@
 {% extends "base.html" %}
-
+{% load i18n %}
 {% block content %}
 
 
 <div class="page-header">
-  <h1>Status</h1>
+  <h1>{{user.username}} ({{user.email}})</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">Promgen Status</li>
-</ol>
+<div class="panel panel-primary">
+  <div class="panel-heading">Subscriptions</div>
+  <table class="table">
+{% for notifier in subscriptions %}
+    <tr>
+      <td><a href="{{notifier.content_object.get_absolute_url}}">{{notifier.content_object}}</td>
+      <td>
+        <form method="post" action="{% url 'notifier-delete' notifier.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
+          {% csrf_token %}
+          <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
+        </form>
+      </td>
+    </tr>
+{% endfor %}
+  </table>
+</div>
 
-<table>
-  <tr>
-    <td>Discovery Plugins</td>
-    <td>
-      <ul>
-{% for plugin in discovery_plugins|dictsort:"name" %}
-      <li>{{ plugin.name }} - {{ plugin.module_name }}</li>
-{% endfor %}
-    </td>
-  </tr>
-  <tr>
-    <td>Notifier Plugins</td>
-    <td>
-      <ul>
-{% for notifier in notifier_plugins|dictsort:"name" %}
-      <li>{{ notifier.name }} - {{ notifier.module_name }}</li>
-{% endfor %}
-    </td>
-  </tr>
-</table>
+<div class="panel panel-primary">
+  <div class="panel-heading">Notifications</div>
+{% include "promgen/notifier_block.html" with object=notifiers show_edit=1 %}
+  <div class="panel-body">
+    <div class="row">
+      <div class="col-md-3">
+        <ul class="nav nav-pills nav-stacked" role="tablist">
+          {% for k, v in view.model.driver_set|dictsort:0 %}
+          {% if k != "promgen.notification.user" %}
+          <li role="presentation">
+            <a href="#{{ k|slugify }}" aria-controls="{{ k|slugify }}" role="tab" data-toggle="tab">{{ k }}</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="col-md-8 tab-content">
+        {% for k, v in view.model.driver_set|dictsort:0 %}
+        {% if k != "promgen.notification.user" %}
+        <div role="tabpanel" class="tab-pane panel panel-default" id="{{ k|slugify }}">
+            <form action="" method="post">{% csrf_token %}
+              <input type="hidden" name="sender" value="{{k}}" />
+              <div class="panel-body">
+                <pre class="help-block">{{ v.help|urlize }}</pre>
+              </div>
+              <table class="table">
+                {{ v.form.as_table }}
+              </table>
+              <div class="panel-footer">
+                <button class="btn btn-primary">Register Notifier</button>
+              </div>
+              </form>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if user.is_staff %}
+<div class="panel panel-warning">
+  <div class="panel-heading">Debug</div>
+  <table class="table">
+    <tr>
+      <td>Discovery Plugins</td>
+      <td>
+        <ul>
+  {% for plugin in discovery_plugins|dictsort:"name" %}
+        <li>{{ plugin.name }} - {{ plugin.module_name }}</li>
+  {% endfor %}
+      </td>
+    </tr>
+    <tr>
+      <td>Notifier Plugins</td>
+      <td>
+        <ul>
+  {% for notifier in notifier_plugins|dictsort:"name" %}
+        <li>{{ notifier.name }} - {{ notifier.module_name }}</li>
+  {% endfor %}
+      </td>
+    </tr>
+  </table>
+</div>
+  {% endif %}
+
+
 {% endblock %}

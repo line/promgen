@@ -2,7 +2,7 @@
     "alerts": [
         {
             "annotations": {
-                "grafana": "http://grafana.example",
+                "grafana": "http://grafana.example/dashboard/db/overview?var-service=test.service&var-project=test.project",
                 "summary": "Error on a.example"
             },
             "endsAt": "0001-01-01T00:00:00Z",
@@ -18,7 +18,7 @@
         },
         {
             "annotations": {
-                "grafana": "http://grafana.example",
+                "grafana": "http://grafana.example/dashboard/db/overview?var-service=test.service&var-project=test.project",
                 "summary": "Error on b.example"
             },
             "endsAt": "0001-01-01T00:00:00Z",
@@ -34,7 +34,7 @@
         }
     ],
     "commonAnnotations": {
-        "grafana": "http://grafana.example"
+        "grafana": "http://grafana.example/dashboard/db/overview?var-service=test.service&var-project=test.project"
     },
     "commonLabels": {
         "alertname": "test.alert",

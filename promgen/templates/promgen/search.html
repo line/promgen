@@ -128,7 +128,7 @@
         <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
         <td><a
           class="btn btn-warning btn-xs promgen-silence"
-          data-labels="{{host.name}}:[0-9]*"
+          data-instance="{{host.name}}:[0-9]*"
           href="#"
           style="display: inline-block;"
         >{% trans "Silence" %}</a></td>

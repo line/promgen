@@ -55,9 +55,10 @@ setup(
             'promgen = promgen.discovery.default:DiscoveryPromgen',
         ],
         'promgen.notification': [
-            'ikasan = promgen.notification.ikasan:NotificationIkasan',
             'email = promgen.notification.email:NotificationEmail',
+            'ikasan = promgen.notification.ikasan:NotificationIkasan',
             'linenotify = promgen.notification.linenotify:NotificationLineNotify',
+            'user = promgen.notification.user:NotificationUser',
             'webhook = promgen.notification.webhook:NotificationWebhook',
         ],
     }

@@ -6,11 +6,14 @@ from django.contrib import admin
 
 from promgen import models, plugins
 
-admin.site.register(models.Host)
-
 
 class PrometheusInline(admin.TabularInline):
     model = models.Prometheus
+
+
+@admin.register(models.Host)
+class HostAdmin(admin.ModelAdmin):
+    list_display = ('name', 'farm')
 
 
 @admin.register(models.Shard)
@@ -28,6 +31,7 @@ class ServiceAdmin(admin.ModelAdmin):
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'service', 'farm')
+    list_select_related = ('service', 'farm', 'service__shard')
 
 
 class SenderForm(forms.ModelForm):
@@ -45,6 +49,7 @@ class SenderAdmin(admin.ModelAdmin):
     list_display = ('content_object', 'content_type', 'sender', 'show_value', 'owner')
     form = SenderForm
     list_filter = ('sender', 'content_type')
+    list_select_related = ('content_type',)
 
 
 @admin.register(models.Farm)
@@ -56,13 +61,14 @@ class FarmAdmin(admin.ModelAdmin):
 @admin.register(models.Exporter)
 class ExporterAdmin(admin.ModelAdmin):
     list_display = ('job', 'port', 'path', 'project', 'enabled')
-    list_filter = ('project', 'job', 'port')
+    list_filter = ('job', 'port',)
+    readonly_fields = ('project',)
 
 
 @admin.register(models.URL)
 class URLAdmin(admin.ModelAdmin):
     list_display = ('url', 'project')
-    list_filter = ('project',)
+    list_select_related = ('project', 'project__service', 'project__service__shard')
 
 
 class RuleLabelInline(admin.TabularInline):

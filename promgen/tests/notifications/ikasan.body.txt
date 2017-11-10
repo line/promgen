@@ -1,6 +1,6 @@
 [firing] test.alert test.project test.service
 
-Grafana: http://grafana.example
+Grafana: http://grafana.example/dashboard/db/overview?var-service=test.service&var-project=test.project
 Project: http://example.com/project/{project.id}/
 Service: http://example.com/service/{service.id}/
 

@@ -33,7 +33,6 @@
                         <li class="dropdown">
                           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Misc <span class="caret"></span></a>
                           <ul class="dropdown-menu">
-                            <li><a href="{% url 'status' %}">Status</a></li>
                             <li><a href="{% url 'audit-list' %}">Log</a></li>
                             <li><a href="{% url 'farm-list' %}">Farms</a></li>
                             <li><a href="{% url 'host-list' %}">Hosts</a></li>
@@ -43,10 +42,6 @@
                             <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
                             <li><a href="{% url 'config-rules' %}">Export Rules</a></li>
                             <li><a href="{% url 'config-urls' %}">Export URL</a></li>
-                            {% if user.is_superuser %}
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'admin:index' %}">Admin</a></li>
-                            {% endif %}
                           </ul>
                         </li>
                         {% if EXTERNAL_LINKS %}
@@ -59,7 +54,6 @@
                           </ul>
                         </li>
                         {% endif %}
-                        <li><a href="{% url 'logout' %}">Logout</a></li>
                     </ul>
                     <form class="navbar-form navbar-left" action="{% url 'search' %}">
                       <div class="form-group">
@@ -75,6 +69,21 @@
                       Alerts
                     </a>
                     <span id="silence-load" class="btn btn-default navbar-btn">Silences</span>
+                    <ul class="nav navbar-nav navbar-right">
+                      <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                          {{user.username}} <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                          <li><a href="{% url 'status' %}">Profile</a></li>
+                          <li><a href="{% url 'logout' %}">Logout</a></li>
+                          {% if user.is_superuser %}
+                          <li role="separator" class="divider"></li>
+                          <li><a href="{% url 'admin:index' %}">Admin</a></li>
+                          {% endif %}
+                        </ul>
+                      </li>
+                    </ul>
                   {% else %}
                       {# This looks like a bug, but if we're not logged in, we need to close the list tag #}
                       <li><a href="{% url 'login' %}">Login</a></li>

@@ -13,6 +13,11 @@ EXCLUSION_MACRO = '<exclude>'
 
 
 @register.filter()
+def klass(value):
+    return value.__class__.__name__
+
+
+@register.filter()
 def to_prom(value):
     '''
     Render a Python dictionary using Prometheus' dictonary format
