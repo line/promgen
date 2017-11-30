@@ -43,7 +43,7 @@ class ProjectMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super(ProjectMixin, self).get_context_data(**kwargs)
         if 'pk' in self.kwargs:
-            context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
+            context['object'] = context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
         return context
 
 
@@ -51,7 +51,7 @@ class ServiceMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super(ServiceMixin, self).get_context_data(**kwargs)
         if 'pk' in self.kwargs:
-            context['service'] = get_object_or_404(models.Service, id=self.kwargs['pk'])
+            context['object'] = context['service'] = get_object_or_404(models.Service, id=self.kwargs['pk'])
         return context
 
 
@@ -243,7 +243,9 @@ class NotifierDelete(DeleteView):
     model = models.Sender
 
     def get_success_url(self):
-        return self.object.content_object.get_absolute_url()
+        if hasattr(self.object.content_object, 'get_absolute_url'):
+            return self.object.content_object.get_absolute_url()
+        return reverse('status')
 
 
 class NotifierTest(View):
@@ -257,7 +259,9 @@ class NotifierTest(View):
         else:
             messages.info(request, 'Sent test message with ' + sender.sender)
 
-        return HttpResponseRedirect(sender.content_object.get_absolute_url())
+        if hasattr(sender.content_object, 'get_absolute_url'):
+            return redirect(sender.content_object)
+        return redirect('status')
 
 
 class ExporterDelete(DeleteView):
@@ -315,7 +319,7 @@ class ProjectDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
-        context['sources'] = models.Farm.choices()
+        context['sources'] = models.Farm.driver_set()
         context['global'] = models.Service.default()
         prefetch_related_objects([context['global']], 'rule_set')
         return context
@@ -749,6 +753,25 @@ class ServiceNotifierRegister(FormView, ServiceMixin):
         return HttpResponseRedirect(service.get_absolute_url())
 
 
+class Status(FormView):
+    form_class = forms.SenderForm
+    model = models.Sender
+    template_name = 'promgen/status.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(Status, self).get_context_data(**kwargs)
+        context['discovery_plugins'] = [entry for entry in plugins.discovery()]
+        context['notifier_plugins'] = [entry for entry in plugins.notifications()]
+        context['notifiers'] = {'notifiers': models.Sender.filter(obj=self.request.user)}
+        context['subscriptions'] = models.Sender.objects.filter(
+            sender='promgen.notification.user', value=self.request.user.username)
+        return context
+
+    def form_valid(self, form):
+        sender, _ = models.Sender.get_or_create(obj=self.request.user, owner=self.request.user, **form.clean())
+        return redirect('status')
+
+
 class HostRegister(FormView):
     model = models.Host
     template_name = 'promgen/host_form.html'
@@ -886,14 +909,6 @@ class Metrics(View):
                         self.queues.labels(queue).set(channel.client.llen(queue))
 
         return HttpResponse(generate_latest(), content_type='text/plain')
-
-
-class Status(View):
-    def get(self, request):
-        return render(request, 'promgen/status.html', {
-            'discovery_plugins': [entry for entry in plugins.discovery()],
-            'notifier_plugins': [entry for entry in plugins.notifications()],
-        })
 
 
 class Search(View):

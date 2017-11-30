@@ -1,10 +1,10 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
-
 import collections
 import datetime
 import json
 import logging
+import os
 import re
 import subprocess
 import tempfile
@@ -73,10 +73,12 @@ def render_urls():
 
 
 @celery.task
-def write_urls(path=None, reload=True):
+def write_urls(path=None, reload=True, chmod=0o644):
     if path is None:
         path = settings.PROMGEN['url_writer']['path']
     with atomic_write(path, overwrite=True) as fp:
+        # Set mode on our temporary file before we write and move it
+        os.chmod(fp.name, chmod)
         fp.write(render_urls())
     if reload:
         reload_prometheus()
@@ -124,20 +126,24 @@ def render_config(service=None, project=None):
 
 
 @celery.task
-def write_config(path=None, reload=True):
+def write_config(path=None, reload=True, chmod=0o644):
     if path is None:
         path = settings.PROMGEN['config_writer']['path']
     with atomic_write(path, overwrite=True) as fp:
+        # Set mode on our temporary file before we write and move it
+        os.chmod(fp.name, chmod)
         fp.write(render_config())
     if reload:
         reload_prometheus()
 
 
 @celery.task
-def write_rules(path=None, reload=True):
+def write_rules(path=None, reload=True, chmod=0o644):
     if path is None:
         path = settings.PROMGEN['rule_writer']['path']
     with atomic_write(path, overwrite=True) as fp:
+        # Set mode on our temporary file before we write and move it
+        os.chmod(fp.name, chmod)
         fp.write(render_rules())
     if reload:
         reload_prometheus()

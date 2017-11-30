@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.23
+* [BUGFIX] Fix double escape regression
+* [BUGFIX] Fix host silence tag on search page
+* [IMPROVEMENT] Minor query speedup for Admin pages
+* [IMPROVEMENT] Support 'User' notifications. User's can be set as a notification target and Users can configure their own subscriptions from a profile page
+
 ## v0.22
 
 * [IMPROVEMENT] Add test button to test exporters from Promgen

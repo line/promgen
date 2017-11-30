@@ -63,6 +63,7 @@ class Sender(DynamicParent):
     alias = models.CharField(max_length=128, blank=True)
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=(
+        models.Q(app_label='auth', model='user') |
         models.Q(app_label='promgen', model='project') | models.Q(app_label='promgen', model='service'))
     )
     object_id = models.PositiveIntegerField()
@@ -81,12 +82,23 @@ class Sender(DynamicParent):
         return '{}:{}'.format(self.sender, self.show_value())
 
     @classmethod
-    def plugins(cls):
+    def driver_set(cls):
+        '''Return the list of drivers for Sender model'''
         for entry in plugins.notifications():
             try:
                 yield entry.module_name, entry.load()
             except ImportError:
                 logger.warning('Error importing %s', entry.module_name)
+
+    @property
+    def driver(self):
+        '''Return configured driver for Sender model instance'''
+        for entry in plugins.notifications():
+            if entry.module_name == self.sender:
+                try:
+                    return entry.load()()
+                except ImportError:
+                    logger.warning('Error importing %s', entry.module_name)
 
     def test(self):
         '''
@@ -96,9 +108,10 @@ class Sender(DynamicParent):
         tested object as part of the test data
         '''
         data = tests.PromgenTest.data_json('examples', 'alertmanager.json')
-        data['commonLabels'][self.content_type.name] = self.content_object.name
-        for alert in data.get('alerts', []):
-            alert['labels'][self.content_type.name] = self.content_object.name
+        if hasattr(self.content_object, 'name'):
+            data['commonLabels'][self.content_type.name] = self.content_object.name
+            for alert in data.get('alerts', []):
+                alert['labels'][self.content_type.name] = self.content_object.name
 
         for entry in plugins.notifications():
             if entry.module_name == self.sender:
@@ -223,6 +236,7 @@ class Farm(models.Model):
 
     @cached_property
     def driver(self):
+        '''Return configured driver for Farm model instance'''
         for entry in plugins.discovery():
             if entry.name == self.source:
                 return entry.load()()
@@ -232,7 +246,8 @@ class Farm(models.Model):
         return not self.driver.remote
 
     @classmethod
-    def choices(cls):
+    def driver_set(cls):
+        '''Return the list of drivers for Farm model'''
         for entry in plugins.discovery():
             yield entry.name, entry.load()()
 
