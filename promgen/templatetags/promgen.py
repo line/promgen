@@ -4,7 +4,10 @@
 import collections
 import difflib
 import json
+from datetime import datetime
+from pytz import timezone
 
+from django.conf import settings
 from django import template
 
 register = template.Library()
@@ -102,3 +105,11 @@ def pretty_json(data):
     if isinstance(data, str):
         data = json.loads(data)
     return json.dumps(data, indent=4, sort_keys=True)
+
+
+@register.filter()
+def strftime(timestamp, fmt):
+    tz = settings.PROMGEN.get('timezone', 'UTC')
+    if isinstance(timestamp, int) or isinstance(timestamp, float):
+        return timezone(tz).localize(datetime.fromtimestamp(timestamp)).strftime(fmt)
+    return timestamp

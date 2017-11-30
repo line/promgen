@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load promgen %}
 <div id="ajax-clause-check" class="panel panel-default">
   <div class="panel-heading">Query Result</div>
   <div class="panel-body">
@@ -19,7 +20,7 @@
       </tr>
 {% for row in data.result %}
       <tr>
-        <td>{{ row.value.0 }}</td>
+        <td>{{ row.value.0 | strftime:"%Y-%m-%d %H:%M" }}</td>
         <td>{{ row.value.1 }}</td>
         <td>{{ row.metric }}</td>
       </tr>
