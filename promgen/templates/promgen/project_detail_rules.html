@@ -1,13 +1,13 @@
 {% load i18n %}
 
-{% if global.rule_set.count %}
+{% if request.site.rule_set.count %}
 <div class="panel panel-default">
   <div class="panel-heading">
     <a class="btn btn-default btn-sm" role="button" data-toggle="collapse" href="#show-global-rules" aria-expanded="false" aria-controls="collapseExample">
     Common Rules
     </a>
   </div>
-  {% include "promgen/rule_block.html" with rule_list=global.rule_set.all show_overwrite=project.service.id collapse="show-global-rules" content_type='project' show_overwrite=project.id %}
+  {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all show_overwrite=project.service.id collapse="show-global-rules" content_type='project' show_overwrite=project.id %}
 </div>
 {% endif %}
 

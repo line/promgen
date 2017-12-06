@@ -16,6 +16,7 @@ from threading import local
 from django.contrib import messages
 from django.contrib.auth.views import redirect_to_login
 
+from promgen import models
 from promgen.signals import (trigger_write_config, trigger_write_rules,
                              trigger_write_urls)
 
@@ -42,6 +43,12 @@ class RemoteTriggerMiddleware(object):
         self.get_response = get_response
 
     def __call__(self, request):
+        # This works the same as the django middleware
+        # django.contrib.sites.middleware.CurrentSiteMiddleware
+        # but ensures that it uses our proxy object so that test cases
+        # properly find our rule_set object
+        request.site = models.Site.objects.get_current()
+
         response = self.get_response(request)
 
         triggers = {

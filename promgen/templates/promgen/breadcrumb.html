@@ -1,11 +1,14 @@
 {% if rule %}
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
-{% if rule.content_type.name == 'service' %}
+{% if rule.content_type.model == 'site' %}
+    <li><a href="{% url 'rules-list' %}" title="Site">Common Rules</a></li>
+{% endif %}
+{% if rule.content_type.model == 'service' %}
   <li><a href="{% url 'shard-detail' rule.content_object.shard.id %}" title="Shard">{{ rule.content_object.shard.name }}</a></li>
   <li><a href="{% url 'service-detail' rule.content_object.id %}" title="Service">{{ rule.content_object.name }}</a></li>
 {% endif %}
-{% if rule.content_type.name == 'project' %}
+{% if rule.content_type.model == 'project' %}
   <li><a href="{% url 'shard-detail' rule.content_object.service.shard.id %}" title="Shard">{{ rule.content_object.service.shard.name }}</a></li>
   <li><a href="{% url 'service-detail' rule.content_object.service.id %}" title="Service">{{ rule.content_object.service.name }}</a></li>
   <li><a href="{% url 'project-detail' rule.content_object.id %}" title="Project">{{ rule.content_object.name }}</a></li>

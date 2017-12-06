@@ -4,6 +4,7 @@
 import json
 import logging
 
+import django.contrib.sites.models
 from django.conf import settings
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
@@ -21,6 +22,18 @@ from promgen import plugins, tests, validators
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
+
+
+class Site(django.contrib.sites.models.Site):
+    # Proxy model for sites so that we can easily
+    # query our related Rules
+    rule_set = GenericRelation('Rule')
+
+    def get_absolute_url(self):
+        return reverse('rules-list')
+
+    class Meta:
+        proxy = True
 
 
 class DynamicParent(models.Model):
@@ -324,7 +337,9 @@ class Rule(DynamicParent):
     )
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=(
-        models.Q(app_label='promgen', model='project') | models.Q(app_label='promgen', model='service'))
+        models.Q(app_label='sites', model='site') |
+        models.Q(app_label='promgen', model='project') |
+        models.Q(app_label='promgen', model='service'))
     )
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
@@ -351,13 +366,6 @@ class Rule(DynamicParent):
             _annotations['rule'] = resolve_domain('rule-edit', pk=self.pk)
         return _annotations
 
-    @cached_property
-    def service(self):
-        logger.warn('Called rule.service')
-        if self.content_type.model == 'service':
-            return self.content_object
-        return self.content_object.service
-
     def __str__(self):
         return '{} [{}]'.format(self.name, self.content_object.name)
 
@@ -365,7 +373,10 @@ class Rule(DynamicParent):
         return reverse('rule-edit', kwargs={'pk': self.pk})
 
     def set_object(self, content_type, object_id):
-        self.content_type = ContentType.objects.get(model=content_type, app_label='promgen')
+        self.content_type = ContentType.objects.get(
+            model=content_type,
+            app_label='promgen'
+            )
         self.object_id = object_id
 
     def copy_to(self, content_type, object_id):

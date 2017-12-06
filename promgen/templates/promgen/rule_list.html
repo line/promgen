@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load promgen %}
 {% load i18n %}
 {% block content %}
 
@@ -17,7 +18,7 @@
 <h2>
   <a href="{{ group.grouper.get_absolute_url }}">{{ group.grouper }}</a>
   <span class="pull-right form-inline">
-    <a href="{% url 'rule-new' 'service' group.grouper.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
+    <a href="{% url 'rule-new' group.grouper|klass|lower group.grouper.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
   </span>
 </h2>
 <div class="panel panel-default">

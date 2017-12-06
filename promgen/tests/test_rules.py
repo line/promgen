@@ -30,12 +30,13 @@ class RuleTest(PromgenTest):
         self.user = User.objects.create_user(id=999, username="Foo")
         self.client.force_login(self.user)
         self.shard = models.Shard.objects.create(name='Shard 1')
-        self.service = models.Service.objects.create(id=1, name='Service 1', shard=self.shard)
+        self.site = models.Site.objects.get_current()
+        self.service = models.Service.objects.create(id=999, name='Service 1', shard=self.shard)
         self.rule = models.Rule.create(
             name='RuleName',
             clause='up==0',
             duration='1s',
-            obj=self.service
+            obj=self.site
         )
         models.RuleLabel.objects.create(name='severity', value='severe', rule=self.rule)
         models.RuleAnnotation.objects.create(name='summary', value='Test case', rule=self.rule)
@@ -78,7 +79,7 @@ class RuleTest(PromgenTest):
             'project': {'assert': 'up{service="Service 1",project="Project 1",}'},
         }
 
-        common_rule = models.Rule.create(name='Common', clause=clause, duration='1s', obj=self.service.default())
+        common_rule = models.Rule.create(name='Common', clause=clause, duration='1s', obj=self.site)
         rules['common']['model'] = models.Rule.objects.get(pk=common_rule.pk)
         service_rule = common_rule.copy_to('service', self.service.id)
         rules['service']['model'] = models.Rule.objects.get(pk=service_rule.pk)

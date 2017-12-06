@@ -55,13 +55,6 @@ class ServiceMixin(ContextMixin):
         return context
 
 
-class GlobalRulesMixin(object):
-    def get_context_data(self, **kwargs):
-        context = super(GlobalRulesMixin, self).get_context_data(**kwargs)
-        context['global_rule_set'] = models.Service.default().rule_set
-        return context
-
-
 class ShardList(ListView):
     queryset = models.Shard.objects\
         .prefetch_related(
@@ -143,7 +136,7 @@ class HostDetail(View):
         context['rule_list'] = models.Rule.objects.filter(
             Q(id__in=context['project_list'].values_list('rule_set__id')) |
             Q(id__in=context['service_list'].values_list('rule_set__id')) |
-            Q(id__in=models.Service.default().rule_set.values_list('id'))
+            Q(id__in=models.Site.objects.get_current().rule_set.values_list('id'))
         ).select_related('content_type').prefetch_related('content_object')
 
         context['notifier_list'] = models.Sender.objects.filter(
@@ -211,7 +204,7 @@ class AuditList(ListView):
     paginate_by = 50
 
 
-class ServiceDetail(GlobalRulesMixin, DetailView):
+class ServiceDetail(DetailView):
     queryset = models.Service.objects\
         .prefetch_related(
             'rule_set',
@@ -320,8 +313,6 @@ class ProjectDetail(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
         context['sources'] = models.Farm.driver_set()
-        context['global'] = models.Service.default()
-        prefetch_related_objects([context['global']], 'rule_set')
         return context
 
 
@@ -391,15 +382,19 @@ class RulesList(ListView, ServiceMixin):
     def get_context_data(self, **kwargs):
         context = super(RulesList, self).get_context_data(**kwargs)
 
+        site_rules = models.Rule.objects.filter(
+            content_type__model='site', content_type__app_label='sites'
+        ).prefetch_related('content_object', 'rulelabel_set', 'ruleannotation_set')
+
         service_rules = models.Rule.objects.filter(
-            content_type__model='service'
+            content_type__model='service', content_type__app_label='promgen'
         ).prefetch_related('content_object', 'content_object__shard', 'rulelabel_set', 'ruleannotation_set', 'parent')
 
         project_rules = models.Rule.objects.filter(
-            content_type__model='project'
+            content_type__model='project', content_type__app_label='promgen'
         ).prefetch_related('content_object', 'content_object__service', 'rulelabel_set', 'ruleannotation_set', 'parent')
 
-        context['rule_list'] = chain(service_rules, project_rules)
+        context['rule_list'] = chain(site_rules, service_rules, project_rules)
 
         return context
 
@@ -1131,7 +1126,16 @@ class RuleTest(View):
 
         query = macro.rulemacro(request.POST['query'], rule)
 
-        url = '{}/api/v1/query'.format(rule.service.shard.url)
+        # TODO: Refactor out similar to ProxyQueryRange
+        # This is the only place where we currently have to deal with getting a
+        # url based on the rule type but we want to remove this special case
+        # soon
+        if rule.content_type.model == 'service':
+            url = '{}/api/v1/query'.format(rule.content_object.shard.url)
+        if rule.content_type.model == 'project':
+            url = '{}/api/v1/query'.format(rule.content_object.service.shard.url)
+        if rule.content_type.model == 'site':
+            url = '{}/api/v1/query'.format(models.Shard.objects.first().url)
 
         logger.debug('Querying %s with %s', url, query)
         start = time.time()

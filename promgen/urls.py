@@ -74,7 +74,7 @@ urlpatterns = [
     url(r'^notifier/(?P<pk>[0-9]+)/test$', views.NotifierTest.as_view(), name='notifier-test'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
-    url(r'^(?P<content_type>(service|project))/(?P<object_id>[0-9]+)/rule$', views.RuleRegister.as_view(), name='rule-new'),
+    url(r'^(?P<content_type>(site|service|project))/(?P<object_id>[0-9]+)/rule$', views.RuleRegister.as_view(), name='rule-new'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
     url(r'^rule/(?P<pk>[0-9]+)/toggle$', views.RuleToggle.as_view(), name='rule-toggle'),

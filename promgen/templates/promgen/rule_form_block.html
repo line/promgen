@@ -53,7 +53,7 @@
           data-content_type="{{rule.content_type.name}}"
           data-object_id="{{rule.object_id}}"
           >
-          node_load1{% templatetag openbrace %}{{rule.content_type.name}}="{{ rule.content_object.name }}", {{ macro }}} > 5
+          node_load1{% templatetag openbrace %}{{rule.content_type.model}}="{{ rule.content_object.name }}", {{ macro }}} > 5
         </code>
       </li>
     </ul>

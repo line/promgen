@@ -38,7 +38,7 @@ class RouteTests(PromgenTest):
         })
 
         self.assertEqual(response.status_code, 302, 'Redirect to imported object')
-        self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
+        self.assertEqual(models.Service.objects.count(), 2, 'Import one service (default + import)')
         self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')
         self.assertEqual(models.Exporter.objects.count(), 2, 'Import two exporters')
         self.assertEqual(models.Host.objects.count(), 3, 'Import three hosts')
@@ -60,7 +60,7 @@ class RouteTests(PromgenTest):
         })
         self.assertEqual(response.status_code, 302, 'Redirect to imported object (2)')
 
-        self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
+        self.assertEqual(models.Service.objects.count(), 2, 'Import one service (default + import)')
         self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')
         self.assertEqual(models.Exporter.objects.count(), 2, 'Import two exporters')
         self.assertEqual(models.Farm.objects.count(), 3, 'Original two farms and one new farm')
@@ -85,3 +85,10 @@ class RouteTests(PromgenTest):
     def test_hosts(self):
         response = self.client.get(reverse('host-list'))
         self.assertEqual(response.status_code, 200)
+
+    def test_other_routes(self):
+        for request in [
+            {'viewname': 'rule-new', 'args': ('site', 1)},
+        ]:
+            response = self.client.get(reverse(**request))
+            self.assertEqual(response.status_code, 200)
