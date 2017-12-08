@@ -830,26 +830,47 @@ class ServiceTargets(View):
         return HttpResponse(prometheus.render_config(service=service), content_type='application/json')
 
 
-class ServiceRules(View):
-    def get(self, request, pk):
-        service = get_object_or_404(models.Service, id=pk)
-        rules = models.Rule.filter(obj=service)
-        return HttpResponse(prometheus.render_rules(rules), content_type='text/plain; charset=utf-8')
-
-
 class ProjectTargets(View):
     def get(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
         return HttpResponse(prometheus.render_config(project=project), content_type='application/json')
 
 
-class RulesConfig(View):
+class _ExportRules(View):
+    def format(self, rules=None, name='promgen'):
+        version = settings.PROMGEN['prometheus'].get('version', 1)
+        content = prometheus.render_rules(rules, version=version)
+        response = HttpResponse(content)
+        if version == 1:
+            response['Content-Type'] = 'text/plain; charset=utf-8'
+            response['Content-Disposition'] = 'attachment; filename=%s.rule' % name
+        else:
+            response['Content-Type'] = 'application/x-yaml'
+            response['Content-Disposition'] = 'attachment; filename=%s.rule.yml' % name
+        return response
+
+
+class RulesConfig(_ExportRules):
     def get(self, request):
-        return HttpResponse(prometheus.render_rules(), content_type='text/plain; charset=utf-8')
+        return self.format()
 
     def post(self, request):
         prometheus.write_rules()
         return HttpResponse('OK', status=202)
+
+
+class ServiceRules(_ExportRules):
+    def get(self, request, pk):
+        service = get_object_or_404(models.Service, id=pk)
+        rules = models.Rule.filter(obj=service)
+        return self.format(rules, service.name)
+
+
+class ProjectRules(_ExportRules):
+    def get(self, request, pk):
+        project = get_object_or_404(models.Project, id=pk)
+        rules = models.Rule.filter(obj=project)
+        return self.format(rules, project.name)
 
 
 class URLConfig(View):
@@ -970,68 +991,76 @@ class Search(View):
         return render(request, 'promgen/search.html', context)
 
 
+class RuleImport(FormView):
+    form_class = forms.ImportRuleForm
+    template_name = 'promgen/rule_import.html'
+
+    def form_valid(self, form):
+        data = form.clean()
+        if data.get('file_field'):
+            rules = data['file_field'].read().decode('utf8')
+        elif data.get('rules'):
+            rules = data.get('rules')
+        else:
+            messages.warning(self.request, 'Missing rules')
+            return self.form_invalid(form)
+
+        try:
+            counters = prometheus.import_rules(rules)
+            messages.info(self.request, 'Imported %s' % counters)
+            return redirect('rule-import')
+        except:
+            messages.error(self.request, 'Error importing rules')
+            return self.form_invalid(form)
+
+
 class Import(FormView):
     template_name = 'promgen/import_form.html'
     form_class = forms.ImportConfigForm
-    success_url = reverse_lazy('service-list')
 
-    def post(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = form_class(request.POST, request.FILES)
-
-        if 'rules' in request.POST:
-            form = forms.ImportRuleForm(request.POST)
-            if form.is_valid():
-                data = form.clean()
-                counters = prometheus.import_rules(data['rules'])
-                messages.info(request, 'Imported %s' % counters)
-                return self.form_valid(form)
-            else:
-                return self.form_invalid(form)
-
-        if form.is_valid():
-            data = form.clean()
-            if data.get('file_field'):
-                messages.info(request, 'Importing config from file')
-                config = data['file_field'].read().decode('utf8')
-            elif data.get('url'):
-                messages.info(request, 'Importing config from url')
-                response = util.get(data['url'])
-                response.raise_for_status()
-                config = response.text
-            else:
-                messages.info(request, 'Importing config')
-                config = data['config']
-
-            kwargs = {}
-            # This also lets us catch passing an empty string to signal using
-            # the shard value from the post request
-            if data.get('shard'):
-                kwargs['replace_shard'] = data.get('shard')
-
-            imported, skipped = prometheus.import_config(json.loads(config), **kwargs)
-
-            if imported:
-                counters = {key: len(imported[key]) for key in imported}
-                messages.info(request, 'Imported %s' % counters)
-
-            if skipped:
-                counters = {key: len(skipped[key]) for key in skipped}
-                messages.info(request, 'Skipped %s' % counters)
-
-            # If we only have a single object in a category, automatically
-            # redirect to that category to make things easier to understand
-            if len(imported['Project']) == 1:
-                return HttpResponseRedirect(imported['Project'][0].get_absolute_url())
-            if len(imported['Service']) == 1:
-                return HttpResponseRedirect(imported['Service'][0].get_absolute_url())
-            if len(imported['Shard']) == 1:
-                return HttpResponseRedirect(imported['Shard'][0].get_absolute_url())
-
-            # otherwise we can just use the default behavior
-            return self.form_valid(form)
+    def form_valid(self, form):
+        data = form.clean()
+        if data.get('file_field'):
+            messages.info(self.request, 'Importing config from file')
+            config = data['file_field'].read().decode('utf8')
+        elif data.get('url'):
+            messages.info(self.request, 'Importing config from url')
+            response = util.get(data['url'])
+            response.raise_for_status()
+            config = response.text
+        elif data.get('config'):
+            messages.info(self.request, 'Importing config')
+            config = data['config']
         else:
+            messages.warning(self.request, 'Missing config')
             return self.form_invalid(form)
+
+        kwargs = {}
+        # This also lets us catch passing an empty string to signal using
+        # the shard value from the post request
+        if data.get('shard'):
+            kwargs['replace_shard'] = data.get('shard')
+
+        imported, skipped = prometheus.import_config(json.loads(config), **kwargs)
+
+        if imported:
+            counters = {key: len(imported[key]) for key in imported}
+            messages.info(self.request, 'Imported %s' % counters)
+
+        if skipped:
+            counters = {key: len(skipped[key]) for key in skipped}
+            messages.info(self.request, 'Skipped %s' % counters)
+
+        # If we only have a single object in a category, automatically
+        # redirect to that category to make things easier to understand
+        if len(imported['Project']) == 1:
+            return HttpResponseRedirect(imported['Project'][0].get_absolute_url())
+        if len(imported['Service']) == 1:
+            return HttpResponseRedirect(imported['Service'][0].get_absolute_url())
+        if len(imported['Shard']) == 1:
+            return HttpResponseRedirect(imported['Shard'][0].get_absolute_url())
+
+        return redirect('service-list')
 
 
 class Silence(FormView):

@@ -2,6 +2,11 @@
 # These are used for Promgen to automatically trigger a reload on target changes
 prometheus:
   url: http://prometheus:9090/
+  version: 2
+  # Path to promtool to verify valid rules file
+  promtool: /usr/local/bin/promtool
+  # Output rule configuration to this path
+  rules: /etc/prometheus/promgen.rule
 
 alertmanager:
   url: http://alertmanager:9093
@@ -10,13 +15,6 @@ alertmanager:
 config_writer:
   # Output target configuration to this path
   path: /etc/prometheus/promgen.json
-
-rule_writer:
-  # Output rule configuration to this path
-  path: /etc/prometheus/promgen.rule
-  # Path to promtool to verify valid rules file
-  promtool_path: /usr/local/bin/promtool
-  # List of default exporters to display in Promgen UI
 
 url_writer:
   path: /etc/prometheus/blackbox.json

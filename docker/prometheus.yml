@@ -6,7 +6,7 @@ global:
     cluster_name: 'promgen'
 
 rule_files:
-- "/etc/prometheus/promgen.rule"
+- "/etc/prometheus/promgen.rule.yml"
 
 alerting:
   alertmanagers:

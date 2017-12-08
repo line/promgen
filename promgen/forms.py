@@ -26,7 +26,12 @@ class ImportConfigForm(forms.Form):
 
 
 class ImportRuleForm(forms.Form):
-    rules = forms.CharField(widget=forms.Textarea, required=True)
+    rules = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
+        required=False)
+    file_field = forms.FileField(
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        required=False)
 
 
 class SilenceForm(forms.Form):

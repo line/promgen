@@ -1,0 +1,24 @@
+groups:
+- name: "Default \xBB Default"
+  rules:
+  - alert: ExporterDown
+    annotations:
+      bar: baz
+      rule: http://example.com/rule/7/edit
+      service: http://promgen.example/service/49/
+      summary: High load on {{ $labels.instance }}
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: major
+  - alert: ExporterTargetDown
+    annotations:
+      bar: baz
+      rule: http://example.com/rule/8/edit
+      service: http://promgen.example/service/49/
+      summary: High load on {{ $labels.instance }}
+    expr: '{__name__=~".*_up"} == 0'
+    for: 1m
+    labels:
+      another: foo
+      severity: warning

@@ -11,8 +11,6 @@ from promgen import models, prometheus
 from promgen.tests import PromgenTest
 
 
-TEST_RULE = PromgenTest.data('examples', 'import.rule')
-
 _RULES = '''
 ALERT RuleName
   IF up==0
@@ -21,6 +19,20 @@ ALERT RuleName
   ANNOTATIONS {rule="http://example.com/rule/%d/edit", summary="Test case"}
 
 
+'''.lstrip()
+
+_RULE_NEW = '''
+groups:
+- name: example.com
+  rules:
+  - alert: RuleName
+    annotations:
+      rule: http://example.com/rule/%d/edit
+      summary: Test case
+    expr: up==0
+    for: 1s
+    labels:
+      severity: severe
 '''.lstrip()
 
 
@@ -42,9 +54,14 @@ class RuleTest(PromgenTest):
         models.RuleAnnotation.objects.create(name='summary', value='Test case', rule=self.rule)
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
-    def test_write(self, mock_post):
-        result = prometheus.render_rules()
+    def test_write_old(self, mock_post):
+        result = prometheus.render_rules(version=1)
         self.assertEqual(result, _RULES % self.rule.id)
+
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_write_new(self, mock_post):
+        result = prometheus.render_rules(version=2)
+        self.assertEqual(result, _RULE_NEW % self.rule.id)
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_copy(self, mock_post):
@@ -58,15 +75,26 @@ class RuleTest(PromgenTest):
         self.assertEqual(models.RuleAnnotation.objects.count(), 2)
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
-    def test_import(self, mock_post):
-        self.client.post(reverse('import'), {
-            'rules': TEST_RULE
+    def test_import_v1(self, mock_post):
+        self.client.post(reverse('rule-import'), {
+            'rules': PromgenTest.data('examples', 'import.rule')
         })
 
         # Includes count of our setUp rule + imported rules
         self.assertEqual(models.Rule.objects.count(), 3, 'Missing Rule')
         self.assertEqual(models.RuleLabel.objects.count(), 4, 'Missing labels')
         self.assertEqual(models.RuleAnnotation.objects.count(), 7, 'Missing annotations')
+
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_import_v2(self, mock_post):
+        self.client.post(reverse('rule-import'), {
+            'rules': PromgenTest.data('examples', 'import.rule.yml')
+        })
+
+        # Includes count of our setUp rule + imported rules
+        self.assertEqual(models.Rule.objects.count(), 3, 'Missing Rule')
+        self.assertEqual(models.RuleLabel.objects.count(), 4, 'Missing labels')
+        self.assertEqual(models.RuleAnnotation.objects.count(), 9, 'Missing annotations')
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_macro(self, mock_post):

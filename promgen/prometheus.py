@@ -11,11 +11,13 @@ import tempfile
 from urllib.parse import urljoin
 
 import pytz
+import yaml
 from atomicwrites import atomic_write
 from dateutil import parser
 from django.conf import settings
+from django.db.models import prefetch_related_objects
 from django.template.loader import render_to_string
-
+import promgen.templatetags.promgen as macro
 from promgen import models, util
 from promgen.celery import app as celery
 
@@ -23,6 +25,20 @@ logger = logging.getLogger(__name__)
 
 
 def check_rules(rules):
+    '''
+    Use promtool to check to see if a rule is valid or not
+
+    The command name changed slightly from 1.x -> 2.x but this uses promtool
+    to verify if the rules are correct or not. This can be bypassed by setting
+    a dummy command such as /usr/bin/true that always returns true
+    '''
+
+    # This command changed to be without a space in 2.x
+    if settings.PROMGEN['prometheus'].get('version') == 2:
+        check_rules = 'check rules'
+    else:
+        check_rules = 'check-rules'
+
     with tempfile.NamedTemporaryFile(mode='w', encoding='utf8') as fp:
         logger.debug('Rendering to %s', fp.name)
         # Normally we wouldn't bother saving a copy to a variable here and would
@@ -34,25 +50,55 @@ def check_rules(rules):
 
         try:
             subprocess.check_output([
-                settings.PROMGEN['rule_writer']['promtool_path'],
-                'check-rules',
+                settings.PROMGEN['prometheus']['promtool'],
+                check_rules,
                 fp.name
             ], stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             raise Exception(rendered + e.output.decode('utf8'))
 
 
-def render_rules(rules=None):
+def render_rules(rules=None, version=1):
+    '''
+    Render rules in a format that Prometheus understands
+
+    This function can render in either v1 or v2 format
+    We call prefetch_related_objects within this function to populate the
+    other related objects that are mostly used for the sub lookups
+    '''
     if rules is None:
-        rules = models.Rule.objects.filter(enabled=True).prefetch_related(
-            'content_object',
-            'content_type',
-            'overrides__content_object',
-            'overrides__content_type',
-            'ruleannotation_set',
-            'rulelabel_set',
-        )
-    return render_to_string('promgen/prometheus.rule', {'rules': rules})
+        rules = models.Rule.objects.filter(enabled=True)
+
+    prefetch_related_objects(
+        rules,
+        'content_object',
+        'content_type',
+        'overrides__content_object',
+        'overrides__content_type',
+        'ruleannotation_set',
+        'rulelabel_set',
+    )
+
+    # V1 format is a custom format which we render through django templates
+    # See promgen/tests/examples/import.rule
+    if version == 1:
+        return render_to_string('promgen/prometheus.rule', {'rules': rules})
+
+    # V2 format is a yaml dictionary which we build and then render
+    # See promgen/tests/examples/import.rule.yml
+    rule_list = collections.defaultdict(list)
+    for r in rules:
+        rule_list[str(r.content_object)].append({
+            'alert': r.name,
+            'expr': macro.rulemacro(r.clause, r),
+            'for': r.duration,
+            'labels': r.labels,
+            'annotations': r.annotations,
+        })
+
+    return yaml.dump({'groups': [
+        {'name': name, 'rules': rule_list[name]} for name in rule_list
+    ]}, default_flow_style=False)
 
 
 def render_urls():
@@ -138,13 +184,13 @@ def write_config(path=None, reload=True, chmod=0o644):
 
 
 @celery.task
-def write_rules(path=None, reload=True, chmod=0o644):
+def write_rules(path=None, reload=True, chmod=0o644, version=None):
     if path is None:
-        path = settings.PROMGEN['rule_writer']['path']
+        path = settings.PROMGEN['prometheus']['rules']
     with atomic_write(path, overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
-        fp.write(render_rules())
+        fp.write(render_rules(version=version))
     if reload:
         reload_prometheus()
 
@@ -157,7 +203,57 @@ def reload_prometheus():
     post_reload.send(response)
 
 
-def import_rules(config, default_service=None):
+def import_rules_v2(config, content_object=None):
+    '''
+    Loop through a dictionary and add rules to the database
+
+    This assumes a dictonary in the 2.x rule format.
+    See promgen/tests/examples/import.rule.yml for an example
+    '''
+    counters = collections.defaultdict(int)
+    for group in config['groups']:
+        for r in group['rules']:
+            labels = r.get('labels', {})
+            annotations = r.get('annotations', {})
+
+            defaults = {
+                'clause': r['expr'],
+                'duration': r['for'],
+            }
+
+            # Check our labels to see if we have a project or service
+            # label set and if not, default it to a global rule
+            if content_object:
+                defaults['obj'] = content_object
+            elif 'project' in labels:
+                defaults['obj'] = models.Project.objects.get(name=labels['project'])
+            elif 'service' in labels:
+                defaults['obj'] = models.Service.objects.get(name=labels['service'])
+            else:
+                defaults['obj'] = models.Site.objects.get_current()
+
+            rule, created = models.Rule.get_or_create(
+                name=r['alert'],
+                defaults=defaults
+            )
+
+            if created:
+                counters['Rules'] += 1
+            for k, v in labels.items():
+                rule.add_label(k, v)
+            for k, v in annotations.items():
+                rule.add_annotation(k, v)
+
+    return dict(counters)
+
+
+def import_rules_v1(config, content_object=None):
+    '''
+    Parse text and extract Prometheus rules
+
+    This assumes text in the 1.x rule format.
+    See promgen/tests/examples/import.rule for an example
+    '''
     # Attemps to match the pattern name="value" for Prometheus labels and annotations
     RULE_MATCH = re.compile('((?P<key>\w+)\s*=\s*\"(?P<value>.*?)\")')
     counters = collections.defaultdict(int)
@@ -199,33 +295,44 @@ def import_rules(config, default_service=None):
         labels = parse_prom(tokens.get('LABELS'))
         annotations = parse_prom(tokens.get('ANNOTATIONS'))
 
-        if default_service:
-            service = default_service
+        # Check our labels to see if we have a project or service
+        # label set and if not, default it to a global rule
+        if content_object:
+            obj = content_object
+        elif 'project' in labels:
+            obj = models.Project.objects.get(name=labels['project'])
+        elif 'service' in labels:
+            obj = models.Service.objects.get(name=labels['service'])
         else:
-            try:
-                service = models.Service.objects.get(name=labels.get('service', 'Default'))
-            except models.Service.DoesNotExist:
-                service = models.Service.default()
+            obj = models.Site.objects.get_current()
 
         rule, created = models.Rule.get_or_create(
             name=tokens['ALERT'],
             defaults={
                 'clause': tokens['IF'],
                 'duration': tokens['FOR'],
-                'obj': service,
+                'obj': obj,
             }
         )
 
         if created:
             counters['Rules'] += 1
-            for k, v in labels.items():
-                models.RuleLabel.objects.create(name=k, value=v, rule=rule)
-                counters['Labels'] += 1
-            for k, v in annotations.items():
-                models.RuleAnnotation.objects.create(name=k, value=v, rule=rule)
-                counters['Annotations'] += 1
+        for k, v in labels.items():
+            rule.add_label(k, v)
+        for k, v in annotations.items():
+            rule.add_annotation(k, v)
 
     return dict(counters)
+
+
+def import_rules(config, content_object=None):
+    try:
+        data = yaml.safe_load(config)
+    except Exception as e:
+        logger.debug('If we fail to parse yaml, then assume it is v1 format')
+        return import_rules_v1(config, content_object)
+    else:
+        return import_rules_v2(data, content_object)
 
 
 def import_config(config, replace_shard=None):

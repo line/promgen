@@ -3,29 +3,19 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Import Configs</h1>
+  <h1>Import Rules</h1>
 </div>
 
 <ol class="breadcrumb">
   <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">Import Service</li>
+  <li class="active">Import Rule</li>
 </ol>
-
-<div class="panel panel-default">
-  <div class="panel-heading">Import Targets</div>
-  <div class="panel-body">
-    <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">Import Targets</button>
-    </form>
-  </div>
-</div>
 
 <div class="panel panel-default">
   <div class="panel-heading">Import Rules</div>
   <div class="panel-body">
     <form action="{% url 'rule-import' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
-      <p><textarea name="rules" rows="5" class="form-control"></textarea></p>
+      {{ form.as_p }}
       <button class="btn btn-primary">Import Rules</button>
     </form>
   </div>

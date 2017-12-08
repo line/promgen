@@ -49,6 +49,7 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/scrape$', views.ExporterScrape.as_view(), name='exporter-scrape'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.ExporterRegister.as_view(), name='project-exporter'),
     url(r'^project/(?P<pk>[0-9]+)/targets$', views.ProjectTargets.as_view(), name='project-targets'),
+    url(r'^project/(?P<pk>[0-9]+)/rules$', views.ProjectRules.as_view(), name='project-rules'),
     url(r'^project/(?P<pk>[0-9]+)/notifier$', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
@@ -74,6 +75,7 @@ urlpatterns = [
     url(r'^notifier/(?P<pk>[0-9]+)/test$', views.NotifierTest.as_view(), name='notifier-test'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
+    url(r'^rule/import$', views.RuleImport.as_view(), name='rule-import'),
     url(r'^(?P<content_type>(site|service|project))/(?P<object_id>[0-9]+)/rule$', views.RuleRegister.as_view(), name='rule-new'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
