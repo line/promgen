@@ -21,17 +21,23 @@ Below are the steps to get started with Promgen.
 Initialize Promgen using Docker.
 
 ```bash
+# Create promgen setting directory.
+mkdir -p ~/.config/promgen
+chmod 777 ~/.config/promgen
+
 # Initialize required settings with Docker container
 # This will prompt you for connection settings for your database and Redis broker
 # using the standard DSN syntax.
 # Database example: mysql://password:username@hostname/databasename
 # Broker example: redis://localhost:6379/0
-docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest bootstrap
+docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen:master bootstrap
+
 # Apply database updates
-docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest migrate
+docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen:master migrate
+
 # Create initial login user. This is the same as the default django-admin command
 # https://docs.djangoproject.com/en/1.10/ref/django-admin/#django-admin-createsuperuser
-docker run --rm -it --network host -v ~/.config/promgen:/etc/promgen/ promgen:latest createsuperuser
+docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen:master createsuperuser
 ```
 
 You can then use your favorite configuration management system to deploy to each worker.
@@ -54,10 +60,10 @@ Run Promgen using the following command.
 
 ```bash
 # Run Promgen web worker. This is typically balanced behind an NGINX instance
-docker run --rm --network host -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ promgen:latest web
+docker run --rm -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ line/promgen:master
 
 # Run Promgen celery worker. Make sure to run it on the same machine as your Prometheus server to manage the config settings
-docker run --rm --network host -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus promgen:latest worker
+docker run --rm -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus line/promgen:master worker
 ```
 
 ## How to contribute to Promgen
