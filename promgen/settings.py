@@ -76,8 +76,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'promgen.middleware.RequireLoginMiddleware',
-    'promgen.middleware.RemoteTriggerMiddleware',
+    'promgen.middleware.PromgenMiddleware',
 ]
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG

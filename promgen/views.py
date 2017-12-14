@@ -16,15 +16,16 @@ from dateutil import parser
 from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count, Q, prefetch_related_objects
+from django.db.models import Count, Q
 from django.db.utils import IntegrityError
 from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template import defaultfilters
 from django.template.loader import render_to_string
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
@@ -55,7 +56,7 @@ class ServiceMixin(ContextMixin):
         return context
 
 
-class ShardList(ListView):
+class ShardList(LoginRequiredMixin, ListView):
     queryset = models.Shard.objects\
         .prefetch_related(
             'prometheus_set',
@@ -67,7 +68,7 @@ class ShardList(ListView):
             'service_set__project_set__notifiers')
 
 
-class ShardDetail(DetailView):
+class ShardDetail(LoginRequiredMixin, DetailView):
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
@@ -79,7 +80,7 @@ class ShardDetail(DetailView):
             'service_set__project_set__notifiers')
 
 
-class ServiceList(ListView):
+class ServiceList(LoginRequiredMixin, ListView):
     queryset = models.Service.objects\
         .prefetch_related(
             'notifiers',
@@ -92,7 +93,7 @@ class ServiceList(ListView):
         )
 
 
-class HostList(ListView):
+class HostList(LoginRequiredMixin, ListView):
     queryset = models.Host.objects\
         .prefetch_related(
             'farm',
@@ -109,7 +110,7 @@ class HostList(ListView):
         return context
 
 
-class HostDetail(View):
+class HostDetail(LoginRequiredMixin, View):
     def get(self, request, slug):
         context = {}
         context['slug'] = self.kwargs['slug']
@@ -147,7 +148,7 @@ class HostDetail(View):
         return render(request, 'promgen/host_detail.html', context)
 
 
-class AuditList(ListView):
+class AuditList(LoginRequiredMixin, ListView):
     model = models.Audit
 
     FILTERS = {
@@ -204,7 +205,7 @@ class AuditList(ListView):
     paginate_by = 50
 
 
-class ServiceDetail(DetailView):
+class ServiceDetail(LoginRequiredMixin, DetailView):
     queryset = models.Service.objects\
         .prefetch_related(
             'rule_set',
@@ -218,21 +219,21 @@ class ServiceDetail(DetailView):
             )
 
 
-class ServiceDelete(DeleteView):
+class ServiceDelete(LoginRequiredMixin, DeleteView):
     model = models.Service
 
     def get_success_url(self):
         return reverse('shard-detail', args=[self.object.shard_id])
 
 
-class ProjectDelete(DeleteView):
+class ProjectDelete(LoginRequiredMixin, DeleteView):
     model = models.Project
 
     def get_success_url(self):
         return reverse('service-detail', args=[self.object.service_id])
 
 
-class NotifierDelete(DeleteView):
+class NotifierDelete(LoginRequiredMixin, DeleteView):
     model = models.Sender
 
     def get_success_url(self):
@@ -241,7 +242,7 @@ class NotifierDelete(DeleteView):
         return reverse('status')
 
 
-class NotifierTest(View):
+class NotifierTest(LoginRequiredMixin, View):
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         try:
@@ -257,14 +258,14 @@ class NotifierTest(View):
         return redirect('status')
 
 
-class ExporterDelete(DeleteView):
+class ExporterDelete(LoginRequiredMixin, DeleteView):
     model = models.Exporter
 
     def get_success_url(self):
         return reverse('project-detail', args=[self.object.project_id])
 
 
-class ExporterToggle(View):
+class ExporterToggle(LoginRequiredMixin, View):
     def post(self, request, pk):
         exporter = get_object_or_404(models.Exporter, id=pk)
         exporter.enabled = not exporter.enabled
@@ -273,14 +274,14 @@ class ExporterToggle(View):
         return JsonResponse({'redirect': exporter.project.get_absolute_url()})
 
 
-class RuleDelete(DeleteView):
+class RuleDelete(LoginRequiredMixin, DeleteView):
     model = models.Rule
 
     def get_success_url(self):
         return self.object.content_object.get_absolute_url()
 
 
-class RuleToggle(View):
+class RuleToggle(LoginRequiredMixin, View):
     def post(self, request, pk):
         rule = get_object_or_404(models.Rule, id=pk)
         rule.enabled = not rule.enabled
@@ -288,7 +289,7 @@ class RuleToggle(View):
         return JsonResponse({'redirect': rule.content_object.get_absolute_url()})
 
 
-class HostDelete(DeleteView):
+class HostDelete(LoginRequiredMixin, DeleteView):
     model = models.Host
 
     def get_success_url(self):
@@ -299,7 +300,7 @@ class HostDelete(DeleteView):
         return self.object.farm.get_absolute_url()
 
 
-class ProjectDetail(DetailView):
+class ProjectDetail(LoginRequiredMixin, DetailView):
     queryset = models.Project.objects.prefetch_related(
         'rule_set',
         'rule_set__parent',
@@ -316,7 +317,7 @@ class ProjectDetail(DetailView):
         return context
 
 
-class FarmList(ListView):
+class FarmList(LoginRequiredMixin, ListView):
     queryset = models.Farm.objects\
         .prefetch_related(
             'project_set',
@@ -324,11 +325,11 @@ class FarmList(ListView):
         )
 
 
-class FarmDetail(DetailView):
+class FarmDetail(LoginRequiredMixin, DetailView):
     model = models.Farm
 
 
-class FarmUpdate(UpdateView):
+class FarmUpdate(LoginRequiredMixin, UpdateView):
     model = models.Farm
     button_label = _('Update Farm')
     template_name = 'promgen/farm_form.html'
@@ -348,7 +349,7 @@ class FarmUpdate(UpdateView):
         return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
 
 
-class FarmDelete(RedirectView):
+class FarmDelete(LoginRequiredMixin, RedirectView):
     pattern_name = 'farm-detail'
 
     def post(self, request, pk):
@@ -360,7 +361,7 @@ class FarmDelete(RedirectView):
         )
 
 
-class UnlinkFarm(View):
+class UnlinkFarm(LoginRequiredMixin, View):
     def post(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
         oldfarm, project.farm = project.farm, None
@@ -374,7 +375,7 @@ class UnlinkFarm(View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RulesList(ListView, ServiceMixin):
+class RulesList(LoginRequiredMixin, ListView, ServiceMixin):
     template_name = 'promgen/rule_list.html'
     queryset = models.Rule.objects\
         .prefetch_related('content_type', 'content_object')
@@ -399,7 +400,7 @@ class RulesList(ListView, ServiceMixin):
         return context
 
 
-class RulesCopy(View):
+class RulesCopy(LoginRequiredMixin, View):
     def post(self, request, pk):
         original = get_object_or_404(models.Rule, id=pk)
         form = forms.RuleCopyForm(request.POST)
@@ -411,7 +412,7 @@ class RulesCopy(View):
             return HttpResponseRedirect(reverse('service-detail', args=[pk]))
 
 
-class FarmRefresh(RedirectView):
+class FarmRefresh(LoginRequiredMixin, RedirectView):
     pattern_name = 'farm-detail'
 
     def post(self, request, pk):
@@ -428,7 +429,7 @@ class FarmRefresh(RedirectView):
         return redirect(farm)
 
 
-class FarmConvert(RedirectView):
+class FarmConvert(LoginRequiredMixin, RedirectView):
     pattern_name = 'farm-detail'
 
     def post(self, request, pk):
@@ -449,7 +450,7 @@ class FarmConvert(RedirectView):
         )
 
 
-class FarmLink(View):
+class FarmLink(LoginRequiredMixin, View):
     def get(self, request, pk, source):
         context = {
             'source': source,
@@ -473,7 +474,7 @@ class FarmLink(View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ExporterRegister(FormView, ProjectMixin):
+class ExporterRegister(LoginRequiredMixin, FormView, ProjectMixin):
     model = models.Exporter
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
@@ -495,7 +496,7 @@ class ExporterRegister(FormView, ProjectMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ExporterScrape(FormView):
+class ExporterScrape(LoginRequiredMixin, FormView):
     model = models.Exporter
     form_class = forms.ExporterForm
 
@@ -536,7 +537,7 @@ class ExporterScrape(FormView):
         return JsonResponse({'#' + context['target']: render_to_string('promgen/ajax_exporter.html', context)})
 
 
-class URLRegister(FormView, ProjectMixin):
+class URLRegister(LoginRequiredMixin, FormView, ProjectMixin):
     model = models.URL
     template_name = 'promgen/url_form.html'
     form_class = forms.URLForm
@@ -547,14 +548,14 @@ class URLRegister(FormView, ProjectMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class URLDelete(DeleteView):
+class URLDelete(LoginRequiredMixin, DeleteView):
     model = models.URL
 
     def get_success_url(self):
         return reverse('project-detail', args=[self.object.project_id])
 
 
-class URLList(ListView):
+class URLList(LoginRequiredMixin, ListView):
     queryset = models.URL.objects\
         .prefetch_related(
             'project',
@@ -563,7 +564,7 @@ class URLList(ListView):
         )
 
 
-class ProjectRegister(FormView, ServiceMixin):
+class ProjectRegister(LoginRequiredMixin, FormView, ServiceMixin):
     button_label = _('Project Register')
     model = models.Project
     template_name = 'promgen/project_form.html'
@@ -575,7 +576,7 @@ class ProjectRegister(FormView, ServiceMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ProjectUpdate(UpdateView):
+class ProjectUpdate(LoginRequiredMixin, UpdateView):
     model = models.Project
     button_label = _('Project Update')
     template_name = 'promgen/project_form.html'
@@ -587,14 +588,14 @@ class ProjectUpdate(UpdateView):
         return context
 
 
-class ServiceUpdate(UpdateView):
+class ServiceUpdate(LoginRequiredMixin, UpdateView):
     button_label = _('Update Service')
     form_class = forms.ServiceForm
     model = models.Service
     template_name = 'promgen/service_form.html'
 
 
-class RuleUpdate(UpdateView):
+class RuleUpdate(LoginRequiredMixin, UpdateView):
     queryset = models.Rule.objects.prefetch_related(
         'content_object',
         'overrides',
@@ -654,7 +655,7 @@ class RuleUpdate(UpdateView):
         return self.form_valid(form)
 
 
-class RuleRegister(FormView, ServiceMixin):
+class RuleRegister(LoginRequiredMixin, FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.NewRuleForm
@@ -700,7 +701,7 @@ class RuleRegister(FormView, ServiceMixin):
         return self.form_invalid(form)
 
 
-class ServiceRegister(FormView):
+class ServiceRegister(LoginRequiredMixin, FormView):
     button_label = _('Service Register')
     form_class = forms.ProjectForm
     model = models.Service
@@ -712,7 +713,7 @@ class ServiceRegister(FormView):
         return HttpResponseRedirect(service.get_absolute_url())
 
 
-class FarmRegsiter(FormView, ProjectMixin):
+class FarmRegsiter(LoginRequiredMixin, FormView, ProjectMixin):
     model = models.Farm
     button_label = _('Register Farm')
     template_name = 'promgen/farm_form.html'
@@ -726,7 +727,7 @@ class FarmRegsiter(FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ProjectNotifierRegister(FormView, ProjectMixin):
+class ProjectNotifierRegister(LoginRequiredMixin, FormView, ProjectMixin):
     model = models.Sender
     template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
@@ -737,7 +738,7 @@ class ProjectNotifierRegister(FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ServiceNotifierRegister(FormView, ServiceMixin):
+class ServiceNotifierRegister(LoginRequiredMixin, FormView, ServiceMixin):
     model = models.Sender
     template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
@@ -748,7 +749,7 @@ class ServiceNotifierRegister(FormView, ServiceMixin):
         return HttpResponseRedirect(service.get_absolute_url())
 
 
-class Status(FormView):
+class Status(LoginRequiredMixin, FormView):
     form_class = forms.SenderForm
     model = models.Sender
     template_name = 'promgen/status.html'
@@ -767,7 +768,7 @@ class Status(FormView):
         return redirect('status')
 
 
-class HostRegister(FormView):
+class HostRegister(LoginRequiredMixin, FormView):
     model = models.Host
     template_name = 'promgen/host_form.html'
     form_class = forms.HostForm
@@ -818,7 +819,7 @@ class ApiQueue(View):
         return HttpResponse('OK', status=202)
 
 
-class Commit(View):
+class Commit(LoginRequiredMixin, View):
     def post(self, request):
         signals.trigger_write_config.send(request)
         return HttpResponseRedirect(request.POST.get('next', '/'))
@@ -853,10 +854,6 @@ class _ExportRules(View):
 class RulesConfig(_ExportRules):
     def get(self, request):
         return self.format()
-
-    def post(self, request):
-        prometheus.write_rules()
-        return HttpResponse('OK', status=202)
 
 
 class ServiceRules(_ExportRules):
@@ -927,7 +924,7 @@ class Metrics(View):
         return HttpResponse(generate_latest(), content_type='text/plain')
 
 
-class Search(View):
+class Search(LoginRequiredMixin, View):
     def get(self, request):
         MAPPING = {
             'farm_list': {
@@ -991,7 +988,7 @@ class Search(View):
         return render(request, 'promgen/search.html', context)
 
 
-class RuleImport(FormView):
+class RuleImport(LoginRequiredMixin, FormView):
     form_class = forms.ImportRuleForm
     template_name = 'promgen/rule_import.html'
 
@@ -1014,7 +1011,7 @@ class RuleImport(FormView):
             return self.form_invalid(form)
 
 
-class Import(FormView):
+class Import(LoginRequiredMixin, FormView):
     template_name = 'promgen/import_form.html'
     form_class = forms.ImportConfigForm
 
@@ -1063,7 +1060,7 @@ class Import(FormView):
         return redirect('service-list')
 
 
-class Silence(FormView):
+class Silence(LoginRequiredMixin, FormView):
     form_class = forms.SilenceForm
 
     def post(self, request):
@@ -1099,7 +1096,7 @@ class Silence(FormView):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
-class SilenceExpire(FormView):
+class SilenceExpire(LoginRequiredMixin, FormView):
     form_class = forms.SilenceExpireForm
 
     def post(self, request):
@@ -1117,7 +1114,7 @@ class SilenceExpire(FormView):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
-class AjaxAlert(View):
+class AjaxAlert(LoginRequiredMixin, View):
     def get(self, request):
         alerts = []
         try:
@@ -1145,7 +1142,7 @@ class AjaxAlert(View):
         return JsonResponse(alerts, safe=False)
 
 
-class RuleTest(View):
+class RuleTest(LoginRequiredMixin, View):
     def post(self, request, pk):
         if pk == '0':
             rule = models.Rule()
@@ -1196,7 +1193,7 @@ class RuleTest(View):
         return JsonResponse({request.POST['target']: render_to_string('promgen/ajax_clause_check.html', context)})
 
 
-class AjaxSilence(View):
+class AjaxSilence(LoginRequiredMixin, View):
     def post(self, request):
         silences = collections.defaultdict(list)
         try:

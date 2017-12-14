@@ -2,19 +2,25 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 '''
-Deduplicated remote events
+Promgen middleware
 
-Since many different actions can trigger a write of the target.json or rules
+The middleware ensures three main things
+
+1. We globally set request.site so that we can easily use it when searching for
+   our global rule_set object
+
+2. We store request.user globally so that we can retrieve it when logging users
+   to our AuditLog
+
+3. Since many different actions can trigger a write of the target.json or rules
 files, we need to handle some deduplication. This is handled by using the django
 caching system to set a key and then triggering the actual event from middleware
 '''
 
 import logging
-import re
 from threading import local
 
 from django.contrib import messages
-from django.contrib.auth.views import redirect_to_login
 
 from promgen import models
 from promgen.signals import (trigger_write_config, trigger_write_rules,
@@ -23,22 +29,10 @@ from promgen.signals import (trigger_write_config, trigger_write_rules,
 logger = logging.getLogger(__name__)
 
 
-UNAUTHENTICATED_WHITELIST = re.compile('^/(%s)' % '|'.join(
-    re.escape(s) for s in [
-        '__debug__',
-        'alert',
-        'api/v1',
-        'complete',
-        'login',
-        'metrics',
-    ]
-))
-
-
 _user = local()
 
 
-class RemoteTriggerMiddleware(object):
+class PromgenMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response
 
@@ -48,6 +42,10 @@ class RemoteTriggerMiddleware(object):
         # but ensures that it uses our proxy object so that test cases
         # properly find our rule_set object
         request.site = models.Site.objects.get_current()
+
+        # Get our logged in user to use with our audit logging plugin
+        if request.user.is_authenticated():
+            _user.value = request.user
 
         response = self.get_response(request)
 
@@ -62,22 +60,6 @@ class RemoteTriggerMiddleware(object):
                 if status is False:
                     messages.warning(request, 'Error queueing %s ' % msg)
         return response
-
-
-class RequireLoginMiddleware(object):
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        if UNAUTHENTICATED_WHITELIST.match(request.get_full_path()):
-            logger.debug('Alowing unauthenticated for %s', request.get_full_path())
-            return self.get_response(request)
-        if request.user.is_authenticated():
-            _user.value = request.user
-            return self.get_response(request)
-
-        logger.debug('Requires authentication for %s', request.get_full_path())
-        return redirect_to_login(request.get_full_path())
 
 
 def get_current_user():
