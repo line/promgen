@@ -35,12 +35,6 @@ def check_rules(rules):
     a dummy command such as /usr/bin/true that always returns true
     '''
 
-    # This command changed to be without a space in 2.x
-    if settings.PROMGEN['prometheus'].get('version') == 2:
-        check_rules = 'check rules'
-    else:
-        check_rules = 'check-rules'
-
     with tempfile.NamedTemporaryFile(mode='w', encoding='utf8') as fp:
         logger.debug('Rendering to %s', fp.name)
         # Normally we wouldn't bother saving a copy to a variable here and would
@@ -50,17 +44,21 @@ def check_rules(rules):
         fp.write(rendered)
         fp.flush()
 
+        # This command changed to be without a space in 2.x
+        cmd = [settings.PROMGEN['prometheus']['promtool']]
+        if settings.PROMGEN['prometheus'].get('version') == 2:
+            cmd += ['check', 'rules']
+        else:
+            cmd += ['check-rules']
+        cmd += [fp.name]
+
         try:
-            subprocess.check_output([
-                settings.PROMGEN['prometheus']['promtool'],
-                check_rules,
-                fp.name
-            ], stderr=subprocess.STDOUT)
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             raise Exception(rendered + e.output.decode('utf8'))
 
 
-def render_rules(rules=None, version=1):
+def render_rules(rules=None, version=None):
     '''
     Render rules in a format that Prometheus understands
 
@@ -70,6 +68,8 @@ def render_rules(rules=None, version=1):
     '''
     if rules is None:
         rules = models.Rule.objects.filter(enabled=True)
+    if version is None:
+        version = settings.PROMGEN['prometheus'].get('version', 1)
 
     prefetch_related_objects(
         rules,
