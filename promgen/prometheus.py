@@ -17,6 +17,8 @@ from dateutil import parser
 from django.conf import settings
 from django.db.models import prefetch_related_objects
 from django.template.loader import render_to_string
+from django.utils import timezone
+
 import promgen.templatetags.promgen as macro
 from promgen import models, util
 from promgen.celery import app as celery
@@ -415,7 +417,7 @@ def silence(labels, duration=None, **kwargs):
     Duration should be sent in a format like 1m 2h 1d etc
     '''
     if duration:
-        start = datetime.datetime.now(datetime.timezone.utc)
+        start = timezone.now()
         if duration.endswith('m'):
             end = start + datetime.timedelta(minutes=int(duration[:-1]))
         elif duration.endswith('h'):
@@ -432,7 +434,6 @@ def silence(labels, duration=None, **kwargs):
                 .replace(tzinfo=local_timezone)\
                 .astimezone(pytz.utc)\
                 .strftime('%Y-%m-%dT%H:%M:%S.000Z')
-
     kwargs['matchers'] = [{
         'name': name,
         'value': value,

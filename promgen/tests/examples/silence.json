@@ -1,0 +1,10 @@
+{
+    "createdBy": "Promgen",
+    "matchers": [{
+        "value": "example.com:[0-9]*",
+        "isRegex": true,
+        "name": "instance"
+    }],
+    "comment": "Silenced from Promgen",
+    "endsAt": "2017-12-14T00:01:00.000Z"
+}
