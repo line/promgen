@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.24
+* [BUGFIX] Minor permissions fix with atomic_write method
+* [IMPROVEMENT] Remove special 'default' group and support Site as a parent for shared rules
+* [IMPROVEMENT] Add support for Prometheus 2.x rule format (yaml rules)
+* [IMPROVEMENT] Fix getting started documentation with Docker
+* [BUGFIX] Add test cases for alert manager silence
+* [BUGFIX] Switch to Django's builtin LoginRequiredMixin to handle auth
+* [CHANGE] remove 'rule_writer' stanza from config and mere into 'prometheus' stanza
+
+```yaml
+# These are used for Promgen to automatically trigger a reload on target changes
+prometheus:
+  url: http://prometheus:9090/
+  version: 2
+  # Promtool was moved into the prometheus stanza. To skip validation this can
+  # be set to the path of the 'true' binary
+  promtool: /usr/local/bin/promtool
+  # promtool: /usr/bin/true # to disable
+  # Output rule configuration to this path
+  rules: /etc/prometheus/promgen.rule.yml
+  # Or remove .yml for when working with Prometheus 1.x
+  # rules: /etc/prometheus/promgen.rule
+# The old rule_writer format is now unused and can be deleted
+#rule_writer:
+#  path: /etc/prometheus/promgen.rule
+#  promtool_path: /usr/local/bin/promtool
+```
+
+
 ## v0.23
 * [BUGFIX] Fix double escape regression
 * [BUGFIX] Fix host silence tag on search page
@@ -14,7 +43,6 @@
 * [IMPROVEMENT] Urlize comments in Silence list (for linking to bug tracker)
 * [IMPROVEMENT] Add description field to rules so developers can add additional context
 * [IMPROVEMENT] Update Django to 1.11
-
 
 ## v0.21
 
