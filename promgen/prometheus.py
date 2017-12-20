@@ -98,9 +98,9 @@ def render_rules(rules=None, version=None):
             'annotations': r.annotations,
         })
 
-    return yaml.dump({'groups': [
+    return yaml.safe_dump({'groups': [
         {'name': name, 'rules': rule_list[name]} for name in rule_list
-    ]}, default_flow_style=False)
+    ]}, default_flow_style=False, allow_unicode=True, encoding='utf-8')
 
 
 def render_urls():

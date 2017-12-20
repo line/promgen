@@ -33,7 +33,7 @@ groups:
     for: 1s
     labels:
       severity: severe
-'''.lstrip()
+'''.lstrip().encode('utf-8')
 
 
 class RuleTest(PromgenTest):
