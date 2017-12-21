@@ -82,7 +82,13 @@ class RuleAnnotationInline(admin.TabularInline):
 @admin.register(models.Rule)
 class RuleAdmin(admin.ModelAdmin):
     list_display = ('name', 'clause', 'duration', 'content_object')
+    list_filter = ('duration',)
+    list_select_related = ('content_type',)
     inlines = [RuleLabelInline, RuleAnnotationInline]
+
+    def get_queryset(self, request):
+        qs = super(RuleAdmin, self).get_queryset(request)
+        return qs.prefetch_related('content_object',)
 
 
 @admin.register(models.Prometheus)
