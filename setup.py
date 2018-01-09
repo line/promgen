@@ -40,6 +40,7 @@ setup(
         'requests',
         'social-auth-app-django',
     ],
+    include_package_data=True,
     extras_require={
         'dev': [
             'codecov',

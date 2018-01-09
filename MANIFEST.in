@@ -1,0 +1,4 @@
+include MANIFEST.in
+include README.md
+graft promgen/static
+graft promgen/templates
