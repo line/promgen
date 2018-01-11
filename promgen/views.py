@@ -685,6 +685,8 @@ class RuleRegister(LoginRequiredMixin, FormView, ServiceMixin):
                 return self.form_invalid(form)
 
             form.instance.save()
+            form.instance.add_label(form.instance.content_type.model, form.instance.content_object.name)
+
             return HttpResponseRedirect(form.instance.get_absolute_url())
 
         if 'rules' not in request.POST:

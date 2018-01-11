@@ -35,7 +35,7 @@ def check_rules(rules):
     a dummy command such as /usr/bin/true that always returns true
     '''
 
-    with tempfile.NamedTemporaryFile(mode='w', encoding='utf8') as fp:
+    with tempfile.NamedTemporaryFile(mode='w+b') as fp:
         logger.debug('Rendering to %s', fp.name)
         # Normally we wouldn't bother saving a copy to a variable here and would
         # leave it in the fp.write() call, but saving a copy in the variable
