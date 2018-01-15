@@ -142,13 +142,19 @@ $(document).ready(function() {
   }).css('cursor', 'pointer');
 
   $('[data-toggle="toggle"]').bootstrapSwitch();
-  $('[data-toggle="toggle"][data-action]').on('switchChange.bootstrapSwitch', function() {
-    $.post(this.dataset.action, this.dataset).done(function(data){
-      // Ideally we would directly update things that need to be updated
-      // but a page redraw is a bit easier since that also allows us to
-      // update our page messages
-      window.location = data.redirect
-    });
+  $('[data-toggle="toggle"][data-action]').on('switchChange.bootstrapSwitch', function(event, state) {
+    if (window.confirm("Are you sure?")) {
+      $.post(this.dataset.action, this.dataset).done(function(data){
+        // Ideally we would directly update things that need to be updated
+        // but a page redraw is a bit easier since that also allows us to
+        // update our page messages
+        window.location = data.redirect
+      });
+    } else {
+      // If we click the cancel button, then we restore the old state and
+      // use the third parameter to skip re-firing the change event
+      $(this).bootstrapSwitch('state', !state, true);
+    }
   });
 
   $("select[data-ajax]").each(function(index) {

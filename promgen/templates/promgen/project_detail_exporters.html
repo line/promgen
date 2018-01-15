@@ -12,7 +12,7 @@
       <th>&nbsp;</th>
     </tr>
   {% for exporter in project.exporter_set.all %}
-    <tr>
+    <tr {% if not exporter.enabled %}class="bg-disabled text-muted"{% endif %}>
       <td>{{ exporter.job }}</td>
       <td>{{ exporter.port }}</td>
       <td>{{ exporter.path | default:"/metrics" }}</td>
