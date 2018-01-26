@@ -1,9 +1,19 @@
 FROM python:3.5.3-alpine
 MAINTAINER paul.traylor@linecorp.com
 
+ENV PROMETHEUS_VERSION 2.1.0
+ENV PROMETHEUS_DOWNLOAD_URL https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
+
 RUN adduser -D -u 1000 promgen promgen
 RUN apk add --no-cache --update mariadb-dev build-base bash && \
     rm -rf /var/cache/apk/*
+
+RUN set -ex; \
+        apk add --no-cache curl tar; \
+        curl -L -s $PROMETHEUS_DOWNLOAD_URL \
+		| tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool; \
+        apk del curl tar; \
+	rm -rf /var/cache/apk;
 
 ENV PYTHONUNBUFFERED 1
 ENV PIP_NO_CACHE_DIR off
