@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.25
+* [BUGFIX] Fix formatting on yaml rules file to output as unicode
+* [BUGFIX] Minor optimization for admin page
+* [BUGFIX] Include missing package data
+* [BUGFIX] Fix double slash with exporter path test
+* [IMPROVEMENT] Add default project/service label when creating new rule
+* [IMPROVEMENT] Show disabled exporters as light grey
+* [IMPROVEMENT] Show confirmation when toggling exporter
+
 ## v0.24
 * [BUGFIX] Minor permissions fix with atomic_write method
 * [IMPROVEMENT] Remove special 'default' group and support Site as a parent for shared rules
