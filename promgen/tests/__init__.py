@@ -6,8 +6,6 @@ import os
 import yaml
 from django.test import TestCase
 
-from promgen import models
-
 
 class PromgenTest(TestCase):
     @classmethod
@@ -26,6 +24,7 @@ class PromgenTest(TestCase):
             return fp.read()
 
     def factory(self, klass, name):
+        from promgen import models
         if klass == models.Project:
             shard = models.Shard.objects.create(
                 name='Shard ' + name)
