@@ -189,7 +189,7 @@ def write_config(path=None, reload=True, chmod=0o644):
 def write_rules(path=None, reload=True, chmod=0o644, version=None):
     if path is None:
         path = settings.PROMGEN['prometheus']['rules']
-    with atomic_write(path, overwrite=True) as fp:
+    with atomic_write(path, mode='wb', overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
         fp.write(render_rules(version=version))
