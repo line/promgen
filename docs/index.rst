@@ -13,6 +13,7 @@ Welcome to Promgen's documentation!
   terms
   rules
   docker
+  django-conf
 
 .. toctree::
   :hidden:
