@@ -6,14 +6,10 @@ services:
   base:
     build: .
     image: promgen
-    network_mode: bridge
     command: sh -c "promgen migrate && promgen register docker-demo localhost 9090"
-    external_links:
-      - mysql
-      - redis
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
-      DATABASE_URL: mysql://promgen:promgen@mysql:3306/pypromgen
+      DATABASE_URL: mysql://promgen:promgen@mysql:3306/promgen
       SECRET_KEY: asdf
 
   web:
@@ -21,6 +17,9 @@ services:
     command: promgen runserver 0.0.0.0:8000
     ports:
       - "8080:8000"
+    links:
+      - mysql
+      - redis
     environment:
       DEBUG: 1
 
@@ -29,12 +28,14 @@ services:
     command: worker -l info --queues localhost,celery
     links:
       - prometheus
+      - mysql
+      - redis
     volumes:
       - ./docker:/etc/prometheus
+      - ./docker/prom_data:/prometheus
 
   prometheus:
     image: prom/prometheus
-    network_mode: bridge
     links:
       - alertmanager
       - blackbox
@@ -52,10 +53,22 @@ services:
   alertmanager:
     image: prom/alertmanager
     command: -config.file=/etc/prometheus/alertmanager.yml
-    network_mode: bridge
     links:
       - web
     ports:
       - "9093:9093"
     volumes:
       - ./docker:/etc/prometheus
+
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: promgen
+      MYSQL_USER: promgen
+      MYSQL_PASSWORD: promgen
+    volumes:
+      - ./docker/mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis
