@@ -45,6 +45,7 @@ setup(
         'dev': [
             'codecov',
             'django-nose',
+            'factory_boy',
             'nose-cov',
         ]
     },
@@ -59,6 +60,7 @@ setup(
             'email = promgen.notification.email:NotificationEmail',
             'ikasan = promgen.notification.ikasan:NotificationIkasan',
             'linenotify = promgen.notification.linenotify:NotificationLineNotify',
+            'slack = promgen.notification.slack:NotificationSlack',
             'user = promgen.notification.user:NotificationUser',
             'webhook = promgen.notification.webhook:NotificationWebhook',
         ],

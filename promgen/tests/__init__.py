@@ -22,3 +22,17 @@ class PromgenTest(TestCase):
     def data(cls, *args):
         with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
             return fp.read()
+
+    def factory(self, klass, name):
+        from promgen import models
+        if klass == models.Project:
+            shard = models.Shard.objects.create(
+                name='Shard ' + name)
+            service = models.Service.objects.create(
+                name='Service ' + name,
+                shard=shard,
+                )
+            return models.Project.objects.create(
+                name=name,
+                service=service,
+            )

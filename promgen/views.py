@@ -513,16 +513,17 @@ class ExporterScrape(LoginRequiredMixin, FormView):
             'referer': project.get_absolute_url()
         }
 
-        # Default /metrics path
+        # The default __metrics_path__ for Prometheus is /metrics so we need to
+        # manually add it here in the case it's not set for our test
         if not form.cleaned_data['path']:
-            form.cleaned_data['path'] = 'metrics'
+            form.cleaned_data['path'] = '/metrics'
 
         if not project.farm:
             context['errors'].append({'url': headers['referer'], 'message': 'Missing Farm'})
         else:
             with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
                 for host in project.farm.host_set.all():
-                    futures.append(executor.submit(util.get, 'http://{}:{}/{}'.format(
+                    futures.append(executor.submit(util.get, 'http://{}:{}{}'.format(
                         host.name, form.cleaned_data['port'], form.cleaned_data['path']
                     ), headers=headers))
                 for future in concurrent.futures.as_completed(futures):
