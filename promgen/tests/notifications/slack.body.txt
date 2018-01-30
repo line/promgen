@@ -1,0 +1,13 @@
+[firing] test.alert test.project test.service
+
+Grafana: http://grafana.example/dashboard/db/overview?var-service=test.service&var-project=test.project
+Project: http://example.com/project/{project.id}/
+Service: http://example.com/service/{service.id}/
+
+Labels: a.example 
+Summary: Error on a.example
+Source: http://prometheus.example
+
+Labels: b.example 
+Summary: Error on b.example
+Source: http://prometheus.example
