@@ -6,7 +6,7 @@ global:
     cluster_name: 'promgen'
 
 rule_files:
-- "/etc/prometheus/promgen.rule.yml"
+- "/etc/prometheus/promgen.rule"
 
 alerting:
   alertmanagers:
@@ -21,7 +21,7 @@ scrape_configs:
         - "/etc/prometheus/promgen.json"
     relabel_configs:
     - source_labels: [__shard]
-      regex: docker-demo
+      regex: .*
       action: keep
 
   - job_name: 'blackbox'
