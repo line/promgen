@@ -44,7 +44,7 @@ be more specific with certain services
 
 Visuallizing it as a hiarchy it would look like this
 
-.. code-block:: yml
+.. code-block:: yaml
 
     # Global Rule excludes children
     example_rule{service!~"A|B",}:
