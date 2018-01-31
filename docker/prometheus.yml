@@ -5,6 +5,8 @@ global:
   external_labels:
     cluster_name: 'promgen'
 
+# In the case someone is running Prometheus 1.x, then the .yml extension should
+# be dropped
 rule_files:
 - "/etc/prometheus/promgen.rule.yml"
 
@@ -19,10 +21,15 @@ scrape_configs:
     file_sd_configs:
       - files:
         - "/etc/prometheus/promgen.json"
-    relabel_configs:
-    - source_labels: [__shard]
-      regex: docker-demo
-      action: keep
+    # In an advanced setup, you would want to tell Prometheus to scrape only a
+    # subset of targets where the __shard label should corrispond to the same
+    # shard name within Promgen. This is a bit more fragile than I initially
+    # intended it to be and I think I want to make the worker a bit smarter at
+    # filtering so that this isn't needed.
+    # relabel_configs:
+    # - source_labels: [__shard]
+    #   regex: docker-demo
+    #   action: keep
 
   - job_name: 'blackbox'
     metrics_path: /probe
@@ -44,6 +51,7 @@ scrape_configs:
         regex: .*
         target_label: __address__
         replacement: blackbox:9115  # Blackbox exporter.
-      - source_labels: [__shard]
-        regex: docker-demo
-        action: keep
+      # See above comment
+      # - source_labels: [__shard]
+      #   regex: docker-demo
+      #   action: keep

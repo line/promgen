@@ -1,7 +1,8 @@
-Dockerfile
-Makefile
-docker-compose
+.git
 *.egg-info
 dist
-data
-.git
+docker-compose.yml
+docker/mysql_data
+docker/prom_data
+Dockerfile
+Makefile
