@@ -32,4 +32,7 @@ class Command(BaseCommand):
                 version=kwargs['version']
             )
         else:
+            # Since we're already working with utf8 encoded data, we can skip
+            # the newline ending here
+            self.stdout.ending = None
             self.stdout.write(prometheus.render_rules(version=kwargs['version']))

@@ -62,9 +62,15 @@ def render_rules(rules=None, version=None):
     '''
     Render rules in a format that Prometheus understands
 
+    :param rules: List of rules
+    :type rules: list(Rule)
+    :param int version: Prometheus rule format (1 or 2)
+    :return: Returns rules in yaml or Prometheus v1 format
+    :rtype: bytes
+
     This function can render in either v1 or v2 format
     We call prefetch_related_objects within this function to populate the
-    other related objects that are mostly used for the sub lookups
+    other related objects that are mostly used for the sub lookups.
     '''
     if rules is None:
         rules = models.Rule.objects.filter(enabled=True)
@@ -84,7 +90,7 @@ def render_rules(rules=None, version=None):
     # V1 format is a custom format which we render through django templates
     # See promgen/tests/examples/import.rule
     if version == 1:
-        return render_to_string('promgen/prometheus.rule', {'rules': rules})
+        return render_to_string('promgen/prometheus.rule', {'rules': rules}).encode('utf-8')
 
     # V2 format is a yaml dictionary which we build and then render
     # See promgen/tests/examples/import.rule.yml
@@ -189,7 +195,7 @@ def write_config(path=None, reload=True, chmod=0o644):
 def write_rules(path=None, reload=True, chmod=0o644, version=None):
     if path is None:
         path = settings.PROMGEN['prometheus']['rules']
-    with atomic_write(path, overwrite=True) as fp:
+    with atomic_write(path, mode='wb', overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
         fp.write(render_rules(version=version))
