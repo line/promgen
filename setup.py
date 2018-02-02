@@ -12,8 +12,10 @@ with open(os.path.join(here, "promgen", "version.py")) as f:
     exec(f.read(), about)
 
 setup(
-    name='Promgen',
+    name='promgen',
     author='LINE Corporation',
+    author_email='dl_oss_dev@linecorp.com',
+    url='https://github.com/line/promgen',
     packages=find_packages(exclude=['test']),
     version=about['__version__'],
     classifiers=[
