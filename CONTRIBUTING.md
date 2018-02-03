@@ -18,7 +18,7 @@ pip install mysqlclient # psycopg or another database driver
 # Provide initial configuration
 promgen bootstrap
 # Enable DEBUG (and development) mode
-touch ~/.config/promgen/DEBUG
+echo 1 > ~/.config/promgen/DEBUG
 # Copy default settings (amend by hand after)
 cp promgen/tests/examples/promgen.yml
 # Setup database and update tables
