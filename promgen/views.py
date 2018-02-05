@@ -130,6 +130,10 @@ class HostDetail(LoginRequiredMixin, View):
             id__in=context['farm_list'].values_list('project__id', flat=True)
         ).prefetch_related('notifiers', 'rule_set')
 
+        context['exporter_list'] = models.Exporter.objects.filter(
+            project_id__in=context['project_list'].values_list('id', flat=True)
+        ).prefetch_related('project', 'project__service')
+
         context['service_list'] = models.Service.objects.filter(
             id__in=context['project_list'].values_list('service__id', flat=True)
         ).prefetch_related('notifiers', 'rule_set')
