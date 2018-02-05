@@ -716,7 +716,7 @@ class ServiceRegister(LoginRequiredMixin, FormView):
         return HttpResponseRedirect(service.get_absolute_url())
 
 
-class FarmRegsiter(LoginRequiredMixin, FormView, ProjectMixin):
+class FarmRegister(LoginRequiredMixin, FormView, ProjectMixin):
     model = models.Farm
     button_label = _('Register Farm')
     template_name = 'promgen/farm_form.html'

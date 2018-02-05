@@ -10,10 +10,11 @@ Welcome to Promgen's documentation!
   :maxdepth: 2
   :hidden:
 
-  terms
+  worker
   rules
   docker
   django-conf
+  terms
 
 .. toctree::
   :hidden:
@@ -26,23 +27,13 @@ Welcome to Promgen's documentation!
 .. image:: images/screenshot.png
 
 
-.. graphviz::
+Overview
+--------
 
-  digraph G {
-    Prometheus -> Exporters [color=blue, label="(2) Scrapes targets"]
+.. image:: images/overview.png
 
-    subgraph cluster {
-      style = rounded;
-      Prometheus -> AlertManager [color=red, label="(3) Generates Alerts"]
-      AlertManager -> Promgen [color=red, label="(4) Forwards Alerts"]
-      Promgen -> Prometheus [color=orange, label="(1) Generates Target and Rules"]
-    }
-
-    subgraph senders {
-      style = rounded;
-      Promgen -> Email
-      Promgen -> Ikasan;
-      Promgen -> LINENotify
-      Promgen -> Webhook [label="(5) Routes to notifier based on labels"];
-    }
-  }
+1. Promgen manages a list of Targets and Rules that it deploys to a Prometheus server
+2. Prometheus will load these settings and proceed to scrape targets
+3. When an alert fires, it will be sent to AlertManager
+4. AlertManager will group on labels and handle de-duplication and forward to Promgen
+5. Promgen will route the message based on labels to the correct notification

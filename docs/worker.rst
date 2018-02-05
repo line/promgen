@@ -1,0 +1,83 @@
+Configuration Management
+========================
+
+One of Promgen's primary roles is to manage a list of targets for Prometheus to scrape.
+There are multiple ways to deploy these targets to a Prometheus server.
+
+Worker Model (Push)
+-------------------
+
+.. image:: images/worker.png
+
+Promgen's Push mode relies on `celery <http://docs.celeryproject.org>`__ to push updates to Prometheus.
+A Promgen worker is run on each Prometheus server which subscribes to a named queue to signal when to write
+out an updated configuration file, and update Prometheus.
+
+.. code-block:: bash
+
+    # Assuming a Prometheus server named promserv be sure the Prometheus server
+    # URL is configured in ~/.config/promgen/promgen.yml
+    celery -A promgen -l info --queues promserv
+    # If running within docker, the same command would look like this
+    docker run --rm \
+        -v ~/.config/promgen:/etc/promgen/ \
+        -v /etc/prometheus:/etc/prometheus \
+        line/promgen worker -l info --queues promserv
+
+
+Cron Model (Pull)
+-----------------
+
+.. image:: images/cron.png
+
+In some cases it is not possible (or not desired) to install Promgen beside Prometheus.
+In this case, Promgne's pull mode can be used by trigging a small script running from cron
+or any other job framework. This only requires the server where Prometheus is running,
+to be able to access Promgen over HTTP.
+
+.. code-block:: bash
+
+    #!/bin/sh
+    set -e
+    # Download all the targets from Promgen to a temporary file
+    curl http://promgen/api/v1/targets --output /etc/prometheus/targets.tmp
+    # Optionally you could download from a specific service or project
+    # curl http://promgen/service/123/targets -o /etc/prometheus/targets.tmp
+    # curl http://promgen/project/456/targets -o /etc/prometheus/targets.tmp
+    # Move our file to make it more atomic
+    mv /etc/prometheus/targets.tmp /etc/prometheus/targets.json
+    # Tell Prometheus to reload
+    curl -XPOST http://localhost:9090/-/reload
+
+
+If it's possible to install Promgen, then there is a Promgen helper command that
+handles the same basic steps as the above command. This will however require
+the Prometheus server to be able to access the same database as the Promgen
+web instance.
+
+.. code-block:: bash
+
+    # Internally Promgen uses an atomic write function so you can give
+    # it the path where you want to save it and have it --reload automatically
+    promgen targets /etc/prometheus/targets.json --reload
+
+
+Filtering Targets (Both)
+------------------------
+
+In both models, you will want to ensure that the Prometheus server only scrapes
+the correct subset of targets. Ensure that the correct rewrite_labels is configured
+
+.. code-block:: yaml
+
+    - job_name: 'promgen'
+      file_sd_configs:
+        - files:
+          - "/etc/prometheus/promgen.json"
+      relabel_configs:
+      - source_labels: [__shard]
+        # Our regex value here should match the shard name (exported as __shard)
+        # that shows up in Promgen. In the case we want our Prometheus server to
+        # scrape all targets, then we can ommit the relable config.
+        regex: docker-demo
+        action: keep

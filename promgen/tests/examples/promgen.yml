@@ -6,7 +6,7 @@ prometheus:
   # Path to promtool to verify valid rules file
   promtool: /usr/local/bin/promtool
   # Output rule configuration to this path
-  rules: /etc/prometheus/promgen.rule
+  rules: /etc/prometheus/promgen.rule.yml
 
 alertmanager:
   url: http://alertmanager:9093

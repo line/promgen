@@ -18,3 +18,5 @@ dist
 docker/promgen.json
 docker/promgen.rule
 docker/blackbox.json
+docker/mysql_data
+docker/prom_data

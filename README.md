@@ -30,14 +30,14 @@ chmod 777 ~/.config/promgen
 # using the standard DSN syntax.
 # Database example: mysql://password:username@hostname/databasename
 # Broker example: redis://localhost:6379/0
-docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen:master bootstrap
+docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen bootstrap
 
 # Apply database updates
-docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen:master migrate
+docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen migrate
 
 # Create initial login user. This is the same as the default django-admin command
 # https://docs.djangoproject.com/en/1.10/ref/django-admin/#django-admin-createsuperuser
-docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen:master createsuperuser
+docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen createsuperuser
 ```
 
 You can then use your favorite configuration management system to deploy to each worker.
@@ -60,10 +60,15 @@ Run Promgen using the following command.
 
 ```bash
 # Run Promgen web worker. This is typically balanced behind an NGINX instance
-docker run --rm -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ line/promgen:master
+docker run --rm -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ line/promgen
 
 # Run Promgen celery worker. Make sure to run it on the same machine as your Prometheus server to manage the config settings
-docker run --rm -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus line/promgen:master worker
+docker run --rm -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus line/promgen worker
+
+# Or if using docker-compose you can spin up a complete test environment
+docker-compose up -d
+# Create initial user
+docker-compose run web createsuperuser
 ```
 
 ## How to contribute to Promgen

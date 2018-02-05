@@ -47,4 +47,3 @@ class NotificationSlack(NotificationBase):
         }
 
         util.post(url, json=json).raise_for_status()
-

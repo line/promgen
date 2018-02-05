@@ -19,7 +19,7 @@ ALERT RuleName
   ANNOTATIONS {rule="http://example.com/rule/%d/edit", summary="Test case"}
 
 
-'''.lstrip()
+'''.lstrip().encode('utf-8')
 
 _RULE_NEW = '''
 groups:
