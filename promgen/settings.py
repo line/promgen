@@ -40,7 +40,7 @@ if not SECRET_KEY:
     SECRET_KEY = get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'DEBUG' in os.environ and os.environ['DEBUG'] != '0'
+DEBUG = os.environ.get('DEBUG', '0') != '0'
 
 # Settings for Prometheus paths and such
 PROMGEN_CONFIG = os.path.join(CONFIG_DIR, 'promgen.yml')
