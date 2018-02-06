@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             field=models.PositiveIntegerField(default=1),
             preserve_default=False,
         ),
-        migrations.RunPython(convert_to_content_type, convert_to_service),
+        migrations.RunPython(convert_to_content_type, convert_to_service, elidable=True),
         migrations.RemoveField(
             model_name='rule',
             name='service',

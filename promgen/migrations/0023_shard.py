@@ -30,9 +30,7 @@ class Migration(migrations.Migration):
                 'ordering': ['name'],
             },
         ),
-        migrations.RunPython(
-            default_shard
-        ),
+        migrations.RunPython(default_shard, elidable=True),
         migrations.AddField(
             model_name='service',
             name='shard',

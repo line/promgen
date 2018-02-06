@@ -20,7 +20,7 @@ class Command(BaseCommand):
     def write_setting(self, key, default='', test=None):
         path = os.path.join(settings.CONFIG_DIR, key)
         if os.path.exists(path):
-            self.write('Setting {} exists', key)
+            self.write('  Setting {} exists', key)
             return
 
         value = None
@@ -42,7 +42,7 @@ class Command(BaseCommand):
             fp.write(value)
 
     def handle(self, **kwargs):
-        self.write('Bootstrapping Promgen')
+        self.stdout.write(self.style.MIGRATE_HEADING('Bootstrapping Promgen'))
 
         if not os.path.exists(settings.CONFIG_DIR):
             self.write('Creating config directory {} ', settings.CONFIG_DIR)
@@ -50,7 +50,7 @@ class Command(BaseCommand):
 
         if not os.path.exists(settings.PROMGEN_CONFIG):
             path = os.path.join(settings.BASE_DIR, 'promgen', 'tests', 'examples', 'promgen.yml')
-            self.write('Creating promgen config {} from {}', settings.PROMGEN_CONFIG, path)
+            self.write('  Creating promgen config {} from {}', settings.PROMGEN_CONFIG, path)
             shutil.copy(path, settings.PROMGEN_CONFIG)
 
         self.write_setting('SECRET_KEY', default=settings.SECRET_KEY)

@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
             field=models.PositiveIntegerField(default=1),
             preserve_default=False,
         ),
-        migrations.RunPython(convert_to_content_type, convert_to_project),
+        migrations.RunPython(convert_to_content_type, convert_to_project,elidable=True),
         migrations.RemoveField(
             model_name='sender',
             name='project',

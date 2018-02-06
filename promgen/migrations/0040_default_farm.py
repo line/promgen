@@ -22,5 +22,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(rename_to_promgen, rename_to_default),
+        migrations.RunPython(rename_to_promgen, rename_to_default, elidable=True),
     ]

@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='promgen.Rule'),
         ),
 
-        migrations.RunPython(convert_to_list, convert_to_json),
+        migrations.RunPython(convert_to_list, convert_to_json, elidable=True),
 
         migrations.RemoveField(
             model_name='rule',
