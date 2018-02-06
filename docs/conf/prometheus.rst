@@ -1,13 +1,14 @@
-Configuration Management
-========================
+Prometheus Server
+=================
 
 One of Promgen's primary roles is to manage a list of targets for Prometheus to scrape.
+For high availability, it is generally prefered to have multiple Prometheus servers running together.
 There are multiple ways to deploy these targets to a Prometheus server.
 
 Worker Model (Push)
 -------------------
 
-.. image:: images/worker.png
+.. image:: /images/worker.png
 
 Promgen's Push mode relies on `celery <http://docs.celeryproject.org>`__ to push updates to Prometheus.
 A Promgen worker is run on each Prometheus server which subscribes to a named queue to signal when to write
@@ -15,20 +16,25 @@ out an updated configuration file, and update Prometheus.
 
 .. code-block:: bash
 
-    # Assuming a Prometheus server named promserv be sure the Prometheus server
-    # URL is configured in ~/.config/promgen/promgen.yml
-    celery -A promgen -l info --queues promserv
+    # Assuming we have a Prometheus shard named promshard and two servers we
+    # may deploy the workers like this
+    promgen register promshard prometheus001 9090
+    promgen register promshard prometheus002 9090
+
+    # Then on each Prometheus server, we would want to run a celery worker with
+    # the queue name matching the name that we registered
+    celery -A promgen -l info --queues prometheus001
     # If running within docker, the same command would look like this
     docker run --rm \
         -v ~/.config/promgen:/etc/promgen/ \
         -v /etc/prometheus:/etc/prometheus \
-        line/promgen worker -l info --queues promserv
+        line/promgen worker -l info --queues prometheus001
 
 
 Cron Model (Pull)
 -----------------
 
-.. image:: images/cron.png
+.. image:: /images/cron.png
 
 In some cases it is not possible (or not desired) to install Promgen beside Prometheus.
 In this case, Promgne's pull mode can be used by trigging a small script running from cron
@@ -79,5 +85,5 @@ the correct subset of targets. Ensure that the correct rewrite_labels is configu
         # Our regex value here should match the shard name (exported as __shard)
         # that shows up in Promgen. In the case we want our Prometheus server to
         # scrape all targets, then we can ommit the relable config.
-        regex: docker-demo
+        regex: promshard
         action: keep
