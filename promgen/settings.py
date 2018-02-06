@@ -26,24 +26,22 @@ from promgen.version import __version__
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CONFIG_DIR = os.environ['CONFIG_DIR']
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY:
-    warnings.warn('Unset SECRET_KEY setting to random for now')
-    # Taken from Django's generation function
-    from django.utils.crypto import get_random_string
-    SECRET_KEY = get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', '0') != '0'
 
 # Settings for Prometheus paths and such
-PROMGEN_CONFIG = os.path.join(CONFIG_DIR, 'promgen.yml')
+PROMGEN_CONFIG_DIR = os.environ['PROMGEN_CONFIG_DIR']
+PROMGEN_CONFIG = os.environ.get(
+    'PROMGEN_CONFIG',
+    os.path.join(PROMGEN_CONFIG_DIR, 'promgen.yml')
+)
 if os.path.exists(PROMGEN_CONFIG):
     with open(PROMGEN_CONFIG) as fp:
         PROMGEN = yaml.load(fp)
@@ -154,7 +152,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.expanduser('~/.cache/promgen')
+STATIC_ROOT = os.environ.get(
+    'STATIC_ROOT', os.path.expanduser('~/.cache/promgen')
+)
 
 SITE_ID = 1
 
@@ -212,3 +212,12 @@ if DEBUG:
 # Load overrides from PROMGEN to replace Django settings
 for k, v in PROMGEN.pop('django', {}).items():
     globals()[k] = v
+
+# If we still don't have a SECRET_KEY set, we can set something random here.
+# This is placed at the very bottom to allow SECRET_KEY to be written into the
+# config file instead of an environment variable
+if not SECRET_KEY:
+    warnings.warn('Unset SECRET_KEY setting to random for now')
+    # Taken from Django's generation function
+    from django.utils.crypto import get_random_string
+    SECRET_KEY = get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
