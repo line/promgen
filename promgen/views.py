@@ -569,7 +569,7 @@ class ProjectRegister(LoginRequiredMixin, FormView, ServiceMixin):
     button_label = _('Project Register')
     model = models.Project
     template_name = 'promgen/project_form.html'
-    form_class = forms.ProjectForm
+    form_class = forms.ProjectRegister
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
@@ -581,7 +581,7 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
     model = models.Project
     button_label = _('Project Update')
     template_name = 'promgen/project_form.html'
-    form_class = forms.ProjectMove
+    form_class = forms.ProjectUpdate
 
     def get_context_data(self, **kwargs):
         context = super(ProjectUpdate, self).get_context_data(**kwargs)
@@ -591,7 +591,7 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
 
 class ServiceUpdate(LoginRequiredMixin, UpdateView):
     button_label = _('Update Service')
-    form_class = forms.ServiceForm
+    form_class = forms.ServiceUpdate
     model = models.Service
     template_name = 'promgen/service_form.html'
 
@@ -706,7 +706,7 @@ class RuleRegister(LoginRequiredMixin, FormView, ServiceMixin):
 
 class ServiceRegister(LoginRequiredMixin, FormView):
     button_label = _('Service Register')
-    form_class = forms.ProjectForm
+    form_class = forms.ServiceRegister
     model = models.Service
     template_name = 'promgen/service_form.html'
 

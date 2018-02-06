@@ -90,19 +90,26 @@ class ExporterForm(forms.ModelForm):
         }
 
 
-class ServiceForm(forms.ModelForm):
+class ServiceRegister(forms.ModelForm):
+    class Meta:
+        model = models.Service
+        # shard is determined by the pk in the service register url
+        exclude = ['shard']
+
+
+class ServiceUpdate(forms.ModelForm):
     class Meta:
         model = models.Service
         exclude = []
 
 
-class ProjectForm(forms.ModelForm):
+class ProjectRegister(forms.ModelForm):
     class Meta:
         model = models.Project
         exclude = ['service', 'farm']
 
 
-class ProjectMove(forms.ModelForm):
+class ProjectUpdate(forms.ModelForm):
     class Meta:
         model = models.Project
         exclude = ['farm']
