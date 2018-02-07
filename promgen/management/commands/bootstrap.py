@@ -18,7 +18,7 @@ class Command(BaseCommand):
         self.stdout.write(fmtstr.format(*args, **kwargs))
 
     def write_setting(self, key, default='', test=None):
-        path = os.path.join(settings.CONFIG_DIR, key)
+        path = os.path.join(settings.PROMGEN_CONFIG_DIR, key)
         if os.path.exists(path):
             self.write('Setting {} exists', key)
             return
@@ -44,9 +44,9 @@ class Command(BaseCommand):
     def handle(self, **kwargs):
         self.write('Bootstrapping Promgen')
 
-        if not os.path.exists(settings.CONFIG_DIR):
-            self.write('Creating config directory {} ', settings.CONFIG_DIR)
-            os.makedirs(settings.CONFIG_DIR)
+        if not os.path.exists(settings.PROMGEN_CONFIG_DIR):
+            self.write('Creating config directory {} ', settings.PROMGEN_CONFIG_DIR)
+            os.makedirs(settings.PROMGEN_CONFIG_DIR)
 
         if not os.path.exists(settings.PROMGEN_CONFIG):
             path = os.path.join(settings.BASE_DIR, 'promgen', 'tests', 'examples', 'promgen.yml')
