@@ -32,5 +32,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(convert_to_notification, convert_to_sender),
+        migrations.RunPython(convert_to_notification, convert_to_sender, elidable=True),
     ]

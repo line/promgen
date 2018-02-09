@@ -32,10 +32,7 @@ class Migration(migrations.Migration):
             name='alias',
             field=models.CharField(blank=True, max_length=128),
         ),
-        migrations.RunPython(
-            forwards_func,
-            reverse_func
-        ),
+        migrations.RunPython(forwards_func, reverse_func, elidable=True),
         migrations.RemoveField(
             model_name='sender',
             name='password',

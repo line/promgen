@@ -63,5 +63,5 @@ class Migration(migrations.Migration):
                 ('objects', django.contrib.sites.models.SiteManager()),
             ],
         ),
-        migrations.RunPython(move_to_global, move_to_default),
+        migrations.RunPython(move_to_global, move_to_default, elidable=True,),
     ]
