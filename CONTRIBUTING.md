@@ -15,13 +15,14 @@ python3 -m venv /path/to/virtualenv
 source /path/to/virtualenv/bin/activate
 pip install -e .[dev]
 pip install mysqlclient # psycopg or another database driver
-# Provide initial configuration
+# Boostrap initial configuration
 promgen bootstrap
 # Enable DEBUG (and development) mode
 echo 1 > ~/.config/promgen/DEBUG
-# Copy default settings (amend by hand after)
-cp promgen/tests/examples/promgen.yml
-# Setup database and update tables
+
+# Amend bootstrapped configuration by hand: ~/.config/promgen/promgen.yml
+
+# Setup or update database schemas, create initial user and shard
 promgen migrate
 # Run tests
 promgen test
@@ -29,12 +30,15 @@ promgen test
 promgen runserver
 ```
 
+By default promgen listens on port `8000`. Login with the user `admin` and password `admin`.
+Remember to change the password!
+
 > Note: Promgen strives to be a standard Django application. Make sure to apply standard Django development patterns.
 
 #### Custom Configuration Directory
 
 By default `promgen` uses `~/.config/promgen` as its configuration directory.
-This can be changed by setting the environment variable `CONFIG_DIR` to an alternative location whenever calling `promgen ...` commands.
+This can be changed by setting the environment variable `PROMGEN_CONFIG_DIR` to an alternative location whenever calling `promgen ...` commands.
 
 ### Contributor license agreement
 
