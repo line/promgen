@@ -18,15 +18,16 @@ WORKDIR /usr/src/app
 ENV PROMGEN_CONFIG_DIR=/etc/promgen
 
 RUN set -ex; \
-	apk add --no-cache --update mariadb-dev build-base bash && \
-	apk add --no-cache curl tar; \
+	apk add --no-cache --update mariadb-dev bash && \
+	apk add --no-cache --update --virtual .build build-base && \
+	apk add --no-cache --virtual .download curl tar; \
 	curl -L -s $PROMETHEUS_DOWNLOAD_URL \
 		| tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool; \
-	apk del curl tar; \
-	rm -rf /var/cache/apk; \
 	mkdir -p /etc/prometheus; \
 	pip install -r /tmp/requirements.txt; \
 	pip install -e .; \
+	apk del .download .build; \
+	rm -rf /var/cache/apk; \
 	SECRET_KEY=1 promgen collectstatic --noinput;
 
 EXPOSE 8000
