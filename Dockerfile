@@ -15,7 +15,7 @@ COPY docker/docker-entrypoint.sh /
 
 WORKDIR /usr/src/app
 
-ENV CONFIG_DIR=/etc/promgen
+ENV PROMGEN_CONFIG_DIR=/etc/promgen
 
 RUN set -ex; \
 	apk add --no-cache --update mariadb-dev build-base bash && \
