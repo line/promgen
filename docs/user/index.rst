@@ -2,7 +2,10 @@ Using Promgen
 =============
 
 .. toctree::
-  :maxdepth: 2
+  :maxdepth: 3
 
   /user/rules
+  /user/notifications
+  /user/admin
+  /user/api
   /user/terms

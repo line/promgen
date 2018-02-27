@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class DiscoveryPromgen(discovery.DiscoveryBase):
-    remote = False
-
     '''Promgen local database discovery plugin
 
     This is the default discovery plugin for farms and hosts stored locally in
     promgen's database. They are queried directly from Django's ORM
     '''
+
+    remote = False
 
     def fetch(self, farm_name):
         '''Fetch list of hosts for a farm from the local database'''
