@@ -1,0 +1,2 @@
+# Requirements.txt for ReadTheDocs
+-e .[dev,docs]

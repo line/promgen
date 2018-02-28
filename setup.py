@@ -49,6 +49,10 @@ setup(
             'django-nose',
             'factory_boy',
             'nose-cov',
+        ],
+        'docs': [
+            'Sphinx',
+            'sphinxcontrib-httpdomain',
         ]
     },
     entry_points={
