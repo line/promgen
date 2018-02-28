@@ -7,7 +7,7 @@ the ``promgen.yml`` file.
 
 All available django settings (not every setting may apply to promgen)
 are listed in the `django
-reference <https://docs.djangoproject.com/en/2.0/ref/settings/>`__.
+reference <https://docs.djangoproject.com/en/1.11/ref/settings/>`__.
 
 Configuring an SMTP Server
 --------------------------
@@ -31,5 +31,5 @@ exclusive. The ``EMAIL_USE_SSL`` setting enables implicit TLS, the
 ``EMAIL_USE_TLS`` setting enables STARTTLS.
 
 The `django docs on
-email <https://docs.djangoproject.com/en/2.0/topics/email/>`__ cover how
+email <https://docs.djangoproject.com/en/1.11/topics/email/>`__ cover how
 emails are sent by django as well as relevant configuration parameters.

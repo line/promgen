@@ -1,5 +1,5 @@
-Auth Plugins
-============
+Authentication Plugins
+======================
 
 Promgen uses auth plugins based on `Django's auth backend`_ and the
 `Python Social Auth`_. They are registered in Promgen's settings file
