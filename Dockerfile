@@ -33,7 +33,7 @@ COPY promgen/tests/examples/promgen.yml /etc/promgen/promgen.yml
 WORKDIR /usr/src/app
 RUN pip install -e .
 
-ENV CONFIG_DIR=/etc/promgen
+ENV PROMGEN_CONFIG_DIR=/etc/promgen
 
 USER promgen
 EXPOSE 8000
