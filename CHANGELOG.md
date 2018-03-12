@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.26 - 2018-03-12
+* [BUGFIX] Allow STATIC_ROOT to be configured via Environment
+* [BUGFIX] Fix bytes/string mismatch with outputing rules
+* [BUGFIX] Fix error message when registering a duplicate Service
+* [BUGFIX] Fix missing list of exporters on host detail page
+* [BUGFIX] Fix typo in view names
+* [CHANGE] Bootstrap default admin user when starting Promgen with an empty database
+* [CHANGE] Change handling of DEBUG variable. Now requires that a value is set in /path/DEBUG instead of just the file existing
+* [CHANGE] CONFIG_DIR renamed to PROMGEN_CONFIG_DIR
+* [CHANGE] Temporarily disable typeahead plugin pending refactoring
+* [IMPROVEMENT] Added Slack notifier
+* [IMPROVEMENT] Ship promtool in docker image
+* [IMPROVEMENT] Updates to documentation
+
 ## v0.25
 * [BUGFIX] Fix formatting on yaml rules file to output as unicode
 * [BUGFIX] Minor optimization for admin page
