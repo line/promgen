@@ -157,6 +157,7 @@ $(document).ready(function() {
     }
   });
 
+/* Disable pending refactoring  
   $("select[data-ajax]").each(function(index) {
     var ele = $(this);
     var tgt = $(ele.data('target'));
@@ -172,6 +173,8 @@ $(document).ready(function() {
       tgt.typeahead({
         source: data.data,
         items: "all",
+        minLength: 3,
+        delay: 1,
         updater: function(item) {
           return item + ele.data("append")
         }
@@ -185,6 +188,7 @@ $(document).ready(function() {
     });
 
   });
+*/
 
   $('[data-filter]').change(function(){
     var search = this.value.toUpperCase();
