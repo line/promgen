@@ -21,6 +21,7 @@ import logging
 from threading import local
 
 from django.contrib import messages
+from django.db.models import prefetch_related_objects
 
 from promgen import models
 from promgen.signals import (trigger_write_config, trigger_write_rules,
@@ -42,6 +43,9 @@ class PromgenMiddleware(object):
         # but ensures that it uses our proxy object so that test cases
         # properly find our rule_set object
         request.site = models.Site.objects.get_current()
+        # Prefetch our rule_set as needed, since request.site is used on
+        # many different pages
+        prefetch_related_objects([request.site], 'rule_set')
 
         # Get our logged in user to use with our audit logging plugin
         if request.user.is_authenticated():
