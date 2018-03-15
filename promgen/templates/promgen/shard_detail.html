@@ -1,13 +1,21 @@
 {% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+Promgen / Shard / {{ shard.name }}
+{% endblock %}
 
 {% block content %}
 
+{% include 'promgen/breadcrumb.html' with shard=shard only %}
+
 <div class="page-header">
-  <h1>{{ shard.name }}</h1>
-  <a href="{% url 'service-new' shard.id %}" class="btn btn-primary">New Service</a>
+  <h1>Shard: {{ shard.name }}</h1>
 </div>
 
-{% include 'promgen/breadcrumb.html' with shard=shard only %}
+<div class="well">
+  <a href="{% url 'service-new' shard.id %}" class="btn btn-primary">{% trans "Register Service" %}</a>
+</div>
 
 {% for service in shard.service_set.all %}
 <h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
