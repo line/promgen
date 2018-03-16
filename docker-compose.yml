@@ -32,7 +32,6 @@ services:
       - redis
     volumes:
       - ./docker:/etc/prometheus
-      - ./docker/prom_data:/prometheus
 
   prometheus:
     image: prom/prometheus
@@ -43,6 +42,7 @@ services:
       - "9090:9090"
     volumes:
       - ./docker:/etc/prometheus
+      - ./docker/prom_data:/prometheus
 
   blackbox:
     image: prom/blackbox-exporter
