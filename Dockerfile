@@ -1,7 +1,7 @@
 FROM python:3.5.3-alpine
 LABEL maintainer=paul.traylor@linecorp.com
 
-ENV PROMETHEUS_VERSION 2.1.0
+ENV PROMETHEUS_VERSION 2.2.1
 ENV PROMETHEUS_DOWNLOAD_URL https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
 
 ENV PYTHONUNBUFFERED 1
