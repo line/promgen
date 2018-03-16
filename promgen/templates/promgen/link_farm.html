@@ -15,12 +15,12 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    <input class="form-control" data-filter="div.row div" placeholder="Type to filter">
+    <input class="form-control" data-filter="div.auto-grid div" placeholder="Type to filter">
   </div>
   <div class="panel-body">
-    <div class="row">
+    <div class="auto-grid">
       {% for farm in farm_list %}
-      <div class="col-md-4">
+      <div>
         <form action="{% url 'farm-link' project.id source %}" method="post">
           {% csrf_token %}
           <input type="hidden" name="farm" value="{{ farm }}" />

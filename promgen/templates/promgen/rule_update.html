@@ -1,13 +1,16 @@
 {% extends "base.html" %}
 {% load promgen %}
 {% load i18n %}
+{% block title %}
+Promgen / Rule / {{ rule.name }}
+{% endblock %}
 {% block content %}
+
+{% include 'promgen/breadcrumb.html' with rule=rule active='Edit Rule' only %}
 
 <div class="page-header">
   <h1>{{ rule.content_type.name }}: {{ rule.content_object.name }}</h1>
 </div>
-
-{% include 'promgen/breadcrumb.html' with rule=rule active='Edit Rule' only %}
 
 <div style="display:none" data-alertname="{{rule.name}}" class="panel panel-danger promgen-alert">
   <div class="panel-heading">Alerts</div>
