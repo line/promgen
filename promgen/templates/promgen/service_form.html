@@ -7,9 +7,12 @@
 </div>
 
 <ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
+  <li><a href="{% url 'home' %}">Home</a></li>
 {% if service %}
+  <li><a href="{% url 'shard-detail' service.shard.id %}">{{ service.shard.name }}</a></li>
   <li><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></li>
+{% else %}
+  <li><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></li>
 {% endif %}
   <li class="active">{{ view.button_label }}</li>
 </ol>

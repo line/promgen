@@ -23,7 +23,12 @@
 
   <div class="panel panel-default">
     <div class="panel-body">
+      {% if service.shard.enabled %}
       <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>
+      {% else %}
+      <span disabled class="btn btn-default btn-sm">{% trans "Register Project" %}</span>
+      {% endif %}
+
       <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
       <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
 

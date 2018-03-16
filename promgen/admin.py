@@ -18,7 +18,8 @@ class HostAdmin(admin.ModelAdmin):
 
 @admin.register(models.Shard)
 class ShardAdmin(admin.ModelAdmin):
-    list_display = ('name', 'url', 'proxy')
+    list_display = ('name', 'url', 'proxy', 'enabled')
+    list_filter = ('proxy', 'enabled')
     inlines = [PrometheusInline]
 
 

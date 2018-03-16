@@ -68,6 +68,27 @@ $(document).ready(function() {
   $('[data-toggle="popover"]').popover();
   $('[data-toggle="tooltip"]').tooltip();
 
+  // For querying information such as number of samples being scraped or number
+  // of active exporters, query Prometheus (based on the passed URL) and return
+  // a formatted number
+  // <span class='prom-query'
+  //   data-href='http://prometheus.example/api/v1/query'
+  //   data-query='count(up)'>
+  $('.prom-query').each(function(index) {
+    var ele = $(this)
+    $.ajax({url: this.dataset.href, data: {'query': this.dataset.query}}).done(function(response) {
+      if (response.status=='success') {
+        ele.text(
+          Number.parseInt(response.data.result[0].value[1]).toLocaleString()
+        )
+        ele.parent().addClass('label-info').show()
+      }
+    }).fail(function(response){
+      ele.text(response.statusText)
+      ele.parent().addClass('label-warning').show()
+    })
+  })
+
   $.ajax("/ajax/alert").done(function(alerts){
     var btn = document.getElementById('alert-load');
     var panel = document.getElementById('alert-all');
@@ -157,7 +178,7 @@ $(document).ready(function() {
     }
   });
 
-/* Disable pending refactoring  
+/* Disable pending refactoring
   $("select[data-ajax]").each(function(index) {
     var ele = $(this);
     var tgt = $(ele.data('target'));
