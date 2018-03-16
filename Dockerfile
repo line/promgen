@@ -18,9 +18,9 @@ WORKDIR /usr/src/app
 ENV PROMGEN_CONFIG_DIR=/etc/promgen
 
 RUN set -ex; \
-	apk add --no-cache --update mariadb-dev bash && \
-	apk add --no-cache --update --virtual .build build-base && \
-	apk add --no-cache --virtual .download curl tar; \
+	apk add --no-cache --update mariadb-dev bash; \
+	apk add --no-cache --update --virtual .build build-base; \
+	apk add --no-cache --update --virtual .download curl tar; \
 	curl -L -s $PROMETHEUS_DOWNLOAD_URL \
 		| tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool; \
 	mkdir -p /etc/prometheus; \
