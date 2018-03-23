@@ -16,6 +16,8 @@ See the [Promgen introduction slides](http://www.slideshare.net/tokuhirom/promge
 
 Below are the steps to get started with Promgen.
 
+Please see [CONTRIBUTING.md](https://github.com/line/promgen/blob/master/CONTRIBUTING.md) for contributing to Promgen.
+
 ### 1. Initialize Promgen
 
 Initialize Promgen using Docker.
@@ -70,37 +72,6 @@ docker-compose up -d
 # Create initial user
 docker-compose run web createsuperuser
 ```
-
-## How to contribute to Promgen
-
-First of all, thank you so much for taking your time to contribute! We always welcome your ideas and feedback. Please feel free to make any pull requests.
-
-* File an issue in [the issue tracker](https://github.com/line/promgen/issues) to report bugs and propose new features and improvements.
-* Ask a question using [the issue tracker](https://github.com/line/promgen/issues).
-* Contribute your work by sending [a pull request](https://github.com/line/promgen/pulls).
-
-### Setting up Promgen for development
-
-You can install Promgen for a development environment as follows.
-
-```bash
-virtualenv --python=/path/to/python3 /path/to/virtualenv
-source /path/to/virtualenv/activate
-pip install -e .[dev]
-pip install mysqlclient # psycopg or another database driver
-# Setup database and update tables
-promgen migrate
-# Run tests
-promgen test
-# Run development server
-promgen runserver
-```
-
-> Note: Promgen strives to be a standard Django application. Make sure to apply standard Django development patterns.
-
-### Contributor license agreement
-
-If you are sending a pull request and it's a non-trivial change beyond fixing typos, please make sure to sign [the ICLA(individual contributor license agreement)](https://feedback.line.me/enquete/public/1719-k6U3vfJ4). Please contact us if you need the CCLA (corporate contributor license agreement).
 
 ## The MIT License
 
