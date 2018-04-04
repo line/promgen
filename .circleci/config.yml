@@ -2,10 +2,11 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.5.1
-    environment:
-      SECRET_KEY: abcd
+      - image: python:3.5.3-alpine
+        environment:
+          SECRET_KEY: abcd
     steps:
+      - checkout
       - run: pip install -e .[dev]
       - run: promgen test
       - run: coverage html -d $CIRCLE_ARTIFACTS
