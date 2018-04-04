@@ -35,6 +35,6 @@ class RouteTests(PromgenTest):
     def test_comma(self):
         farm = models.Farm.objects.create(name='Foo')
         self.client.post(reverse('hosts-add', args=[farm.pk]), {
-            'hosts': "aaa, bbb,ccc,"
+            'hosts': ",,aaa, bbb,ccc,"
         }, follow=False)
         self.assertEqual(models.Host.objects.count(), 3, 'Expected 3 hosts')
