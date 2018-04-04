@@ -1,0 +1,17 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.5.1
+    environment:
+      SECRET_KEY: abcd
+    steps:
+      - run: pip install -e .[dev]
+      - run: promgen test
+      - run: coverage html -d $CIRCLE_ARTIFACTS
+      - run: codecov
+
+general:
+  branches:
+    ignore:
+      - gh-pages
