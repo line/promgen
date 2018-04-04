@@ -800,6 +800,8 @@ class HostRegister(LoginRequiredMixin, FormView):
             if created:
                 logger.debug('Added %s to %s', host.name, farm.name)
 
+        if farm.project_set.count() == 0:
+            return HttpResponseRedirect(reverse('farm-detail', args=[farm.id]))
         return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
 
 
