@@ -9,8 +9,10 @@ jobs:
       - checkout
       - run: pip install -e .[dev]
       - run: promgen test
-      - run: coverage html -d $CIRCLE_ARTIFACTS
+      - run: coverage html -d test-results
       - run: codecov
+      - store_test_results:
+          path: test-results
 
 general:
   branches:
