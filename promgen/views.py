@@ -7,6 +7,7 @@ import datetime
 import json
 import logging
 import platform
+import re
 import time
 from itertools import chain
 from urllib.parse import urljoin
@@ -788,8 +789,7 @@ class HostRegister(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         farm = get_object_or_404(models.Farm, id=self.kwargs['pk'])
-        for hostname in form.clean()['hosts'].split('\n'):
-            hostname = hostname.strip()
+        for hostname in re.split('[,\s]+', form.clean()['hosts']):
             if hostname == '':
                 continue
 
@@ -800,6 +800,8 @@ class HostRegister(LoginRequiredMixin, FormView):
             if created:
                 logger.debug('Added %s to %s', host.name, farm.name)
 
+        if farm.project_set.count() == 0:
+            return HttpResponseRedirect(reverse('farm-detail', args=[farm.id]))
         return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
 
 
