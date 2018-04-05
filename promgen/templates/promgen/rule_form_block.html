@@ -26,13 +26,7 @@
     {{ form.description }}
     <p class="help-block">This description is not used by Prometheus. It is for Developer's to add aditional context only</p>
   </div>
-</div>
-
-<div class="panel panel-primary">
-  <div class="panel-heading">
-    {{ form.clause.label_tag }}
-  </div>
-
+  <div class="panel-heading">{{ form.clause.label_tag }}</div>
   <div class="panel-body">
     <ul class="list-inline">
       <li>Prometheus:</li>
@@ -45,20 +39,21 @@
     </ul>
 
     {% if rule.parent %}
-    {% if 'macro' not in rule.parent.clause %}
+
+    {% if macro not in rule.parent.clause %}
     <div class="alert alert-warning" role="alert">
       <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
       <span class="sr-only">Warning:</span>
-      Missing Macro in parent rule. Please add
-      <a rel="noopener noreferrer" class="alert-link" href="https://promgen.readthedocs.io/en/latest/user/rules.html">{{ macro }}</a>
-      macro to parent rule
+      Missing <strong>{{ macro }}</strong> macro in parent rule. Please reffer to Promgen's documentation regarding
+      <a rel="noopener noreferrer" class="alert-link" href="https://promgen.readthedocs.io/en/latest/user/rules.html">rule overrides</a>
     </div>
     {% endif %}
+
     {% endif %}
 
-    <ul class="list-inline">
-      <li>Example Query</li>
-      <li>
+    <dl class="list-inline">
+      <dt>Example Query</dt>
+      <dd>
         <code
           data-href="{% url 'rule-test' rule.id %}"
           data-source="self"
@@ -68,8 +63,24 @@
           >
           node_load1{% templatetag openbrace %}{{rule.content_type.model}}="{{ rule.content_object.name }}", {{ macro }}} > 5
         </code>
-      </li>
-    </ul>
+      </dd>
+{% if rule.parent %}
+      <dt>
+        <a href="{% url 'rule-edit' rule.parent.pk %}" />Parent Query</a>
+      </dt>
+      <dd>
+        <code
+          data-href="{% url 'rule-test' rule.id %}"
+          data-source="self"
+          data-target="#ajax-clause-check"
+          data-content_type="{{rule.content_type.name}}"
+          data-object_id="{{rule.object_id}}"
+          >
+          {{rule.parent.clause}}
+        </code>
+      </dd>
+{% endif %}
+    </dl>
   </div>
   <div class="panel-body">
     {% include 'promgen/error_block.html' with errors=form.clause.errors only %}

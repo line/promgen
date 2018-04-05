@@ -17,50 +17,6 @@ Promgen / Rule / {{ rule.name }}
   <table class="table table-bordered table-condensed"></table>
 </div>
 
-{% if rule.parent %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-parent" aria-expanded="false" aria-controls="collapseExample">
-      Parent Rule
-    </button>
-    <a class="btn btn-default" href="{% url 'rule-edit' rule.parent.pk %}" />Edit Parent</a>
-  </div>
-  <div id="rule-parent" class="panel-body collapse">
-    <pre>{% include "promgen/prometheus.rule" %}</pre>
-    <input id="parent-clause" type="hidden" value="{{rule.parent.clause}}">
-    <a
-      class="btn btn-primary btn-sm"
-      data-href="{% url 'rule-test' rule.parent.id %}"
-      data-source="#parent-clause"
-      data-target="#ajax-clause-check"
-      >Test Parent</a>
-  </div>
-</div>
-{% endif %}
-
-{% if rule.overrides.count %}
-  <div class="panel panel-default">
-    <div class="panel-heading">
-      <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#rule-children" aria-expanded="false" aria-controls="collapseExample">
-        Overridden By
-      </button>
-    </div>
-    <table class="table collapse" id="rule-children">
-  {% for r in rule.overrides.all %}
-      <tr>
-        <td class="col-xs-2"><a href="{{ r.content_object.get_absolute_url }}">{{ r.content_object }}</a></td>
-        <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
-        <td class="col-xs-8">
-          <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
-            {{ r.clause|rulemacro:r }}
-          </code>
-        </td>
-      </tr>
-  {% endfor %}
-    </table>
-  </div>
-{% endif %}
-
 <form action="{% url 'rule-edit' rule.pk %}" class="input-group" method="post">{% csrf_token %}
 <div class="row">
 
@@ -127,8 +83,30 @@ Promgen / Rule / {{ rule.name }}
       </li>
     </ul>
   </div>
-</div>
-</div>
+
+</div><!-- end col -->
+</div><!-- end row -->
+
+{% if rule.overrides.count %}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+        Child Rules
+    </div>
+    <table class="table">
+  {% for r in rule.overrides.all %}
+      <tr>
+        <td class="col-xs-2"><a href="{{ r.content_object.get_absolute_url }}">{{ r.content_object }}</a></td>
+        <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
+        <td class="col-xs-8">
+          <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
+            {{ r.clause|rulemacro:r }}
+          </code>
+        </td>
+      </tr>
+  {% endfor %}
+    </table>
+  </div>
+{% endif %}
 
 <div class="panel panel-primary">
   <div class="panel-body">
