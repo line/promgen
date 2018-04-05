@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 
+{% block title %}
+Promgen / Rule / New
+{% endblock %}
+
 {% block content %}
 
-<div class="page-header">
-  <h1>{{ rule.content_type.name }}: {{ rule.content_object.name }}</h1>
-</div>
-
 {% include 'promgen/breadcrumb.html' with rule=rule active='New Rule' only %}
-
 
 {% if form.non_field_errors  %}
 <div class="panel panel-danger">
