@@ -41,8 +41,21 @@
       <li><a rel="noopener noreferrer" href="https://prometheus.io/docs/querying/functions/">Functions</a></li>
       <li><a rel="noopener noreferrer" href="https://prometheus.io/docs/querying/examples/">Examples</a></li>
       <li>Promgen:</li>
-      <li><a rel="noopener noreferrer" href="https://promgen.readthedocs.io/en/latest/rules.html">Rules</a></li>
+      <li><a rel="noopener noreferrer" href="https://promgen.readthedocs.io/en/latest/user/rules.html">Rules</a></li>
     </ul>
+
+    {% if rule.parent %}
+    {% if 'macro' not in rule.parent.clause %}
+    <div class="alert alert-warning" role="alert">
+      <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+      <span class="sr-only">Warning:</span>
+      Missing Macro in parent rule. Please add
+      <a rel="noopener noreferrer" class="alert-link" href="https://promgen.readthedocs.io/en/latest/user/rules.html">{{ macro }}</a>
+      macro to parent rule
+    </div>
+    {% endif %}
+    {% endif %}
+
     <ul class="list-inline">
       <li>Example Query</li>
       <li>
