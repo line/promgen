@@ -51,10 +51,10 @@ class WebhookTest(PromgenTest):
         mock_post.assert_has_calls([
             mock.call(
                 'http://project.example.com',
-                _SAMPLE
+                json=_SAMPLE,
             ),
             mock.call(
                 'http://service.example.com',
-                _SAMPLE
+                json=_SAMPLE,
             )
         ], any_order=True)
