@@ -30,7 +30,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
-from django.views.generic.base import ContextMixin, RedirectView
+from django.views.generic.base import ContextMixin, RedirectView, TemplateView
 from django.views.generic.edit import DeleteView, FormView
 from prometheus_client import Gauge, generate_latest
 
@@ -1256,6 +1256,18 @@ class PrometheusProxy(View):
             for k in self.proxy_headers
             if k in self.request.META
         }
+
+
+class ProxyGraph(TemplateView):
+    template_name = "promgen/graph.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(ProxyGraph, self).get_context_data(**kwargs)
+        context['shard_list'] = models.Shard.objects.filter(proxy=True)
+        for k, v in self.request.GET.items():
+            _, k = k.split('.')
+            context[k] = v
+        return context
 
 
 class ProxyLabel(PrometheusProxy):
