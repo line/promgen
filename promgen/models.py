@@ -135,7 +135,10 @@ class Sender(DynamicParent):
 class Shard(models.Model):
     name = models.CharField(max_length=128, unique=True)
     url = models.URLField(max_length=256)
-    proxy = models.BooleanField(default=False)
+    proxy = models.BooleanField(default=False,
+        help_text='Queries can be proxied to these shards')
+    enabled = models.BooleanField(default=True,
+        help_text='Able to register new Services and Projects')
 
     class Meta:
         ordering = ['name']

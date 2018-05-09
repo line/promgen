@@ -9,7 +9,7 @@ from django.db.models.signals import post_migrate
 logger = logging.getLogger(__name__)
 
 
-def default_shard(sender, interactive, **kwargs):
+def default_admin(sender, interactive, **kwargs):
     # Have to import here to ensure that the apps are already registered and
     # we get a real model instead of __fake__.User
     from django.contrib.auth.models import User
@@ -27,7 +27,7 @@ def default_shard(sender, interactive, **kwargs):
             print('BE SURE TO UPDATE THE PASSWORD!!!')
 
 
-def default_admin(sender, apps, interactive, **kwargs):
+def default_shard(sender, apps, interactive, **kwargs):
     Shard = apps.get_model('promgen.Shard')
     if Shard.objects.count() == 0:
         if interactive:
@@ -36,6 +36,7 @@ def default_admin(sender, apps, interactive, **kwargs):
             name='Default',
             url='http://prometheus.example.com',
             proxy=True,
+            enabled=True,
         )
 
 

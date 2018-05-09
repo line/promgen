@@ -41,6 +41,14 @@ from promgen import (celery, discovery, forms, models, plugins, prometheus,
 logger = logging.getLogger(__name__)
 
 
+class ShardMixin(ContextMixin):
+    def get_context_data(self, **kwargs):
+        context = super(ShardMixin, self).get_context_data(**kwargs)
+        if 'pk' in self.kwargs:
+            context['object'] = context['shard'] = get_object_or_404(models.Shard, id=self.kwargs['pk'])
+        return context
+
+
 class ProjectMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super(ProjectMixin, self).get_context_data(**kwargs)
@@ -709,7 +717,7 @@ class RuleRegister(LoginRequiredMixin, FormView, ServiceMixin):
         return self.form_invalid(form)
 
 
-class ServiceRegister(LoginRequiredMixin, FormView):
+class ServiceRegister(LoginRequiredMixin, ShardMixin, FormView):
     button_label = _('Service Register')
     form_class = forms.ServiceRegister
     model = models.Service

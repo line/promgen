@@ -12,18 +12,7 @@
   {% for shard in shard_list|dictsortreversed:"service_set.count" %}
     <div >
       <h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
-      <div class="well">
-        <span class="form-inline">
-          <a href="{% url 'service-new' shard.id %}" class="btn btn-primary btn-sm">{% trans "Register Service" %}</a>
-        </span>
-
-        {% if user.is_superuser %}
-        <a class="btn btn-danger btn-sm pull-right" role="button" href="{% url 'admin:promgen_shard_change' shard.id %}">
-          {% trans "Admin" %}
-        </a>
-        {% endif %}
-
-      </div>
+      {% include 'promgen/shard_header.html' %}
 
       <table class="table">
 {% for service in shard.service_set.all %}
