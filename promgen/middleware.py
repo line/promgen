@@ -48,7 +48,7 @@ class PromgenMiddleware(object):
         prefetch_related_objects([request.site], 'rule_set')
 
         # Get our logged in user to use with our audit logging plugin
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             _user.value = request.user
 
         response = self.get_response(request)
