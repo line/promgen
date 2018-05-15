@@ -1362,3 +1362,35 @@ class ProxyQueryRange(PrometheusProxy):
                 'result': data,
             }
         })
+
+
+class ProxyQuery(PrometheusProxy):
+    def get(self, request):
+        data = []
+        futures = []
+        resultType = None
+        with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+            for host in models.Shard.objects.filter(proxy=True):
+                futures.append(executor.submit(util.get, '{}/api/v1/query?{}'.format(host.url, request.META['QUERY_STRING']), headers=self.headers))
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    result = future.result()
+                    # Need to try to decode the json BEFORE we raise_for_status
+                    # so that we can pass back the error message from Prometheus
+                    _json = result.json()
+                    result.raise_for_status()
+                    logger.debug('Appending data from %s', result.request.url)
+                    data += _json['data']['result']
+                    resultType = _json['data']['resultType']
+                except:
+                    logger.exception('Error with response')
+                    _json['promgen_proxy_request'] = result.request.url
+                    return JsonResponse(_json, status=result.status_code)
+
+        return JsonResponse({
+            'status': 'success',
+            'data': {
+                'resultType': resultType,
+                'result': data,
+            }
+        })
