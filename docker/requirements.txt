@@ -1,5 +1,5 @@
 atomicwrites==1.1.5
-celery==4.1.0
+celery==4.1.1
 dj-database-url
 django_nose
 Django==1.11.6
