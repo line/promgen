@@ -31,7 +31,7 @@ setup(
     ],
     install_requires=[
         'atomicwrites',
-        'celery[redis]==4.1.0',
+        'celery[redis]==4.1.1',
         'dj-database-url',
         'Django >= 1.11, < 1.12',
         'envdir',
