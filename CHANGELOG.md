@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.27 - 2018-06-14
+
+* [BUGFIX] Fix parsing error with silence end date
+* [BUGFIX] Fix webhook POST data
+* [CHANGE] Update Celery version for bug fix
+* [IMPROVEMENT] Cleanup some page headers to make navigation easier
+* [IMPROVEMENT] Simple proxy page for `/graph` view
+* [IMPROVEMENT] Speed up services page with prefetch_related_objects
+* [IMPROVEMENT] Support entering comma separated list of hosts
+* [IMPROVEMENT] Support for disabling a shard (disables adding new services)
+* [IMPROVEMENT] Use css grid to improve readability of long pages
+* [IMPROVEMENT] Warn if parent rull is missing macro
+
 ## v0.26 - 2018-03-12
 * [BUGFIX] Allow STATIC_ROOT to be configured via Environment
 * [BUGFIX] Fix bytes/string mismatch with outputing rules
