@@ -1,6 +1,9 @@
 version: 2
 jobs:
   build:
+    branches:
+      ignore:
+        - gh-pages
     docker:
       - image: python:3.5.3-alpine
         environment:
@@ -13,8 +16,3 @@ jobs:
       - run: codecov
       - store_test_results:
           path: test-results
-
-general:
-  branches:
-    ignore:
-      - gh-pages
