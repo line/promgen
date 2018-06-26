@@ -1,21 +1,20 @@
-.PHONY: build up down shell test worker web docs
-up:
-	docker-compose up
+.PHONY: test
+test: .venv
+	.venv/bin/promgen test
 
+
+.PHONY: build 
 build:
 	docker-compose build
 
-down:
-	docker-compose down
-
-clean: down
-	docker-compose rm
-
+.PHONY:	shell
 shell:
 	docker-compose run --rm worker bash
 
-test:
-	docker-compose run base promgen test
+.venv:
+	python3 -m venv .venv
+	.venv/bin/pip install -e .[dev,docs]
 
-docs:
+.PHONY: docs
+docs: .venv
 	.venv/bin/sphinx-build -avb html docs dist/html
