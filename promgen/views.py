@@ -37,6 +37,7 @@ from prometheus_client import Gauge, generate_latest
 import promgen.templatetags.promgen as macro
 from promgen import (celery, discovery, forms, models, plugins, prometheus,
                      signals, util, version)
+from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 
@@ -1168,17 +1169,9 @@ class RuleTest(LoginRequiredMixin, View):
             rule = get_object_or_404(models.Rule, id=pk)
 
         query = macro.rulemacro(request.POST['query'], rule)
-
-        # TODO: Refactor out similar to ProxyQueryRange
-        # This is the only place where we currently have to deal with getting a
-        # url based on the rule type but we want to remove this special case
-        # soon
-        if rule.content_type.model == 'service':
-            url = '{}/api/v1/query'.format(rule.content_object.shard.url)
-        if rule.content_type.model == 'project':
-            url = '{}/api/v1/query'.format(rule.content_object.service.shard.url)
-        if rule.content_type.model == 'site':
-            url = '{}/api/v1/query'.format(models.Shard.objects.first().url)
+        # Since our rules affect all servers we use Promgen's proxy-query to test our rule
+        # against all the servers at once
+        url = resolve_domain('proxy-query')
 
         logger.debug('Querying %s with %s', url, query)
         start = time.time()
