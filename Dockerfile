@@ -1,4 +1,4 @@
-FROM python:3.5.3-alpine
+FROM python:3.5.5-alpine
 LABEL maintainer=paul.traylor@linecorp.com
 
 ENV PROMETHEUS_VERSION 2.3.2
