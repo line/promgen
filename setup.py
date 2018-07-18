@@ -40,7 +40,7 @@ setup(
         'pyyaml',
         'raven',
         'requests',
-        'social-auth-app-django',
+        'social-auth-app-django >= 2.0.0',
     ],
     include_package_data=True,
     extras_require={
@@ -54,6 +54,7 @@ setup(
             'Sphinx',
             'sphinxcontrib-httpdomain',
         ],
+        'mysql': ['mysqlclient'],
     },
     entry_points={
         'console_scripts': [
