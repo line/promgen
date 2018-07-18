@@ -12,6 +12,8 @@
   {% for shard in shard_list|dictsortreversed:"service_set.count" %}
     <div >
       <h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
+      <a href="{{shard.url}}">{{shard.url}}</a>
+      <hr>
       {% include 'promgen/shard_header.html' %}
 
       <table class="table">
