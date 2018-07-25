@@ -14,6 +14,22 @@
   <div class="col-md-8">
     <div class="panel panel-default">
       <div class="panel-heading">Exporter</div>
+        <div class="panel-body">
+          <p class="help-text">
+            See the Prometheus documentation for additional information regarding
+            <a rel="noopener noreferrer" href="https://prometheus.io/docs/concepts/jobs_instances/">job names</a>
+          </p>
+          <p class="help-text">
+            Generally a job name should describe the component being monitored. For exporters, the <strong>-exporter</strong>
+            should be dropped, so <strong>node_exporter</strong> becomes just <strong class="text-success">node</strong> or <strong>jmx_exporter</strong> becomes <strong class="text-success">jmx</strong>
+          </p>
+          <p class="help-text">
+            When using something such as micrometer which supports prometheus, the job name should be <strong class="text-success">micrometer</strong>, not <strong class="text-warning">micrometer-prometheus</strong>
+          </p>
+          <p class="help-text">
+            If there are no other job names that make sense, <strong class="text-success">app</strong> can be used as a general substitute
+          </p>
+        </div>
         <table class="table">
           {{ form.as_table }}
         </table>
