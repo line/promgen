@@ -37,6 +37,11 @@ class NotificationUser(NotificationBase):
 
     form = FormUser
 
+    def splay(self, address):
+        user = User.objects.get(username=address)
+        for sender in models.Sender.filter(obj=user):
+            yield sender
+
     def _send(self, address, data):
         user = User.objects.get(username=address)
         for sender in models.Sender.filter(obj=user):

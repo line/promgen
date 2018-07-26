@@ -103,15 +103,19 @@ class Sender(DynamicParent):
             except ImportError:
                 logger.warning('Error importing %s', entry.module_name)
 
+    __driver = {}
     @property
     def driver(self):
         '''Return configured driver for Sender model instance'''
+        if self.sender in self.__driver:
+            return self.__driver[self.sender]
+
         for entry in plugins.notifications():
-            if entry.module_name == self.sender:
-                try:
-                    return entry.load()()
-                except ImportError:
-                    logger.warning('Error importing %s', entry.module_name)
+            try:
+                self.__driver[entry.module_name] = entry.load()()
+            except ImportError:
+                logger.warning('Error importing %s', entry.module_name)
+        return self.__driver[self.sender]
 
     def test(self):
         '''
@@ -126,10 +130,8 @@ class Sender(DynamicParent):
             for alert in data.get('alerts', []):
                 alert['labels'][self.content_type.name] = self.content_object.name
 
-        for entry in plugins.notifications():
-            if entry.module_name == self.sender:
-                plugin = entry.load()()
-                plugin.test(self.value, data)
+        from promgen import tasks
+        tasks.send_alert(self.sender, self.value, data)
 
 
 class Shard(models.Model):
@@ -444,6 +446,42 @@ class RuleAnnotation(models.Model):
     name = models.CharField(max_length=128)
     value = models.TextField()
     rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
+
+
+class Alert(models.Model):
+    created = models.DateTimeField(default=timezone.now)
+    body = models.TextField()
+
+    def expand(self):
+        # Map of Prometheus labels to Promgen objects
+        LABEL_MAPPING = [
+            ('project', Project),
+            ('service', Service),
+        ]
+        routable = {}
+        data = self.json()
+
+        data.setdefault('commonLabels', {})
+        data.setdefault('commonAnnotations', {})
+
+        # Look through our labels and find the object from Promgen's DB
+        # If we find an object in Promgen, add an annotation with a direct link
+        for label, klass in LABEL_MAPPING:
+            if label not in data['commonLabels']:
+                logger.debug('Missing label %s', label)
+                continue
+
+            # Should only find a single value, but I think filter is a little
+            # bit more forgiving than get in terms of throwing errors
+            for obj in klass.objects.filter(name=data['commonLabels'][label]):
+                logger.debug('Found %s %s', label, obj)
+                routable[label] = obj
+                data['commonAnnotations'][label] = resolve_domain(obj)
+
+        return routable, data
+
+    def json(self):
+        return json.loads(self.body)
 
 
 class Audit(models.Model):

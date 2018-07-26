@@ -63,6 +63,6 @@ class EmailTest(PromgenTest):
                 'promgen@example.com',
                 ['foo@example.com']
             )
-        ])
+        ], any_order=True)
         # Three senders are registered but only two should trigger
         self.assertTrue(mock_email.call_count == 2)
