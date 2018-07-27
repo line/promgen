@@ -9,7 +9,7 @@ RUN apk add --no-cache --update mariadb-dev build-base bash && \
     rm -rf /var/cache/apk/*
 
 RUN set -ex; \
-        apk add --no-cache curl tar; \
+        apk add --no-cache curl tar mysql-client; \
         curl -L -s $PROMETHEUS_DOWNLOAD_URL \
 		| tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool; \
         apk del curl tar; \

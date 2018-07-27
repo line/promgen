@@ -6,7 +6,7 @@ services:
   base:
     build: .
     image: promgen
-    command: sh -c "promgen migrate && promgen register docker-demo localhost 9090"
+    command: sh -c "until mysqladmin ping -h mysql --silent; do sleep 3; done; promgen migrate && promgen register docker-demo localhost 9090"
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
       DATABASE_URL: mysql://promgen:promgen@mysql:3306/promgen
