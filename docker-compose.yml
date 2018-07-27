@@ -6,7 +6,7 @@ services:
   base:
     build: .
     image: promgen
-    command: sh -c "promgen migrate && promgen register docker-demo localhost 9090"
+    command: docker-compose-bootstrap
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
       DATABASE_URL: mysql://promgen:promgen@mysql:3306/promgen
@@ -61,7 +61,7 @@ services:
       - ./docker:/etc/prometheus
 
   mysql:
-    image: mysql
+    image: mysql:5.7
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: promgen
