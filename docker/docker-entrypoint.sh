@@ -7,6 +7,17 @@ if [ "${1:0:1}" = '-' ]; then
 fi
 
 case "$1" in
+docker-compose-bootstrap)
+  # Shortcut to wait for database to startup and run migrations
+  until promgen check 2>/dev/null
+  do
+    echo "Waiting for database to startup"
+    sleep 3
+  done
+  promgen migrate
+  promgen register docker-demo prometheus 9090
+  exit 0
+  ;;
 worker)
   # Shortcut to start a celery worker for Promgen
   set -- celery "-A" promgen "$@"

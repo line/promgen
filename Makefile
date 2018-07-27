@@ -2,7 +2,6 @@
 test: .venv
 	.venv/bin/promgen test
 
-
 .PHONY: build 
 build:
 	docker-compose build
@@ -13,8 +12,12 @@ shell:
 
 .venv:
 	python3 -m venv .venv
-	.venv/bin/pip install -e .[dev,docs]
+	.venv/bin/pip install -e .[dev,docs,mysql]
 
 .PHONY: docs
 docs: .venv
 	.venv/bin/sphinx-build -avb html docs dist/html
+
+.PHONY:	clean
+clean:
+	rm -rf .venv dist
