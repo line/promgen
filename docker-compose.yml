@@ -12,7 +12,7 @@ services:
       CELERY_BROKER_URL: redis://redis:6379/0
       DATABASE_URL: mysql://root:secretrootpassword@mysql:3306/promgen
       SECRET_KEY: some-secret-key-AhvSh+xGkm9kA,ghfi4?w8K
-    command: promgen runserver 0.0.0.0:8000
+    command: wait-runserver 0.0.0.0:8000
     volumes:
       - ./promgen:/etc/promgen
     ports:
