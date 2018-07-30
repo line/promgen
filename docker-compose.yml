@@ -5,8 +5,8 @@ services:
   web:
     image: line/promgen
     depends_on:
-      - "mysql"
-      - "redis"
+      - mysql
+      - redis
     environment:
       DEBUG: 1
       CELERY_BROKER_URL: redis://redis:6379/0
@@ -21,8 +21,8 @@ services:
   worker:
     image: line/promgen
     depends_on:
-      - "mysql"
-      - "redis"
+      - mysql
+      - redis
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
       DATABASE_URL: mysql://root:secretrootpassword@mysql:3306/promgen
@@ -31,6 +31,21 @@ services:
     volumes:
       - ./prometheus:/etc/prometheus
       - ./promgen:/etc/promgen
+
+  # Promgen setup
+
+  promgen-setup:
+    image: line/promgen
+    depends_on:
+      - mysql
+    environment:
+      PROMGEN_REGISTER_SHARD: docker-default
+      PROMGEN_REGISTER_HOST: prometheus
+      PROMGEN_REGISTER_PORT: 9090
+      DATABASE_URL: mysql://root:secretrootpassword@mysql:3306/promgen
+      SECRET_KEY: some-secret-key-AhvSh+xGkm9kA,ghfi4?w8K
+    command:
+      docker-compose-bootstrap
 
   # Prometheus services
 
