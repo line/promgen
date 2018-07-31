@@ -12,12 +12,14 @@ import time
 from itertools import chain
 from urllib.parse import urljoin
 
+import promgen.templatetags.promgen as macro
 import requests
 from dateutil import parser
 from django import forms as django_forms
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.db.utils import IntegrityError
@@ -33,8 +35,6 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin, RedirectView, TemplateView
 from django.views.generic.edit import DeleteView, FormView
 from prometheus_client import Gauge, generate_latest
-
-import promgen.templatetags.promgen as macro
 from promgen import (celery, discovery, forms, models, plugins, prometheus,
                      signals, util, version)
 from promgen.shortcuts import resolve_domain
@@ -288,14 +288,32 @@ class ExporterToggle(LoginRequiredMixin, View):
         return JsonResponse({'redirect': exporter.project.get_absolute_url()})
 
 
-class RuleDelete(LoginRequiredMixin, DeleteView):
+class RuleDelete(PermissionRequiredMixin, DeleteView):
     model = models.Rule
+
+    def get_permission_required(self):
+        # In the case of rules, we want to make sure the user has permission
+        # to delete the rule itself, but also permission to change the linked object
+        obj = self.get_object()._meta
+        tgt = self.get_object().content_object._meta
+
+        yield '{}.delete_{}'.format(obj.app_label, obj.model_name)
+        yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
 
     def get_success_url(self):
         return self.object.content_object.get_absolute_url()
 
 
-class RuleToggle(LoginRequiredMixin, View):
+class RuleToggle(PermissionRequiredMixin, View):
+    def get_permission_required(self):
+        # In the case of rules, we want to make sure the user has permission
+        # to delete the rule itself, but also permission to change the linked object
+        obj = self.get_object()._meta
+        tgt = self.get_object().content_object._meta
+
+        yield '{}.change_{}'.format(obj.app_label, obj.model_name)
+        yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
+
     def post(self, request, pk):
         rule = get_object_or_404(models.Rule, id=pk)
         rule.enabled = not rule.enabled
@@ -610,7 +628,16 @@ class ServiceUpdate(LoginRequiredMixin, UpdateView):
     template_name = 'promgen/service_form.html'
 
 
-class RuleUpdate(LoginRequiredMixin, UpdateView):
+class RuleUpdate(PermissionRequiredMixin, UpdateView):
+    def get_permission_required(self):
+        # In the case of rules, we want to make sure the user has permission
+        # to change the rule itself, but also permission to change the linked object
+        obj = self.get_object()._meta
+        tgt = self.get_object().content_object._meta
+
+        yield '{}.change_{}'.format(obj.app_label, obj.model_name)
+        yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
+
     queryset = models.Rule.objects.prefetch_related(
         'content_object',
         'overrides',
@@ -670,10 +697,19 @@ class RuleUpdate(LoginRequiredMixin, UpdateView):
         return self.form_valid(form)
 
 
-class RuleRegister(LoginRequiredMixin, FormView, ServiceMixin):
+class RuleRegister(PermissionRequiredMixin, FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.NewRuleForm
+
+    def get_permission_required(self):
+        # In the case of rules, we want to make sure the user has permission
+        # to add the rule itself, but also permission to change the linked object
+        yield 'promgen.add_rule'
+        if self.kwargs['content_type'] == 'site':
+            yield 'sites.change_site'
+        else:
+            yield 'promgen.change_' + self.kwargs['content_type']
 
     def get_context_data(self, **kwargs):
         context = super(RuleRegister, self).get_context_data(**kwargs)
@@ -1006,9 +1042,13 @@ class Search(LoginRequiredMixin, View):
         return render(request, 'promgen/search.html', context)
 
 
-class RuleImport(LoginRequiredMixin, FormView):
+class RuleImport(PermissionRequiredMixin, FormView):
     form_class = forms.ImportRuleForm
     template_name = 'promgen/rule_import.html'
+
+    # Since rule imports can change a lot of site wide stuff we
+    # require site edit permission here
+    permission_required = ('sites.change_site', 'promgen.change_rule')
 
     def form_valid(self, form):
         data = form.clean()
@@ -1029,9 +1069,15 @@ class RuleImport(LoginRequiredMixin, FormView):
             return self.form_invalid(form)
 
 
-class Import(LoginRequiredMixin, FormView):
+class Import(PermissionRequiredMixin, FormView):
     template_name = 'promgen/import_form.html'
     form_class = forms.ImportConfigForm
+
+    # Since imports can change a lot of site wide stuff we
+    # require site edit permission here
+    permission_required = (
+        'sites.change_site', 'promgen.change_rule', 'promgen.change_exporter'
+    )
 
     def form_valid(self, form):
         data = form.clean()

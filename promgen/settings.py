@@ -48,6 +48,8 @@ if os.path.exists(PROMGEN_CONFIG):
 else:
     PROMGEN = {}
 
+PROMGEN_DEFAULT_GROUP = 'Default'
+
 ALLOWED_HOSTS = ['*']
 
 

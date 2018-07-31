@@ -4,7 +4,7 @@
 from unittest import mock
 
 import factory.django
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.db.models.signals import post_save, pre_save
 from django.test import override_settings
 from django.urls import reverse
@@ -23,7 +23,8 @@ class RouteTests(PromgenTest):
 
     @factory.django.mute_signals(pre_save, post_save)
     def setUp(self):
-        self.client.force_login(User.objects.create_user(id=999, username="Foo"), 'django.contrib.auth.backends.ModelBackend')
+        self.user = User.objects.create_user(id=999, username="Foo")
+        self.client.force_login(self.user, 'django.contrib.auth.backends.ModelBackend')
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
@@ -36,9 +37,12 @@ class RouteTests(PromgenTest):
     @mock.patch('promgen.signals._trigger_write_config')
     @mock.patch('promgen.prometheus.reload_prometheus')
     def test_import(self, mock_write, mock_reload):
-        response = self.client.post(reverse('import'), {
-            'config': TEST_IMPORT
-        })
+        self.user.user_permissions.add(
+            Permission.objects.get(codename='change_rule'),
+            Permission.objects.get(codename='change_site'),
+            Permission.objects.get(codename='change_exporter'),
+        )
+        response = self.client.post(reverse('import'), {'config': TEST_IMPORT})
 
         self.assertEqual(response.status_code, 302, 'Redirect to imported object')
         self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
@@ -53,14 +57,17 @@ class RouteTests(PromgenTest):
     @mock.patch('promgen.signals._trigger_write_config')
     @mock.patch('promgen.prometheus.reload_prometheus')
     def test_replace(self, mock_write, mock_reload):
-        response = self.client.post(reverse('import'), {
-            'config': TEST_IMPORT
-        })
+        # Set the required permissions
+        self.user.user_permissions.add(
+            Permission.objects.get(codename='change_rule'),
+            Permission.objects.get(codename='change_site'),
+            Permission.objects.get(codename='change_exporter'),
+        )
+
+        response = self.client.post(reverse('import'), {'config': TEST_IMPORT})
         self.assertEqual(response.status_code, 302, 'Redirect to imported object')
 
-        response = self.client.post(reverse('import'), {
-            'config': TEST_REPLACE
-        })
+        response = self.client.post(reverse('import'), {'config': TEST_REPLACE})
         self.assertEqual(response.status_code, 302, 'Redirect to imported object (2)')
 
         self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
@@ -121,9 +128,18 @@ class RouteTests(PromgenTest):
             )
             self.assertEqual(mock_get.call_args[0][0], url)
 
+    def test_failed_permission(self):
+        # Test for redirect
+        for request in [{'viewname': 'rule-new', 'args': ('site', 1)}]:
+            response = self.client.get(reverse(**request))
+            self.assertEqual(response.status_code, 302)
+            self.assertTrue(response.url.startswith('/login'))
+
     def test_other_routes(self):
-        for request in [
-            {'viewname': 'rule-new', 'args': ('site', 1)},
-        ]:
+        self.user.user_permissions.add(
+            Permission.objects.get(codename='add_rule'),
+            Permission.objects.get(codename='change_site'),
+        )
+        for request in [{'viewname': 'rule-new', 'args': ('site', 1)}]:
             response = self.client.get(reverse(**request))
             self.assertEqual(response.status_code, 200)
