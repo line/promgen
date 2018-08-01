@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.28 - 2018-08-01
+
+* [CHANGE] Update to Django 2.0 #82
+* [CHANGES] Re-add link to shard #91
+* [IMPROVEMENT] Add /api/v1/query proxy #88
+* [IMPROVEMENT] Add help text describing job label usage #93
+* [IMPROVEMENT] RuleTest will test against all Prometheus instances #90
+
 ## v0.27 - 2018-06-14
 
 * [BUGFIX] Fix parsing error with silence end date
