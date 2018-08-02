@@ -11,6 +11,9 @@ from django.core.validators import URLValidator
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('--noinput', '--no-input', action='store_false', dest='interactive')
+
     def prompt(self, prompt, *args, **kwargs):
         return input(prompt.format(*args, **kwargs))
 
@@ -41,7 +44,7 @@ class Command(BaseCommand):
         with open(path, 'w', encoding='utf8') as fp:
             fp.write(value)
 
-    def handle(self, **kwargs):
+    def handle(self, interactive, **kwargs):
         self.write('Bootstrapping Promgen')
 
         if not os.path.exists(settings.CONFIG_DIR):
@@ -53,8 +56,9 @@ class Command(BaseCommand):
             self.write('Creating promgen config {} from {}', settings.PROMGEN_CONFIG, path)
             shutil.copy(path, settings.PROMGEN_CONFIG)
 
-        self.write_setting('SECRET_KEY', default=settings.SECRET_KEY)
-        self.write_setting('DATABASE_URL', test=dj_database_url.parse)
-        # Schemes based on list of supported brokers
-        # http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html
-        self.write_setting('CELERY_BROKER_URL', test=URLValidator(schemes=['redis', 'amqp', 'sqs']))
+        if interactive:
+            self.write_setting('SECRET_KEY', default=settings.SECRET_KEY)
+            self.write_setting('DATABASE_URL', test=dj_database_url.parse)
+            # Schemes based on list of supported brokers
+            # http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html
+            self.write_setting('CELERY_BROKER_URL', test=URLValidator(schemes=['redis', 'amqp', 'sqs']))

@@ -12,24 +12,28 @@ COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
 
 WORKDIR /usr/src/app
 
-ENV PROMGEN_CONFIG_DIR=/etc/promgen \
-	PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1 \
+	PROMGEN_CONFIG_DIR=/etc/promgen \
+	STATIC_ROOT=/srv/promgen/www/static
 
 RUN set -ex; \
-	apk add --no-cache --update mariadb-dev bash; \
+	addgroup -g 16395 promgen; \
+	adduser -D -u 16395 -G promgen promgen; \
+	apk add --no-cache --update mariadb-dev; \
 	apk add --no-cache --update --virtual .build build-base; \
 	apk add --no-cache --update --virtual .download curl tar; \
 	curl -L -s $PROMETHEUS_DOWNLOAD_URL \
 		| tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool; \
-	mkdir -p /etc/prometheus; \
 	pip install --no-cache-dir -r /tmp/requirements.txt; \
 	pip install --no-cache-dir -e .; \
 	apk del .download .build; \
 	rm -rf /var/cache/apk; \
-	SECRET_KEY=1 promgen collectstatic --noinput;
+	SECRET_KEY=1 STATIC_ROOT=/usr/src/app/static promgen collectstatic --noinput;
+
+USER promgen:promgen
 
 EXPOSE 8000
 
-VOLUME ["/etc/promgen", "/etc/prometheus"]
+VOLUME ["/etc/promgen", "/etc/prometheus", "/srv/promgen/www"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["web", "--bind", "0.0.0.0:8000", "--workers", "4"]
+CMD ["web"]
