@@ -20,6 +20,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
+from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.db.utils import IntegrityError
@@ -40,6 +41,16 @@ from promgen import (celery, discovery, forms, models, plugins, prometheus,
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
+
+
+class PromgenPermissionMixin(PermissionRequiredMixin):
+    def handle_no_permission(self):
+        messages.warning(self.request, self.get_permission_denied_message())
+        return redirect_to_login(
+            self.request.get_full_path(),
+            self.get_login_url(),
+            self.get_redirect_field_name(),
+        )
 
 
 class ShardMixin(ContextMixin):
@@ -288,14 +299,18 @@ class ExporterToggle(LoginRequiredMixin, View):
         return JsonResponse({'redirect': exporter.project.get_absolute_url()})
 
 
-class RuleDelete(PermissionRequiredMixin, DeleteView):
+class RuleDelete(PromgenPermissionMixin, DeleteView):
     model = models.Rule
+
+    def get_permission_denied_message(self):
+        return 'Unable to delete rule %s. User lacks permission' % self.object
 
     def get_permission_required(self):
         # In the case of rules, we want to make sure the user has permission
         # to delete the rule itself, but also permission to change the linked object
-        obj = self.get_object()._meta
-        tgt = self.get_object().content_object._meta
+        self.object = self.get_object()
+        obj = self.object._meta
+        tgt = self.object.content_object._meta
 
         yield '{}.delete_{}'.format(obj.app_label, obj.model_name)
         yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
@@ -304,12 +319,16 @@ class RuleDelete(PermissionRequiredMixin, DeleteView):
         return self.object.content_object.get_absolute_url()
 
 
-class RuleToggle(PermissionRequiredMixin, View):
+class RuleToggle(PromgenPermissionMixin, View):
+    def get_permission_denied_message(self):
+        return 'Unable to toggle rule %s. User lacks permission' % self.object
+
     def get_permission_required(self):
         # In the case of rules, we want to make sure the user has permission
         # to delete the rule itself, but also permission to change the linked object
-        obj = self.get_object()._meta
-        tgt = self.get_object().content_object._meta
+        self.object = self.get_object()
+        obj = self.object._meta
+        tgt = self.object.content_object._meta
 
         yield '{}.change_{}'.format(obj.app_label, obj.model_name)
         yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
@@ -628,12 +647,16 @@ class ServiceUpdate(LoginRequiredMixin, UpdateView):
     template_name = 'promgen/service_form.html'
 
 
-class RuleUpdate(PermissionRequiredMixin, UpdateView):
+class RuleUpdate(PromgenPermissionMixin, UpdateView):
+    def get_permission_denied_message(self):
+        return 'Unable to edit rule %s. User lacks permission' % self.object
+
     def get_permission_required(self):
         # In the case of rules, we want to make sure the user has permission
         # to change the rule itself, but also permission to change the linked object
-        obj = self.get_object()._meta
-        tgt = self.get_object().content_object._meta
+        self.object = self.get_object()
+        obj = self.object._meta
+        tgt = self.object.content_object._meta
 
         yield '{}.change_{}'.format(obj.app_label, obj.model_name)
         yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
@@ -697,7 +720,7 @@ class RuleUpdate(PermissionRequiredMixin, UpdateView):
         return self.form_valid(form)
 
 
-class RuleRegister(PermissionRequiredMixin, FormView, ServiceMixin):
+class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.NewRuleForm
@@ -1042,13 +1065,15 @@ class Search(LoginRequiredMixin, View):
         return render(request, 'promgen/search.html', context)
 
 
-class RuleImport(PermissionRequiredMixin, FormView):
+class RuleImport(PromgenPermissionMixin, FormView):
     form_class = forms.ImportRuleForm
     template_name = 'promgen/rule_import.html'
 
     # Since rule imports can change a lot of site wide stuff we
     # require site edit permission here
     permission_required = ('sites.change_site', 'promgen.change_rule')
+    permisison_denied_message = 'User lacks permission to import'
+
 
     def form_valid(self, form):
         data = form.clean()
@@ -1069,7 +1094,7 @@ class RuleImport(PermissionRequiredMixin, FormView):
             return self.form_invalid(form)
 
 
-class Import(PermissionRequiredMixin, FormView):
+class Import(PromgenPermissionMixin, FormView):
     template_name = 'promgen/import_form.html'
     form_class = forms.ImportConfigForm
 
@@ -1078,6 +1103,8 @@ class Import(PermissionRequiredMixin, FormView):
     permission_required = (
         'sites.change_site', 'promgen.change_rule', 'promgen.change_exporter'
     )
+
+    permission_denied_message = 'User lacks permission to import'
 
     def form_valid(self, form):
         data = form.clean()
