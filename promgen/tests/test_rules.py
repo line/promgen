@@ -3,7 +3,7 @@
 
 from unittest import mock
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.urls import reverse
 
 import promgen.templatetags.promgen as macro
@@ -76,6 +76,10 @@ class RuleTest(PromgenTest):
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_import_v1(self, mock_post):
+        self.user.user_permissions.add(
+            Permission.objects.get(codename='change_rule'),
+            Permission.objects.get(codename='change_site'),
+        )
         self.client.post(reverse('rule-import'), {
             'rules': PromgenTest.data('examples', 'import.rule')
         })
@@ -87,6 +91,10 @@ class RuleTest(PromgenTest):
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_import_v2(self, mock_post):
+        self.user.user_permissions.add(
+            Permission.objects.get(codename='change_rule'),
+            Permission.objects.get(codename='change_site'),
+        )
         self.client.post(reverse('rule-import'), {
             'rules': PromgenTest.data('examples', 'import.rule.yml')
         })
@@ -95,6 +103,15 @@ class RuleTest(PromgenTest):
         self.assertEqual(models.Rule.objects.count(), 3, 'Missing Rule')
         self.assertEqual(models.RuleLabel.objects.count(), 4, 'Missing labels')
         self.assertEqual(models.RuleAnnotation.objects.count(), 9, 'Missing annotations')
+
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_missing_permission(self, mock_post):
+        self.client.post(reverse('rule-import'), {
+            'rules': PromgenTest.data('examples', 'import.rule.yml')
+        })
+
+        # Should only be a single rule from our initial setup
+        self.assertEqual(models.Rule.objects.count(), 1, 'Missing Rule')
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_macro(self, mock_post):

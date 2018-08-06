@@ -4,12 +4,13 @@
 import logging
 from functools import wraps
 
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import Group, User
 from django.core.cache import cache
 from django.db.models.signals import (post_delete, post_save, pre_delete,
                                       pre_save)
 from django.dispatch import Signal, receiver
-
 from promgen import models, prometheus
 
 logger = logging.getLogger(__name__)
@@ -223,3 +224,16 @@ def save_service(sender, instance, **kwargs):
             # If any of our save_project returns True, then we do not need to
             # check any others
             return True
+
+
+@receiver(post_save, sender=User)
+def add_user_to_default_group(sender, instance, created, **kwargs):
+    # If we enabled our default group, then we want to ensure that all newly
+    # created users are also added to our default group so they inherit the
+    # default permissions
+    if not settings.PROMGEN_DEFAULT_GROUP:
+        return
+    if not created:
+        return
+
+    instance.groups.add(Group.objects.get(name=settings.PROMGEN_DEFAULT_GROUP))
