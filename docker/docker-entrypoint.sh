@@ -19,13 +19,13 @@ function check_migrate() {
 }
 
 function copy_static() {
-  if [ ! -f /srv/promgen/www/static/.present ]; then
+  # Check if the primary javascript app file is present:
+  if [ ! -f /srv/promgen/www/static/js/promgen.js ]; then
     echo "Copying static files to /srv/promgen/www/static..."
     set -x
 
     mkdir -p /srv/promgen/www/static
     cp -ra /usr/src/app/static /srv/promgen/www
-    touch /srv/promgen/www/static/.present
 
     set +x
   fi
@@ -75,7 +75,7 @@ worker)
 init-config)
   shift
 
-  exec promgen bootstrap --noinput "$@"
+  promgen bootstrap --noinput "$@"
 
   if [ $(id -u) -eq '0' ]; then
     echo "Running as root, setting file permissions"

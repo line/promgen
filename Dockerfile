@@ -3,6 +3,10 @@ LABEL maintainer=paul.traylor@linecorp.com
 
 ARG PROMETHEUS_VERSION=2.3.2
 ARG PROMETHEUS_DOWNLOAD_URL=https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
+# Set a random and static user id for the promgen user (and group)
+# Operators will have to configure write access for this user id to some
+# prometheus configuration files.
+ARG PROMGEN_USER_ID=16395
 
 COPY docker/requirements.txt /tmp/requirements.txt
 COPY setup.py /usr/src/app/setup.py
@@ -17,8 +21,8 @@ ENV PYTHONUNBUFFERED=1 \
 	STATIC_ROOT=/srv/promgen/www/static
 
 RUN set -ex; \
-	addgroup -g 16395 promgen; \
-	adduser -D -u 16395 -G promgen promgen; \
+	addgroup -g ${PROGMEN_USER_ID} promgen; \
+	adduser -D -u ${PROGMEN_USER_ID} -G promgen promgen; \
 	apk add --no-cache --update mariadb-dev; \
 	apk add --no-cache --update --virtual .build build-base; \
 	apk add --no-cache --update --virtual .download curl tar; \
@@ -34,6 +38,6 @@ USER promgen:promgen
 
 EXPOSE 8000
 
-VOLUME ["/etc/promgen", "/etc/prometheus", "/srv/promgen/www"]
+VOLUME ["/etc/prometheus", "/srv/promgen/www"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["web"]
