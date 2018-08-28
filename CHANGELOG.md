@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.29 - 2018-08-28
+
+* [IMPROVEMENT] Implement Django permissions for Rule editor #96
+
+This first version implements permissions primarily for common, shared
+rules to reduce the chance of accidentally modifying the parent rule.
+In the future, permissions will be applied to more objects. Migrations
+will automatically create a Default group in the Django admin.
+
 ## v0.28 - 2018-08-01
 
 * [CHANGE] Update to Django 2.0 #82
