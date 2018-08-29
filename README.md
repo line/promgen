@@ -30,7 +30,7 @@ chmod 777 ~/.config/promgen
 # Initialize required settings with Docker container
 # This will prompt you for connection settings for your database and Redis broker
 # using the standard DSN syntax.
-# Database example: mysql://password:username@hostname/databasename
+# Database example: mysql://username:password@hostname/databasename
 # Broker example: redis://localhost:6379/0
 docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen bootstrap
 
