@@ -34,6 +34,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin, RedirectView, TemplateView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 from prometheus_client import Gauge, generate_latest
 from promgen import (celery, discovery, forms, models, plugins, prometheus,
@@ -319,7 +320,9 @@ class RuleDelete(PromgenPermissionMixin, DeleteView):
         return self.object.content_object.get_absolute_url()
 
 
-class RuleToggle(PromgenPermissionMixin, View):
+class RuleToggle(PromgenPermissionMixin, SingleObjectMixin, View):
+    model = models.Rule
+
     def get_permission_denied_message(self):
         return 'Unable to toggle rule %s. User lacks permission' % self.object
 
@@ -334,10 +337,9 @@ class RuleToggle(PromgenPermissionMixin, View):
         yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
 
     def post(self, request, pk):
-        rule = get_object_or_404(models.Rule, id=pk)
-        rule.enabled = not rule.enabled
-        rule.save()
-        return JsonResponse({'redirect': rule.content_object.get_absolute_url()})
+        self.object.enabled = not self.object.enabled
+        self.object.save()
+        return JsonResponse({'redirect': self.object.content_object.get_absolute_url()})
 
 
 class HostDelete(LoginRequiredMixin, DeleteView):
