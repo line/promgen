@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.29.1 - 2018-09-04
+
+* [BUGFIX] Fix reference to self.get_object() in RuleToggle #99
+
 ## v0.29 - 2018-08-28
 
 * [IMPROVEMENT] Implement Django permissions for Rule editor #96
