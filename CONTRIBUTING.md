@@ -42,7 +42,9 @@ This can be changed by setting the environment variable `PROMGEN_CONFIG_DIR` to 
 
 ### Contributor license agreement
 
-If you are sending a pull request and it's a non-trivial change beyond fixing typos, please make sure to sign [the ICLA(individual contributor license agreement)](https://feedback.line.me/enquete/public/1719-k6U3vfJ4). Please contact us if you need the CCLA (corporate contributor license agreement).
+When you are sending a pull request and it's a non-trivial change beyond fixing typos, please sign
+[the ICLA (individual contributor license agreement)](https://cla-assistant.io/line/promgen).
+Please [contact us](mailto:dl_oss_dev@linecorp.com) if you need the CCLA (corporate contributor license agreement).
 
 ### Code of conduct
 
