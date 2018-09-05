@@ -3,7 +3,6 @@
 
 from django import forms
 from django.contrib import admin
-
 from promgen import models, plugins
 
 
@@ -96,3 +95,9 @@ class RuleAdmin(admin.ModelAdmin):
 class PrometheusAdmin(admin.ModelAdmin):
     list_display = ('shard', 'host', 'port')
     list_filter = ('shard',)
+
+
+@admin.register(models.Alert)
+class AlertAdmin(admin.ModelAdmin):
+    list_display = ('created',)
+    readonly_fields = ('created', 'body')

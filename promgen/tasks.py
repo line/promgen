@@ -1,25 +1,54 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-import json
+import collections
 import logging
 
 from celery import shared_task
-
-from promgen import plugins, prometheus, signals  # NOQA
+from promgen import models, plugins, prometheus, signals  # NOQA
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task
-def send_notification(sender, body):
-    body = json.loads(body)
-    logger.info('Attempting to send alert for %s', sender)
+def process_alert(alert_pk):
+    '''
+    Process alert for routing and notifications
+
+    We load our Alert from the database and expand it to determine which labels are routable
+
+    Next we loop through all senders configured and de-duplicate sender:target pairs before
+    queing the notification to actually be sent
+    '''
+    alert = models.Alert.objects.get(pk=alert_pk)
+    routable, data = alert.expand()
+
+    # Now that we have our routable items, we want to check which senders are
+    # configured and expand those as needed
+    senders = collections.defaultdict(set)
+    for label, obj in routable.items():
+        logger.debug('Processing %s %s', label, obj)
+        for sender in models.Sender.filter(obj):
+            if hasattr(sender.driver, 'splay'):
+                for splay in sender.driver.splay(sender.value):
+                    senders[splay.sender].add(splay.value)
+            else:
+                senders[sender.sender].add(sender.value)
+
+    for driver in senders:
+        for target in senders[driver]:
+            send_alert.delay(driver, target, data, alert.pk)
+
+
+@shared_task
+def send_alert(sender, target, data, alert_pk=None):
+    '''
+    Send alert to specific target
+
+    alert_pk is used for debugging purposes
+    '''
+    logger.debug('Sending %s %s', sender, target)
     for plugin in plugins.notifications():
         if sender == plugin.module_name:
-            try:
-                instance = plugin.load()()
-                count = instance.send(body)
-                logger.info('Sent %d alerts with %s', count, sender)
-            except:
-                logger.exception('Error sending message')
+            instance = plugin.load()()
+            instance._send(target, data)

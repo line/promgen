@@ -38,7 +38,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
 from prometheus_client import Gauge, generate_latest
 from promgen import (celery, discovery, forms, models, plugins, prometheus,
-                     signals, util, version)
+                     signals, tasks, util, version)
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
@@ -960,9 +960,10 @@ class URLConfig(View):
 
 class Alert(View):
     def post(self, request, *args, **kwargs):
-        body = request.body.decode('utf-8')
-        for entry in plugins.notifications():
-            entry.load().process(body)
+        alert = models.Alert.objects.create(
+            body=request.body.decode('utf-8')
+        )
+        tasks.process_alert.delay(alert.pk)
         return HttpResponse('OK', status=202)
 
 
