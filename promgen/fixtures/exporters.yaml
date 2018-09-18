@@ -1,0 +1,23 @@
+# See https://github.com/prometheus/prometheus/wiki/Default-port-allocations
+# for a complete list of exporter ports. This just provides a quick add list
+# from Promgen's UI
+- model: promgen.defaultexporter
+  pk: 1
+  fields:
+    job: node
+    port: 9100
+- model: promgen.defaultexporter
+  pk: 2
+  fields:
+    job: nginx
+    port: 9113
+- model: promgen.defaultexporter
+  pk: 3
+  fields:
+    job: mysqld
+    port: 9104
+- model: promgen.defaultexporter
+  pk: 4
+  fields:
+    job: apache
+    port: 9117

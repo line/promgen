@@ -21,3 +21,9 @@ docs: .venv
 .PHONY:	clean
 clean:
 	rm -rf .venv dist
+
+dump: .venv
+	.venv/bin/promgen dumpdata promgen.DefaultExporter  --indent=2 --output promgen/fixtures/exporters.yaml --format=yaml
+
+load: .venv
+	.venv/bin/promgen loaddata exporters

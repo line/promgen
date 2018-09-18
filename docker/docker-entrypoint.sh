@@ -24,6 +24,7 @@ docker-compose-bootstrap)
 
   promgen migrate
   promgen register "${PROMGEN_REGISTER_SHARD}" "${PROMGEN_REGISTER_HOST}" "${PROMGEN_REGISTER_PORT}"
+  promgen loaddata exporters
   exit 0
   ;;
 worker)

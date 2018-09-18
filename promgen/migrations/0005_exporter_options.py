@@ -19,4 +19,8 @@ class Migration(migrations.Migration):
                 ('path', models.CharField(blank=True, max_length=128)),
             ],
         ),
+        migrations.AlterUniqueTogether(
+            name='defaultexporter',
+            unique_together={('job', 'port')},
+        ),
     ]

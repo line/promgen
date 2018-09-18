@@ -311,6 +311,10 @@ class DefaultExporter(models.Model):
     port = models.IntegerField()
     path = models.CharField(max_length=128, blank=True)
 
+    class Meta:
+        ordering = ['job', 'port']
+        unique_together = (('job', 'port',),)
+
 
 class URL(models.Model):
     url = models.URLField(max_length=256)
