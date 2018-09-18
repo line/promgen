@@ -532,17 +532,6 @@ class ExporterRegister(LoginRequiredMixin, FormView, ProjectMixin):
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
 
-    def get_context_data(self, **kwargs):
-        context = super(ExporterRegister, self).get_context_data(**kwargs)
-        context['exporters'] = settings.PROMGEN.get('default_exporters', {
-            'node': 9100,
-            'nginx': 9113,
-            'mysqld': 9104,
-            'apache': 9117,
-        })
-
-        return context
-
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
         exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
