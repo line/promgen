@@ -111,7 +111,30 @@ class ServiceList(LoginRequiredMixin, ListView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__notifiers'
+            'project_set__notifiers',
+            'shard',
+        )
+
+
+class HomeList(LoginRequiredMixin, ListView):
+    def get_queryset(self):
+        # Get the list of senders that a user is currently subscribed to
+        senders = models.Sender.objects.filter(
+            value=self.request.user.username,
+            sender='promgen.notification.user',
+            content_type=ContentType.objects.get_for_model(models.Service),
+        ).values_list('object_id')
+
+        # and return just our list of services
+        return models.Service.objects.filter(pk__in=senders).prefetch_related(
+            'notifiers',
+            'rule_set',
+            'rule_set__parent',
+            'project_set',
+            'project_set__farm',
+            'project_set__exporter_set',
+            'project_set__notifiers',
+            'shard',
         )
 
 

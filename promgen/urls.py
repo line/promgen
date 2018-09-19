@@ -26,7 +26,7 @@ from promgen import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
-    url(r'^$', views.ShardList.as_view(), name='home'),
+    url(r'^$', views.HomeList.as_view(), name='home'),
     url(r'^shard/$', views.ShardList.as_view(), name='shard-list'),
     url(r'^shard/(?P<pk>[0-9]+)/$', views.ShardDetail.as_view(), name='shard-detail'),
     url(r'^shard/(?P<pk>[0-9]+)/new$', views.ServiceRegister.as_view(), name='service-new'),
