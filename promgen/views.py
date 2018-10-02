@@ -117,7 +117,10 @@ class ServiceList(LoginRequiredMixin, ListView):
 
 
 class HomeList(LoginRequiredMixin, ListView):
+    template_name = 'promgen/home.html'
+
     def get_queryset(self):
+        # TODO: Support showing subscribed projects as well
         # Get the list of senders that a user is currently subscribed to
         senders = models.Sender.objects.filter(
             value=self.request.user.username,
