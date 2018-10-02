@@ -286,6 +286,8 @@ class NotifierDelete(LoginRequiredMixin, DeleteView):
     model = models.Sender
 
     def get_success_url(self):
+        if 'next' in self.request.POST:
+            return self.request.POST['next']
         if hasattr(self.object.content_object, 'get_absolute_url'):
             return self.object.content_object.get_absolute_url()
         return reverse('status')
