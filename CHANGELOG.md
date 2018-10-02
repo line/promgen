@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.30 - 2018-09-02
+
+* [BUGFIX] Fix for missing promtool validation error #103
+* [BUGFIX] Fix reference to self.get_object() in RuleToggle #99
+* [CHANGE] Refactor notifications queue for audibility and reliability #94
+* [CHANGE] Add prune-alerts command #106
+
+This version refactors the alert sender queue to better separate
+responsibility between components and to provide a more auditable
+record of received alerts
+
+
 ## v0.29 - 2018-08-28
 
 * [IMPROVEMENT] Implement Django permissions for Rule editor #96
