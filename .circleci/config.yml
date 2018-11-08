@@ -5,14 +5,14 @@ jobs:
       ignore:
         - gh-pages
     docker:
-      - image: python:3.5.3-alpine
+      - image: circleci/python:3.6.4
         environment:
           SECRET_KEY: abcd
     steps:
       - checkout
-      - run: pip install -e .[dev]
-      - run: promgen test
-      - run: coverage html -d test-results
-      - run: codecov
+      - run: pipenv install --dev
+      - run: pipenv run promgen test
+      - run: pipenv run coverage html -d test-results
+      - run: pipenv run codecov
       - store_test_results:
           path: test-results
