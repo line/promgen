@@ -7,6 +7,7 @@ name = "pypi"
 promgen = {extras = ["mysql"], path = ".", editable = true}
 gunicorn = "*"
 redis = "*"
+whitenoise = "*"
 
 [requires]
 python_version = "3.6"
