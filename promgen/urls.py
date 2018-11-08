@@ -17,10 +17,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.contrib import admin
+from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
-
 from promgen import views
 
 urlpatterns = [
@@ -36,7 +36,6 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/delete$', views.ServiceDelete.as_view(), name='service-delete'),
     url(r'^service/(?P<pk>[0-9]+)/new$', views.ProjectRegister.as_view(), name='project-new'),
     url(r'^service/(?P<pk>[0-9]+)/targets$', views.ServiceTargets.as_view(), name='service-targets'),
-    url(r'^service/(?P<pk>[0-9]+)/rules$', views.ServiceRules.as_view(), name='service-rules'),
     url(r'^service/(?P<pk>[0-9]+)/update$', views.ServiceUpdate.as_view(), name='service-update'),
     url(r'^service/(?P<pk>[0-9]+)/notifier$', views.ServiceNotifierRegister.as_view(), name='service-notifier'),
 
@@ -49,7 +48,6 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/scrape$', views.ExporterScrape.as_view(), name='exporter-scrape'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.ExporterRegister.as_view(), name='project-exporter'),
     url(r'^project/(?P<pk>[0-9]+)/targets$', views.ProjectTargets.as_view(), name='project-targets'),
-    url(r'^project/(?P<pk>[0-9]+)/rules$', views.ProjectRules.as_view(), name='project-rules'),
     url(r'^project/(?P<pk>[0-9]+)/notifier$', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
@@ -76,12 +74,14 @@ urlpatterns = [
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/import$', views.RuleImport.as_view(), name='rule-import'),
-    url(r'^(?P<content_type>(site|service|project))/(?P<object_id>[0-9]+)/rule$', views.RuleRegister.as_view(), name='rule-new'),
     url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
     url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
     url(r'^rule/(?P<pk>[0-9]+)/toggle$', views.RuleToggle.as_view(), name='rule-toggle'),
     url(r'^rule/(?P<pk>[0-9]+)/test$', csrf_exempt(views.RuleTest.as_view()), name='rule-test'),
     url(r'^rule/(?P<pk>[0-9]+)/duplicate$', views.RulesCopy.as_view(), name='rule-overwrite'),
+
+    path('<content_type>/<object_id>/rule', views.RuleRegister.as_view(), name='rule-new'),
+    path('<content_type>/<object_id>/rules', views.RuleExport.as_view(), name='rule-export'),
 
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
     url(r'^status/$', views.Status.as_view(), name='status'),

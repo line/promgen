@@ -48,7 +48,7 @@
         Export <span class="caret"></span>
       </button>
         <ul class="dropdown-menu">
-          <li role="presentation"><a href="{% url 'service-rules' service.id %}">{% trans "Export Rules" %}</a></li>
+          <li role="presentation"><a href="{% url 'rule-export' 'service' service.id %}">{% trans "Export Rules" %}</a></li>
           <li role="presentation"><a href="{% url 'service-targets' service.id %}">{% trans "Export Service" %}</a></li>
         </ul>
       </div>

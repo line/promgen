@@ -963,18 +963,11 @@ class RulesConfig(_ExportRules):
         return self.format()
 
 
-class ServiceRules(_ExportRules):
-    def get(self, request, pk):
-        service = get_object_or_404(models.Service, id=pk)
-        rules = models.Rule.filter(obj=service)
-        return self.format(rules, service.name)
-
-
-class ProjectRules(_ExportRules):
-    def get(self, request, pk):
-        project = get_object_or_404(models.Project, id=pk)
-        rules = models.Rule.filter(obj=project)
-        return self.format(rules, project.name)
+class RuleExport(_ExportRules):
+    def get(self, request, content_type, object_id):
+        ct = ContentType.objects.get(app_label="promgen", model=content_type).get_object_for_this_type(pk=object_id)
+        rules = models.Rule.filter(obj=ct)
+        return self.format(rules)
 
 
 class URLConfig(View):
