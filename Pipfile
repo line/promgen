@@ -1,0 +1,17 @@
+[[source]]
+verify_ssl = true
+url = "https://pypi.org/simple"
+name = "pypi"
+
+[packages]
+promgen = {extras = ["mysql"], path = ".", editable = true}
+gunicorn = "*"
+redis = "*"
+whitenoise = "*"
+
+[requires]
+python_version = "3.6"
+
+[dev-packages]
+promgen = {editable = true, extras = ["dev", "docs"], path = "."}
+"flake8" = "*"
