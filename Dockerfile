@@ -1,4 +1,4 @@
-FROM python:3.5.3-alpine
+FROM python:3.6.4-alpine
 MAINTAINER paul.traylor@linecorp.com
 
 ENV PROMETHEUS_VERSION 2.1.0
@@ -18,13 +18,14 @@ RUN set -ex; \
 ENV PYTHONUNBUFFERED 1
 ENV PIP_NO_CACHE_DIR off
 
-RUN mkdir -p /etc/prometheus
-RUN mkdir -p /etc/promgen
-RUN mkdir -p /usr/src/app
-RUN chown promgen /etc/prometheus
+RUN mkdir -p /etc/prometheus; \
+    mkdir -p /etc/promgen; \
+    mkdir -p /usr/src/app; \
+    chown promgen /etc/prometheus
 
 COPY docker/requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+RUN pip install -U pip==18.1; \
+    pip install -r /tmp/requirements.txt
 
 COPY setup.py /usr/src/app/setup.py
 COPY promgen /usr/src/app/promgen
