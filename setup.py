@@ -39,7 +39,7 @@ setup(
         'python-dateutil',
         'pyyaml',
         'raven',
-        'requests',
+        'requests>=2.20.0',
         'social-auth-app-django >= 2.0.0',
     ],
     include_package_data=True,
