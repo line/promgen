@@ -652,6 +652,9 @@ class ProjectRegister(LoginRequiredMixin, FormView, ServiceMixin):
     template_name = 'promgen/project_form.html'
     form_class = forms.ProjectRegister
 
+    def get_initial(self):
+        return {'owner': self.request.user}
+
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         project, _ = models.Project.objects.get_or_create(service=service, **form.clean())
@@ -812,6 +815,9 @@ class ServiceRegister(LoginRequiredMixin, ShardMixin, FormView):
     form_class = forms.ServiceRegister
     model = models.Service
     template_name = 'promgen/service_form.html'
+
+    def get_initial(self):
+        return {'owner': self.request.user}
 
     def form_valid(self, form):
         shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
