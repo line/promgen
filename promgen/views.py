@@ -658,6 +658,7 @@ class ProjectRegister(LoginRequiredMixin, FormView, ServiceMixin):
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         project, _ = models.Project.objects.get_or_create(service=service, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=project, sender='promgen.notification.user', value=self.request.user.username)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -822,6 +823,7 @@ class ServiceRegister(LoginRequiredMixin, ShardMixin, FormView):
     def form_valid(self, form):
         shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
         service, _ = models.Service.objects.get_or_create(shard=shard, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=service, sender='promgen.notification.user', value=self.request.user.username)
         return HttpResponseRedirect(service.get_absolute_url())
 
 
