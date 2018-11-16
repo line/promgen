@@ -15,3 +15,5 @@ python_version = "3.6"
 [dev-packages]
 promgen = {editable = true, extras = ["dev", "docs"], path = "."}
 "flake8" = "*"
+django-debug-toolbar = "*"
+black = "==18.9b0"

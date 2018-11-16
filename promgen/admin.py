@@ -24,14 +24,15 @@ class ShardAdmin(admin.ModelAdmin):
 
 @admin.register(models.Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'shard')
-    list_filter = ('shard',)
+    list_display = ('name', 'shard', 'owner')
+    list_filter = ('shard', ('owner', admin.RelatedOnlyFieldListFilter))
 
 
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'service', 'farm')
+    list_display = ('name', 'service', 'farm', 'owner')
     list_select_related = ('service', 'farm', 'service__shard')
+    list_filter = (('owner', admin.RelatedOnlyFieldListFilter),)
 
 
 class SenderForm(forms.ModelForm):
