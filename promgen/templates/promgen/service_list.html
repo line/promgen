@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 
 {% block content %}
 
@@ -9,6 +10,11 @@
 
 {% for service in service_list %}
 <h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
+
+{% if service.owner %}
+  <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
+{% endif %}
+
 {% include "promgen/service_block.html" %}
 {% endfor %}
 
