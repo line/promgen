@@ -110,6 +110,9 @@
       ><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></a>
 {% endif %}
       <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a>
+      {% if project.owner %}
+      <p>{% trans 'Contact' %}: {{project.owner}}</p>
+      {% endif %}
     </td>
     <td>{% if project.farm %}{{ project.farm }}{% endif %}</td>
     <td>
