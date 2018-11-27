@@ -21,7 +21,14 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
-from promgen import views
+from promgen import rest, views
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register('service', rest.ServiceViewSet)
+router.register('shard', rest.ShardViewSet)
+router.register('project', rest.ProjectViewSet)
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -35,7 +42,6 @@ urlpatterns = [
     url(r'^service/(?P<pk>[0-9]+)/$', views.ServiceDetail.as_view(), name='service-detail'),
     url(r'^service/(?P<pk>[0-9]+)/delete$', views.ServiceDelete.as_view(), name='service-delete'),
     url(r'^service/(?P<pk>[0-9]+)/new$', views.ProjectRegister.as_view(), name='project-new'),
-    url(r'^service/(?P<pk>[0-9]+)/targets$', views.ServiceTargets.as_view(), name='service-targets'),
     url(r'^service/(?P<pk>[0-9]+)/update$', views.ServiceUpdate.as_view(), name='service-update'),
     url(r'^service/(?P<pk>[0-9]+)/notifier$', views.ServiceNotifierRegister.as_view(), name='service-notifier'),
 
@@ -47,7 +53,6 @@ urlpatterns = [
     url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.FarmRegister.as_view(), name='farm-new'),
     url(r'^project/(?P<pk>[0-9]+)/scrape$', views.ExporterScrape.as_view(), name='exporter-scrape'),
     url(r'^project/(?P<pk>[0-9]+)/exporter$', views.ExporterRegister.as_view(), name='project-exporter'),
-    url(r'^project/(?P<pk>[0-9]+)/targets$', views.ProjectTargets.as_view(), name='project-targets'),
     url(r'^project/(?P<pk>[0-9]+)/notifier$', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
 
     url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
@@ -81,7 +86,6 @@ urlpatterns = [
     url(r'^rule/(?P<pk>[0-9]+)/duplicate$', views.RulesCopy.as_view(), name='rule-overwrite'),
 
     path('<content_type>/<object_id>/rule', views.RuleRegister.as_view(), name='rule-new'),
-    path('<content_type>/<object_id>/rules', views.RuleExport.as_view(), name='rule-export'),
 
     url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
     url(r'^status/$', views.Status.as_view(), name='status'),
@@ -120,6 +124,8 @@ urlpatterns = [
     url(r'^api/v1/query_range', views.ProxyQueryRange.as_view()),
     url(r'^api/v1/query', views.ProxyQuery.as_view(), name='proxy-query'),
     url(r'^api/v1/series', views.ProxySeries.as_view()),
+
+    path('api/', include((router.urls, 'api'), namespace='api')),
 ]
 
 if settings.DEBUG:

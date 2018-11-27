@@ -33,6 +33,7 @@ setup(
         'atomicwrites',
         'celery[redis]==4.1.1',
         'dj-database-url',
+        'djangorestframework==3.9.0',
         'Django==2.1.2',
         'envdir',
         'prometheus-client',
