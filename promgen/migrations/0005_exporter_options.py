@@ -21,6 +21,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='defaultexporter',
-            unique_together={('job', 'port')},
+            unique_together={('job', 'port', 'path')},
         ),
     ]

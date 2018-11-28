@@ -313,7 +313,7 @@ class DefaultExporter(models.Model):
 
     class Meta:
         ordering = ['job', 'port']
-        unique_together = (('job', 'port',),)
+        unique_together = (('job', 'port', 'path'),)
 
 
 class URL(models.Model):
