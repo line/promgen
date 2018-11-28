@@ -18,8 +18,8 @@ out an updated configuration file, and update Prometheus.
 
     # Assuming we have a Prometheus shard named promshard and two servers we
     # may deploy the workers like this
-    promgen register promshard prometheus001 9090
-    promgen register promshard prometheus002 9090
+    promgen register-server promshard prometheus001 9090
+    promgen register-server promshard prometheus002 9090
 
     # Then on each Prometheus server, we would want to run a celery worker with
     # the queue name matching the name that we registered

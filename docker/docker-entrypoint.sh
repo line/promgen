@@ -23,7 +23,7 @@ docker-compose-bootstrap)
   done
 
   promgen migrate
-  promgen register "${PROMGEN_REGISTER_SHARD}" "${PROMGEN_REGISTER_HOST}" "${PROMGEN_REGISTER_PORT}"
+  promgen register-server "${PROMGEN_REGISTER_SHARD}" "${PROMGEN_REGISTER_HOST}" "${PROMGEN_REGISTER_PORT}"
   promgen loaddata exporters
   exit 0
   ;;
@@ -36,7 +36,7 @@ web)
   shift
   set -- gunicorn "promgen.wsgi:application" "$@"
   ;;
-bootstrap|createsuperuser|migrate|shell|test|import|queuecheck|rbimport|register|rules|targets|urls)
+bootstrap|createsuperuser|migrate|shell|test|import|queuecheck|rbimport|register-server|register-exporter|rules|targets|urls)
   # Shortcuts for some commonly used django commands
   set -- promgen "$@"
   ;;
