@@ -6,7 +6,7 @@ test: pipenv
 all: clean pipenv test build
 
 
-.PHONY: build 
+.PHONY: build
 build: pipenv
 	docker-compose build
 
@@ -35,9 +35,11 @@ clean:
 	@rm -rf dist
 
 
+.PHONY:	dump
 dump: pipenv
 	pipenv run promgen dumpdata promgen.DefaultExporter  --indent=2 --output promgen/fixtures/exporters.yaml --format=yaml
 
+.PHONY:	load
 load: pipenv
 	pipenv run promgen loaddata exporters
 
