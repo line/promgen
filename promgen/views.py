@@ -940,18 +940,6 @@ class Commit(LoginRequiredMixin, View):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
-class ServiceTargets(View):
-    def get(self, request, pk):
-        service = get_object_or_404(models.Service, id=pk)
-        return HttpResponse(prometheus.render_config(service=service), content_type='application/json')
-
-
-class ProjectTargets(View):
-    def get(self, request, pk):
-        project = get_object_or_404(models.Project, id=pk)
-        return HttpResponse(prometheus.render_config(project=project), content_type='application/json')
-
-
 class _ExportRules(View):
     def format(self, rules=None, name='promgen'):
         version = settings.PROMGEN['prometheus'].get('version', 1)

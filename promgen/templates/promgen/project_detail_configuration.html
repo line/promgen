@@ -21,8 +21,8 @@
       Export <span class="caret"></span>
     </button>
       <ul class="dropdown-menu">
-        <li role="presentation"><a href="{% url 'rule-export' 'project' project.id %}">{% trans "Export Rules" %}</a></li>
-        <li role="presentation"><a href="{% url 'project-targets' project.id %}">{% trans "Export Project" %}</a></li>
+        <li role="presentation"><a href="{% url 'api:project-rules' name=project.name %}">{% trans "Export Rules" %}</a></li>
+        <li role="presentation"><a href="{% url 'api:project-targets' name=project.name %}">{% trans "Export Project" %}</a></li>
       </ul>
     </div>
 
