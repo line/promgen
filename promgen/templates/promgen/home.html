@@ -1,21 +1,17 @@
 {% extends "base.html" %}
-{% load i18n %}
 
 {% block content %}
 
-<div class="page-header">
-  <h1>Services</h1>
-</div>
-
-
 {% for service in service_list %}
 <h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
-
-{% if service.owner %}
-  <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
-{% endif %}
-
 {% include "promgen/service_block.html" %}
+{% empty %}
+<h3>No Subscriptions Found</h3>
+<p>
+  Try Subscribing to some notifications from the
+  <a href="{% url 'service-list' %}">Service</a> or
+  <a href="{% url 'shard-list' %}">Shard</a> menu
+  </p>
 {% endfor %}
 
 {% endblock %}

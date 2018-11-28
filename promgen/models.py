@@ -159,6 +159,8 @@ class Service(models.Model):
     shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
     description = models.TextField(blank=True)
 
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
+
     class Meta:
         ordering = ['shard', 'name']
 
@@ -201,6 +203,8 @@ class Project(models.Model):
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation('Rule')
     description = models.TextField(blank=True)
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
 
     class Meta:
         ordering = ['name']

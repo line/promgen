@@ -12,86 +12,9 @@
         <link rel="stylesheet" href="{% static "/css/promgen.css" %}">
     </head>
     <body>
-        <header class="navbar navbar-inverse navbar-static-top" role="navigation">
-            <nav class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="/">Promgen {{ VERSION }}</a>
-                </div>
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                  <ul class="nav navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li><a href="{% url 'service-list' %}">Services</a></li>
-                        <li><a href="{% url 'rules-list' %}">Rules</a></li>
-                        <li><a href="{% url 'url-list' %}">URLs</a></li>
-                        <li class="dropdown">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Misc <span class="caret"></span></a>
-                          <ul class="dropdown-menu">
-                            <li><a href="{% url 'audit-list' %}">Log</a></li>
-                            <li><a href="{% url 'farm-list' %}">Farms</a></li>
-                            <li><a href="{% url 'host-list' %}">Hosts</a></li>
-                            <li><a href="{% url 'shard-list' %}">Shard</a></li>
-                            <li><a href="{% url 'import' %}">Import Config</a></li>
-                            <li role="separator" class="divider"></li>
-                            <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
-                            <li><a href="{% url 'config-rules' %}">Export Rules</a></li>
-                            <li><a href="{% url 'config-urls' %}">Export URL</a></li>
-                          </ul>
-                        </li>
-                        {% if EXTERNAL_LINKS %}
-                        <li class="dropdown">
-                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Links <span class="caret"></span></a>
-                          <ul class="dropdown-menu">
-                            {% for title, link in EXTERNAL_LINKS.items %}
-                            <li><a rel="noopener noreferrer" href="{{ link }}">{{ title }}</a></li>
-                            {% endfor %}
-                          </ul>
-                        </li>
-                        {% endif %}
-                    </ul>
-                    <form class="navbar-form navbar-left" action="{% url 'search' %}">
-                      <div class="form-group">
-                        <input name="search" type="text" class="form-control" placeholder="Service, Project, etc">
-                      </div>
-                      <button type="submit" class="btn btn-default">Search</button>
-                    </form>
-                    <form style="display:inline;" action="{% url 'commit' %}" method="POST">
-                      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-                      <button type="submit" class="btn btn-warning">Commit</button>
-                    </form>
-                    <a id="alert-load" class="btn btn-default navbar-btn" role="button" data-toggle="collapse" href="#alert-all" aria-expanded="false" aria-controls="collapseExample">
-                      Alerts
-                    </a>
-                    <span id="silence-load" class="btn btn-default navbar-btn">Silences</span>
-                    <ul class="nav navbar-nav navbar-right">
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                          {{user.username}} <span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                          <li><a href="{% url 'status' %}">Profile</a></li>
-                          <li><a href="{% url 'logout' %}">Logout</a></li>
-                          {% if user.is_superuser %}
-                          <li role="separator" class="divider"></li>
-                          <li><a href="{% url 'admin:index' %}">Admin</a></li>
-                          {% endif %}
-                        </ul>
-                      </li>
-                    </ul>
-                  {% else %}
-                      {# This looks like a bug, but if we're not logged in, we need to close the list tag #}
-                      <li><a href="{% url 'login' %}">Login</a></li>
-                    </ul>
-                  {% endif %}
-                </div><!-- /.navbar-collapse -->
-            </nav><!-- /.container-fluid -->
-        </header>
+{% block navbar %}
+{% include "promgen/navbar.html" %}
+{% endblock %}
         <div id="vue" class="container">
           {% if messages %}
               {% for message in messages %}

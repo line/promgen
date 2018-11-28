@@ -111,7 +111,33 @@ class ServiceList(LoginRequiredMixin, ListView):
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
-            'project_set__notifiers'
+            'project_set__notifiers',
+            'shard',
+        )
+
+
+class HomeList(LoginRequiredMixin, ListView):
+    template_name = 'promgen/home.html'
+
+    def get_queryset(self):
+        # TODO: Support showing subscribed projects as well
+        # Get the list of senders that a user is currently subscribed to
+        senders = models.Sender.objects.filter(
+            value=self.request.user.username,
+            sender='promgen.notification.user',
+            content_type=ContentType.objects.get_for_model(models.Service),
+        ).values_list('object_id')
+
+        # and return just our list of services
+        return models.Service.objects.filter(pk__in=senders).prefetch_related(
+            'notifiers',
+            'rule_set',
+            'rule_set__parent',
+            'project_set',
+            'project_set__farm',
+            'project_set__exporter_set',
+            'project_set__notifiers',
+            'shard',
         )
 
 
@@ -263,6 +289,8 @@ class NotifierDelete(LoginRequiredMixin, DeleteView):
     model = models.Sender
 
     def get_success_url(self):
+        if 'next' in self.request.POST:
+            return self.request.POST['next']
         if hasattr(self.object.content_object, 'get_absolute_url'):
             return self.object.content_object.get_absolute_url()
         return reverse('status')
@@ -613,9 +641,13 @@ class ProjectRegister(LoginRequiredMixin, FormView, ServiceMixin):
     template_name = 'promgen/project_form.html'
     form_class = forms.ProjectRegister
 
+    def get_initial(self):
+        return {'owner': self.request.user}
+
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         project, _ = models.Project.objects.get_or_create(service=service, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=project, sender='promgen.notification.user', value=self.request.user.username)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -774,9 +806,13 @@ class ServiceRegister(LoginRequiredMixin, ShardMixin, FormView):
     model = models.Service
     template_name = 'promgen/service_form.html'
 
+    def get_initial(self):
+        return {'owner': self.request.user}
+
     def form_valid(self, form):
         shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
         service, _ = models.Service.objects.get_or_create(shard=shard, **form.clean())
+        sender, _ = models.Sender.get_or_create(obj=service, sender='promgen.notification.user', value=self.request.user.username)
         return HttpResponseRedirect(service.get_absolute_url())
 
 
@@ -893,18 +929,6 @@ class Commit(LoginRequiredMixin, View):
         return HttpResponseRedirect(request.POST.get('next', '/'))
 
 
-class ServiceTargets(View):
-    def get(self, request, pk):
-        service = get_object_or_404(models.Service, id=pk)
-        return HttpResponse(prometheus.render_config(service=service), content_type='application/json')
-
-
-class ProjectTargets(View):
-    def get(self, request, pk):
-        project = get_object_or_404(models.Project, id=pk)
-        return HttpResponse(prometheus.render_config(project=project), content_type='application/json')
-
-
 class _ExportRules(View):
     def format(self, rules=None, name='promgen'):
         version = settings.PROMGEN['prometheus'].get('version', 1)
@@ -924,18 +948,11 @@ class RulesConfig(_ExportRules):
         return self.format()
 
 
-class ServiceRules(_ExportRules):
-    def get(self, request, pk):
-        service = get_object_or_404(models.Service, id=pk)
-        rules = models.Rule.filter(obj=service)
-        return self.format(rules, service.name)
-
-
-class ProjectRules(_ExportRules):
-    def get(self, request, pk):
-        project = get_object_or_404(models.Project, id=pk)
-        rules = models.Rule.filter(obj=project)
-        return self.format(rules, project.name)
+class RuleExport(_ExportRules):
+    def get(self, request, content_type, object_id):
+        ct = ContentType.objects.get(app_label="promgen", model=content_type).get_object_for_this_type(pk=object_id)
+        rules = models.Rule.filter(obj=ct)
+        return self.format(rules)
 
 
 class URLConfig(View):

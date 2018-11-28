@@ -65,6 +65,8 @@ INSTALLED_APPS = apps_from_setuptools + [
     'django.contrib.staticfiles',
     'social_django',
     'promgen',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -192,6 +194,16 @@ if 'SENTRY_DSN' in os.environ:
             },
         },
     }
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    )
+}
 
 # If CELERY_BROKER_URL is set in our environment, then we configure celery as
 # expected. If it is not configured, then we set CELERY_TASK_ALWAYS_EAGER to

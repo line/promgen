@@ -26,6 +26,10 @@ Promgen / Project / {{ project.name }}
 </div>
 <div style="display:none" id="silence-project-{{ project.name|slugify }}"></div>
 
+{% if project.owner %}
+<p>{% trans 'Contact' %}: {{project.owner.username}}</p>
+{% endif %}
+
 {% if project.description %}
   <div class="panel panel-default">
     <div class="panel-body">

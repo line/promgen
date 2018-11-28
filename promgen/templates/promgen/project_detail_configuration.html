@@ -15,10 +15,20 @@
 
     <a href="{% url 'audit-list'  %}?project={{project.id}}" class="btn btn-info btn-sm">{% trans "Edit History" %}</a>
     <a href="{% url 'project-update' project.id %}" class="btn btn-warning btn-sm">{% trans "Update Project" %}</a>
-    <a href="{% url 'project-targets' project.id %}" class="btn btn-default btn-sm">{% trans "Export Project" %}</a>
+
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Export <span class="caret"></span>
+    </button>
+      <ul class="dropdown-menu">
+        <li role="presentation"><a href="{% url 'api:project-rules' name=project.name %}">{% trans "Export Rules" %}</a></li>
+        <li role="presentation"><a href="{% url 'api:project-targets' name=project.name %}">{% trans "Export Project" %}</a></li>
+      </ul>
+    </div>
+
     <form method="post" action="{% url 'project-delete' project.id %}" onsubmit="return confirm('{% trans "Delete this Project?" %}')" style="display: inline">
       {% csrf_token %}
-      <button class="btn btn-danger btn-sm">{% trans "Delete Project" %}</button>
+      <button class="btn btn-danger btn-sm pull-right">{% trans "Delete Project" %}</button>
     </form>
   </div>
 </div>

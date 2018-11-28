@@ -55,7 +55,7 @@ def check_rules(rules):
         try:
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            raise Exception(rendered + e.output.decode('utf8'))
+            raise Exception(rendered.decode('utf8') + e.output.decode('utf8'))
 
 
 def render_rules(rules=None, version=None):
