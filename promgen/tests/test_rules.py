@@ -133,3 +133,11 @@ class RuleTest(PromgenTest):
 
         for k, r in rules.items():
             self.assertEquals(macro.rulemacro(r['model'].clause, r['model']), r['assert'], 'Expansion wrong for %s' % k)
+
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def test_invalid_annotation(self, mock_post):
+        # $label.foo is invalid (should be $labels) so make sure we raise an exception
+        models.RuleAnnotation.objects.create(name='summary', value='{{$label.foo}}', rule=self.rule)
+        with self.assertRaises(Exception):
+            prometheus.check_rules([self.rule])
+
