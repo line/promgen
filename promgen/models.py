@@ -310,6 +310,16 @@ class Exporter(models.Model):
         return reverse('project-detail', kwargs={'pk': self.project.pk})
 
 
+class DefaultExporter(models.Model):
+    job = models.CharField(max_length=128)
+    port = models.IntegerField()
+    path = models.CharField(max_length=128, blank=True)
+
+    class Meta:
+        ordering = ['job', 'port']
+        unique_together = (('job', 'port', 'path'),)
+
+
 class URL(models.Model):
     url = models.URLField(max_length=256)
     project = models.ForeignKey('Project', on_delete=models.CASCADE)

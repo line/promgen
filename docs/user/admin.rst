@@ -12,4 +12,4 @@ Managing Shards using CLI
 
     # Register a Prometheus server running on the host prometheus002 on port 9090
     # to the shard 'promshard'
-    promgen register promshard prometheus002 9090
+    promgen register-server promshard prometheus002 9090

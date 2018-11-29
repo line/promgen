@@ -1,19 +1,45 @@
-test:
-	pipenv run promgen test
 .PHONY: test
- 
-build:
-	docker-compose build
-.PHONY: build
+test: pipenv
+	pipenv run promgen test
 
+.PHONY:	all
+all: clean pipenv test build
+
+
+.PHONY: build
+build: pipenv
+	docker-compose build
+
+
+.PHONY:	shell
 shell:
 	docker-compose run --rm worker bash
-.PHONY:	shell
 
+
+.PHONY: docs
 docs:
 	pipenv run sphinx-build -avb html docs dist/html
-.PHONY: docs
 
-clean:
-	rm -rf .venv dist
+
+.PHONY:	pipenv
+pipenv:
+	@echo Testing if Pipenv is already installed
+	@pipenv --venv 1> /dev/null 2> /dev/null || pipenv install --dev
+
+
 .PHONY:	clean
+clean:
+	@echo Removing Pipenv
+	@pipenv --rm || true
+	@echo Clearing dist files
+	@rm -rf dist
+
+
+.PHONY:	dump
+dump: pipenv
+	pipenv run promgen dumpdata promgen.DefaultExporter  --indent=2 --output promgen/fixtures/exporters.yaml --format=yaml
+
+.PHONY:	load
+load: pipenv
+	pipenv run promgen loaddata exporters
+

@@ -66,6 +66,12 @@ class ExporterAdmin(admin.ModelAdmin):
     readonly_fields = ('project',)
 
 
+@admin.register(models.DefaultExporter)
+class DefaultExporterAdmin(admin.ModelAdmin):
+    list_display = ('job', 'port', 'path')
+    list_filter = ('job', 'port')
+
+
 @admin.register(models.URL)
 class URLAdmin(admin.ModelAdmin):
     list_display = ('url', 'project')
