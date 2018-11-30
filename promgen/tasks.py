@@ -3,6 +3,7 @@
 
 import collections
 import logging
+from django.conf import settings
 
 from celery import shared_task
 from promgen import models, plugins, prometheus, signals  # NOQA
@@ -22,6 +23,17 @@ def process_alert(alert_pk):
     '''
     alert = models.Alert.objects.get(pk=alert_pk)
     routable, data = alert.expand()
+
+    # For any blacklisted label patterns, we delete them from the queue
+    # and consider it done (do not send any notification)
+    blacklist = settings.PROMGEN.get('alert_blacklist', {})
+    for key in blacklist:
+        logger.debug('Checking key %s', key)
+        if key in data['commonLabels']:
+            if data['commonLabels'][key] in blacklist[key]:
+                logger.debug('Blacklisted label %s', blacklist[key])
+                alert.delete()
+                return
 
     # Now that we have our routable items, we want to check which senders are
     # configured and expand those as needed
