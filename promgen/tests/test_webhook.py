@@ -43,6 +43,8 @@ class WebhookTest(PromgenTest):
             content_type='application/json'
         )
 
+        self.assertEqual(models.Alert.objects.count(), 1, 'Alert should be queued')
+
         # Our sample is the same as the original, with some annotations added
         _SAMPLE = PromgenTest.data_json('examples', 'alertmanager.json')
         _SAMPLE['commonAnnotations']['service'] = 'http://example.com' + self.service.get_absolute_url()

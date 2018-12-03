@@ -11,6 +11,11 @@ prometheus:
 alertmanager:
   url: http://alertmanager:9093
 
+# Blacklist labels we want to filter out and prevent
+# sending alerts on
+alert_blacklist:
+  severity: ["debug", "blackhole"]
+
 # Settings related to target configuration file.
 config_writer:
   # Output target configuration to this path

@@ -1,0 +1,7 @@
+{
+    "alerts": [],
+    "commonLabels": {
+        "alertname": "PromgenHeartbeat",
+        "severity": "blackhole"
+    }
+}
