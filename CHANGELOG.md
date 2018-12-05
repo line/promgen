@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.31 - 2018-12-05
+* [BUGFIX] Ensure that invalid annotations are caught #113
+* [CHANGES] Bump Python to 3.6 and use Pipfile for easier development onboarding #109
+* [CHANGES] Update Django version #107
+* [ENHANCEMENT] Add 'owner' field for Projects and Services #111
+* [ENHANCEMENT] Initial read-only API provided by django-rest-framework #112
+* [ENHANCEMENT] New homepage to show subscribed services #105
+* [ENHANCEMENT] Refactor to support Project and Site rule exports #104
+* [ENHANCEMENT] Support adding exporter defaults from admin gui #114
+
 ## v0.30 - 2018-09-02
 
 * [BUGFIX] Fix for missing promtool validation error #103
