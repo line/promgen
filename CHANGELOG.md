@@ -10,7 +10,7 @@
 * [ENHANCEMENT] Refactor to support Project and Site rule exports #104
 * [ENHANCEMENT] Support adding exporter defaults from admin gui #114
 
-## v0.30 - 2018-09-02
+## v0.30 - 2018-10-02
 
 * [BUGFIX] Fix for missing promtool validation error #103
 * [BUGFIX] Fix reference to self.get_object() in RuleToggle #99
