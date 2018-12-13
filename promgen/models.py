@@ -494,6 +494,7 @@ class Alert(models.Model):
 
         return routable, data
 
+    @cached_property
     def json(self):
         return json.loads(self.body)
 

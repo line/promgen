@@ -1,8 +1,10 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+import json
 
 from django import forms
 from django.contrib import admin
+from django.utils.html import format_html
 from promgen import models, plugins
 
 
@@ -106,5 +108,45 @@ class PrometheusAdmin(admin.ModelAdmin):
 
 @admin.register(models.Alert)
 class AlertAdmin(admin.ModelAdmin):
-    list_display = ('created',)
-    readonly_fields = ('created', 'body')
+    def __getattr__(self, name):
+        # Override __getattr__ so that we can return a label
+        # for any of our special values in list_display
+        def __get_label(label):
+            def __wrapped(obj):
+                try:
+                    return obj.json['commonLabels'][label]
+                except KeyError:
+                    return ''
+
+            # We give the wrapped function the same description as
+            # our label so that it shows up right in the admin panel
+            __wrapped.short_description = label
+            return __wrapped
+
+        if name in self.list_display:
+            return __get_label(name)
+
+    date_hierarchy = 'created'
+    list_display = (
+        'created',
+        'datasource',
+        'alertname',
+        'service',
+        'project',
+        'severity',
+        'job',
+    )
+
+    fields = ('created', '_json')
+    readonly_fields = ('created', '_json')
+    ordering = ('-created',)
+
+    def _json(self, instance):
+        return format_html('<pre>{}</pre>', json.dumps(instance.json, indent=2))
+    _json.short_description = "json"
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
