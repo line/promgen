@@ -319,6 +319,9 @@ class DefaultExporter(models.Model):
         ordering = ['job', 'port']
         unique_together = (('job', 'port', 'path'),)
 
+    def __str__(self):
+        return '{}:{}{}'.format(self.job, self.port, self.path or '/metrics')
+
 
 class URL(models.Model):
     url = models.URLField(max_length=256)
