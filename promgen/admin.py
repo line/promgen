@@ -112,9 +112,9 @@ class AlertAdmin(admin.ModelAdmin):
         # Override __getattr__ so that we can return a label
         # for any of our special values in list_display
         def __get_label(label):
-            def __wrapped(obj):
+            def __wrapped(instance):
                 try:
-                    return obj.json['commonLabels'][label]
+                    return instance.json['commonLabels'][label]
                 except KeyError:
                     return ''
 
