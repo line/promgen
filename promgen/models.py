@@ -476,7 +476,7 @@ class Alert(models.Model):
             ('service', Service),
         ]
         routable = {}
-        data = self.json()
+        data = json.loads(self.body)
 
         data.setdefault('commonLabels', {})
         data.setdefault('commonAnnotations', {})
