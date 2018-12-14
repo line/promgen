@@ -319,6 +319,9 @@ class DefaultExporter(models.Model):
         ordering = ['job', 'port']
         unique_together = (('job', 'port', 'path'),)
 
+    def __str__(self):
+        return '{}:{}{}'.format(self.job, self.port, self.path or '/metrics')
+
 
 class URL(models.Model):
     url = models.URLField(max_length=256)
@@ -473,7 +476,7 @@ class Alert(models.Model):
             ('service', Service),
         ]
         routable = {}
-        data = self.json()
+        data = json.loads(self.body)
 
         data.setdefault('commonLabels', {})
         data.setdefault('commonAnnotations', {})
@@ -494,6 +497,7 @@ class Alert(models.Model):
 
         return routable, data
 
+    @cached_property
     def json(self):
         return json.loads(self.body)
 
