@@ -69,8 +69,12 @@ INSTALLED_APPS = apps_from_setuptools + [
     'rest_framework.authtoken',
 ]
 
+# We explicitly include debug_toolbar and whitenoise here, but selectively
+# remove it below, so that we can more easily control the import order
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',  # Only enabled for debug
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Used primarily for docker
     'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -214,14 +218,21 @@ if 'CELERY_BROKER_URL' in os.environ:
 else:
     CELERY_TASK_ALWAYS_EAGER = True
 
-if DEBUG:
-    try:
-        import debug_toolbar  # NOQA
-        INSTALLED_APPS += ['debug_toolbar']
-        MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware'] + MIDDLEWARE
-        INTERNAL_IPS = ['127.0.0.1']
-    except:
-        pass
+
+try:
+    # If whitenoise is not available, we will remove it from our middleware
+    import whitenoise.middleware  # NOQA
+except ImportError:
+    MIDDLEWARE.remove('whitenoise.middleware.WhiteNoiseMiddleware')
+
+try:
+    # If debug_toolbar is not available, we will remove it from our middleware
+    import debug_toolbar  # NOQA
+    INSTALLED_APPS += ['debug_toolbar']
+    INTERNAL_IPS = ['127.0.0.1']
+except ImportError:
+    MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
+
 
 # Load overrides from PROMGEN to replace Django settings
 for k, v in PROMGEN.pop('django', {}).items():
