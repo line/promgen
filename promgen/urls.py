@@ -16,12 +16,11 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
-from promgen import rest, views
+from promgen import proxy, rest, views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
@@ -119,13 +118,12 @@ urlpatterns = [
     url(r'^api/v1/host/(?P<slug>\S+)', views.HostDetail.as_view()),
 
     # Prometheus Proxy
-    url(r'^graph', views.ProxyGraph.as_view()),
-    url(r'^api/v1/label/(.+)/values', views.ProxyLabel.as_view(), name='proxy-label'),
-    url(r'^api/v1/query_range', views.ProxyQueryRange.as_view()),
-    url(r'^api/v1/query', views.ProxyQuery.as_view(), name='proxy-query'),
-    url(r'^api/v1/series', views.ProxySeries.as_view()),
-
-    path('api/', include((router.urls, 'api'), namespace='api')),
+    path("graph", proxy.ProxyGraph.as_view()),
+    path("api/v1/label/<label>/values", proxy.ProxyLabel.as_view(), name="proxy-label"),
+    path("api/v1/query_range", proxy.ProxyQueryRange.as_view()),
+    path("api/v1/query", proxy.ProxyQuery.as_view(), name="proxy-query"),
+    path("api/v1/series", proxy.ProxySeries.as_view()),
+    path("api/", include((router.urls, "api"), namespace="api")),
 ]
 
 try:
