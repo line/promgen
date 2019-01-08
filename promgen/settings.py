@@ -44,7 +44,7 @@ PROMGEN_CONFIG = os.environ.get(
 )
 if os.path.exists(PROMGEN_CONFIG):
     with open(PROMGEN_CONFIG) as fp:
-        PROMGEN = yaml.load(fp)
+        PROMGEN = yaml.safe_load(fp)
 else:
     PROMGEN = {}
 
