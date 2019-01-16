@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class FormSlack(forms.Form):
-    value = forms.CharField(
+    value = forms.URLField(
         required=True,
         label='Slack webhook URL'
     )
