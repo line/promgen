@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class FormWebhook(forms.Form):
-    value = forms.CharField(
+    value = forms.URLField(
         required=True,
         label='URL'
     )
