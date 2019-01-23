@@ -245,3 +245,26 @@ def add_email_sender(sender, instance, created, **kwargs):
         models.Sender.get_or_create(obj=instance, sender='promgen.notification.email', value=instance.email)
     else:
         logger.warning('No email for user %s', instance)
+
+# Not a 'real' signal but we match most of the interface for post_save
+def check_user_subscription(sender, instance, created, request):
+    # When a user subscribes to a notification, we want to ensure
+    # they have a default notification enabled
+    if instance.sender != "promgen.notification.user":
+        messages.success(request, "Subscription saved")
+        return
+
+    notifiers = models.Sender.filter(obj=instance.owner)
+    if notifiers:
+        logger.debug("Existing notifiers found")
+        return
+
+    if instance.owner.email:
+        models.Sender.get_or_create(
+            obj=instance.owner,
+            sender="promgen.notification.email",
+            value=instance.owner.email,
+        )
+        messages.success(request, "Subscribed using %s" % (instance.owner.email))
+    else:
+        messages.warning(request, "No email configured")
