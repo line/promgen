@@ -433,6 +433,7 @@ def silence(labels, duration=None, **kwargs):
         else:
             raise Exception('Unknown time modifier')
         kwargs['endsAt'] = end.isoformat()
+        kwargs.pop('startsAt', False)
     else:
         local_timezone = pytz.timezone(settings.PROMGEN.get('timezone', 'UTC'))
         for key in ['startsAt', 'endsAt']:
@@ -448,4 +449,7 @@ def silence(labels, duration=None, **kwargs):
 
     logger.debug('Sending silence for %s', kwargs)
     url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
-    util.post(url, json=kwargs).raise_for_status()
+    response = util.post(url, json=kwargs)
+    response.raise_for_status()
+    return response
+    

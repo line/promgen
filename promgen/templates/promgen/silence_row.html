@@ -1,0 +1,16 @@
+{% verbatim %}
+<td>{{silence.endsAt}}</td>
+<td>
+    <ul class="list-inline">
+        <li v-for="match in silence.matchers">
+            <a @click.prevent="silenceAppendLabel" class="label label-warning" v-bind:data-label="match.name" v-bind:data-value="match.value">{{match.name}}:{{match.value}}</a>
+            </a>
+        </li>
+    </ul>
+</td>
+<td>{{silence.comment}}</td>
+<td>{{silence.createdBy}}</td>
+<td>
+    <a @click.prevent="silenceExpire(silence.id)" class="btn btn-warning btn-xs">Expire</a>
+</td>
+{% endverbatim %}

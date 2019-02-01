@@ -76,7 +76,6 @@
     </tr>
     {% endfor %}
   </table>
-  </div>
 </div>
 {% endif %}
 
@@ -105,7 +104,8 @@
           <li>
             <a href="{% url 'host-detail' host.name %}">{{ host.name }}</a>
             <a
-            class="btn btn-warning btn-xs promgen-silence"
+            @click.prevent="silenceSetLabels"
+            class="btn btn-warning btn-xs"
             data-instance="{{host.name}}:[0-9]*"
             href="#"
             style="display: inline-block;"
@@ -127,7 +127,8 @@
       <tr>
         <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
         <td><a
-          class="btn btn-warning btn-xs promgen-silence"
+          @click.prevent="silenceSetLabels"
+          class="btn btn-warning btn-xs"
           data-instance="{{host.name}}:[0-9]*"
           href="#"
           style="display: inline-block;"

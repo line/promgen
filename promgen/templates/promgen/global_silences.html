@@ -1,0 +1,19 @@
+<div class="panel panel-warning collapse" id="globalSilences">
+    <div class="panel-heading">
+        Silences
+        <a @click.prevent="toggleTarget('globalSilences')" class="close" role="button" href="#">
+            &times;
+        </a>
+    </div>
+    <table class="table table-bordered table-condensed">
+        <tr>
+            <th>Ends</th>
+            <th>Matchers</th>
+            <th>Comment</th>
+            <th>CreatedBy</th>
+        </tr>
+        <tr v-for="(silence, index) in filterActiveSilences">
+            {% include 'promgen/silence_row.html' %}
+        </tr>
+    </table>
+</div>

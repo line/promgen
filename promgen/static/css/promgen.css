@@ -23,3 +23,11 @@ a[rel]:after {
   grid-gap: 10px;
   grid-template-columns: repeat(auto-fit, minmax(400px,1fr));
 }
+
+[v-cloak] {
+  display: none;
+}
+
+.dl-horizontal {
+  word-wrap: break-word;
+}

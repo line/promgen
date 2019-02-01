@@ -2,8 +2,7 @@
     <nav class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
-                aria-expanded="false">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                 <span class="sr-only">Toggle navigation</span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
@@ -18,8 +17,7 @@
                 <li><a href="{% url 'rules-list' %}">Rules</a></li>
                 <li><a href="{% url 'url-list' %}">URLs</a></li>
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">Misc <span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Misc <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'audit-list' %}">Log</a></li>
                         <li><a href="{% url 'farm-list' %}">Farms</a></li>
@@ -35,8 +33,7 @@
                 </li>
                 {% if EXTERNAL_LINKS %}
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">Links <span class="caret"></span></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Links <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         {% for title, link in EXTERNAL_LINKS.items %}
                         <li><a rel="noopener noreferrer" href="{{ link }}">{{ title }}</a></li>
@@ -53,17 +50,19 @@
             </form>
             <form style="display:inline;" action="{% url 'commit' %}" method="POST">
                 <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-                <button type="submit" class="btn btn-warning">Commit</button>
+                <button type="submit" class="btn btn-primary">Commit</button>
             </form>
-            <a id="alert-load" class="btn btn-default navbar-btn" role="button" data-toggle="collapse" href="#alert-all"
-                aria-expanded="false" aria-controls="collapseExample">
-                Alerts
+            <a @click.prevent="toggleTarget('globalAlerts')" id="toggleAlerts" class="btn btn-danger navbar-btn" role="button">Alerts
+                <span v-text="filterActiveAlerts.length" class="badge"></span>
             </a>
-            <span id="silence-load" class="btn btn-default navbar-btn">Silences</span>
+            <a @click.prevent="toggleTarget('globalSilences')" id="toggleSilences" class="btn btn-warning navbar-btn" role="button">
+                Silences
+                <span v-text="filterActiveSilences.length" class="badge"></span>
+            </a>
+
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                        aria-expanded="false">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         {{user.username}} <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">

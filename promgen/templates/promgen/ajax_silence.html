@@ -27,7 +27,8 @@
     <td>
       {% for matcher in silence.matchers %}
         <a
-          class="label label-warning promgen-silence"
+          @click.prevent="silenceSetLabels"
+          class="label label-warning"
           data-{{matcher.name}}="{{matcher.value}}"
           href="#"
           style="display: inline-block;"

@@ -4,7 +4,7 @@
 import datetime
 
 from django import forms
-
+from dateutil import parser
 from promgen import models, plugins
 
 
@@ -37,31 +37,30 @@ class ImportRuleForm(forms.Form):
 class SilenceForm(forms.Form):
     def validate_datetime(value):
         try:
-            datetime.datetime.strptime(value, '%Y-%m-%d %H:%M')
+            parser.parse(value)
         except:
             raise forms.ValidationError('Invalid timestamp')
 
-    next = forms.CharField(required=False)
     duration = forms.CharField(required=False)
-    start = forms.CharField(required=False, validators=[validate_datetime])
-    stop = forms.CharField(required=False, validators=[validate_datetime])
+    startsAt = forms.CharField(required=False, validators=[validate_datetime])
+    endsAt = forms.CharField(required=False, validators=[validate_datetime])
     comment = forms.CharField(required=False)
-    created_by = forms.CharField(required=False)
+    createdBy = forms.CharField(required=False)
 
     def clean_comment(self):
         if self.cleaned_data['comment']:
             return self.cleaned_data['comment']
         return "Silenced from Promgen"
 
-    def clean_created_by(self):
-        if self.cleaned_data['created_by']:
-            return self.cleaned_data['created_by']
+    def clean_createdBy(self):
+        if self.cleaned_data['createdBy']:
+            return self.cleaned_data['createdBy']
         return "Promgen"
 
     def clean(self):
         duration = self.data.get('duration')
-        start = self.data.get('start')
-        stop = self.data.get('stop')
+        start = self.data.get('startsAt')
+        stop = self.data.get('endsAt')
 
         if duration:
             # No further validation is required if only duration is set
@@ -69,7 +68,7 @@ class SilenceForm(forms.Form):
 
         if not all([start, stop]):
             raise forms.ValidationError('Both start and end are required')
-        elif datetime.datetime.strptime(start, '%Y-%m-%d %H:%M') > datetime.datetime.strptime(stop, '%Y-%m-%d %H:%M'):
+        elif parser.parse(start) > parser.parse(stop):
             raise forms.ValidationError('Start time and end time is mismatch')
 
 
