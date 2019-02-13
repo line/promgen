@@ -3,6 +3,8 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 */
 
+Vue.config.devtools = true
+
 var dataStore = {
     newSilence: { 'labels': {} },
     globalSilences: [],
