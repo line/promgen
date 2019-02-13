@@ -2,12 +2,18 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import concurrent.futures
+import json
 import logging
+from urllib.parse import urljoin
 
-from django.http import JsonResponse
+import requests
+from dateutil import parser
+from django.conf import settings
+from django.http import HttpResponse, JsonResponse
+from django.template import defaultfilters
 from django.views.generic import View
 from django.views.generic.base import TemplateView
-from promgen import models, util
+from promgen import forms, models, prometheus, util
 from requests.exceptions import HTTPError
 
 logger = logging.getLogger(__name__)
@@ -173,4 +179,70 @@ class ProxyQuery(PrometheusProxy):
 
         return JsonResponse(
             {"status": "success", "data": {"resultType": resultType, "result": data}}
+        )
+
+
+class ProxyAlerts(View):
+    def get(self, request):
+        alerts = []
+        try:
+            url = urljoin(settings.PROMGEN["alertmanager"]["url"], "/api/v1/alerts")
+            response = util.get(url)
+        except requests.exceptions.ConnectionError:
+            logger.error("Error connecting to %s", url)
+            return JsonResponse({})
+
+        data = response.json().get("data", [])
+        if data is None:
+            # Return an empty alert-all if there are no active alerts from AM
+            return JsonResponse({})
+
+        for alert in data:
+            alert.setdefault("annotations", {})
+            # Humanize dates for frontend
+            for key in ["startsAt", "endsAt"]:
+                if key in alert:
+                    alert[key] = parser.parse(alert[key])
+            # Convert any links to <a> for frontend
+            for k, v in alert["annotations"].items():
+                alert["annotations"][k] = defaultfilters.urlize(v)
+            alerts.append(alert)
+        return JsonResponse({"data": data}, safe=False)
+
+
+class ProxySilences(View):
+    def get(self, request):
+        try:
+            url = urljoin(settings.PROMGEN["alertmanager"]["url"], "/api/v1/silences")
+            response = util.get(url, params={"silenced": False})
+        except requests.exceptions.ConnectionError:
+            logger.error("Error connecting to %s", url)
+            return JsonResponse({})
+        else:
+            return HttpResponse(response.content, content_type="application/json")
+
+    def post(self, request):
+        body = json.loads(request.body.decode("utf-8"))
+        body.setdefault("comment", "Silenced from Promgen")
+        body.setdefault("createdBy", request.user.email)
+
+        form = forms.SilenceForm(body)
+        if not form.is_valid():
+            return JsonResponse({"status": form.errors}, status=400)
+
+        response = prometheus.silence(body.pop("labels"), **form.cleaned_data)
+
+        return HttpResponse(
+            response.text, status=response.status_code, content_type="application/json"
+        )
+
+
+class ProxyDeleteSilence(View):
+    def delete(self, request, silence_id):
+        url = urljoin(
+            settings.PROMGEN["alertmanager"]["url"], "/api/v1/silence/%s" % silence_id
+        )
+        response = util.delete(url)
+        return HttpResponse(
+            response.text, status=response.status_code, content_type="application/json"
         )

@@ -43,7 +43,8 @@
       </td>
       <td>
         <a
-          class="btn btn-warning btn-xs promgen-silence"
+          @click.prevent="silenceSetLabels"
+          class="btn btn-warning btn-xs"
           data-job="{{exporter.job}}"
           data-project="{{project.name}}"
           data-service="{{project.service.name}}"

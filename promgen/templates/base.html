@@ -1,74 +1,40 @@
 {% load staticfiles %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Promgen {{ VERSION }}{% endblock %}</title>
-        <link rel="stylesheet" href="{% static "/css/bootstrap.min.css" %}">
-        <link rel="stylesheet" href="{% static "/css/bootstrap-theme.min.css" %}">
-        <link rel="stylesheet" href="{% static "/css/bootstrap-datetimepicker.min.css" %}">
-        <link rel="stylesheet" href="{% static "/css/bootstrap-switch.min.css" %}">
-        <link rel="stylesheet" href="{% static "/css/promgen.css" %}">
-    </head>
-    <body>
-{% block navbar %}
-{% include "promgen/navbar.html" %}
-{% endblock %}
-        <div id="vue" class="container">
-          {% if messages %}
-              {% for message in messages %}
-              <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
-                  <button type="button" class="close" data-dismiss="alert">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-                  {{ message }}
-              </div>
-              {% endfor %}
-          {% endif %}
-            <div>
-{% include 'promgen/silence_form.html' %}
-<div class="panel panel-danger collapse" id="alert-all">
-  <div class="panel-heading">
-    Alerts
-    <button type="button" class="close" data-toggle="collapse" href="#alert-all" aria-expanded="false" aria-controls="collapseExample">
-      <span aria-hidden="true">&times;</span>
-    </button>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Promgen {{ VERSION }}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static "/css/bootstrap.min.css" %}">
+  <link rel="stylesheet" href="{% static "/css/bootstrap-theme.min.css" %}">
+  <link rel="stylesheet" href="{% static "/css/bootstrap-switch.min.css" %}">
+  <link rel="stylesheet" href="{% static "/css/promgen.css" %}">
+</head>
+
+<body>
+  <div id="vue">
+    {% block navbar %}
+    {% include "promgen/navbar.html" %}
+    {% endblock %}
+    <div class="container">
+      {% include 'promgen/global_messages.html' %}
+      {% include 'promgen/silence_form.html' %}
+      {% include 'promgen/global_alerts.html' %}
+      {% include 'promgen/global_silences.html' %}
+      {% block content %}{% endblock %}
+    </div>
   </div>
-  <table class="table table-bordered table-condensed">
-    <template class="alertrow">
-      <tr>
-        <td><a href="#"></a></td>
-        <td>
-          <dl class="dl-horizontal"></dl>
-        </td>
-      </tr>
-    </template>
-    <template class="annotation">
-      <dt>k</dt>
-      <dd>v</dd>
-    </template>
-    <template class="label">
-      <a
-        class="label label-warning promgen-silence"
-        href="#"
-        style="display: inline-block;"
-      >k:v</a>
-    </template>
-  </table>
-</div>
-<div class="panel panel-default" style="display:none" id="silence-all"></div>
-{% block content %}{% endblock %}
-            </div>
-        </div>
-        <script src="{% static "/js/jquery.min.js" %}"></script>
-        <script src="{% static "/js/jquery.selection.js" %}"></script>
-        <script src="{% static "/js/bootstrap.min.js" %}"></script>
-        <script src="{% static "/js/bootstrap3-typeahead.min.js" %}"></script>
-        <script src="{% static "/js/moment.min.js" %}"></script>
-        <script src="{% static "/js/bootstrap-datetimepicker.min.js" %}"></script>
-        <script src="{% static "/js/bootstrap-switch.min.js" %}"></script>
-        <script src="{% static "/js/promgen.js" %}"></script>
-{% block javascript %}{% endblock %}
-    </body>
+  <script src="{% static "/js/jquery.min.js" %}"></script>
+  <script src="{% static "/js/jquery.selection.js" %}"></script>
+  <script src="{% static "/js/bootstrap.min.js" %}"></script>
+  <script src="{% static "/js/bootstrap3-typeahead.min.js" %}"></script>
+  <script src="{% static "/js/moment.min.js" %}"></script>
+  <script src="{% static "/js/bootstrap-switch.min.js" %}"></script>
+  <script src="{% static "/js/vue.min.js" %}"></script>
+  <script src="{% static "/js/promgen.js" %}"></script>
+  <script src="{% static "/js/promgen.vue.js" %}"></script>
+  {% block javascript %}{% endblock %}
+</body>
+
 </html>

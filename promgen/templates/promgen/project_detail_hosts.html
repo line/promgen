@@ -14,7 +14,8 @@
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       <td>
         <a
-          class="btn btn-warning btn-xs promgen-silence"
+          @click.prevent="silenceSetLabels"
+          class="btn btn-warning btn-xs"
           data-instance="{{host.name}}:[0-9]*"
           data-project="{{project.name}}"
           data-service="{{project.service.name}}"

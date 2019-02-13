@@ -1,31 +1,44 @@
 {% load i18n %}
-<form method="post" action="{% url 'silence' %}">
+<form @submit.prevent="silenceSubmit" method="post" action="{% url 'proxy-silence' %}">
   <input name="next" type="hidden" value="{{ request.get_full_path }}" />
   {% csrf_token %}
-<div class="panel panel-warning" style="display:none" id="silence-form">
-  <div class="panel-heading">
-    Silence
-    <button type="button" id="silence-form-close" class="close">&times;</button>
+
+  <div class="panel panel-warning collapse" id="silence-form">
+    <div class="panel-heading">
+      Silence
+      <a @click.prevent="toggleTarget('silence-form')" type="button" class="close">&times;</a>
+    </div>
+
+    <div class="labels panel-body">
+      <ul class="list-inline">
+        <li v-for="(value, label) in newSilence.labels">
+          <a @click.prevent="silenceRemoveLabel(label)" class="label label-warning">
+            {% verbatim %}
+            {{label}}: {{ value }}
+            {% endverbatim %}
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <table class="table table-bordered table-condensed">
+      <tr>
+        <th>Duration</th>
+        <th>Starts</th>
+        <th>Ends</th>
+        <th>Comment</th>
+        <th>CreatedBy</th>
+      </tr>
+      <tr>
+        <td><input v-model="newSilence.duration" placeholder="1m/1h/etc" class="form-control" /></td>
+        <td><input v-model="newSilence.startsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /></td>
+        <td><input v-model="newSilence.endsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /></td>
+        <td><input v-model="newSilence.comment" placeholder="Silenced from Promgen" class="form-control" /></td>
+        <td><input v-model="newSilence.createdBy" placeholder="Promgen" class="form-control" /></td>
+      </tr>
+    </table>
+    <div class="panel-footer">
+      <button class="btn btn-warning">{% trans "Silence" %}</button>
+    </div>
   </div>
-  <div class="labels panel-body"></div>
-  <table class="table table-bordered table-condensed duration">
-    <tr>
-      <th>Duration</th>
-      <th>Start</th>
-      <th>End</th>
-      <th>Comment</th>
-      <th>CreatedBy</th>
-    </tr>
-    <tr>
-      <td><input name="duration" placeholder="1m/1h/etc" /></td>
-      <td style="position:relative"><input name="start" type='text' class="form-control silence_start" /></td>
-      <td style="position:relative"><input name="stop" type='text' class="form-control silence_end" /></td>
-      <td><input name="comment" placeholder="Silenced from Promgen" /></td>
-      <td><input name="created_by" placeholder="Promgen" value="{{user.email}}" /></td>
-    </tr>
-  </table>
-  <div class="panel-footer">
-    <button class="btn btn-warning">{% trans "Silence" %}</button>
-  </div>
-</div>
 </form>

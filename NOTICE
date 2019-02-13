@@ -27,6 +27,12 @@ contributors:
   * License: licenses/LICENSE.moment.mit.txt (MIT License)
   * Homepage: http://momentjs.com/
 
+This product contains Vue.js, distributed by Yuxi (Evan) You and other
+contributors:
+
+  * License: licenses/LICENSE.vuejs.mit.txt (MIT License)
+  * Homepage: https://vuejs.org
+
 Dependencies
 ============
 

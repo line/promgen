@@ -20,25 +20,31 @@ Promgen / Project / {{ project.name }}
   {% trans 'No notifications configured for this project. Please configure some' %}
 </div>
 {% endif %}
-<div style="display:none" data-project="{{project.name}}" class="panel panel-danger promgen-alert">
-  <div class="panel-heading">Alerts</div>
-  <table class="table table-bordered table-condensed"></table>
-</div>
-<div style="display:none" id="silence-project-{{ project.name|slugify }}"></div>
-
-{% if project.owner %}
-<p>{% trans 'Contact' %}: {{project.owner.username}}</p>
-{% endif %}
-
-{% if project.description %}
-  <div class="panel panel-default">
-    <div class="panel-body">
-      {{project.description|linebreaksbr|urlize}}
-    </div>
-  </div>
-{% endif %}
 
 {% include "promgen/project_detail_configuration.html" %}
+
+
+<div class="panel panel-danger" v-cloak v-show="alertLabelsProject.has('{{project.name}}')">
+  <div class="panel-heading">
+    <a @click.prevent="toggleTarget('alerts-project-{{project.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
+  </div>
+  <table id="alerts-project-{{project.name|slugify}}" class="table table-bordered table-condensed">
+    <tr v-for="(alert, index) in globalAlerts" v-if="alert.labels.project == '{{project.name}}'">
+      {% include 'promgen/alert_row.html' %}
+    </tr>
+  </table>
+</div>
+
+<div id="silence-project-{{ project.name|slugify }}" class="panel panel-warning" v-cloak v-show="silenceLabelsProject.has('{{project.name}}')">
+  <div class="panel-heading">
+    <a @click.prevent="toggleTarget('silences-project-{{project.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
+  </div>
+  <table id="silences-project-{{project.name|slugify}}" class="table table-bordered table-condensed">
+    <tr v-for="(silence, index) in filterActiveSilences" v-if="silence.labels.project == '{{project.name}}'">
+      {% include 'promgen/silence_row.html' %}
+    </tr>
+  </table>
+</div>
 
 <div class="row">
   <div class="col-md-6">

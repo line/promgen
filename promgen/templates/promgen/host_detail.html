@@ -19,7 +19,8 @@
 <div class="panel panel-primary">
   <div class="panel-body">
     <a
-    class="btn btn-warning promgen-silence"
+    @click.prevent="silenceSetLabels"
+    class="btn btn-warning"
     data-instance="{{slug}}:[0-9]*"
     href="#"
     style="display: inline-block;"

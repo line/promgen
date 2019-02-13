@@ -1,0 +1,21 @@
+{% verbatim %}
+<td>
+    <a :href="alert.generatorURL" v-text="alert.startsAt"></a>
+</td>
+<td>
+    <dl class="dl-horizontal">
+        <dt>Labels</dt>
+        <dd>
+            <ul class="list-inline">
+                <li v-for="(value, label, index) in alert.labels">
+                    <a @click.prevent="silenceAppendLabel" class="label label-warning" :data-label="label" :data-value="value">{{label}}:{{value}}</a>
+                </li>
+            </ul>
+        </dd>
+        <template v-for="(value, annotation, index) in alert.annotations" class="dl-horizontal">
+            <dt>{{annotation}}</dt>
+            <dd v-html="value"></dd>
+        </template>
+    </dl>
+</td>
+{% endverbatim %}

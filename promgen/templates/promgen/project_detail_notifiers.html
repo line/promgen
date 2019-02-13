@@ -4,7 +4,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     <a class="btn btn-default btn-sm" role="button" data-toggle="collapse" href="#show-service-senders" aria-expanded="false" aria-controls="collapseExample">
-    Service Notifiers ({{project.service.notifiers.count}})
+      Service Notifiers ({{project.service.notifiers.count}})
     </a>
   </div>
   {% include "promgen/notifier_block.html" with object=project.service collapse="show-service-senders" %}
@@ -19,7 +19,7 @@
     <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary">{% trans "Register Notifier" %}</a>
     <form action="{% url 'project-notifier' project.id %}" style="display:inline" method="post">{% csrf_token %}
       <input type="hidden" name="sender" value="promgen.notification.user">
-      <input type="hidden" name="value" value="{{request.user.username}}"/>
+      <input type="hidden" name="value" value="{{request.user.username}}" />
       <button class="btn btn-primary">{% trans "Subscribe to Notifications" %}</button>
     </form>
   </div>

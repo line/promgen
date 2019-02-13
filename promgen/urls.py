@@ -90,16 +90,10 @@ urlpatterns = [
     url(r'^status/$', views.Status.as_view(), name='status'),
     url(r'^import/$', views.Import.as_view(), name='import'),
 
-    url(r'^silence$', views.Silence.as_view(), name='silence'),
-    url(r'^silence/expire$', views.SilenceExpire.as_view(), name='silence-expire'),
-
     url(r'^search/$', views.Search.as_view(), name='search'),
 
     url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
     url(r'^commit$', csrf_exempt(views.Commit.as_view()), name='commit'),
-
-    url(r'^ajax/silence$', csrf_exempt(views.AjaxSilence.as_view()), name='ajax-silence'),
-    url(r'^ajax/alert$', csrf_exempt(views.AjaxAlert.as_view()), name='ajax-alert'),
 
     url('', include('django.contrib.auth.urls')),
     url('', include('social_django.urls', namespace='social')),
@@ -111,18 +105,26 @@ urlpatterns = [
     url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view())),
 
     # Promgen API
-    url(r'^api/v1/targets', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
-    url(r'^api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
-    url(r'^api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
-    url(r'^api/v1/alerts', csrf_exempt(views.Alert.as_view()), name='alert'),
-    url(r'^api/v1/host/(?P<slug>\S+)', views.HostDetail.as_view()),
+    path('api/v1/targets', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
+    path('api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
+    path('api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
+    path('api/v1/alerts', csrf_exempt(views.Alert.as_view()), name='alert'),
+    path('api/v1/host/<slug>', views.HostDetail.as_view()),
 
     # Prometheus Proxy
+    # these apis need to match the same path because Promgen can pretend to be a Prometheus API
     path("graph", proxy.ProxyGraph.as_view()),
     path("api/v1/label/<label>/values", proxy.ProxyLabel.as_view(), name="proxy-label"),
     path("api/v1/query_range", proxy.ProxyQueryRange.as_view()),
     path("api/v1/query", proxy.ProxyQuery.as_view(), name="proxy-query"),
     path("api/v1/series", proxy.ProxySeries.as_view()),
+
+    # Alertmanager Proxy
+    # Promgen does not pretend to be an Alertmanager so these can be slightly different
+    path("proxy/v1/alerts", csrf_exempt(proxy.ProxyAlerts.as_view()), name="proxy-alerts"),
+    path("proxy/v1/silences", csrf_exempt(proxy.ProxySilences.as_view()), name="proxy-silence"),
+    path("proxy/v1/silences/<silence_id>", csrf_exempt(proxy.ProxyDeleteSilence.as_view()), name="proxy-silence-delete"),
+
     path("api/", include((router.urls, "api"), namespace="api")),
 ]
 

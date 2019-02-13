@@ -26,16 +26,20 @@ class SilenceTest(PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.util.post')
     def test_duration(self, mock_post):
+        mock_post.return_value.status_code = 200
+
         with mock.patch('django.utils.timezone.now') as mock_now:
             mock_now.return_value = datetime.datetime(2017, 12, 14, tzinfo=datetime.timezone.utc)
             # I would prefer to be able to test with multiple labels, but since
             # it's difficult to test a list of dictionaries (the order is non-
             # deterministic) we just test with a single label for now
-            self.client.post(reverse('silence'),
+            self.client.post(
+                reverse('proxy-silence'),
                 data={
                     'duration': '1m',
-                    'label.instance': 'example.com:[0-9]*'
+                    "labels": {"instance": "example.com:[0-9]*"},
                 },
+                content_type="application/json",
             )
         mock_post.assert_called_with(
             'http://alertmanager:9093/api/v1/silences',
@@ -45,14 +49,18 @@ class SilenceTest(PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.util.post')
     def test_range(self, mock_post):
+        mock_post.return_value.status_code = 200
+
         with mock.patch('django.utils.timezone.now') as mock_now:
             mock_now.return_value = datetime.datetime(2017, 12, 14, tzinfo=datetime.timezone.utc)
-            self.client.post(reverse('silence'),
+            self.client.post(
+                reverse('proxy-silence'),
                 data={
-                    'start': '2017-12-14 00:01',
-                    'stop': '2017-12-14 00:05',
-                    'label.instance': 'example.com:[0-9]*'
+                    'startsAt': '2017-12-14 00:01',
+                    'endsAt': '2017-12-14 00:05',
+                    "labels": {"instance": "example.com:[0-9]*"},
                 },
+                content_type="application/json",
             )
         mock_post.assert_called_with(
             'http://alertmanager:9093/api/v1/silences',

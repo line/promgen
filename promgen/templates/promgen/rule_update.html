@@ -12,9 +12,15 @@ Promgen / Rule / {{ rule.name }}
   <h1>Rule: {{ rule.name }}</h1>
 </div>
 
-<div style="display:none" data-alertname="{{rule.name}}" class="panel panel-danger promgen-alert">
-  <div class="panel-heading">Alerts</div>
-  <table class="table table-bordered table-condensed"></table>
+<div data-service="{{rule.name}}" class="panel panel-danger" v-cloak v-show="alertLabelsRule.has('{{rule.name}}')">
+  <div class="panel-heading">
+    <a @click.prevent="toggleTarget('alerts-service-{{rule.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
+  </div>
+  <table id="alerts-service-{{rule.name|slugify}}" class="table table-bordered table-condensed collapse">
+    <tr v-for="(alert, index) in globalAlerts" v-if="alert.labels.alertname == '{{rule.name}}'">
+      {% include 'promgen/alert_row.html' %}
+    </tr>
+  </table>
 </div>
 
 <form action="{% url 'rule-edit' rule.pk %}" class="input-group" method="post">{% csrf_token %}
@@ -62,7 +68,7 @@ Promgen / Rule / {{ rule.name }}
   <div class="panel panel-primary">
     <div class="panel-heading">Annotations - Provide extra details for notifications</div>
     {{ annotation_set.management_form }}
-    <table class="table">
+    <table v-pre class="table">
         <tr>
           <th>Annotation</th>
           <th>Value</th>
@@ -79,7 +85,7 @@ Promgen / Rule / {{ rule.name }}
     <ul class="list-group">
       <li class="list-group-item">Examples</li>
       <li class="list-group-item">
-        <code>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</pre></code>
+        <code v-pre>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</pre></code>
       </li>
     </ul>
   </div>
