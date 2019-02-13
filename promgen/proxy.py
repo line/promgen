@@ -246,4 +246,3 @@ class ProxyDeleteSilence(View):
         return HttpResponse(
             response.text, status=response.status_code, content_type="application/json"
         )
-

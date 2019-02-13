@@ -126,5 +126,3 @@ var app = new Vue({
         this.fetchSilences();
     }
 })
-
-
