@@ -8,7 +8,7 @@
         <dd>
             <ul class="list-inline">
                 <li v-for="(value, label, index) in alert.labels">
-                    <a @click.prevent="silenceAppendLabel" class="label label-warning" v-bind:data-label="label" v-bind:data-value="value">{{label}}:{{value}}</a>
+                    <a @click.prevent="silenceAppendLabel" class="label label-warning" :data-label="label" :data-value="value">{{label}}:{{value}}</a>
                 </li>
             </ul>
         </dd>
