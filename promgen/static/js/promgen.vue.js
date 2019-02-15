@@ -53,6 +53,13 @@ var app = new Vue({
             }
             this.showSilenceForm(event);
         },
+        silenceAlert: function (alert) {
+            this.$set(this.newSilence, 'labels', {});
+            for (key in alert.labels) {
+                this.$set(this.newSilence.labels, key, alert.labels[key]);
+            }
+            this.showSilenceForm(event);
+        },
         filterBy: function (source, label) {
             let labels = new Set();
             for (var a in source.filter(x => x.status.state == 'active')) {
