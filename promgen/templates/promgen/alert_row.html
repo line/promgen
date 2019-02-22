@@ -1,7 +1,12 @@
-{% verbatim %}
+{% load i18n %}
+
 <td>
     <a :href="alert.generatorURL" v-text="alert.startsAt"></a>
 </td>
+<td>
+    <a @click.prevent="silenceAlert(alert)" class="label label-warning">{% trans "Silence" %}</a>
+</td>
+{% verbatim %}
 <td>
     <dl class="dl-horizontal">
         <dt>Labels</dt>
