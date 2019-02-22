@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.32 - 2019-02-22
+
+* [IMPROVEMENT] Add button to silence a single alert #125
+* [CHANGES] Rewritten display of alerts and silences to use vuejs #124
+* [INTERNAL] Split proxy views to their own module #123
+* [IMPROVEMENT] Add default notifier when subscribing #122
+* [BUGFIX] Validate URL field for notifications #121
+* [ENHANCEMENT] Improvements to Admin Alert view #116
+
 ## v0.31 - 2018-12-05
 * [BUGFIX] Ensure that invalid annotations are caught #113
 * [CHANGES] Bump Python to 3.6 and use Pipfile for easier development onboarding #109
