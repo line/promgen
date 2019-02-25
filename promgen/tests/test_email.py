@@ -22,17 +22,17 @@ class EmailTest(PromgenTest):
         self.service = models.Service.objects.create(name='test.service', shard=self.shard)
         self.project = models.Project.objects.create(name='test.project', service=self.service)
         self.project2 = models.Project.objects.create(name='other.project', service=self.service)
-        self.sender = models.Sender.create(
+        self.sender = models.Sender.objects.create(
             obj=self.project,
             sender=NotificationEmail.__module__,
             value='example@example.com',
         )
-        models.Sender.create(
+        models.Sender.objects.create(
             obj=self.project,
             sender=NotificationEmail.__module__,
             value='foo@example.com',
         )
-        models.Sender.create(
+        models.Sender.objects.create(
             obj=self.project2,
             sender=NotificationEmail.__module__,
             value='bar@example.com',

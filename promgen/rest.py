@@ -55,7 +55,7 @@ class ServiceViewSet(SharedViewSet, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def rules(self, request, name):
-        rules = models.Rule.filter(obj=self.get_object())
+        rules = models.Rule.objects.filter(obj=self.get_object())
         return self.format(rules)
 
     @action(detail=True, methods=['get'])
@@ -84,7 +84,7 @@ class ProjectViewSet(SharedViewSet, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def rules(self, request, name):
-        rules = models.Rule.filter(obj=self.get_object())
+        rules = models.Rule.objects.filter(obj=self.get_object())
         return self.format(rules)
 
     @action(detail=True, methods=['get'])

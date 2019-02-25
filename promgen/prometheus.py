@@ -18,7 +18,7 @@ from django.conf import settings
 from django.db.models import prefetch_related_objects
 from django.template.loader import render_to_string
 from django.utils import timezone
-
+from django.core.exceptions import ValidationError
 import promgen.templatetags.promgen as macro
 from promgen import models, util
 from promgen.celery import app as celery
@@ -240,7 +240,7 @@ def import_rules_v2(config, content_object=None):
             else:
                 defaults['obj'] = models.Site.objects.get_current()
 
-            rule, created = models.Rule.get_or_create(
+            rule, created = models.Rule.objects.get_or_create(
                 name=r['alert'],
                 defaults=defaults
             )
@@ -314,7 +314,7 @@ def import_rules_v1(config, content_object=None):
         else:
             obj = models.Site.objects.get_current()
 
-        rule, created = models.Rule.get_or_create(
+        rule, created = models.Rule.objects.get_or_create(
             name=tokens['ALERT'],
             defaults={
                 'clause': tokens['IF'],
@@ -431,7 +431,7 @@ def silence(labels, duration=None, **kwargs):
         elif duration.endswith('d'):
             end = start + datetime.timedelta(days=int(duration[:-1]))
         else:
-            raise Exception('Unknown time modifier')
+            raise ValidationError('Unknown time modifier')
         kwargs['endsAt'] = end.isoformat()
         kwargs.pop('startsAt', False)
     else:

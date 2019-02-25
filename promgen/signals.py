@@ -242,7 +242,7 @@ def add_user_to_default_group(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def add_email_sender(sender, instance, created, **kwargs):
     if instance.email:
-        models.Sender.get_or_create(obj=instance, sender='promgen.notification.email', value=instance.email)
+        models.Sender.objects.get_or_create(obj=instance, sender='promgen.notification.email', value=instance.email)
     else:
         logger.warning('No email for user %s', instance)
 
@@ -254,13 +254,13 @@ def check_user_subscription(sender, instance, created, request):
         messages.success(request, "Subscription saved")
         return
 
-    notifiers = models.Sender.filter(obj=instance.owner)
+    notifiers = models.Sender.objects.filter(obj=instance.owner)
     if notifiers:
         logger.debug("Existing notifiers found")
         return
 
     if instance.owner.email:
-        models.Sender.get_or_create(
+        models.Sender.objects.get_or_create(
             obj=instance.owner,
             sender="promgen.notification.email",
             value=instance.owner.email,

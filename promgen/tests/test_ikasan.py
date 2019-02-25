@@ -21,7 +21,7 @@ class IkasanTest(TestCase):
         self.shard = models.Shard.objects.create(name='test.shard')
         self.service = models.Service.objects.create(name='test.service', shard=self.shard)
         self.project = models.Project.objects.create(name='test.project', service=self.service)
-        self.sender = models.Sender.create(
+        self.sender = models.Sender.objects.create(
             obj=self.project,
             sender=NotificationIkasan.__module__,
             value='#1',
