@@ -457,26 +457,42 @@ class UnlinkFarm(LoginRequiredMixin, View):
 
 
 class RulesList(LoginRequiredMixin, ListView, ServiceMixin):
-    template_name = 'promgen/rule_list.html'
-    queryset = models.Rule.objects\
-        .prefetch_related('content_type', 'content_object')
+    template_name = "promgen/rule_list.html"
+    queryset = models.Rule.objects.prefetch_related("content_type", "content_object")
 
     def get_context_data(self, **kwargs):
         context = super(RulesList, self).get_context_data(**kwargs)
 
         site_rules = models.Rule.objects.filter(
-            content_type__model='site', content_type__app_label='sites'
-        ).prefetch_related('content_object', 'rulelabel_set', 'ruleannotation_set')
+            content_type__model="site", content_type__app_label="sites"
+        ).prefetch_related(
+            "content_object",
+            "rulelabel_set",
+            "ruleannotation_set",
+        )
 
         service_rules = models.Rule.objects.filter(
-            content_type__model='service', content_type__app_label='promgen'
-        ).prefetch_related('content_object', 'content_object__shard', 'rulelabel_set', 'ruleannotation_set', 'parent')
+            content_type__model="service", content_type__app_label="promgen"
+        ).prefetch_related(
+            "content_object",
+            "content_object__shard",
+            "rulelabel_set",
+            "ruleannotation_set",
+            "parent",
+        )
 
         project_rules = models.Rule.objects.filter(
-            content_type__model='project', content_type__app_label='promgen'
-        ).prefetch_related('content_object', 'content_object__service', 'rulelabel_set', 'ruleannotation_set', 'parent')
+            content_type__model="project", content_type__app_label="promgen"
+        ).prefetch_related(
+            "content_object",
+            "content_object__service",
+            "content_object__service__shard",
+            "rulelabel_set",
+            "ruleannotation_set",
+            "parent",
+        )
 
-        context['rule_list'] = chain(site_rules, service_rules, project_rules)
+        context["rule_list"] = chain(site_rules, service_rules, project_rules)
 
         return context
 
