@@ -103,17 +103,20 @@ class ShardDetail(LoginRequiredMixin, DetailView):
 
 
 class ServiceList(LoginRequiredMixin, ListView):
-    queryset = models.Service.objects\
-        .prefetch_related(
-            'notifiers',
-            'rule_set',
-            'rule_set__parent',
-            'project_set',
-            'project_set__farm',
-            'project_set__exporter_set',
-            'project_set__notifiers',
-            'shard',
-        )
+    queryset = models.Service.objects.prefetch_related(
+        "shard",
+        "rule_set",
+        "rule_set__parent",
+        "project_set",
+        "project_set__owner",
+        "project_set__notifiers",
+        "project_set__notifiers__owner",
+        "project_set__farm",
+        "project_set__exporter_set",
+        "owner",
+        "notifiers",
+        "notifiers__owner",
+    )
 
 
 class HomeList(LoginRequiredMixin, ListView):
