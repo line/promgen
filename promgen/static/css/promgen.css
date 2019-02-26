@@ -31,3 +31,14 @@ a[rel]:after {
 .dl-horizontal {
   word-wrap: break-word;
 }
+
+/* https://stackoverflow.com/a/30702646 */
+
+.navbar-brand {
+  padding: 0px; /* firefox bug fix */
+}
+.navbar-brand>img {
+  height: 100%;
+  padding: 5px; /* firefox bug fix */
+  width: auto;
+}

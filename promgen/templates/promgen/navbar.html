@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <header class="navbar navbar-inverse navbar-static-top" role="navigation">
     <nav class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -8,7 +9,9 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">Promgen {{ VERSION }}</a>
+            <a class="navbar-brand" href="/">
+                <img alt="Promgen {{ VERSION }}" src="{% static "/images/promgen_logo_color.png" %}">
+            </a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
