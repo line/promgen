@@ -94,12 +94,17 @@ class ShardDetail(LoginRequiredMixin, DetailView):
     queryset = models.Shard.objects\
         .prefetch_related(
             'service_set',
+            'service_set__owner',
             'service_set__notifiers',
+            'service_set__notifiers__owner',
             'service_set__rule_set',
             'service_set__project_set',
+            'service_set__project_set__owner',
             'service_set__project_set__farm',
             'service_set__project_set__exporter_set',
-            'service_set__project_set__notifiers')
+            'service_set__project_set__notifiers',
+            'service_set__project_set__notifiers__owner'
+            )
 
 
 class ServiceList(LoginRequiredMixin, ListView):
@@ -134,12 +139,16 @@ class HomeList(LoginRequiredMixin, ListView):
         # and return just our list of services
         return models.Service.objects.filter(pk__in=senders).prefetch_related(
             'notifiers',
+            'notifiers__owner',
+            'owner',
             'rule_set',
             'rule_set__parent',
             'project_set',
             'project_set__farm',
             'project_set__exporter_set',
             'project_set__notifiers',
+            'project_set__owner',
+            'project_set__notifiers__owner',
             'shard',
         )
 
