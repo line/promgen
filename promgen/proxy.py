@@ -228,9 +228,24 @@ class ProxySilences(View):
 
         form = forms.SilenceForm(body)
         if not form.is_valid():
-            return JsonResponse({"status": form.errors}, status=400)
+            return JsonResponse(
+                {
+                    "messages": [
+                        {"class": "alert alert-warning", "message": m, "label": k}
+                        for k in form.errors
+                        for m in form.errors[k]
+                    ]
+                },
+                status=422,
+            )
 
-        response = prometheus.silence(body.pop("labels"), **form.cleaned_data)
+        try:
+            response = prometheus.silence(body.pop("labels"), **form.cleaned_data)
+        except Exception as e:
+            return JsonResponse(
+                {"messages": [{"class": "alert alert-danger", "message": str(e)}]},
+                status=400,
+            )
 
         return HttpResponse(
             response.text, status=response.status_code, content_type="application/json"

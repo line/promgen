@@ -347,7 +347,7 @@ class Rule(DynamicParent):
     name = models.CharField(max_length=128, unique=True, validators=[validators.alphanumeric])
     clause = models.TextField(help_text='Prometheus query')
     duration = models.CharField(
-        max_length=128, validators=[validators.prometheusduration],
+        max_length=128, validators=[validators.duration],
         help_text="Duration field with postfix. Example 30s, 5m, 1d"
         )
     enabled = models.BooleanField(default=True)
