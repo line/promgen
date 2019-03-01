@@ -73,17 +73,6 @@ var app = new Vue({
             }
             this.showSilenceForm(event);
         },
-        filterBy: function (source, label) {
-            let labels = new Set();
-            for (var a in source.filter(x => x.status.state == 'active')) {
-                for (var l in source[a].labels) {
-                    if (l == label) {
-                        labels.add(source[a].labels[label]);
-                    }
-                }
-            }
-            return labels;
-        },
         fetchSilences: function () {
             let this_ = this;
             fetch('/proxy/v1/silences')
@@ -112,23 +101,47 @@ var app = new Vue({
                 });
 
         }
-
     },
     computed: {
         alertLabelsService: function () {
-            return this.filterBy(this.globalAlerts, 'service');
+            return new Set(this.globalAlerts
+                .filter(x => x.status.state == 'active')
+                .filter(x => x.labels.service)
+                .map(x => x.labels.service)
+                .sort()
+            );
         },
         alertLabelsProject: function () {
-            return this.filterBy(this.globalAlerts, 'project');
+            return new Set(this.globalAlerts
+                .filter(x => x.status.state == 'active')
+                .filter(x => x.labels.project)
+                .map(x => x.labels.project)
+                .sort()
+            );
         },
         alertLabelsRule: function () {
-            return this.filterBy(this.globalAlerts, 'alertname');
+            return new Set(this.globalAlerts
+                .filter(x => x.status.state == 'active')
+                .filter(x => x.labels.alertname)
+                .map(x => x.labels.alertname)
+                .sort()
+            );
         },
         silenceLabelsService: function () {
-            return this.filterBy(this.globalSilences, 'service');
+            return new Set(this.globalSilences
+                .filter(x => x.status.state == 'active')
+                .filter(x => x.labels.service)
+                .map(x => x.labels.service)
+                .sort()
+            );
         },
         silenceLabelsProject: function () {
-            return this.filterBy(this.globalSilences, 'project');
+            return new Set(this.globalSilences
+                .filter(x => x.status.state == 'active')
+                .filter(x => x.labels.project)
+                .map(x => x.labels.project)
+                .sort()
+            );
         },
         filterActiveAlerts: function () {
             return this.globalAlerts.filter(alert => alert.status.state == 'active');
