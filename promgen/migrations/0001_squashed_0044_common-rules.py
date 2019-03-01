@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator('^[0-9a-zA-Z_]*$', 'Only alphanumeric characters are allowed.')])),
                 ('clause', models.TextField(help_text='Prometheus query')),
-                ('duration', models.CharField(help_text='Duration field with postfix. Example 30s, 5m, 1d', max_length=128, validators=[promgen.validators.prometheusduration])),
+                ('duration', models.CharField(help_text='Duration field with postfix. Example 30s, 5m, 1d', max_length=128, validators=[promgen.validators.duration])),
                 ('enabled', models.BooleanField(default=True)),
                 ('object_id', models.PositiveIntegerField()),
                 ('description', models.TextField(blank=True)),

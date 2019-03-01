@@ -8,7 +8,8 @@ Vue.config.devtools = true
 var dataStore = {
     newSilence: { 'labels': {} },
     globalSilences: [],
-    globalAlerts: []
+    globalAlerts: [],
+    globalMessages: []
 };
 
 var app = new Vue({
@@ -28,12 +29,24 @@ var app = new Vue({
             this.newSilence[event.target.name] = event.target.value;
         },
         silenceSubmit: function (event) {
-            fetch('/proxy/v1/silences', { method: 'POST', body: JSON.stringify(this.newSilence) }).then(function (response) {
-                location.reload();
-            })
+            let this_ = this;
+            fetch('/proxy/v1/silences', { method: 'POST', body: JSON.stringify(this.newSilence) })
+                .then(function (response) {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        return response.json()
+                    }
+                })
+                .then(function (result) {
+                    this_.globalMessages = [];
+                    for (key in result.messages) {
+                        this_.$set(this_.globalMessages, key, result.messages[key]);
+                    }
+                })
         },
         silenceRemoveLabel: function (label) {
-            console.log('silenceRemoveLabel', label)
+            console.debug('silenceRemoveLabel', label)
             this.$delete(this.newSilence.labels, label)
         },
         showSilenceForm: function (event) {
@@ -41,12 +54,12 @@ var app = new Vue({
             scroll(0, 0);
         },
         silenceAppendLabel: function (event) {
-            console.log('silenceAppendLabel', event.target.dataset);
+            console.debug('silenceAppendLabel', event.target.dataset);
             this.$set(this.newSilence.labels, event.target.dataset.label, event.target.dataset.value);
             this.showSilenceForm(event);
         },
         silenceSetLabels: function (event) {
-            console.log('silenceSetLabels', event.target.dataset);
+            console.debug('silenceSetLabels', event.target.dataset);
             this.$set(this.newSilence, 'labels', {});
             for (key in event.target.dataset) {
                 this.$set(this.newSilence.labels, key, event.target.dataset[key]);
@@ -74,9 +87,7 @@ var app = new Vue({
         fetchSilences: function () {
             let this_ = this;
             fetch('/proxy/v1/silences')
-                .then(function (response) {
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(function (silences) {
                     this_.globalSilences = silences.data;
 
@@ -95,9 +106,7 @@ var app = new Vue({
         fetchAlerts: function () {
             let this_ = this;
             fetch('/proxy/v1/alerts')
-                .then(function (response) {
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(function (alerts) {
                     this_.globalAlerts = alerts.data;
                 });

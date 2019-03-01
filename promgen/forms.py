@@ -1,11 +1,9 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-import datetime
-
 from django import forms
 from dateutil import parser
-from promgen import models, plugins
+from promgen import models, plugins, validators
 
 
 class ImportConfigForm(forms.Form):
@@ -35,15 +33,10 @@ class ImportRuleForm(forms.Form):
 
 
 class SilenceForm(forms.Form):
-    def validate_datetime(value):
-        try:
-            parser.parse(value)
-        except:
-            raise forms.ValidationError('Invalid timestamp')
 
-    duration = forms.CharField(required=False)
-    startsAt = forms.CharField(required=False, validators=[validate_datetime])
-    endsAt = forms.CharField(required=False, validators=[validate_datetime])
+    duration = forms.CharField(required=False, validators=[validators.duration])
+    startsAt = forms.CharField(required=False, validators=[validators.datetime])
+    endsAt = forms.CharField(required=False, validators=[validators.datetime])
     comment = forms.CharField(required=False)
     createdBy = forms.CharField(required=False)
 
