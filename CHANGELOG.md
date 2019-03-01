@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.33 - 2019-03-01
+
+* [BUGFIX] Fix computed labels #129
+* [BUGFIX] Fix validation of silence duration #130
+* [IMPROVEMENT] Add logo + favicon #128
+* [IMPROVEMENT] Various page query optimizations #127
+
 ## v0.32 - 2019-02-22
 
 * [IMPROVEMENT] Add button to silence a single alert #125
