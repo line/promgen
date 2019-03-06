@@ -11,7 +11,8 @@
                 "alertname": "test.alert",
                 "instance": "a.example",
                 "project": "test.project",
-                "service": "test.service"
+                "service": "test.service",
+                "severity": "major"
             },
             "startsAt": "2017-10-06T16:21:28.214665326+09:00",
             "status": "firing"
@@ -27,7 +28,8 @@
                 "alertname": "test.alert",
                 "instance": "b.example",
                 "project": "test.project",
-                "service": "test.service"
+                "service": "test.service",
+                "severity": "major"
             },
             "startsAt": "2017-10-06T16:21:28.214665326+09:00",
             "status": "firing"
@@ -39,7 +41,8 @@
     "commonLabels": {
         "alertname": "test.alert",
         "project": "test.project",
-        "service": "test.service"
+        "service": "test.service",
+        "severity": "major"
     },
     "externalURL": "http://alertmanager.example",
     "groupKey": "{}:{project=\"test.project\", service=\"test.service\"}",
