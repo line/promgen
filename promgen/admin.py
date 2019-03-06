@@ -11,6 +11,9 @@ from promgen import models, plugins
 class PrometheusInline(admin.TabularInline):
     model = models.Prometheus
 
+class FilterInline(admin.TabularInline):
+    model = models.Filter
+
 
 @admin.register(models.Host)
 class HostAdmin(admin.ModelAdmin):
@@ -53,6 +56,7 @@ class SenderAdmin(admin.ModelAdmin):
     form = SenderForm
     list_filter = ('sender', 'content_type')
     list_select_related = ('content_type',)
+    inlines = [FilterInline]
 
 
 @admin.register(models.Farm)
