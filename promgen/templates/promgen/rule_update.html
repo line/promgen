@@ -6,11 +6,11 @@ Promgen / Rule / {{ rule.name }}
 {% endblock %}
 {% block content %}
 
-{% include 'promgen/breadcrumb.html' with rule=rule active='Edit Rule' only %}
-
 <div class="page-header">
   <h1>Rule: {{ rule.name }}</h1>
 </div>
+
+{% breadcrumb rule 'Edit Rule' %}
 
 <div data-service="{{rule.name}}" class="panel panel-danger" v-cloak v-show="alertLabelsRule.has('{{rule.name}}')">
   <div class="panel-heading">

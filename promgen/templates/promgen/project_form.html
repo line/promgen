@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load promgen %}
 {% block content %}
 
 {% if project %}
@@ -7,7 +7,8 @@
     <h1>Project: {{ project.name }}</h1>
   </div>
 
-  {% include 'promgen/breadcrumb.html' with project=project label=view.button_label only %}
+  {% breadcrumb project view.button_label %}
+
   <div class="alert alert-danger" role="alert">
       Warning. Renaming or Moving a project will reset all labels in Prometheus
   </div>
@@ -15,7 +16,7 @@
   <div class="page-header">
     <h1>Register new Project</h1>
   </div>
-  {% include 'promgen/breadcrumb.html' with service=service label=view.button_label only %}
+  {% breadcrumb service view.button_label %}
 {% endif %}
 
 <div class="panel panel-default">
