@@ -132,12 +132,26 @@ class Sender(models.Model):
         tasks.send_alert(self.sender, self.value, data)
 
     def filtered(self, alert):
-        logger.debug('Checking labels %s', alert['commonLabels'])
+        """
+        Check filters for a specific sender
+
+        If no filters are defined, then we let the message through
+        If filters are defined, then we check to see if at least one filter matches
+        If no filters match, then we assume it's filtered out
+        """
+        logger.debug("Checking labels %s", alert["commonLabels"])
+        # If we have no specific whitelist, then we let everything through
+        if self.filter_set.count() == 0:
+            return False
+
+        # If we have filters defined, then we need to check to see if our
+        # filters match
         for f in self.filter_set.all():
             logger.debug("Checking filter %s %s", f.name, f.value)
-            if alert['commonLabels'].get(f.name) == f.value:
-                return True
-        return False
+            if alert["commonLabels"].get(f.name) == f.value:
+                return False
+        # If none of our filters match, then we blacklist this sender
+        return True
 
 
 class Filter(models.Model):

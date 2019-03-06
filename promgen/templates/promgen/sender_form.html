@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load promgen %}
+{% block content %}
+
+
+<div class="page-header">
+  <h1>{{object|klass}}: {{object.name}}</h1>
+</div>
+
+{% breadcrumb object 'Update Notifier' %}
+
+<table class="table table-bordered table-condensed{% if collapse %} collapse" id="{{ collapse }}{% endif %}">
+  <tr>
+    <th>Notifier</th>
+    <th>Value</th>
+    <th>Filters</th>
+    <th>Actions</th>
+  </tr>
+  {% include 'promgen/sender_row.html' with notifier=object show_edit=1 %}
+</table>
+
+{% endblock %}

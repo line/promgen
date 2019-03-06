@@ -36,6 +36,30 @@
   <script src="{% static "/js/promgen.js" %}"></script>
   <script src="{% static "/js/promgen.vue.js" %}"></script>
   {% block javascript %}{% endblock %}
+
+
+  <datalist style="display:none" id="common.labels">
+    <select>
+      <option>severity</option>
+    </select>
+  </datalist>
+
+  <datalist style="display:none" id="common.annotations">
+    <select>
+      <option>summary</option>
+      <option>grafana</option>
+      <option>runbook</option>
+    </select>
+  </datalist>
+
+  <datalist style="display:none" id="common.labels.severity">
+    <select>
+      <option>critical</option>
+      <option>major</option>
+      <option>minor</option>
+      <option>debug</option>
+    </select>
+  </datalist>
 </body>
 
 </html>
