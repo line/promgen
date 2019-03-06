@@ -24,19 +24,19 @@ class UserEmailTest(TestCase):
         self.shard = models.Shard.objects.create(name='test.shard')
         self.service = models.Service.objects.create(name='test.service', shard=self.shard)
 
-        self.sender = models.Sender.create(
+        self.sender = models.Sender.objects.create(
             obj=self.service,
             sender=NotificationUser.__module__,
             value=self.user.username,
         )
 
-        models.Sender.create(
+        models.Sender.objects.create(
             obj=self.user,
             sender=NotificationIkasan.__module__,
             value='#foo'
         )
 
-        models.Sender.create(
+        models.Sender.objects.create(
             obj=self.user,
             sender=NotificationEmail.__module__,
             value='foo@bar.example'

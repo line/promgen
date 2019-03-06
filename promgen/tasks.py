@@ -40,7 +40,7 @@ def process_alert(alert_pk):
     senders = collections.defaultdict(set)
     for label, obj in routable.items():
         logger.debug('Processing %s %s', label, obj)
-        for sender in models.Sender.filter(obj):
+        for sender in models.Sender.objects.filter(obj=obj):
             if hasattr(sender.driver, 'splay'):
                 for splay in sender.driver.splay(sender.value):
                     senders[splay.sender].add(splay.value)

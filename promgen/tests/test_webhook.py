@@ -22,13 +22,13 @@ class WebhookTest(PromgenTest):
         self.service = models.Service.objects.create(name='test.service', shard=self.shard)
         self.project = models.Project.objects.create(name='test.project', service=self.service)
 
-        self.sender = models.Sender.create(
+        self.sender = models.Sender.objects.create(
             obj=self.project,
             sender=NotificationWebhook.__module__,
             value='http://project.example.com',
         )
 
-        self.sender = models.Sender.create(
+        self.sender = models.Sender.objects.create(
             obj=self.service,
             sender=NotificationWebhook.__module__,
             value='http://service.example.com',

@@ -5,7 +5,6 @@ import logging
 
 from django import forms
 from django.contrib.auth.models import User
-
 from promgen import models
 from promgen.notification import NotificationBase
 
@@ -39,12 +38,12 @@ class NotificationUser(NotificationBase):
 
     def splay(self, address):
         user = User.objects.get(username=address)
-        for sender in models.Sender.filter(obj=user):
+        for sender in models.Sender.objects.filter(obj=user):
             yield sender
 
     def _send(self, address, data):
         user = User.objects.get(username=address)
-        for sender in models.Sender.filter(obj=user):
+        for sender in models.Sender.objects.filter(obj=user):
             try:
                 sender.driver._send(sender.value, data)
             except:

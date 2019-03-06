@@ -44,7 +44,7 @@ class RuleTest(PromgenTest):
         self.shard = models.Shard.objects.create(name='Shard 1')
         self.site = models.Site.objects.get_current()
         self.service = models.Service.objects.create(id=999, name='Service 1', shard=self.shard)
-        self.rule = models.Rule.create(
+        self.rule = models.Rule.objects.create(
             name='RuleName',
             clause='up==0',
             duration='1s',
@@ -124,7 +124,7 @@ class RuleTest(PromgenTest):
             'project': {'assert': 'up{service="Service 1",project="Project 1",}'},
         }
 
-        common_rule = models.Rule.create(name='Common', clause=clause, duration='1s', obj=self.site)
+        common_rule = models.Rule.objects.create(name='Common', clause=clause, duration='1s', obj=self.site)
         rules['common']['model'] = models.Rule.objects.get(pk=common_rule.pk)
         service_rule = common_rule.copy_to('service', self.service.id)
         rules['service']['model'] = models.Rule.objects.get(pk=service_rule.pk)

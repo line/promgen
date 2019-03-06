@@ -25,14 +25,14 @@ class SlackTest(PromgenTest):
         self.service = models.Service.objects.create(name='test.service', shard=self.shard)
         self.project = models.Project.objects.create(name='test.project', service=self.service)
 
-        self.sender = models.Sender.create(
+        self.sender = models.Sender.objects.create(
             obj=self.project,
             sender=NotificationSlack.__module__,
             value=self.TestHook1,
         )
 
         self.service2 = models.Service.objects.create(name='other.service', shard=self.shard)
-        self.sender2 = models.Sender.create(
+        self.sender2 = models.Sender.objects.create(
             obj=self.service2,
             sender=NotificationSlack.__module__,
             value=self.TestHook2,

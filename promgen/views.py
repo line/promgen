@@ -675,7 +675,7 @@ class ProjectRegister(LoginRequiredMixin, FormView, ServiceMixin):
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         project, _ = models.Project.objects.get_or_create(service=service, **form.clean())
-        sender, _ = models.Sender.get_or_create(obj=project, sender='promgen.notification.user', value=self.request.user.username)
+        sender, _ = models.Sender.objects.get_or_create(obj=project, sender='promgen.notification.user', value=self.request.user.username)
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -840,7 +840,7 @@ class ServiceRegister(LoginRequiredMixin, ShardMixin, FormView):
     def form_valid(self, form):
         shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
         service, _ = models.Service.objects.get_or_create(shard=shard, **form.clean())
-        sender, _ = models.Sender.get_or_create(obj=service, sender='promgen.notification.user', value=self.request.user.username)
+        sender, _ = models.Sender.objects.get_or_create(obj=service, sender='promgen.notification.user', value=self.request.user.username)
         return HttpResponseRedirect(service.get_absolute_url())
 
 
@@ -865,7 +865,7 @@ class ProjectNotifierRegister(LoginRequiredMixin, FormView, ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        sender, created = models.Sender.get_or_create(obj=project, owner=self.request.user, **form.clean())
+        sender, created = models.Sender.objects.get_or_create(obj=project, owner=self.request.user, **form.clean())
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(project.get_absolute_url())
 
@@ -877,7 +877,7 @@ class ServiceNotifierRegister(LoginRequiredMixin, FormView, ServiceMixin):
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
-        sender, created = models.Sender.get_or_create(obj=service, owner=self.request.user, **form.clean())
+        sender, created = models.Sender.objects.get_or_create(obj=service, owner=self.request.user, **form.clean())
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(service.get_absolute_url())
 
@@ -891,13 +891,13 @@ class Status(LoginRequiredMixin, FormView):
         context = super(Status, self).get_context_data(**kwargs)
         context['discovery_plugins'] = [entry for entry in plugins.discovery()]
         context['notifier_plugins'] = [entry for entry in plugins.notifications()]
-        context['notifiers'] = {'notifiers': models.Sender.filter(obj=self.request.user)}
+        context['notifiers'] = {'notifiers': models.Sender.objects.filter(obj=self.request.user)}
         context['subscriptions'] = models.Sender.objects.filter(
             sender='promgen.notification.user', value=self.request.user.username)
         return context
 
     def form_valid(self, form):
-        sender, _ = models.Sender.get_or_create(obj=self.request.user, owner=self.request.user, **form.clean())
+        sender, _ = models.Sender.objects.get_or_create(obj=self.request.user, owner=self.request.user, **form.clean())
         return redirect('status')
 
 
@@ -981,7 +981,7 @@ class RulesConfig(_ExportRules):
 class RuleExport(_ExportRules):
     def get(self, request, content_type, object_id):
         ct = ContentType.objects.get(app_label="promgen", model=content_type).get_object_for_this_type(pk=object_id)
-        rules = models.Rule.filter(obj=ct)
+        rules = models.Rule.objects.filter(obj=ct)
         return self.format(rules)
 
 

@@ -9,7 +9,6 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.forms.models import model_to_dict
 from django.urls import reverse
@@ -36,41 +35,39 @@ class Site(django.contrib.sites.models.Site):
         proxy = True
 
 
-class DynamicParent(models.Model):
-    class Meta:
-        abstract = True
-
-    @classmethod
-    def create(cls, obj, **kwargs):
-        return cls.objects.create(
-            object_id=obj.id,
-            content_type_id=ContentType.objects.get_for_model(obj).id,
-            **kwargs
-        )
-
-    @classmethod
-    def filter(cls, obj, **kwargs):
-        return cls.objects.filter(
-            object_id=obj.id,
-            content_type_id=ContentType.objects.get_for_model(obj).id,
-            **kwargs
-        )
-
-    @classmethod
-    def get_or_create(cls, **kwargs):
+class ObjectFilterManager(models.Manager):
+    def create(self, **kwargs):
         if 'obj' in kwargs:
             obj = kwargs.pop('obj')
             kwargs['object_id'] = obj.id
             kwargs['content_type_id'] = ContentType.objects.get_for_model(obj).id
-        if 'defaults' in kwargs and 'obj' in kwargs['defaults']:
-            obj = kwargs['defaults'].pop('obj')
-            kwargs['defaults']['object_id'] = obj.id
-            kwargs['defaults']['content_type_id'] = ContentType.objects.get_for_model(obj).id
+        return self.get_queryset().create(**kwargs)
 
-        return cls.objects.get_or_create(**kwargs)
+    def filter(self, **kwargs):
+        if 'obj' in kwargs:
+            obj = kwargs.pop('obj')
+            kwargs['object_id'] = obj.id
+            kwargs['content_type_id'] = ContentType.objects.get_for_model(obj).id
+        return self.get_queryset().filter(**kwargs)
+
+    def get_or_create(self, **kwargs):
+        if "obj" in kwargs:
+            obj = kwargs.pop("obj")
+            kwargs["object_id"] = obj.id
+            kwargs["content_type_id"] = ContentType.objects.get_for_model(obj).id
+        if "defaults" in kwargs and "obj" in kwargs["defaults"]:
+            obj = kwargs["defaults"].pop("obj")
+            kwargs["defaults"]["object_id"] = obj.id
+            kwargs["defaults"]["content_type_id"] = ContentType.objects.get_for_model(
+                obj
+            ).id
+
+        return self.get_queryset().get_or_create(**kwargs)
 
 
-class Sender(DynamicParent):
+class Sender(models.Model):
+    objects = ObjectFilterManager()
+
     sender = models.CharField(max_length=128)
     value = models.CharField(max_length=128)
     alias = models.CharField(max_length=128, blank=True)
@@ -104,6 +101,7 @@ class Sender(DynamicParent):
                 logger.warning('Error importing %s', entry.module_name)
 
     __driver = {}
+
     @property
     def driver(self):
         '''Return configured driver for Sender model instance'''
@@ -334,16 +332,9 @@ class URL(models.Model):
         return '{} [{}]'.format(self.project, self.url)
 
 
-def validate_json_or_empty(value):
-    if value == '':
-        return
-    try:
-        json.loads(value)
-    except:
-        raise ValidationError('Requires json value')
+class Rule(models.Model):
+    objects = ObjectFilterManager()
 
-
-class Rule(DynamicParent):
     name = models.CharField(max_length=128, unique=True, validators=[validators.alphanumeric])
     clause = models.TextField(help_text='Prometheus query')
     duration = models.CharField(

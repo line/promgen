@@ -21,14 +21,14 @@ class LineNotifyTest(PromgenTest):
         self.shard = models.Shard.objects.create(name='test.shard')
         self.service = models.Service.objects.create(name='test.service', shard=self.shard)
         self.project = models.Project.objects.create(name='test.project', service=self.service)
-        self.sender = models.Sender.create(
+        self.sender = models.Sender.objects.create(
             obj=self.project,
             sender=NotificationLineNotify.__module__,
             value='hogehoge',
         )
 
         self.service2 = models.Service.objects.create(name='other.service', shard=self.shard)
-        self.sender2 = models.Sender.create(
+        self.sender2 = models.Sender.objects.create(
             obj=self.service2,
             sender=NotificationLineNotify.__module__,
             value='asdfasdf',
