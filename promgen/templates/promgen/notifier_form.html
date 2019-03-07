@@ -6,11 +6,7 @@
   <h1>{{object|klass}}: {{object.name}}</h1>
 </div>
 
-{% if project %}
-{% include 'promgen/breadcrumb.html' with project=project label='Register Notifier' only %}
-{% else %}
-{% include 'promgen/breadcrumb.html' with service=service label='Register Notifier' only %}
-{% endif %}
+{% breadcrumb object 'Register Notifier' %}
 
 <div class="row">
   <div class="col-md-3">

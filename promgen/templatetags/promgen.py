@@ -5,10 +5,13 @@ import collections
 import difflib
 import json
 from datetime import datetime
-from pytz import timezone
 
-from django.conf import settings
 from django import template
+from django.conf import settings
+from django.urls import reverse
+from django.utils.html import format_html
+from django.utils.text import mark_safe
+from pytz import timezone
 
 register = template.Library()
 
@@ -113,3 +116,65 @@ def strftime(timestamp, fmt):
     if isinstance(timestamp, int) or isinstance(timestamp, float):
         return timezone(tz).localize(datetime.fromtimestamp(timestamp)).strftime(fmt)
     return timestamp
+
+
+@register.simple_tag
+def breadcrumb(instance, label=None):
+    """
+    Create HTML Breadcrumb from instance
+
+    Starting with the instance, walk up the tree building a bootstrap3
+    compatiable breadcrumb
+    """
+    from promgen import models
+
+    def shard(obj):
+        yield obj.get_absolute_url(), obj.name
+
+    def service(obj):
+        yield from shard(obj.shard)
+        yield obj.get_absolute_url(), obj.name
+
+    def project(obj):
+        yield from service(obj.service)
+        yield obj.get_absolute_url(), obj.name
+
+    def rule(obj):
+        if obj.content_type.model == "site":
+            yield reverse("rules-list"), "Common Rules"
+        if obj.content_type.model == "service":
+            yield from service(obj.content_object)
+        if obj.content_type.model == "project":
+            yield from project(obj.content_object)
+        # If we have a new rule, it won't have a name
+        if obj.pk:
+            yield obj.get_absolute_url(), obj.name
+
+    def sender(obj):
+        if isinstance(obj, models.Service):
+            yield from service(obj.content_object)
+        if isinstance(obj, models.Project):
+            yield from project(obj.content_object)
+
+    def generator():
+        yield reverse("home"), "Home"
+        if isinstance(instance, models.Sender):
+            yield from sender(instance)
+        if isinstance(instance, models.Project):
+            yield from project(instance)
+        if isinstance(instance, models.Service):
+            yield from service(instance)
+        if isinstance(instance, models.Shard):
+            yield from shard(instance)
+        if isinstance(instance, models.Rule):
+            yield from rule(instance)
+
+    def to_tag():
+        yield '<ol class="breadcrumb">'
+        for href, text in generator():
+            yield format_html('<li><a href="{}">{}</a></li>', mark_safe(href), text)
+        if label:
+            yield format_html('<li class="active">{}</li>', label)
+        yield "</ol>"
+
+    return mark_safe("".join(to_tag()))

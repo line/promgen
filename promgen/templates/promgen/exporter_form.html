@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load promgen %}
 {% block content %}
 
 <div class="page-header">
   <h1>Project: {{ project.name }}</h1>
 </div>
 
-{% include 'promgen/breadcrumb.html' with project=project label='Register Exporter' only %}
+{% breadcrumb project 'Register Exporter' %}
 
 <div class="row">
 
