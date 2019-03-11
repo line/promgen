@@ -100,6 +100,15 @@ var app = new Vue({
                     this_.globalAlerts = alerts.data;
                 });
 
+        },
+        setTargetList: function(event, target) {
+            // get the list name
+            let dst = event.target.list.id;
+            // and our selected value
+            let src = event.target.value;
+            // and set the target list
+            let tgt = document.getElementById(target);
+            tgt.setAttribute('list', dst + '.' + src);
         }
     },
     computed: {

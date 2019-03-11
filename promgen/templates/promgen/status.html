@@ -10,10 +10,28 @@
 <div class="panel panel-primary">
   <div class="panel-heading">Subscriptions</div>
   <table class="table">
-{% for notifier in subscriptions %}
+    <tr>
+      <th>&nbsp;</th>
+      <th>Filters</th>
+      <th>Actions</th>
+    </tr>
+    {% for notifier in subscriptions %}
     <tr>
       <td><a href="{{notifier.content_object.get_absolute_url}}">{{notifier.content_object}}</td>
       <td>
+        {% for f in notifier.filter_set.all %}
+        <span class="label label-primary" style="display: inline-block;">
+          {{f.name}}:{{f.value}}
+        </span>
+        {% endfor %}
+      </td>
+      <td>
+        <a href="{% url 'notifier-edit' notifier.id %}" class="btn btn-warning btn-xs">{% trans "Edit" %}</a>
+        <form method="post" action="{% url 'notifier-test' notifier.id %}" style="display: inline">
+          {% csrf_token %}
+          <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+          <button class="btn btn-info btn-xs">{% trans "Test" %}</button>
+        </form>
         <form method="post" action="{% url 'notifier-delete' notifier.id %}" onsubmit="return confirm('{% trans "Delete notificiation?" %}')" style="display: inline">
           {% csrf_token %}
           <input name="next" type="hidden" value="{{ request.get_full_path }}" />
@@ -21,17 +39,17 @@
         </form>
       </td>
     </tr>
-{% empty %}
+    {% empty %}
     <tr>
-      <td colspan="2">No Subscriptions <a href="{% url 'shard-list' %}" >See Services List</a></td>
+      <td colspan="3">No Subscriptions <a href="{% url 'shard-list' %}">See Services List</a></td>
     </tr>
-{% endfor %}
+    {% endfor %}
   </table>
 </div>
 
 <div class="panel panel-primary">
   <div class="panel-heading">Notifications</div>
-{% include "promgen/notifier_block.html" with object=notifiers show_edit=1 %}
+  {% include "promgen/notifier_block.html" with object=notifiers show_edit=1 %}
   <div class="panel-body">
     <div class="row">
       <div class="col-md-3">
@@ -50,18 +68,18 @@
         {% for k, v in view.model.driver_set|dictsort:0 %}
         {% if k != "promgen.notification.user" %}
         <div role="tabpanel" class="tab-pane panel panel-default" id="{{ k|slugify }}">
-            <form action="" method="post">{% csrf_token %}
-              <input type="hidden" name="sender" value="{{k}}" />
-              <div class="panel-body">
-                <pre class="help-block">{{ v.help|urlize }}</pre>
-              </div>
-              <table class="table">
-                {{ v.form.as_table }}
-              </table>
-              <div class="panel-footer">
-                <button class="btn btn-primary">Register Notifier</button>
-              </div>
-              </form>
+          <form action="" method="post">{% csrf_token %}
+            <input type="hidden" name="sender" value="{{k}}" />
+            <div class="panel-body">
+              <pre class="help-block">{{ v.help|urlize }}</pre>
+            </div>
+            <table class="table">
+              {{ v.form.as_table }}
+            </table>
+            <div class="panel-footer">
+              <button class="btn btn-primary">Register Notifier</button>
+            </div>
+          </form>
         </div>
         {% endif %}
         {% endfor %}
@@ -78,23 +96,23 @@
       <td>Discovery Plugins</td>
       <td>
         <ul>
-  {% for plugin in discovery_plugins|dictsort:"name" %}
-        <li>{{ plugin.name }} - {{ plugin.module_name }}</li>
-  {% endfor %}
+          {% for plugin in discovery_plugins|dictsort:"name" %}
+          <li>{{ plugin.name }} - {{ plugin.module_name }}</li>
+          {% endfor %}
       </td>
     </tr>
     <tr>
       <td>Notifier Plugins</td>
       <td>
         <ul>
-  {% for notifier in notifier_plugins|dictsort:"name" %}
-        <li>{{ notifier.name }} - {{ notifier.module_name }}</li>
-  {% endfor %}
+          {% for notifier in notifier_plugins|dictsort:"name" %}
+          <li>{{ notifier.name }} - {{ notifier.module_name }}</li>
+          {% endfor %}
       </td>
     </tr>
   </table>
 </div>
-  {% endif %}
+{% endif %}
 
 
 {% endblock %}

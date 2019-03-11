@@ -73,8 +73,9 @@ urlpatterns = [
     url(r'^host/(?P<slug>\S+)/$', views.HostDetail.as_view(), name='host-detail'),
     url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
 
-    url(r'^notifier/(?P<pk>[0-9]+)/delete$', views.NotifierDelete.as_view(), name='notifier-delete'),
-    url(r'^notifier/(?P<pk>[0-9]+)/test$', views.NotifierTest.as_view(), name='notifier-test'),
+    path('notifier/<int:pk>/delete', views.NotifierDelete.as_view(), name='notifier-delete'),
+    path('notifier/<int:pk>/test', views.NotifierTest.as_view(), name='notifier-test'),
+    path('notifier/<int:pk>', views.NotifierUpdate.as_view(), name='notifier-edit'),
 
     url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
     url(r'^rule/import$', views.RuleImport.as_view(), name='rule-import'),

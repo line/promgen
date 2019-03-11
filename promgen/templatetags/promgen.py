@@ -151,9 +151,9 @@ def breadcrumb(instance, label=None):
             yield obj.get_absolute_url(), obj.name
 
     def sender(obj):
-        if isinstance(obj, models.Service):
+        if obj.content_type.model == "service":
             yield from service(obj.content_object)
-        if isinstance(obj, models.Project):
+        if obj.content_type.model == "project":
             yield from project(obj.content_object)
 
     def generator():

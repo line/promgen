@@ -41,6 +41,9 @@ def process_alert(alert_pk):
     for label, obj in routable.items():
         logger.debug('Processing %s %s', label, obj)
         for sender in models.Sender.objects.filter(obj=obj):
+            if sender.filtered(data):
+                logger.debug("Filtered out sender %s", sender)
+                continue
             if hasattr(sender.driver, 'splay'):
                 for splay in sender.driver.splay(sender.value):
                     senders[splay.sender].add(splay.value)

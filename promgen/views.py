@@ -297,6 +297,34 @@ class ProjectDelete(LoginRequiredMixin, DeleteView):
         return reverse('service-detail', args=[self.object.service_id])
 
 
+class NotifierUpdate(LoginRequiredMixin, UpdateView):
+    model = models.Sender
+    form_class = forms.NotifierUpdate
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        # For populating breadcrumb
+        context[obj.content_type.model] = obj.content_object
+        return context
+
+    def post(self, request, pk):
+        if 'filter.pk' in request.POST:
+            f = models.Filter.objects.get(pk=request.POST['filter.pk'])
+            f.delete()
+            messages.success(request, 'Removed filter {f.name} {f.value}'.format(f=f))
+        if 'filter.name' in request.POST:
+            obj = self.get_object()
+            f, created = obj.filter_set.get_or_create(name=request.POST['filter.name'], value=request.POST['filter.value'])
+            if created:
+                messages.success(request, 'Created filter {f.name} {f.value}'.format(f=f))
+            else:
+                messages.warning(request, 'Updated filter {f.name} {f.value}'.format(f=f))
+        if 'next' in request.POST:
+            return redirect(request.POST['next'])
+        return self.get(self, request, pk)
+
+
 class NotifierDelete(LoginRequiredMixin, DeleteView):
     model = models.Sender
 
@@ -319,6 +347,8 @@ class NotifierTest(LoginRequiredMixin, View):
         else:
             messages.info(request, 'Sent test message with ' + sender.sender)
 
+        if 'next' in request.POST:
+            return redirect(request.POST['next'])
         if hasattr(sender.content_object, 'get_absolute_url'):
             return redirect(sender.content_object)
         return redirect('status')
