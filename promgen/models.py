@@ -36,21 +36,21 @@ class Site(django.contrib.sites.models.Site):
 
 
 class ObjectFilterManager(models.Manager):
-    def create(self, **kwargs):
+    def create(self, *args, **kwargs):
         if 'obj' in kwargs:
             obj = kwargs.pop('obj')
             kwargs['object_id'] = obj.id
             kwargs['content_type_id'] = ContentType.objects.get_for_model(obj).id
-        return self.get_queryset().create(**kwargs)
+        return self.get_queryset().create(*args, **kwargs)
 
-    def filter(self, **kwargs):
+    def filter(self, *args, **kwargs):
         if 'obj' in kwargs:
             obj = kwargs.pop('obj')
             kwargs['object_id'] = obj.id
             kwargs['content_type_id'] = ContentType.objects.get_for_model(obj).id
-        return self.get_queryset().filter(**kwargs)
+        return self.get_queryset().filter(*args, **kwargs)
 
-    def get_or_create(self, **kwargs):
+    def get_or_create(self, *args, **kwargs):
         if "obj" in kwargs:
             obj = kwargs.pop("obj")
             kwargs["object_id"] = obj.id
@@ -62,7 +62,7 @@ class ObjectFilterManager(models.Manager):
                 obj
             ).id
 
-        return self.get_queryset().get_or_create(**kwargs)
+        return self.get_queryset().get_or_create(*args, **kwargs)
 
 
 class Sender(models.Model):
