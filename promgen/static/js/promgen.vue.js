@@ -156,7 +156,7 @@ var app = new Vue({
             return this.globalAlerts.filter(alert => alert.status.state == 'active');
         },
         filterActiveSilences: function () {
-            return this.globalSilences.filter(silence => silence.status.state == 'active');
+            return this.globalSilences.filter(silence => silence.status.state != 'expired');
         }
     },
     mounted: function () {
