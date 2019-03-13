@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.34 - 2019-03-13
+
+This release adds support for filters for notifications. Alerts can be filtered so that different notification targets can be restricted by label. For example, sending urgent messages directly to LINE but sending less urgent messages to be logged to slack
+
+* [INTERNAL] Refactor how we proxy errors #136
+* [BUGFIX] Fix arguments for create/filter/get_or_create #137
+* [BUGFIX] Fix filterActiveSilences condition #135
+* [FEATURE] Implement sender whitelist filters #132
+* [INTERNAL] Refactor Breadcrumb from template to simple_tag #133
+* [INTERNAL] Refactor manager class and validators #131
+
 ## v0.33 - 2019-03-01
 
 * [BUGFIX] Fix computed labels #129
