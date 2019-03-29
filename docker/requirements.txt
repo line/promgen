@@ -6,7 +6,9 @@ certifi==2018.10.15
 chardet==3.0.4
 defusedxml==0.5.0 ; python_version >= '3.0'
 dj-database-url==0.5.0
+django-filter==2.1.0
 django==2.1.2
+djangorestframework==3.9.0
 envdir==1.0.1
 gunicorn==19.9.0
 idna==2.7
@@ -20,12 +22,12 @@ python3-openid==3.1.0 ; python_version >= '3.0'
 pytz==2018.7
 pyyaml==3.13
 raven==6.9.0
-redis==2.10.6
+redis==3.0.1
 requests-oauthlib==1.0.0
-requests==2.20.0
+requests==2.20.1
 six==1.11.0
 social-auth-app-django==3.1.0
 social-auth-core==2.0.0
 urllib3==1.24.1
 vine==1.1.4
-whitenoise==4.1
+whitenoise==4.1.2
