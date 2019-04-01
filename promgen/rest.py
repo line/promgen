@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse
-from promgen import models, prometheus, serializers
+from promgen import filters, models, prometheus, serializers
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 class ShardViewSet(viewsets.ModelViewSet):
     queryset = models.Shard.objects.all()
+    filterset_class = filters.ShardFilter
     serializer_class = serializers.ShardSerializer
     lookup_field = 'name'
 
@@ -35,6 +36,7 @@ class SharedViewSet:
 
 class ServiceViewSet(SharedViewSet, viewsets.ModelViewSet):
     queryset = models.Service.objects.prefetch_related('shard')
+    filterset_class = filters.ServiceFilter
     serializer_class = serializers.ServiceSerializer
     lookup_value_regex = '[^/]+'
     lookup_field = 'name'
@@ -71,6 +73,7 @@ class ProjectViewSet(SharedViewSet, viewsets.ModelViewSet):
     queryset = models.Project.objects.prefetch_related(
         'service', 'service__shard', 'farm'
     )
+    filterset_class = filters.ProjectFilter
     serializer_class = serializers.ProjectSerializer
     lookup_value_regex = '[^/]+'
     lookup_field = 'name'

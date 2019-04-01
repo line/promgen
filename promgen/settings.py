@@ -67,6 +67,7 @@ INSTALLED_APPS = apps_from_setuptools + [
     'promgen',
     'rest_framework',
     'rest_framework.authtoken',
+    'django_filters',
 ]
 
 # We explicitly include debug_toolbar and whitenoise here, but selectively
@@ -206,6 +207,9 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
     )
 }
 

@@ -2,15 +2,16 @@ from promgen import models, shortcuts
 from rest_framework import serializers
 
 
+class WebLinkField(serializers.Field):
+    def get_attribute(self, instance):
+        return instance
+
+    def to_representation(self, obj):
+        return shortcuts.resolve_domain(obj.get_absolute_url())
+
+
 class ShardSerializer(serializers.ModelSerializer):
-    _html = serializers.SerializerMethodField()
-    _services = serializers.SerializerMethodField()
-
-    def get__html(self, obj):
-        return shortcuts.resolve_domain('shard-detail', obj.id)
-
-    def get__services(self, obj):
-        return shortcuts.resolve_domain('api:shard-services', obj.name)
+    html = WebLinkField()
 
     class Meta:
         model = models.Shard
@@ -19,20 +20,9 @@ class ShardSerializer(serializers.ModelSerializer):
 
 
 class ServiceSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-
-    _shard = serializers.SerializerMethodField()
-    _projects = serializers.SerializerMethodField()
-    _html = serializers.SerializerMethodField()
-
-    def get__html(self, obj):
-        return shortcuts.resolve_domain('service-detail', obj.id)
-
-    def get__shard(self, obj):
-        return shortcuts.resolve_domain('api:shard-detail', obj.shard.name)
-
-    def get__projects(self, obj):
-        return shortcuts.resolve_domain('api:service-projects', obj.name)
+    owner = serializers.ReadOnlyField(source="owner.username")
+    shard = serializers.ReadOnlyField(source="shard.name")
+    html = WebLinkField()
 
     class Meta:
         model = models.Service
@@ -41,25 +31,15 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-
-    _html = serializers.SerializerMethodField()
-    _service = serializers.SerializerMethodField()
-    _shard = serializers.SerializerMethodField()
-
-    def get__html(self, obj):
-        return shortcuts.resolve_domain('project-detail', obj.id)
-
-    def get__service(self, obj):
-        return shortcuts.resolve_domain('api:service-detail', obj.service.name)
-
-    def get__shard(self, obj):
-        return shortcuts.resolve_domain('api:shard-detail', obj.service.shard.name)
+    owner = serializers.ReadOnlyField(source="owner.username")
+    service = serializers.ReadOnlyField(source="service.name")
+    shard = serializers.ReadOnlyField(source="service.shard.name")
+    html = WebLinkField()
 
     class Meta:
         model = models.Project
-        exclude = ('id', 'service', 'farm')
         lookup_field = 'name'
+        exclude = ("id", "farm")
 
 
 class SenderSerializer(serializers.ModelSerializer):
