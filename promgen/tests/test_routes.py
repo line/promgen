@@ -35,7 +35,7 @@ class RouteTests(PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.signals._trigger_write_config')
-    @mock.patch('promgen.prometheus.reload_prometheus')
+    @mock.patch('promgen.tasks.reload_prometheus')
     def test_import(self, mock_write, mock_reload):
         self.user.user_permissions.add(
             Permission.objects.get(codename='change_rule'),
@@ -55,7 +55,7 @@ class RouteTests(PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch('promgen.signals._trigger_write_config')
-    @mock.patch('promgen.prometheus.reload_prometheus')
+    @mock.patch('promgen.tasks.reload_prometheus')
     def test_replace(self, mock_write, mock_reload):
         # Set the required permissions
         self.user.user_permissions.add(

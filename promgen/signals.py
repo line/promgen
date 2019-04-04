@@ -11,7 +11,7 @@ from django.core.cache import cache
 from django.db.models.signals import (post_delete, post_save, pre_delete,
                                       pre_save)
 from django.dispatch import Signal, receiver
-from promgen import models, prometheus
+from promgen import models, prometheus, tasks
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +63,7 @@ def _trigger_write_config(signal, **kwargs):
     targets = [server.host for server in models.Prometheus.objects.all()]
     for target in targets:
         logger.info('Queueing write_config on %s', target)
-        prometheus.write_config.apply_async(queue=target)
+        tasks.write_config.apply_async(queue=target)
     if 'request' in kwargs:
         messages.info(kwargs['request'], 'Updating config on {}'.format(targets))
     return True
@@ -74,7 +74,7 @@ def _trigger_write_rules(signal, **kwargs):
     targets = [server.host for server in models.Prometheus.objects.all()]
     for target in targets:
         logger.info('Queueing write_rules on %s', target)
-        prometheus.write_rules.apply_async(queue=target)
+        tasks.write_rules.apply_async(queue=target)
     if 'request' in kwargs:
         messages.info(kwargs['request'], 'Updating rules on {}'.format(targets))
     return True
@@ -85,7 +85,7 @@ def _trigger_write_urls(signal, **kwargs):
     targets = [server.host for server in models.Prometheus.objects.all()]
     for target in targets:
         logger.info('Queueing write_urls on %s', target)
-        prometheus.write_urls.apply_async(queue=target)
+        tasks.write_urls.apply_async(queue=target)
     if 'request' in kwargs:
         messages.info(kwargs['request'], 'Updating urls on {}'.format(targets))
     return True
@@ -278,7 +278,6 @@ def add_default_service_subscription(instance, created, **kwargs):
             sender="promgen.notification.user",
             value=instance.owner.username,
         )
-        print(sender)
 
 
 @receiver(post_save, sender=models.Project)
@@ -289,4 +288,3 @@ def add_default_project_subscription(instance, created, **kwargs):
             sender="promgen.notification.user",
             value=instance.owner.username,
         )
-        print(sender)
