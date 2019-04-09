@@ -115,7 +115,8 @@ urlpatterns = [
     # Prometheus Proxy
     # these apis need to match the same path because Promgen can pretend to be a Prometheus API
     path("graph", proxy.ProxyGraph.as_view()),
-    path("api/v1/label/<label>/values", proxy.ProxyLabel.as_view(), name="proxy-label"),
+    path("api/v1/labels", proxy.ProxyLabels.as_view(), name="proxy-label"),
+    path("api/v1/label/<label>/values", proxy.ProxyLabelValues.as_view(), name="proxy-values"),
     path("api/v1/query_range", proxy.ProxyQueryRange.as_view()),
     path("api/v1/query", proxy.ProxyQuery.as_view(), name="proxy-query"),
     path("api/v1/series", proxy.ProxySeries.as_view()),

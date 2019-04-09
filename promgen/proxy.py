@@ -78,7 +78,24 @@ class ProxyGraph(TemplateView):
         return context
 
 
-class ProxyLabel(PrometheusProxy):
+class ProxyLabels(PrometheusProxy):
+    def get(self, request):
+        data = set()
+        for future in self.proxy(request):
+            try:
+                result = future.result()
+                result.raise_for_status()
+                _json = result.json()
+                logger.debug("Appending data from %s", result.url)
+                data.update(_json["data"])
+            except HTTPError:
+                logger.warning("Error with response")
+                return proxy_error(result)
+
+        return JsonResponse({"status": "success", "data": sorted(data)})
+
+
+class ProxyLabelValues(PrometheusProxy):
     def get(self, request, label):
         data = set()
         for future in self.proxy(request):
