@@ -90,7 +90,7 @@
   <div class="panel-body">
       <select
         data-target="#id_clause"
-        data-ajax="{% url 'proxy-label' '__name__' %}"
+        data-ajax="{% url 'proxy-values' '__name__' %}"
         data-append='{% templatetag openbrace %}{{rule.content_type.name}}="{{ rule.content_object.name }}"}'
         class="form-control"
         >
