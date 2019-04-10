@@ -792,19 +792,13 @@ class RuleUpdate(PromgenPermissionMixin, UpdateView):
             logger.warning('Error saving annotations %s', annotations.errors)
             return self.form_invalid(form)
 
-        try:
-            prometheus.check_rules([form.instance])
-        except Exception as e:
-            form._update_errors(e)
-            return self.form_invalid(form)
-
         return self.form_valid(form)
 
 
 class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
-    form_class = forms.NewRuleForm
+    form_class = forms.RuleForm
 
     def get_permission_required(self):
         # In the case of rules, we want to make sure the user has permission
@@ -826,19 +820,10 @@ class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
 
     def post(self, request, content_type, object_id):
         form = self.get_form()
+        # Set an instance of our service here so that we can pass it
+        # along for promtool to render
+        form.instance.set_object(content_type, object_id)
         if form.is_valid():
-            form.instance.set_object(content_type, object_id)
-            prometheus.check_rules([form.instance])
-
-            try:
-                # Set an instance of our service here so that we can pass it
-                # along for promtool to render
-                form.instance.set_object(content_type, object_id)
-                prometheus.check_rules([form.instance])
-            except Exception as e:
-                form._update_errors(e)
-                return self.form_invalid(form)
-
             form.instance.save()
             form.instance.add_label(form.instance.content_type.model, form.instance.content_object.name)
 

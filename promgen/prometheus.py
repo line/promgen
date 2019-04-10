@@ -55,7 +55,7 @@ def check_rules(rules):
         try:
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
-            raise Exception(rendered.decode('utf8') + e.output.decode('utf8'))
+            raise ValidationError(rendered.decode('utf8') + e.output.decode('utf8'))
 
 
 def render_rules(rules=None, version=None):
@@ -452,4 +452,3 @@ def silence(labels, duration=None, **kwargs):
     response = util.post(url, json=kwargs)
     response.raise_for_status()
     return response
-    

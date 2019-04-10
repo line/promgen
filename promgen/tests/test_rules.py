@@ -7,9 +7,9 @@ from django.contrib.auth.models import User, Permission
 from django.urls import reverse
 
 import promgen.templatetags.promgen as macro
+from django.core.exceptions import ValidationError
 from promgen import models, prometheus
 from promgen.tests import PromgenTest
-
 
 _RULES = '''
 ALERT RuleName
@@ -138,6 +138,5 @@ class RuleTest(PromgenTest):
     def test_invalid_annotation(self, mock_post):
         # $label.foo is invalid (should be $labels) so make sure we raise an exception
         models.RuleAnnotation.objects.create(name='summary', value='{{$label.foo}}', rule=self.rule)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidationError):
             prometheus.check_rules([self.rule])
-
