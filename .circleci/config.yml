@@ -10,6 +10,13 @@ jobs:
           SECRET_KEY: abcd
     steps:
       - checkout
+      - run:
+          name: Fetch Promtool
+          command: |
+            sudo mkdir -p /usr/local/bin
+            curl -L -s https://github.com/prometheus/prometheus/releases/download/v2.8.1/prometheus-2.8.1.linux-amd64.tar.gz |\
+            sudo tar -xz -C /usr/local/bin --strip-components=1 prometheus-2.8.1.linux-amd64/promtool
+            sudo chmod +x /usr/local/bin/promtool
       - run: pipenv install --dev
       - run: pipenv run promgen test
       - run: pipenv run coverage html -d test-results

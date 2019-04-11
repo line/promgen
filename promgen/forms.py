@@ -3,7 +3,7 @@
 
 from django import forms
 from dateutil import parser
-from promgen import models, plugins, validators
+from promgen import models, plugins, prometheus, validators
 
 
 class ImportConfigForm(forms.Form):
@@ -113,19 +113,6 @@ class URLForm(forms.ModelForm):
         exclude = ['project']
 
 
-class NewRuleForm(forms.ModelForm):
-    class Meta:
-        model = models.Rule
-        exclude = ['content_type', 'object_id', 'parent']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'duration': forms.TextInput(attrs={'class': 'form-control'}),
-            'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-            'enabled': forms.CheckboxInput(attrs={'data-toggle': 'toggle', 'data-size': 'mini'}),
-            'description': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-        }
-
-
 class RuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule
@@ -137,6 +124,12 @@ class RuleForm(forms.ModelForm):
             'enabled': forms.CheckboxInput(attrs={'data-toggle': 'toggle', 'data-size': 'mini'}),
             'description': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
         }
+
+    def clean(self):
+        # Check our cleaned data then let Prometheus check our rule
+        super().clean()
+        rule = models.Rule(**self.cleaned_data)
+        prometheus.check_rules([rule])
 
 
 class RuleCopyForm(forms.Form):

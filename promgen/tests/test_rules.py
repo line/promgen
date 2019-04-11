@@ -3,13 +3,14 @@
 
 from unittest import mock
 
-from django.contrib.auth.models import User, Permission
-from django.urls import reverse
-
 import promgen.templatetags.promgen as macro
 from promgen import models, prometheus
 from promgen.tests import PromgenTest
 
+from django.contrib.auth.models import Permission, User
+from django.core.exceptions import ValidationError
+from django.test import override_settings
+from django.urls import reverse
 
 _RULES = '''
 ALERT RuleName
@@ -34,6 +35,8 @@ groups:
     labels:
       severity: severe
 '''.lstrip().encode('utf-8')
+
+TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
 
 
 class RuleTest(PromgenTest):
@@ -134,10 +137,10 @@ class RuleTest(PromgenTest):
         for k, r in rules.items():
             self.assertEquals(macro.rulemacro(r['model'].clause, r['model']), r['assert'], 'Expansion wrong for %s' % k)
 
+    @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_invalid_annotation(self, mock_post):
         # $label.foo is invalid (should be $labels) so make sure we raise an exception
         models.RuleAnnotation.objects.create(name='summary', value='{{$label.foo}}', rule=self.rule)
-        with self.assertRaises(Exception):
+        with self.assertRaises(ValidationError):
             prometheus.check_rules([self.rule])
-
