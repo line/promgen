@@ -43,3 +43,6 @@ dump: pipenv
 load: pipenv
 	pipenv run promgen loaddata exporters
 
+.PHONY: circleci
+circleci:
+	circleci local execute
