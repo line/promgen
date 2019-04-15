@@ -10,12 +10,14 @@ import platform
 import re
 import time
 from itertools import chain
-from urllib.parse import urljoin
+
+from prometheus_client import Gauge, generate_latest
 
 import promgen.templatetags.promgen as macro
-import requests
-from dateutil import parser
-from django import forms as django_forms
+from promgen import (celery, discovery, forms, models, plugins, prometheus,
+                     signals, tasks, util, version)
+from promgen.shortcuts import resolve_domain
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import (LoginRequiredMixin,
@@ -24,22 +26,15 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.db.utils import IntegrityError
-from django.forms import inlineformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template import defaultfilters
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin, RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import DeleteView, FormView
-from prometheus_client import Gauge, generate_latest
-from promgen import (celery, discovery, forms, models, plugins, prometheus,
-                     signals, tasks, util, version)
-from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 
@@ -730,7 +725,7 @@ class ServiceUpdate(LoginRequiredMixin, UpdateView):
 
 class RuleUpdate(PromgenPermissionMixin, UpdateView):
     def get_permission_denied_message(self):
-        return 'Unable to edit rule %s. User lacks permission' % self.object
+        return "Unable to edit rule %s. User lacks permission" % self.object
 
     def get_permission_required(self):
         # In the case of rules, we want to make sure the user has permission
@@ -739,58 +734,66 @@ class RuleUpdate(PromgenPermissionMixin, UpdateView):
         obj = self.object._meta
         tgt = self.object.content_object._meta
 
-        yield '{}.change_{}'.format(obj.app_label, obj.model_name)
-        yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
+        yield "{}.change_{}".format(obj.app_label, obj.model_name)
+        yield "{}.change_{}".format(tgt.app_label, tgt.model_name)
 
     queryset = models.Rule.objects.prefetch_related(
-        'content_object',
-        'overrides',
-        'overrides__content_object',
+        "content_object", "overrides", "overrides__content_object"
     )
-    template_name = 'promgen/rule_update.html'
+    template_name = "promgen/rule_update.html"
     form_class = forms.RuleForm
-
-    LabelForm = inlineformset_factory(models.Rule, models.RuleLabel, fields=('name', 'value'), widgets={
-        'name': django_forms.TextInput(attrs={'class': 'form-control'}),
-        'value': django_forms.TextInput(attrs={'rows': 5, 'class': 'form-control'}),
-    })
-    AnnotationForm = inlineformset_factory(models.Rule, models.RuleAnnotation, fields=('name', 'value'), widgets={
-        'name': django_forms.TextInput(attrs={'class': 'form-control'}),
-        'value': django_forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
-    })
 
     def get_context_data(self, **kwargs):
         context = super(RuleUpdate, self).get_context_data(**kwargs)
-        context['label_set'] = self.LabelForm(instance=self.object)
-        context['annotation_set'] = self.AnnotationForm(instance=self.object)
-        context['macro'] = macro.EXCLUSION_MACRO
-        if self.object.parent:
-            context['rules'] = [self.object.parent]
-        else:
-            context['rules'] = [self.object]
+        context.setdefault("formset_labels", forms.LabelFormset(instance=self.object))
+        context.setdefault("formset_annotations", forms.AnnotationFormset(instance=self.object))
+        context["macro"] = macro.EXCLUSION_MACRO
+        context["rules"] = [self.object.parent] if self.object.parent else [self.object]
         return context
+
+    def form_invalid(self, **kwargs):
+        """If the form is invalid, render the invalid form."""
+        return self.render_to_response(self.get_context_data(**kwargs))
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        form = self.get_form()
+
+        # Save a copy of our forms into a context var that we can use
+        # to re-render our form properly in case of errors
+        context = {}
+        context["form"] = form = self.get_form()
+        context["formset_labels"] = form_labels = forms.LabelFormset(
+            request.POST, request.FILES, instance=self.object
+        )
+        context["formset_annotations"] = form_annotations = forms.AnnotationFormset(
+            request.POST, request.FILES, instance=self.object
+        )
+
+        # Check validity of our labels and annotations in Django before we try to render
+        if not all([form_labels.is_valid(), form_annotations.is_valid()]):
+            return self.form_invalid(**context)
+
+        # Populate our cached_properties so we can render a test
+        # populate only rows with a 'value' so that we skip fields we're deleting
+        # see Django docs on cached_property and promgen.forms.RuleForm.clean()
+        form.instance.labels = {
+            l["name"]: l["value"] for l in form_labels.cleaned_data if "value" in l
+        }
+        form.instance.annotations = {
+            a["name"]: a["value"] for a in form_annotations.cleaned_data if "value" in a
+        }
+
+        # With our labels+annotations manually cached we can test
         if not form.is_valid():
-            return self.form_invalid(form)
+            return self.form_invalid(**context)
 
-        labels = self.LabelForm(request.POST, request.FILES, instance=self.object)
-        if labels.is_valid():
-            for instance in labels.save():
-                messages.info(request, 'Added {} to {}'.format(instance.name, self.object))
-        else:
-            logger.warning('Error saving labels %s', labels.errors)
-            return self.form_invalid(form)
+        # Save our labels
+        for instance in form_labels.save():
+            messages.info(request, "Added {} to {}".format(instance.name, self.object))
 
-        annotations = self.AnnotationForm(request.POST, request.FILES, instance=self.object)
-        if annotations.is_valid():
-            for instance in annotations.save():
-                messages.info(request, 'Added {} to {}'.format(instance.name, self.object))
-        else:
-            logger.warning('Error saving annotations %s', annotations.errors)
-            return self.form_invalid(form)
+        # Save our annotations
+        for instance in form_annotations.save():
+            messages.info(request, "Added {} to {}".format(instance.name, self.object))
 
         return self.form_valid(form)
 
