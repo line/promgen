@@ -1,0 +1,20 @@
+{{ formset.management_form }}
+<table v-pre class="table">
+    <tr>
+        <th>Annotation</th>
+        <th>Value</th>
+        <th>Delete?</th>
+    </tr>
+    {% for row in formset %}
+    <tr>
+        <td>{{ row.id }} {{ row.name }}</td>
+        <td>{{ row.value }}</td>
+        <td>{{ row.DELETE }}</td>
+    </tr>
+    {% for k,v in row.errors.items %}
+    <tr>
+        <td colspan="3">{{v}}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+</table>

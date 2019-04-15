@@ -1,9 +1,11 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-from django import forms
 from dateutil import parser
+
 from promgen import models, plugins, prometheus, validators
+
+from django import forms
 
 
 class ImportConfigForm(forms.Form):
@@ -129,6 +131,13 @@ class RuleForm(forms.ModelForm):
         # Check our cleaned data then let Prometheus check our rule
         super().clean()
         rule = models.Rule(**self.cleaned_data)
+        
+        # Make sure we pull in our labels and annotations for
+        # testing if needed
+        # See django docs on cached_property
+        rule.labels = self.instance.labels
+        rule.annotations = self.instance.annotations
+
         prometheus.check_rules([rule])
 
 
@@ -161,3 +170,25 @@ class NotifierUpdate(forms.ModelForm):
 
 class HostForm(forms.Form):
     hosts = forms.CharField(widget=forms.Textarea)
+
+
+LabelFormset = forms.inlineformset_factory(
+    models.Rule,
+    models.RuleLabel,
+    fields=("name", "value"),
+    widgets={
+        "name": forms.TextInput(attrs={"class": "form-control"}),
+        "value": forms.TextInput(attrs={"rows": 5, "class": "form-control"}),
+    },
+)
+
+
+AnnotationFormset = forms.inlineformset_factory(
+    models.Rule,
+    models.RuleAnnotation,
+    fields=("name", "value"),
+    widgets={
+        "name": forms.TextInput(attrs={"class": "form-control"}),
+        "value": forms.Textarea(attrs={"rows": 2, "class": "form-control"}),
+    },
+)

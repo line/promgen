@@ -1,11 +1,13 @@
 {% extends "base.html" %}
+
 {% load promgen %}
 {% load i18n %}
+
 {% block title %}
 Promgen / Rule / {{ rule.name }}
 {% endblock %}
-{% block content %}
 
+{% block content %}
 <div class="page-header">
   <h1>Rule: {{ rule.name }}</h1>
 </div>
@@ -24,82 +26,56 @@ Promgen / Rule / {{ rule.name }}
 </div>
 
 <form action="{% url 'rule-edit' rule.pk %}" class="input-group" method="post">{% csrf_token %}
-<div class="row">
+  <div class="row">
 
-  {% if form.non_field_errors  %}
-  <div class="panel panel-danger">
-    <div class="panel-heading">Errors</div>
+    {% if form.non_field_errors  %}
+    <div class="panel panel-danger">
+      <div class="panel-heading">Errors</div>
       {% for error in form.non_field_errors %}
-        <div class="panel-body" v-pre><pre>{{ error }}</pre></div>
+      <div class="panel-body" v-pre>
+        <pre>{{ error }}</pre>
+      </div>
       {% endfor %}
-  </div>
-  {% endif %}
+    </div>
+    {% endif %}
 
-<div class="col-md-6">
-{% include 'promgen/rule_form_block.html' %}
-</div>
+    <div class="col-md-6">
+      {% include 'promgen/rule_form_block.html' %}
+    </div>
 
-<div class="col-md-6">
-  <div class="panel panel-primary">
-    <div class="panel-heading">Labels - Control routing through AlertManager and Promgen</div>
-    {{ label_set.management_form }}
-    <table class="table">
-        <tr>
-          <th>Label</th>
-          <th>Value</th>
-          <th>Delete?</th>
-        </tr>
-      {% for label_form in label_set %}
-        <tr>
-          <td>{{ label_form.id }} {{ label_form.name }}</td>
-          <td>{{ label_form.value }}</td>
-          <td>{{ label_form.DELETE }}</td>
-        </tr>
-      {% endfor %}
-    </table>
-    <ul class="list-group">
-      <li class="list-group-item">Examples</li>
-      <li class="list-group-item">
-        <code>{"severity":"major"}</code>
-      </li>
-    </ul>
-  </div>
+    <div class="col-md-6">
+      <div class="panel panel-primary">
+        <div class="panel-heading">Labels - Control routing through AlertManager and Promgen</div>
+        {% include 'promgen/rule_formset_table.html' with formset=formset_labels only %}
+        <ul class="list-group">
+          <li class="list-group-item">Examples</li>
+          <li class="list-group-item">
+            <code>{"severity":"major"}</code>
+          </li>
+        </ul>
+      </div>
 
-  <div class="panel panel-primary">
-    <div class="panel-heading">Annotations - Provide extra details for notifications</div>
-    {{ annotation_set.management_form }}
-    <table v-pre class="table">
-        <tr>
-          <th>Annotation</th>
-          <th>Value</th>
-          <th>Delete?</th>
-        </tr>
-      {% for annotation_form in annotation_set %}
-        <tr>
-          <td>{{ annotation_form.id }} {{ annotation_form.name }}</td>
-          <td>{{ annotation_form.value }}</td>
-          <td>{{ annotation_form.DELETE }}</td>
-        </tr>
-      {% endfor %}
-    </table>
-    <ul class="list-group">
-      <li class="list-group-item">Examples</li>
-      <li class="list-group-item">
-        <code v-pre>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</pre></code>
-      </li>
-    </ul>
-  </div>
+      <div class="panel panel-primary">
+        <div class="panel-heading">Annotations - Provide extra details for notifications</div>
+        {% include 'promgen/rule_formset_table.html' with formset=formset_annotations only %}
+        <ul class="list-group">
+          <li class="list-group-item">Examples</li>
+          <li class="list-group-item">
+            <code v-pre>summary: High load on {% templatetag openvariable %} $labels.instance {% templatetag closevariable %}</pre></code>
+          </li>
+        </ul>
+      </div>
 
-</div><!-- end col -->
-</div><!-- end row -->
+    </div><!-- end col -->
+  </div><!-- end row -->
 
-{% if rule.overrides.count %}
+  {% if rule.overrides.count %}
   <div class="panel panel-default">
     <div class="panel-heading">
-        Child Rules
+      Child Rules
     </div>
     <table class="table">
-  {% for r in rule.overrides.all %}
+      {% for r in rule.overrides.all %}
       <tr>
         <td class="col-xs-2"><a href="{{ r.content_object.get_absolute_url }}">{{ r.content_object }}</a></td>
         <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
@@ -109,17 +85,17 @@ Promgen / Rule / {{ rule.name }}
           </code>
         </td>
       </tr>
-  {% endfor %}
+      {% endfor %}
     </table>
   </div>
-{% endif %}
+  {% endif %}
 
-<div class="panel panel-primary">
-  <div class="panel-body">
-    <button class="btn btn-primary">Save Rule</button>
-    <a href="{% url 'audit-list'  %}?rule={{rule.id}}" class="btn btn-info">{% trans "Edit History" %}</a>
+  <div class="panel panel-primary">
+    <div class="panel-body">
+      <button class="btn btn-primary">Save Rule</button>
+      <a href="{% url 'audit-list'  %}?rule={{rule.id}}" class="btn btn-info">{% trans "Edit History" %}</a>
+    </div>
   </div>
-</div>
 </form>
 
 <div class="panel panel-danger">
