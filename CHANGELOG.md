@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.35 - 2019-04-16
+
+* [BUGFIX] Refactor rule validation to take into account labels and annotations #144
+* [BUGFIX] Move promtool validation into RuleForm.clean #142
+* [INTERNAL] Update various dependencies #143
+* [IMPROVEMENT] Add proxy for /api/v1/labels #140
+* [IMPROVEMENT] Use django-filters for api filtering #126
+
 ## v0.34 - 2019-03-13
 
 This release adds support for filters for notifications. Alerts can be filtered so that different notification targets can be restricted by label. For example, sending urgent messages directly to LINE but sending less urgent messages to be logged to slack
