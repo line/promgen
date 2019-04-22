@@ -29,15 +29,16 @@ class ShardAdmin(admin.ModelAdmin):
 
 @admin.register(models.Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'shard', 'owner')
-    list_filter = ('shard', ('owner', admin.RelatedOnlyFieldListFilter))
+    list_display = ('name', 'owner')
+    list_filter = (('owner', admin.RelatedOnlyFieldListFilter),)
+    list_select_related = ('owner',)
 
 
 @admin.register(models.Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'service', 'farm', 'owner')
-    list_select_related = ('service', 'farm', 'service__shard')
-    list_filter = (('owner', admin.RelatedOnlyFieldListFilter),)
+    list_display = ('name', 'shard', 'service', 'farm', 'owner')
+    list_select_related = ('service', 'farm', 'shard', 'owner')
+    list_filter = ('shard', ('owner', admin.RelatedOnlyFieldListFilter),)
 
 
 class SenderForm(forms.ModelForm):
@@ -61,7 +62,7 @@ class SenderAdmin(admin.ModelAdmin):
 
 @admin.register(models.Farm)
 class FarmAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'source')
     list_filter = ('source',)
 
 
@@ -81,7 +82,7 @@ class DefaultExporterAdmin(admin.ModelAdmin):
 @admin.register(models.URL)
 class URLAdmin(admin.ModelAdmin):
     list_display = ('url', 'project')
-    list_select_related = ('project', 'project__service', 'project__service__shard')
+    list_select_related = ('project', 'project__service', 'project__shard')
 
 
 class RuleLabelInline(admin.TabularInline):

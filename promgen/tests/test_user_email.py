@@ -21,8 +21,7 @@ class UserEmailTest(TestCase):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.user = User.objects.create_user(id=999, username="Foo")
-        self.shard = models.Shard.objects.create(name='test.shard')
-        self.service = models.Service.objects.create(name='test.service', shard=self.shard)
+        self.service = models.Service.objects.create(name='test.service')
 
         self.sender = models.Sender.objects.create(
             obj=self.service,

@@ -35,7 +35,7 @@ class SharedViewSet:
 
 
 class ServiceViewSet(SharedViewSet, viewsets.ModelViewSet):
-    queryset = models.Service.objects.prefetch_related('shard')
+    queryset = models.Service.objects.all()
     filterset_class = filters.ServiceFilter
     serializer_class = serializers.ServiceSerializer
     lookup_value_regex = '[^/]+'
@@ -71,7 +71,7 @@ class ServiceViewSet(SharedViewSet, viewsets.ModelViewSet):
 
 class ProjectViewSet(SharedViewSet, viewsets.ModelViewSet):
     queryset = models.Project.objects.prefetch_related(
-        'service', 'service__shard', 'farm'
+        'service', 'shard', 'farm'
     )
     filterset_class = filters.ProjectFilter
     serializer_class = serializers.ProjectSerializer

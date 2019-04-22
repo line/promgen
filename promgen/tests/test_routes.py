@@ -82,8 +82,8 @@ class RouteTests(PromgenTest):
 
     def test_project(self):
         shard = models.Shard.objects.create(name='Shard Test')
-        service = models.Service.objects.create(name='Service Test', shard=shard)
-        project = models.Project.objects.create(name='Project Test', service=service)
+        service = models.Service.objects.create(name='Service Test')
+        project = models.Project.objects.create(name='Project Test', service=service, shard=shard)
 
         response = self.client.get(reverse('project-detail', kwargs={'pk': project.pk}))
         self.assertEqual(response.status_code, 200)
@@ -98,7 +98,9 @@ class RouteTests(PromgenTest):
 
     @mock.patch('promgen.util.get')
     def test_scrape(self, mock_get):
-        project = self.factory(models.Project, 'test_scrape')
+        shard = models.Shard.objects.create(name='Shard Test')
+        service = models.Service.objects.create(name='Service Test')
+        project = models.Project.objects.create(name='Project Test', service=service, shard=shard)
         project.farm = models.Farm.objects.create(name='test_scrape')
         project.farm.host_set.create(name='example.com')
         project.save()

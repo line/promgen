@@ -115,11 +115,12 @@ def render_urls():
     for url in models.URL.objects.prefetch_related(
             'project__farm__host_set',
             'project__farm',
-            'project__service__shard',
             'project__service',
+            'project__service',
+            'project__shard',
             'project'):
         urls[(
-            url.project.name, url.project.service.name, url.project.service.shard.name,
+            url.project.name, url.project.service.name, url.project.shard.name,
         )].append(url.url)
 
     data = [{'labels': {'project': k[0], 'service': k[1], '__shard': k[2]}, 'targets': v} for k, v in urls.items()]
@@ -144,8 +145,8 @@ def render_config(service=None, project=None):
             prefetch_related(
                 'project__farm__host_set',
                 'project__farm',
-                'project__service__shard',
                 'project__service',
+                'project__shard',
                 'project',
                 ):
         if not exporter.project.farm:
@@ -158,7 +159,7 @@ def render_config(service=None, project=None):
             continue
 
         labels = {
-            '__shard': exporter.project.service.shard.name,
+            '__shard': exporter.project.shard.name,
             'service': exporter.project.service.name,
             'project': exporter.project.name,
             'farm': exporter.project.farm.name,
@@ -361,7 +362,6 @@ def import_config(config, replace_shard=None):
 
         service, created = models.Service.objects.get_or_create(
             name=entry['labels']['service'],
-            defaults={'shard': shard}
         )
         if created:
             logger.debug('Created service %s', service)
@@ -382,6 +382,7 @@ def import_config(config, replace_shard=None):
         project, created = models.Project.objects.get_or_create(
             name=entry['labels']['project'],
             service=service,
+            shard=shard,
             defaults={'farm': farm}
         )
         if created:

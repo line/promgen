@@ -9,7 +9,12 @@ Promgen / Project / {{ project.name }}
 {% block content %}
 
 <div class="page-header">
-  <h1>Project: {{ project.name }}</h1>
+  <h1>
+    Project: {{ project.name }}
+    {% if project.owner %}
+    <small class="pull-right">{% trans 'Contact' %}: {{project.owner.username}}</small>
+    {% endif %}
+  </h1>
 </div>
 
 {% breadcrumb project %}
@@ -23,7 +28,6 @@ Promgen / Project / {{ project.name }}
 {% endif %}
 
 {% include "promgen/project_detail_configuration.html" %}
-
 
 <div class="panel panel-danger" v-cloak v-show="alertLabelsProject.has('{{project.name}}')">
   <div class="panel-heading">

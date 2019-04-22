@@ -44,9 +44,9 @@ class RuleTest(PromgenTest):
     def setUp(self, mock_signal):
         self.user = User.objects.create_user(id=999, username="Foo")
         self.client.force_login(self.user)
-        self.shard = models.Shard.objects.create(name='Shard 1')
         self.site = models.Site.objects.get_current()
-        self.service = models.Service.objects.create(id=999, name='Service 1', shard=self.shard)
+        self.shard = models.Shard.objects.create(name='Shard 1')
+        self.service = models.Service.objects.create(id=999, name='Service 1')
         self.rule = models.Rule.objects.create(
             name='RuleName',
             clause='up==0',
@@ -68,7 +68,7 @@ class RuleTest(PromgenTest):
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_copy(self, mock_post):
-        service = models.Service.objects.create(name='Service 2', shard=self.shard)
+        service = models.Service.objects.create(name='Service 2')
         copy = self.rule.copy_to(content_type='service', object_id=service.id)
         # Test that our copy has the same labels and annotations
         self.assertIn('severity', copy.labels)
@@ -118,7 +118,7 @@ class RuleTest(PromgenTest):
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_macro(self, mock_post):
-        self.project = models.Project.objects.create(name='Project 1', service=self.service)
+        self.project = models.Project.objects.create(name='Project 1', service=self.service, shard=self.shard)
         clause = 'up{%s}' % macro.EXCLUSION_MACRO
 
         rules = {

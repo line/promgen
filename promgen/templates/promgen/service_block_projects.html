@@ -1,0 +1,38 @@
+{% load i18n %}
+
+{% regroup project_list|dictsort:"shard_id" by shard as project_shard_list %}
+
+{% for shard, shard_projects in project_shard_list %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Shard
+        <a href="{{shard.get_absolute_url}}">{{shard.name}}</a>
+        <a href="{% url 'project-new' service.id %}?shard={{shard.id}}" class="btn btn-primary btn-xs pull-right">{% trans "Register Project" %}</a>
+    </div>
+    <table class="table table-bordered table-condensed">
+        <tr>
+            <th class="col-md-2">Project</th>
+            <th class="col-md-3">Exporters</th>
+            <th class="col-md-3">Notifiers</th>
+            <th class="col-md-1">Actions</th>
+        </tr>
+        {% for project in shard_projects %}
+
+        {% if service.notifiers.count == 0 and project.notifiers.count == 0 %}
+        <tr>
+            <td colspan="4" class="warning">
+                <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+                {% trans "No notifications configured for this project. Please configure some" %}
+            </td>
+        </tr>
+        {% endif %}
+
+        {% include 'promgen/project_row.html' %}
+        {% empty %}
+        <tr>
+            <td colspan="4">No Projects?</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endfor %}

@@ -97,18 +97,6 @@ class ServiceUpdate(forms.ModelForm):
         exclude = []
 
 
-class ProjectRegister(forms.ModelForm):
-    class Meta:
-        model = models.Project
-        exclude = ['service', 'farm']
-
-
-class ProjectUpdate(forms.ModelForm):
-    class Meta:
-        model = models.Project
-        exclude = ['farm']
-
-
 class URLForm(forms.ModelForm):
     class Meta:
         model = models.URL

@@ -15,14 +15,16 @@
 {% regroup rule_list by content_object as grouped_rule_list %}
 
 {% for group in grouped_rule_list %}
-<h2>
-  <a href="{{ group.grouper.get_absolute_url }}">{{ group.grouper }}</a>
-  <span class="pull-right form-inline">
-    <a href="{% url 'rule-new' group.grouper|klass|lower group.grouper.id %}" class="btn btn-primary btn-xs">{% trans "Register Rule" %}</a>
-  </span>
-</h2>
 <div class="panel panel-default">
-{% include "promgen/rule_block.html" with rule_list=group.list %}
+  <div class="panel-heading">
+    <a href="{{ group.grouper.get_absolute_url }}">{{ group.grouper }}</a>
+    <a href="{% url 'rule-new' group.grouper|klass|lower group.grouper.id %}" class="btn btn-primary btn-xs pull-right">{% trans "Register Rule" %}</a>
+  </div>
+
+  <table class="table table-bordered table-condensed">
+    {% include "promgen/rule_header.html" %}
+    {% include "promgen/rule_block.html" with rule_list=group.list %}
+  </table>
 </div>
 {% endfor %}
 

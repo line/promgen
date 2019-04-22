@@ -19,11 +19,9 @@ class WebhookTest(PromgenTest):
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
         self.shard = models.Shard.objects.create(name="test.shard")
-        self.service = models.Service.objects.create(
-            name="test.service", shard=self.shard
-        )
+        self.service = models.Service.objects.create(name="test.service")
         self.project = models.Project.objects.create(
-            name="test.project", service=self.service
+            name="test.project", service=self.service, shard=self.shard
         )
 
         self.senderA = models.Sender.objects.create(
@@ -74,11 +72,17 @@ class WebhookTest(PromgenTest):
     @mock.patch("promgen.util.post")
     def test_filter(self, mock_post):
         # Our first sender will only allow critical messages
-        models.Filter.objects.create(sender=self.senderA, name="severity", value="critical")
+        models.Filter.objects.create(
+            sender=self.senderA, name="severity", value="critical"
+        )
 
         # Our second sender allows critical and major
-        models.Filter.objects.create(sender=self.senderB, name="severity", value="critical")
-        models.Filter.objects.create(sender=self.senderB, name="severity", value="major")
+        models.Filter.objects.create(
+            sender=self.senderB, name="severity", value="critical"
+        )
+        models.Filter.objects.create(
+            sender=self.senderB, name="severity", value="major"
+        )
 
         self.assertEqual(models.Filter.objects.count(), 3, "Should be three filters")
 
