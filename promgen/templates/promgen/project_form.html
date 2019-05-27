@@ -56,6 +56,7 @@
   </div>
   {% include 'promgen/error_block.html' with warning=form.shard.errors only %}
 
+  {# Only show our warning if modifying an existing project #}
   {% if project.pk %}
   <div class="panel panel-danger">
     <div class="panel-heading">
@@ -68,6 +69,7 @@
   </div>
   {% endif %}
 
+  {# Color red and collapse by default for existing projects #}
   <div class="panel{% if project.pk %} panel-danger collapse{% else %} panel-primary{% endif %}" id="shard-selector">
     <table class="table">
       <tr>
