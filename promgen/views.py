@@ -710,7 +710,7 @@ class ProjectRegister(LoginRequiredMixin, CreateView):
         initial = {"owner": self.request.user}
         if "shard" in self.request.GET:
             initial["shard"] = get_object_or_404(
-                models.Shard, pk=self.request.GET["shard"][0]
+                models.Shard, pk=self.request.GET["shard"]
             )
         return initial
 
