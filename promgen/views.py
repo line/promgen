@@ -1023,7 +1023,7 @@ class URLConfig(View):
         return HttpResponse(prometheus.render_urls(), content_type='application/json')
 
     def post(self, request):
-        prometheus.write_urls()
+        tasks.write_urls()
         return HttpResponse('OK', status=202)
 
 

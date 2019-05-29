@@ -4,24 +4,21 @@ import collections
 import datetime
 import json
 import logging
-import os
 import re
 import subprocess
 import tempfile
 from urllib.parse import urljoin
 
+import promgen.templatetags.promgen as macro
 import pytz
 import yaml
-from atomicwrites import atomic_write
 from dateutil import parser
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db.models import prefetch_related_objects
 from django.template.loader import render_to_string
 from django.utils import timezone
-from django.core.exceptions import ValidationError
-import promgen.templatetags.promgen as macro
 from promgen import models, util
-from promgen.celery import app as celery
 
 logger = logging.getLogger(__name__)
 
@@ -127,18 +124,6 @@ def render_urls():
     return json.dumps(data, indent=2, sort_keys=True)
 
 
-@celery.task
-def write_urls(path=None, reload=True, chmod=0o644):
-    if path is None:
-        path = settings.PROMGEN['url_writer']['path']
-    with atomic_write(path, overwrite=True) as fp:
-        # Set mode on our temporary file before we write and move it
-        os.chmod(fp.name, chmod)
-        fp.write(render_urls())
-    if reload:
-        reload_prometheus()
-
-
 def render_config(service=None, project=None):
     data = []
     for exporter in models.Exporter.objects.\
@@ -178,38 +163,6 @@ def render_config(service=None, project=None):
             'targets': hosts,
         })
     return json.dumps(data, indent=2, sort_keys=True)
-
-
-@celery.task
-def write_config(path=None, reload=True, chmod=0o644):
-    if path is None:
-        path = settings.PROMGEN['config_writer']['path']
-    with atomic_write(path, overwrite=True) as fp:
-        # Set mode on our temporary file before we write and move it
-        os.chmod(fp.name, chmod)
-        fp.write(render_config())
-    if reload:
-        reload_prometheus()
-
-
-@celery.task
-def write_rules(path=None, reload=True, chmod=0o644, version=None):
-    if path is None:
-        path = settings.PROMGEN['prometheus']['rules']
-    with atomic_write(path, mode='wb', overwrite=True) as fp:
-        # Set mode on our temporary file before we write and move it
-        os.chmod(fp.name, chmod)
-        fp.write(render_rules(version=version))
-    if reload:
-        reload_prometheus()
-
-
-@celery.task
-def reload_prometheus():
-    from promgen.signals import post_reload
-    target = urljoin(settings.PROMGEN['prometheus']['url'], '/-/reload')
-    response = util.post(target)
-    post_reload.send(response)
 
 
 def import_rules_v2(config, content_object=None):
