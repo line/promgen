@@ -18,8 +18,7 @@
     <a @click.prevent="silenceSetLabels" class="btn btn-warning btn-sm" data-project="{{project.name}}" data-service="{{project.service.name}}">{% trans "Silence" %}</a>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-        aria-expanded="false">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         Export <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
@@ -42,7 +41,6 @@
 
   {% endif %}
 
-  {% if project.owner %}
-  <div class="panel-footer">{% trans 'Contact' %}: {{project.owner.username}}</div>
-  {% endif %}
+  <div class="panel-footer">Shard: <a href="{{project.shard.get_absolute_url}}">{{project.shard.name}}</div>
+
 </div>

@@ -1,11 +1,5 @@
 {% load i18n %}
 <div class="well">
-  {% if shard.enabled %}
-  <a href="{% url 'service-new' shard.id %}" class="btn btn-primary btn-sm">{% trans "Register Service" %}</a>
-  {% else %}
-  <span disabled class="btn btn-default btn-sm">{% trans "Register Service" %}</span>
-  {% endif %}
-
   {% if shard.proxy %}
   <span class="label" style="display:none;">Samples: <span class="prom-query" data-href='{{shard.url}}/api/v1/query' data-query='sum(scrape_samples_scraped)'></span></span>
   <span class="label" style="display:none;">Exporters: <span class="prom-query" data-href='{{shard.url}}/api/v1/query' data-query='count(up)'></span></span>

@@ -1,21 +1,29 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load promgen %}
 
 {% block content %}
 
 <div class="page-header">
-  <h1>Services</h1>
+  <h1>{% trans 'Services' %}</h1>
+  <a href="{% url 'service-new'  %}" class="btn btn-primary btn-sm float-right">{% trans "Register Service" %}</a>
 </div>
 
+{% breadcrumb label="Services" %}
+
+{% include "promgen/pagination.html" %}
 
 {% for service in service_list %}
-<h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
-
-{% if service.owner %}
-  <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
-{% endif %}
+<h2>
+  <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
+  {% if service.owner %}
+  <small class="pull-right">{% trans 'Contact' %}: {{service.owner.username}}</small>
+  {% endif %}
+</h2>
 
 {% include "promgen/service_block.html" %}
 {% endfor %}
+
+{% include "promgen/pagination.html" %}
 
 {% endblock %}

@@ -22,8 +22,8 @@ class SlackTest(PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.shard = models.Shard.objects.create(name='test.shard')
-        self.service = models.Service.objects.create(name='test.service', shard=self.shard)
-        self.project = models.Project.objects.create(name='test.project', service=self.service)
+        self.service = models.Service.objects.create(name='test.service')
+        self.project = models.Project.objects.create(name='test.project', service=self.service, shard=self.shard)
 
         self.sender = models.Sender.objects.create(
             obj=self.project,
@@ -31,7 +31,7 @@ class SlackTest(PromgenTest):
             value=self.TestHook1,
         )
 
-        self.service2 = models.Service.objects.create(name='other.service', shard=self.shard)
+        self.service2 = models.Service.objects.create(name='other.service')
         self.sender2 = models.Sender.objects.create(
             obj=self.service2,
             sender=NotificationSlack.__module__,

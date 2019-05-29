@@ -1,44 +1,33 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load promgen %}
+
 {% block content %}
 
 <div class="page-header">
   <h1>Shards</h1>
 </div>
 
+{% breadcrumb label="Shards" %}
+
 <div class="service-grid">
+  {% for shard in shard_list|dictsortreversed:"project_set.count" %}
+  <div>
+    <h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
+    <a href="{{shard.url}}">{{shard.url}}</a>
+    <hr>
 
+    {% include 'promgen/shard_header.html' %}
+    {% regroup shard.project_set.all|dictsort:"service_id" by service as service_list %}
 
-  {% for shard in shard_list|dictsortreversed:"service_set.count" %}
-    <div >
-      <h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
-      <a href="{{shard.url}}">{{shard.url}}</a>
-      <hr>
-      {% include 'promgen/shard_header.html' %}
-
-      <table class="table">
-{% for service in shard.service_set.all %}
-        <tr>
-          <td>
-{% if service.check_notifiers == False %}
-            <a
-              class="btn btn-xs btn-warning"
-              role="button"
-              tabindex="0"
-              title="{% trans 'Notification setting warning' %}"
-              data-toggle="popover"
-              data-content='{% trans "This service does not have any notifications configured. Please configure notifications to properly route alerts" %}'
-              data-html="true"
-              data-placement="right"
-              data-trigger="focus"
-            ><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></a>
-{% endif %}
-          </td>
-          <td style="width:100%">
-            <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
-          </td>
-        </tr>
-{% endfor %}
+    <table class="table table-condensed">
+      {% for service, project_list in service_list|dictsort:"grouper.name" %}
+      <tr>
+        <td>
+          <a href="{{service.get_absolute_url}}">{{ service.name }}</a>
+        </td>
+      </tr>
+      {% endfor %}
     </table>
   </div>
   {% endfor %}

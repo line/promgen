@@ -5,7 +5,7 @@ import collections
 import difflib
 import json
 from datetime import datetime
-
+from django.utils.translation import ugettext as _
 from django import template
 from django.conf import settings
 from django.urls import reverse
@@ -119,7 +119,7 @@ def strftime(timestamp, fmt):
 
 
 @register.simple_tag
-def breadcrumb(instance, label=None):
+def breadcrumb(instance=None, label=None):
     """
     Create HTML Breadcrumb from instance
 
@@ -129,10 +129,11 @@ def breadcrumb(instance, label=None):
     from promgen import models
 
     def shard(obj):
+        yield reverse("shard-list"), _("Shards")
         yield obj.get_absolute_url(), obj.name
 
     def service(obj):
-        yield from shard(obj.shard)
+        yield reverse("service-list"), _("Services")
         yield obj.get_absolute_url(), obj.name
 
     def project(obj):
@@ -141,7 +142,7 @@ def breadcrumb(instance, label=None):
 
     def rule(obj):
         if obj.content_type.model == "site":
-            yield reverse("rules-list"), "Common Rules"
+            yield reverse("rules-list"), _("Common Rules")
         if obj.content_type.model == "service":
             yield from service(obj.content_object)
         if obj.content_type.model == "project":
@@ -157,7 +158,7 @@ def breadcrumb(instance, label=None):
             yield from project(obj.content_object)
 
     def generator():
-        yield reverse("home"), "Home"
+        yield reverse("home"), _("Home")
         if isinstance(instance, models.Sender):
             yield from sender(instance)
         if isinstance(instance, models.Project):
@@ -174,7 +175,7 @@ def breadcrumb(instance, label=None):
         for href, text in generator():
             yield format_html('<li><a href="{}">{}</a></li>', mark_safe(href), text)
         if label:
-            yield format_html('<li class="active">{}</li>', label)
+            yield format_html('<li class="active">{}</li>', _(label))
         yield "</ol>"
 
     return mark_safe("".join(to_tag()))

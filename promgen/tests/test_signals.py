@@ -14,11 +14,11 @@ class SignalTest(TestCase):
     def test_write_signal(self, write_mock, log_mock):
         # Build service trigger
         shard = models.Shard.objects.create(name='Shard')
-        service = models.Service.objects.create(name='Service', shard=shard)
+        service = models.Service.objects.create(name='Service')
         farm = models.Farm.objects.create(name='farm')
         models.Host.objects.create(name='Host', farm=farm)
         project = models.Project.objects.create(
-            name='Project', service=service, farm=farm
+            name='Project', service=service, farm=farm, shard=shard
         )
         e1 = models.Exporter.objects.create(
             job='Exporter 1', port=1234, project=project,
@@ -39,11 +39,11 @@ class SignalTest(TestCase):
     def test_write_and_delete(self, write_mock, log_mock):
         # Build service trigger
         shard = models.Shard.objects.create(name='Shard')
-        service = models.Service.objects.create(name='Service', shard=shard)
+        service = models.Service.objects.create(name='Service')
         farm = models.Farm.objects.create(name='farm')
         models.Host.objects.create(name='Host', farm=farm)
         project = models.Project.objects.create(
-            name='Project', service=service, farm=farm
+            name='Project', service=service, farm=farm, shard=shard
         )
         # Farm but no exporters so no call
         self.assertEqual(write_mock.call_count, 0, 'Should not be called without exporters')

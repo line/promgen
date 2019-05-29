@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load promgen %}
 {% block content %}
 
 {% regroup url_list by project as project_list %}
@@ -9,37 +9,40 @@
   <h1>URLs</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">All URLs</li>
-</ol>
+{% breadcrumb label='All URLs' %}
 
 {% for service in service_list %}
 <div class="panel panel-default">
-    <div class="panel-heading">{{ service.grouper }}</div>
-    <table class="table table-bordered table-condensed">
-      <thead>
-        <tr>
-          <th class="col-md-2">Project</th>
-          <th>URL</th>
-          <th class="col-md-1">&nbsp;</th>
-        </tr>
-      </thead>
-{% for project in service.list %}
-{% for url in project.list %}
+  <div class="panel-heading">
+    <a href="{{service.grouper.get_absolute_url}}">
+      {{ service.grouper }}
+    </a>
+  </div>
+  <table class="table table-bordered table-condensed">
+    <thead>
       <tr>
-        <td class="col-md-2"><a href="{% url 'project-detail' url.project.id %}">{{ url.project.name }}</a></td>
-        <td><a href="{{ url.url }}">{{ url.url }}</a></td>
-        <td class="col-md-1">
-          <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
-            {% csrf_token %}
-            <button class="btn btn-danger">Delete</button>
-          </form>
-        </td>
+        <th class="col-md-2">Project</th>
+        <th>URL</th>
+        <th class="col-md-1">&nbsp;</th>
       </tr>
-{% endfor %}
-{% endfor %}
-    </table>
+    </thead>
+    {% for project in service.list %}
+    {% for url in project.list %}
+    <tr>
+      <td class="col-md-2">
+        <a href="{{url.project.get_absolute_url}}">{{ url.project.name }}</a>
+      </td>
+      <td><a href="{{ url.url }}">{{ url.url }}</a></td>
+      <td class="col-md-1">
+        <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
+          {% csrf_token %}
+          <button class="btn btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </table>
 </div>
 {% endfor %}
 

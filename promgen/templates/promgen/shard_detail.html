@@ -16,15 +16,34 @@ Promgen / Shard / {{ shard.name }}
 {% breadcrumb shard %}
 
 {% include 'promgen/shard_header.html' %}
+{% regroup shard.project_set.all|dictsort:"service_id" by service as service_list %}
 
-{% for service in shard.service_set.all %}
-<h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
+<table class="table table-bordered table-condensed">
+  {% for service, project_list in service_list|dictsort:"grouper.name" %}
 
-{% if service.owner %}
-  <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
-{% endif %}
+  <tr>
+    <th colspan="4">
+      <h2>
+        <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
+        {% if service.owner %}
+        <small class="pull-right">{% trans 'Contact' %}: {{service.owner.username}}</small>
+        {% endif %}
+      </h2>
 
-{% include "promgen/service_block.html" %}
-{% endfor %}
+    </th>
+  </tr>
+
+  <tr>
+    <th class="col-md-2">Project</th>
+    <th class="col-md-3">Exporters</th>
+    <th class="col-md-3">Notifiers</th>
+    <th class="col-md-1">Actions</th>
+  </tr>
+  {% for project in project_list %}
+  {% include 'promgen/project_row.html' %}
+  {% endfor %}
+
+  {% endfor %}
+</table>
 
 {% endblock %}

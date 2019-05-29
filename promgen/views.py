@@ -34,7 +34,7 @@ from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin, RedirectView
 from django.views.generic.detail import SingleObjectMixin
-from django.views.generic.edit import DeleteView, FormView
+from django.views.generic.edit import CreateView, DeleteView, FormView
 
 logger = logging.getLogger(__name__)
 
@@ -74,48 +74,57 @@ class ServiceMixin(ContextMixin):
 
 
 class ShardList(LoginRequiredMixin, ListView):
-    queryset = models.Shard.objects\
-        .prefetch_related(
-            'prometheus_set',
-            'service_set',
-            'service_set__notifiers',
-            'service_set__project_set',
-            'service_set__project_set__farm',
-            'service_set__project_set__exporter_set',
-            'service_set__project_set__notifiers')
+    queryset = models.Shard.objects.prefetch_related(
+        "project_set__service",
+        "project_set__service__owner",
+        "project_set__service__notifiers",
+        "project_set__service__notifiers__owner",
+        "project_set__service__rule_set",
+        "project_set",
+        "project_set__owner",
+        "project_set__farm",
+        "project_set__exporter_set",
+        "project_set__notifiers",
+        "project_set__notifiers__owner",
+        "prometheus_set",
+    )
 
 
 class ShardDetail(LoginRequiredMixin, DetailView):
-    queryset = models.Shard.objects\
-        .prefetch_related(
-            'service_set',
-            'service_set__owner',
-            'service_set__notifiers',
-            'service_set__notifiers__owner',
-            'service_set__rule_set',
-            'service_set__project_set',
-            'service_set__project_set__owner',
-            'service_set__project_set__farm',
-            'service_set__project_set__exporter_set',
-            'service_set__project_set__notifiers',
-            'service_set__project_set__notifiers__owner'
-            )
+    queryset = models.Shard.objects.prefetch_related(
+        "project_set__service",
+        "project_set__service__owner",
+        "project_set__service__notifiers",
+        "project_set__service__notifiers__owner",
+        "project_set__service__notifiers__filter_set",
+        "project_set__service__rule_set",
+        "project_set",
+        "project_set__owner",
+        "project_set__farm",
+        "project_set__exporter_set",
+        "project_set__notifiers",
+        "project_set__notifiers__owner",
+        "project_set__notifiers__filter_set",
+    )
 
 
 class ServiceList(LoginRequiredMixin, ListView):
+    paginate_by = 20
     queryset = models.Service.objects.prefetch_related(
-        "shard",
         "rule_set",
         "rule_set__parent",
         "project_set",
         "project_set__owner",
+        "project_set__shard",
         "project_set__notifiers",
         "project_set__notifiers__owner",
+        "project_set__notifiers__filter_set",
         "project_set__farm",
         "project_set__exporter_set",
         "owner",
         "notifiers",
         "notifiers__owner",
+        "notifiers__filter_set",
     )
 
 
@@ -140,11 +149,11 @@ class HomeList(LoginRequiredMixin, ListView):
             'rule_set__parent',
             'project_set',
             'project_set__farm',
+            'project_set__shard',
             'project_set__exporter_set',
             'project_set__notifiers',
             'project_set__owner',
             'project_set__notifiers__owner',
-            'shard',
         )
 
 
@@ -269,20 +278,22 @@ class ServiceDetail(LoginRequiredMixin, DetailView):
         .prefetch_related(
             'rule_set',
             'notifiers',
+            'notifiers__filter_set',
             'notifiers__owner',
             'project_set',
+            'project_set__shard',
             'project_set__farm',
             'project_set__exporter_set',
             'project_set__notifiers',
             'project_set__notifiers__owner'
-            )
+        )
 
 
 class ServiceDelete(LoginRequiredMixin, DeleteView):
     model = models.Service
 
     def get_success_url(self):
-        return reverse('shard-detail', args=[self.object.shard_id])
+        return reverse('service-list')
 
 
 class ProjectDelete(LoginRequiredMixin, DeleteView):
@@ -424,6 +435,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
         'rule_set__parent',
         'notifiers',
         'notifiers__owner',
+        'shard',
         'service',
         'service__rule_set',
         'service__rule_set__parent',
@@ -436,6 +448,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
 
 
 class FarmList(LoginRequiredMixin, ListView):
+    paginate_by = 50
     queryset = models.Farm.objects\
         .prefetch_related(
             'project_set',
@@ -512,7 +525,7 @@ class RulesList(LoginRequiredMixin, ListView, ServiceMixin):
             content_type__model="service", content_type__app_label="promgen"
         ).prefetch_related(
             "content_object",
-            "content_object__shard",
+            "content_object",
             "rulelabel_set",
             "ruleannotation_set",
             "parent",
@@ -523,7 +536,7 @@ class RulesList(LoginRequiredMixin, ListView, ServiceMixin):
         ).prefetch_related(
             "content_object",
             "content_object__service",
-            "content_object__service__shard",
+            "content_object__service",
             "rulelabel_set",
             "ruleannotation_set",
             "parent",
@@ -684,35 +697,44 @@ class URLList(LoginRequiredMixin, ListView):
         .prefetch_related(
             'project',
             'project__service',
-            'project__service__shard',
+            'project__shard',
         )
 
 
-class ProjectRegister(LoginRequiredMixin, FormView, ServiceMixin):
-    button_label = _('Project Register')
+class ProjectRegister(LoginRequiredMixin, CreateView):
+    button_label = _("Project Register")
     model = models.Project
-    template_name = 'promgen/project_form.html'
-    form_class = forms.ProjectRegister
+    fields = ["name", "description", "owner", "shard"]
 
     def get_initial(self):
-        return {'owner': self.request.user}
+        initial = {"owner": self.request.user}
+        if "shard" in self.request.GET:
+            initial["shard"] = get_object_or_404(
+                models.Shard, pk=self.request.GET["shard"]
+            )
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["service"] = get_object_or_404(models.Service, id=self.kwargs["pk"])
+        context["shard_list"] = models.Shard.objects.all()
+        return context
 
     def form_valid(self, form):
-        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
-        project, _ = models.Project.objects.get_or_create(service=service, **form.clean())
-        sender, _ = models.Sender.objects.get_or_create(obj=project, sender='promgen.notification.user', value=self.request.user.username)
-        return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
+        form.instance.service_id = self.kwargs["pk"]
+        return super().form_valid(form)
 
 
 class ProjectUpdate(LoginRequiredMixin, UpdateView):
     model = models.Project
-    button_label = _('Project Update')
-    template_name = 'promgen/project_form.html'
-    form_class = forms.ProjectUpdate
+    button_label = _("Project Update")
+    template_name = "promgen/project_form.html"
+    fields = ["name", "description", "owner", "service", "shard"]
 
     def get_context_data(self, **kwargs):
         context = super(ProjectUpdate, self).get_context_data(**kwargs)
-        context['service'] = self.object.service
+        context["service"] = self.object.service
+        context["shard_list"] = models.Shard.objects.all()
         return context
 
 
@@ -846,20 +868,13 @@ class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
         return self.form_invalid(form)
 
 
-class ServiceRegister(LoginRequiredMixin, ShardMixin, FormView):
-    button_label = _('Service Register')
-    form_class = forms.ServiceRegister
+class ServiceRegister(LoginRequiredMixin, CreateView):
+    button_label = _("Register Service")
     model = models.Service
-    template_name = 'promgen/service_form.html'
+    fields = ["name", "description", "owner"]
 
     def get_initial(self):
-        return {'owner': self.request.user}
-
-    def form_valid(self, form):
-        shard = get_object_or_404(models.Shard, id=self.kwargs['pk'])
-        service, _ = models.Service.objects.get_or_create(shard=shard, **form.clean())
-        sender, _ = models.Sender.objects.get_or_create(obj=service, sender='promgen.notification.user', value=self.request.user.username)
-        return HttpResponseRedirect(service.get_absolute_url())
+        return {"owner": self.request.user}
 
 
 class FarmRegister(LoginRequiredMixin, FormView, ProjectMixin):
@@ -1091,7 +1106,7 @@ class Search(LoginRequiredMixin, View):
             'service_list': {
                 'field': ('name__icontains',),
                 'model': models.Service,
-                'prefetch': ('project_set', 'rule_set', 'notifiers', 'shard', 'notifiers__owner'),
+                'prefetch': ('project_set', 'rule_set', 'notifiers', 'notifiers__owner'),
                 'query': ('search', 'var-service'),
             }
         }

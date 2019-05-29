@@ -179,26 +179,27 @@ class Shard(models.Model):
         return reverse('shard-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return self.name
+        if self.enabled:
+            return self.name
+        return self.name + ' (disabled)'
 
 
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True)
-    notifiers = GenericRelation(Sender)
-    rule_set = GenericRelation('Rule')
-    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
     description = models.TextField(blank=True)
-
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
 
+    notifiers = GenericRelation(Sender)
+    rule_set = GenericRelation('Rule')
+
     class Meta:
-        ordering = ['shard', 'name']
+        ordering = ['name']
 
     def get_absolute_url(self):
         return reverse('service-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return '{} » {}'.format(self.shard.name, self.name)
+        return self.name
 
     @classmethod
     def default(cls, service_name='Default', shard_name='Default'):
@@ -216,25 +217,18 @@ class Service(models.Model):
             logger.info('Created default service')
         return service
 
-    @property
-    def check_notifiers(self):
-        if self.notifiers.count() > 0:
-            return True
-        for project in self.project_set.all():
-            if project.notifiers.count() == 0:
-                return False
-        return True
-
 
 class Project(models.Model):
     name = models.CharField(max_length=128, unique=True)
+    description = models.TextField(blank=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
+
     service = models.ForeignKey('Service', on_delete=models.CASCADE)
+    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
     farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
+
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation('Rule')
-    description = models.TextField(blank=True)
-
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
 
     class Meta:
         ordering = ['name']

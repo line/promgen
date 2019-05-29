@@ -3,29 +3,107 @@
 {% block content %}
 
 {% if project %}
-  <div class="page-header">
-    <h1>Project: {{ project.name }}</h1>
-  </div>
-
-  {% breadcrumb project view.button_label %}
-
-  <div class="alert alert-danger" role="alert">
-      Warning. Renaming or Moving a project will reset all labels in Prometheus
-  </div>
-{% else %}
-  <div class="page-header">
-    <h1>Register new Project</h1>
-  </div>
-  {% breadcrumb service view.button_label %}
-{% endif %}
-
-<div class="panel panel-default">
-  <div class="panel-body">
-    <form action="" method="post">{% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary">{{ view.button_label }}</button>
-    </form>
-  </div>
+<div class="page-header">
+  <h1>Project: {{ project.name }}</h1>
 </div>
 
+{% breadcrumb project view.button_label %}
+
+<div class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+  Warning. Renaming or Moving a project will reset all labels in Prometheus
+</div>
+{% else %}
+<div class="page-header">
+  <h1>Register new Project</h1>
+</div>
+{% breadcrumb service view.button_label %}
+{% endif %}
+
+<form action="" method="post">{% csrf_token %}
+
+  <div class="panel panel-primary">
+    <table class="table">
+      <tr>
+        <th>{{form.name.label}}</th>
+        <td>
+          {% include 'promgen/error_block.html' with warning=form.name.errors only %}
+          {{form.name}}
+        </td>
+      </tr>
+      <tr>
+        <th>{{form.description.label}}</th>
+        <td>
+          {% include 'promgen/error_block.html' with warning=form.description.errors only %}
+          {{form.description}}
+        </td>
+      </tr>
+      <tr>
+        <th>{{form.owner.label}}</th>
+        <td>
+          {% include 'promgen/error_block.html' with warning=form.owner.errors only %}
+          {{form.owner}}
+        </td>
+      </tr>
+      <tr>
+        <th>{{form.service.label}}</th>
+        <td>
+          {% include 'promgen/error_block.html' with warning=form.service.errors only %}
+          {{form.service}}
+        </td>
+      </tr>
+    </table>
+  </div>
+  {% include 'promgen/error_block.html' with warning=form.shard.errors only %}
+
+  {# Only show our warning if modifying an existing project #}
+  {% if project.pk %}
+  <div class="panel panel-danger">
+    <div class="panel-heading">
+      <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+      Warning. Moving a project does not move data. Historical data will remain on the previous shard.
+      <button class="btn btn-danger btn-xs pull-right" type="button" data-toggle="collapse" data-target="#shard-selector" aria-expanded="false" aria-controls="shard-selector">
+        Select shard
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  {# Color red and collapse by default for existing projects #}
+  <div class="panel{% if project.pk %} panel-danger collapse{% else %} panel-primary{% endif %}" id="shard-selector">
+    <table class="table">
+      <tr>
+        <th>Shard</th>
+        <th>&nbsp;</th>
+        <th>Samples</th>
+        <th>Exporters</th>
+      </tr>
+      {% for shard in shard_list|dictsort:'name' %}
+      <tr {% if shard.enabled is False %}class="text-muted" title="Shard disabled for new registrations" {% endif %}>
+        <th>{{shard.name}}</th>
+        <td>
+          <input type="radio" name="shard" value="{{shard.id}}" {% if shard.id == form.shard.value %}checked{% elif shard.enabled is False %}disabled{% endif %}>
+        </td>
+        {% if shard.proxy %}
+        <td>
+          <span class="label" style="display:none;">
+            Samples: <span class="prom-query" data-href='{{shard.url}}/api/v1/query' data-query='sum(scrape_samples_scraped)'></span>
+          </span>
+        </td>
+        <td>
+          <span class="label" style="display:none;">
+            Exporters: <span class="prom-query" data-href='{{shard.url}}/api/v1/query' data-query='count(up)'></span>
+          </span>
+        </td>
+        {% else %}
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <button class="btn btn-primary">{{ view.button_label }}</button>
+</form>
 {% endblock %}

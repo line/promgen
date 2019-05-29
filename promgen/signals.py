@@ -268,3 +268,25 @@ def check_user_subscription(sender, instance, created, request):
         messages.success(request, "Subscribed using %s" % (instance.owner.email))
     else:
         messages.warning(request, "No email configured")
+
+
+@receiver(post_save, sender=models.Service)
+def add_default_service_subscription(instance, created, **kwargs):
+    if created and instance.owner:
+        sender, new_notifier = models.Sender.objects.get_or_create(
+            obj=instance,
+            sender="promgen.notification.user",
+            value=instance.owner.username,
+        )
+        print(sender)
+
+
+@receiver(post_save, sender=models.Project)
+def add_default_project_subscription(instance, created, **kwargs):
+    if created and instance.owner:
+        sender, new_notifier = models.Sender.objects.get_or_create(
+            obj=instance,
+            sender="promgen.notification.user",
+            value=instance.owner.username,
+        )
+        print(sender)

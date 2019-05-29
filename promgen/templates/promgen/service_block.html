@@ -1,13 +1,5 @@
 {% load i18n %}
 <div class="well">
-  {% if service.check_notifiers == False %}
-  <div class="alert alert-warning" role="alert">
-    <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
-    <span class="sr-only">Warning:</span>
-    {% trans 'This service does not have any notifications configured. Please configure notifications to properly route alerts' %}
-  </div>
-  {% endif %}
-
   <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-show="alertLabelsService.has('{{service.name}}')">
     <div class="panel-heading">
       <a @click.prevent="toggleTarget('alerts-service-{{service.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
@@ -40,12 +32,7 @@
 
   <div class="panel panel-default">
     <div class="panel-body">
-      {% if service.shard.enabled %}
       <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>
-      {% else %}
-      <span disabled class="btn btn-default btn-sm">{% trans "Register Project" %}</span>
-      {% endif %}
-
       <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
       <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
 
@@ -70,7 +57,7 @@
         </ul>
       </div>
 
-      <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans " Delete this service?" %}')" style="display: inline">
+      <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
         {% csrf_token %}
         <button class="btn btn-danger btn-sm pull-right">{% trans "Delete Service" %}</button>
       </form>
@@ -79,80 +66,26 @@
 
   {% if service.rule_set.count or request.site.rule_set.count %}
   <div class="panel panel-default">
-    <div class="panel-heading">Rules</div>
-    {% include "promgen/rule_block.html" with rule_list=service.rule_set.all show_edit=1 %}
-    {% if request.site.rule_set.count %}
-    <div class="panel-body">
-      <a class="btn btn-default btn-sm" role="button" data-toggle="collapse" href="#show-global-rules" aria-expanded="false" aria-controls="collapseExample">
-        Show Common Rules
+    <table class="table table-bordered table-condensed">
+      {% include "promgen/rule_header.html" %}
+      {% include "promgen/rule_block.html" with rule_list=service.rule_set.all toggle=1 delete=1 %}
+      {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="service-site-rules-" overwrite_type='service' overwrite_id=service.id %}
+    </table>
+    <div class="panel-footer">
+      <a class="btn btn-default btn-xs" role="button" data-toggle="collapse" href=".service-site-rules-{{service.id}}" aria-expanded="false" aria-controls="collapseExample">
+        {% trans 'Show Site Rules' %}
       </a>
     </div>
-    {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all content_type='service' show_overwrite=service.id collapse="show-global-rules" %}
-    {% endif %}
   </div>
   {% endif %}
 
   {% if service.notifiers.count %}
   <div class="panel panel-default">
-    <div class="panel-heading">Service Notifiers</div>
     {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
   </div>
   {% endif %}
 
-  {% if service.project_set.count %}
-  <div class="panel panel-default">
-    <div class="panel-heading">Projects</div>
-    <table class="table table-bordered table-condensed">
-      <tr>
-        <th class="col-md-2">Project</th>
-        <th class="col-md-2">Farm</th>
-        <th class="col-md-2">Exporters</th>
-        <th class="col-md-3">Notifiers</th>
-        <th class="col-md-1">Actions</th>
-      </tr>
-      {% for project in service.project_set.all %}
-      <tr>
-        <td>
-          {% if service.notifiers.count == 0 and project.notifiers.count == 0 %}
-          <a class="btn btn-xs btn-warning" role="button" tabindex="0" title="{% trans 'Notification setting warning' %}" data-toggle="popover" data-content='{% trans "No notifications configured for this project. Please configure some" %}'
-            data-html="true" data-placement="right" data-trigger="focus"><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></a>
-          {% endif %}
-          <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a>
-          {% if project.owner %}
-          <p>{% trans 'Contact' %}: {{project.owner}}</p>
-          {% endif %}
-        </td>
-        <td>{% if project.farm %}{{ project.farm }}{% endif %}</td>
-        <td>
-          <table style="width: 100%">
-            {% for exporter in project.exporter_set.all %}
-            <tr {% if not exporter.enabled %}class="bg-disabled text-muted" {% endif %}>
-              <td>{{ exporter.job }}</td>
-              <td>{{ exporter.port }}</td>
-              <td>{{ exporter.path }}</td>
-            </tr>
-            {% endfor %}
-          </table>
-        </td>
-        <td>
-          <table style="width: 100%">
-            {% for notifier in project.notifiers.all %}
-            <tr>
-              <td title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
-              <td>{{ notifier.show_value }}</td>
-            </tr>
-            {% endfor %}
-          </table>
-        </td>
-        <td>
-
-          <a @click.prevent="silenceSetLabels" class="btn btn-warning btn-xs" data-project="{{project.name}}" data-service="{{service.name}}" href="#">{% trans "Silence" %}</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </table>
+  {% include "promgen/service_block_projects.html" with project_list=project_list|default:service.project_set.all service=service only %}
 
 
-  </div>
-  {% endif %}
-</div>
+</div><!-- end well-->
