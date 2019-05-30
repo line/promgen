@@ -47,33 +47,14 @@
 <div class="panel panel-default">
   <div class="panel-heading">Projects</div>
   <table class="table table-bordered table-condensed">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Exporters</th>
-        <th>Notifications</th>
-      </tr>
-    </thead>
-    {% for project in project_list %}
     <tr>
-      <td><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></td>
-      <td>
-        <dl class="dl-horizontal">
-  {% for exporter in project.exporter_set.all %}
-        <dt>{{ exporter.job }}</dt>
-        <dd>{{ exporter.port }}</dd>
-  {% endfor %}
-        </dl>
-      </td>
-      <td>
-        <dl class="dl-horizontal">
-  {% for notifier in project.notifiers.all %}
-          <dt title="Added by: {{notifier.owner}}">{{ notifier.sender }}</dt>
-          <dd>{{ notifier.show_value }}</dd>
-  {% endfor %}
-        </dl>
-      </td>
+      <th class="col-md-2">Project</th>
+      <th class="col-md-3">Exporters</th>
+      <th class="col-md-3">Notifiers</th>
+      <th class="col-md-1">Actions</th>
     </tr>
+    {% for project in project_list %}
+    {% include 'promgen/project_row.html' %}
     {% endfor %}
   </table>
 </div>
@@ -142,7 +123,10 @@
 {% if rule_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Rules</div>
-  {% include "promgen/rule_block.html" %}
+  <table class="table table-bordered table-condensed">
+    {% include "promgen/rule_header.html" %}
+    {% include "promgen/rule_block.html" %}
+  </table>
 </div>
 {% endif %}
 
