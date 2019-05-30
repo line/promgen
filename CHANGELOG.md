@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.36.1 - 2019-05-30
+
+- [BUGFIX] Fix search page rendering #149
+
 ## v0.36 - 2019-05-29
 
 - [CHANGE] Refactor shard assignment from service to Project #147
