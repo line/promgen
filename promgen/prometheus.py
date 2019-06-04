@@ -110,17 +110,31 @@ def render_urls():
     urls = collections.defaultdict(list)
 
     for url in models.URL.objects.prefetch_related(
-            'project__farm__host_set',
-            'project__farm',
-            'project__service',
-            'project__service',
-            'project__shard',
-            'project'):
-        urls[(
-            url.project.name, url.project.service.name, url.project.shard.name,
-        )].append(url.url)
+        "project__service",
+        "project__shard",
+        "project",
+    ):
+        urls[
+            (
+                url.project.name,
+                url.project.service.name,
+                url.project.shard.name,
+                url.probe.module,
+            )
+        ].append(url.url)
 
-    data = [{'labels': {'project': k[0], 'service': k[1], '__shard': k[2]}, 'targets': v} for k, v in urls.items()]
+    data = [
+        {
+            "labels": {
+                "project": k[0],
+                "service": k[1],
+                "__shard": k[2],
+                "__param_module": k[3],
+            },
+            "targets": v,
+        }
+        for k, v in urls.items()
+    ]
     return json.dumps(data, indent=2, sort_keys=True)
 
 

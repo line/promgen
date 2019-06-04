@@ -7,6 +7,8 @@ prometheus:
   promtool: /usr/local/bin/promtool
   # Output rule configuration to this path
   rules: /etc/prometheus/promgen.rule.yml
+  # Output blackbox configuration to this path
+  blackbox: /etc/prometheus/blackbox.json
 
 alertmanager:
   url: http://alertmanager:9093
@@ -20,9 +22,6 @@ alert_blacklist:
 config_writer:
   # Output target configuration to this path
   path: /etc/prometheus/promgen.json
-
-url_writer:
-  path: /etc/prometheus/blackbox.json
 
 # Sender Configuration Settings
 # These match the module path of the plugin itself

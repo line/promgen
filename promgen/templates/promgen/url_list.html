@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load i18n %}
 {% block content %}
 
 {% regroup url_list by project as project_list %}
@@ -11,39 +12,44 @@
 
 {% breadcrumb label='All URLs' %}
 
-{% for service in service_list %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <a href="{{service.grouper.get_absolute_url}}">
-      {{ service.grouper }}
-    </a>
-  </div>
-  <table class="table table-bordered table-condensed">
-    <thead>
-      <tr>
-        <th class="col-md-2">Project</th>
-        <th>URL</th>
-        <th class="col-md-1">&nbsp;</th>
-      </tr>
-    </thead>
-    {% for project in service.list %}
-    {% for url in project.list %}
-    <tr>
-      <td class="col-md-2">
-        <a href="{{url.project.get_absolute_url}}">{{ url.project.name }}</a>
-      </td>
-      <td><a href="{{ url.url }}">{{ url.url }}</a></td>
-      <td class="col-md-1">
-        <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
-          {% csrf_token %}
-          <button class="btn btn-danger">Delete</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-    {% endfor %}
-  </table>
-</div>
-{% endfor %}
+<table class="table table-bordered table-condensed">
+  <tr>
+    <th>URL</th>
+    <th colspan="3">Module</th>
+  </tr>
+  {% for service in service_list %}
+  {% for project in service.list %}
+  <tr>
+    <th colspan="4">
+      <h2>
+        <a href="{{service.grouper.get_absolute_url}}">
+          {{ service.grouper.name }}
+        </a>
+        »
+        <small>
+          <a href="{{project.grouper.get_absolute_url}}">
+            {{project.grouper.name}}
+          </a>
+        </small>
+      </h2>
+    </th>
+  </tr>
+  {% for url in project.list %}
+  <tr>
+    <td>{{url.url}}</td>
+    <td>{{url.probe.module}}</td>
+    <td>{{url.probe.description}}</td>
+    <td class="col-md-1">
+      <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}{# URL #}
+  {% endfor %}{# Project #}
+
+  {% endfor %}{# Service #}
+</table>
 
 {% endblock %}
