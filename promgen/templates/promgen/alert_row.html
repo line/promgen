@@ -1,12 +1,9 @@
 {% load i18n %}
 
-<td>
-    <a :href="alert.generatorURL" v-text="alert.startsAt"></a>
-</td>
-<td>
-    <a @click.prevent="silenceAlert(alert)" class="label label-warning">{% trans "Silence" %}</a>
-</td>
 {% verbatim %}
+<td class="col-xs-1">
+    <a :href="alert.generatorURL">{{alert.startsAt|time}}</a>
+</td>
 <td>
     <dl class="dl-horizontal">
         <dt>Labels</dt>
@@ -19,8 +16,11 @@
         </dd>
         <template v-for="(value, annotation, index) in alert.annotations" class="dl-horizontal">
             <dt>{{annotation}}</dt>
-            <dd v-html="value"></dd>
+            <dd :inner-html.prop="value|urlize"></dd>
         </template>
     </dl>
 </td>
 {% endverbatim %}
+<td>
+    <a @click.prevent="silenceAlert(alert)" class="btn btn-warning btn-xs">{% trans "Silence" %}</a>
+</td>

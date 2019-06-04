@@ -78,7 +78,7 @@ var app = new Vue({
             fetch('/proxy/v1/silences')
                 .then(response => response.json())
                 .then(function (silences) {
-                    this_.globalSilences = silences.data;
+                    this_.globalSilences = silences.data.sort(silence => silence.startsAt);
 
                     // Pull out the matchers and do a simpler label map
                     // To make other code easier
@@ -97,11 +97,11 @@ var app = new Vue({
             fetch('/proxy/v1/alerts')
                 .then(response => response.json())
                 .then(function (alerts) {
-                    this_.globalAlerts = alerts.data;
+                    this_.globalAlerts = alerts.data.sort(alert => alert.startsAt);
                 });
 
         },
-        setTargetList: function(event, target) {
+        setTargetList: function (event, target) {
             // get the list name
             let dst = event.target.list.id;
             // and our selected value
@@ -162,5 +162,13 @@ var app = new Vue({
     mounted: function () {
         this.fetchAlerts();
         this.fetchSilences();
+    },
+    filters: {
+        urlize: function (value) {
+            return linkifyStr(value);
+        },
+        time: function (value, fmtstr = 'YYYY-MM-DD HH:mm:ss') {
+            return moment(value).format(fmtstr);
+        }
     }
 })

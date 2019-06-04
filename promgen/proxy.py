@@ -171,30 +171,14 @@ class ProxyQuery(PrometheusProxy):
 
 class ProxyAlerts(View):
     def get(self, request):
-        alerts = []
         try:
             url = urljoin(settings.PROMGEN["alertmanager"]["url"], "/api/v1/alerts")
             response = util.get(url)
         except requests.exceptions.ConnectionError:
             logger.error("Error connecting to %s", url)
             return JsonResponse({})
-
-        data = response.json().get("data", [])
-        if data is None:
-            # Return an empty alert-all if there are no active alerts from AM
-            return JsonResponse({})
-
-        for alert in data:
-            alert.setdefault("annotations", {})
-            # Humanize dates for frontend
-            for key in ["startsAt", "endsAt"]:
-                if key in alert:
-                    alert[key] = parser.parse(alert[key])
-            # Convert any links to <a> for frontend
-            for k, v in alert["annotations"].items():
-                alert["annotations"][k] = defaultfilters.urlize(v)
-            alerts.append(alert)
-        return JsonResponse({"data": data}, safe=False)
+        else:
+            return HttpResponse(response.content, content_type="application/json")
 
 
 class ProxySilences(View):
