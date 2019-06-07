@@ -102,12 +102,22 @@
 {% if rule_list %}
 {% regroup rule_list by content_object as service_list %}
 
-{% for service in service_list %}
 <div class="panel panel-default">
-  <div class="panel-heading">Rules from <a href="{{ service.grouper.get_absolute_url }}">{{ service.grouper }}</a></div>
-{% include "promgen/rule_block.html" with rule_list=service.list %}
+  <div class="panel-heading">Rules</div>
+  <table class="table table-bordered table-condensed">
+    {% include "promgen/rule_header.html" %}
+    {% for service in service_list %}
+    <tr>
+      <td colspan="5">
+        <h2>
+          Rules from <a href="{{ service.grouper.get_absolute_url }}">{{ service.grouper }}</a>
+        </h2>
+      </td>
+    </tr>
+    {% include "promgen/rule_block.html" with rule_list=service.list overwrite_id=service.grouper.id csrf_token=csrf_token only %}
+    {% endfor %}
+  </table>
 </div>
-{% endfor %}
 {% endif %}
 
 {% endblock %}
