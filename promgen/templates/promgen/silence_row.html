@@ -1,5 +1,6 @@
+{% load i18n %}
 {% verbatim %}
-<td>{{silence.endsAt}}</td>
+<td class="col-xs-1">{{silence.endsAt|time}}</td>
 <td>
     <ul class="list-inline">
         <li v-for="match in silence.matchers">
@@ -8,9 +9,9 @@
         </li>
     </ul>
 </td>
-<td>{{silence.comment}}</td>
+<td style="word-break: break-all;" :inner-html.prop="silence.comment|urlize"></td>
 <td>{{silence.createdBy}}</td>
-<td>
-    <a @click.prevent="silenceExpire(silence.id)" class="btn btn-warning btn-xs">Expire</a>
-</td>
 {% endverbatim %}
+<td>
+    <a @click.prevent="silenceExpire(silence.id)" class="btn btn-warning btn-xs">{% trans "Expire" %}</a>
+</td>
