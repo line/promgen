@@ -10,7 +10,7 @@ from django import template
 from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
-from django.utils.text import mark_safe
+from django.utils.safestring import mark_safe
 from pytz import timezone
 
 register = template.Library()

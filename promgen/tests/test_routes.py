@@ -39,7 +39,7 @@ class RouteTests(PromgenTest):
     def test_import(self, mock_write, mock_reload):
         self.user.user_permissions.add(
             Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site'),
+            Permission.objects.get(codename='change_site', content_type__app_label='sites'),
             Permission.objects.get(codename='change_exporter'),
         )
         response = self.client.post(reverse('import'), {'config': TEST_IMPORT})
@@ -60,7 +60,7 @@ class RouteTests(PromgenTest):
         # Set the required permissions
         self.user.user_permissions.add(
             Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site'),
+            Permission.objects.get(codename='change_site', content_type__app_label='sites'),
             Permission.objects.get(codename='change_exporter'),
         )
 
@@ -140,7 +140,7 @@ class RouteTests(PromgenTest):
     def test_other_routes(self):
         self.user.user_permissions.add(
             Permission.objects.get(codename='add_rule'),
-            Permission.objects.get(codename='change_site'),
+            Permission.objects.get(codename='change_site', content_type__app_label='sites'),
         )
         for request in [{'viewname': 'rule-new', 'args': ('site', 1)}]:
             response = self.client.get(reverse(**request))

@@ -81,7 +81,7 @@ class RuleTest(PromgenTest):
     def test_import_v1(self, mock_post):
         self.user.user_permissions.add(
             Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site'),
+            Permission.objects.get(codename='change_site', content_type__app_label='sites'),
         )
         self.client.post(reverse('rule-import'), {
             'rules': PromgenTest.data('examples', 'import.rule')
@@ -96,7 +96,7 @@ class RuleTest(PromgenTest):
     def test_import_v2(self, mock_post):
         self.user.user_permissions.add(
             Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site'),
+            Permission.objects.get(codename='change_site', content_type__app_label='sites'),
         )
         self.client.post(reverse('rule-import'), {
             'rules': PromgenTest.data('examples', 'import.rule.yml')
