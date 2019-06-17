@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.37 - 2019-06-17
+
+- [INTERNAL] Upgrade to Django 2.2.x #152
+- [BUGFIX] Fix rule rendering table on host detail page #151
+- [BUGFIX] Fix rendering errors with Silence/Alert dropdowns #150
+- [BUGFIX] Fix search page rendering #149
+- [INTERNAL] Move remaining celery tasks to tasks.py #139
+
 ## v0.36 - 2019-05-29
 
 - [CHANGE] Refactor shard assignment from service to Project #147
