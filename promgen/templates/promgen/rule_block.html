@@ -3,19 +3,19 @@
 {% for rule in rule_list %}
 <tr {% if collapse %}class="active collapse {{ collapse }}{{overwrite_id}}" {% endif %}>
   <td>
-    <a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a>
+    <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a>
     {% if rule.parent %}
-    <a class="pull-right" title="{% trans "View Parent" %}" href="{% url 'rule-edit' rule.parent.id %}" data-toggle="tooltip" data-placement="right">
+    <a class="pull-right" title="{% trans "View Parent" %}" href="{% url 'rule-edit' rule.parent.id %}">
       <span class="glyphicon glyphicon-upload"></span>
     </a>
     {% endif %}
+    <ul>
+      {% for k,v in rule.labels.items|dictsort:0 %}
+      <li class="label label-primary">{{k}}:{{v}}</li>
+      {% endfor %}
+    </ul>
   </td>
-  <td {% if not rule.enabled %}class="bg-disabled text-muted" {% endif %} style="word-break: break-word;">
-    {{ rule.clause }}
-    {% if rule.description %}
-    <span title="{{rule.description}}" data-toggle="tooltip" data-placement="right" class="glyphicon glyphicon-question-sign pull-right" aria-hidden="true"></span>
-    {% endif %}
-  </td>
+  <td {% if not rule.enabled %}class="bg-disabled text-muted" {% endif %} style="word-break: break-word;">{{ rule.clause }}</td>
 
   <td>{{ rule.duration }}</td>
 
