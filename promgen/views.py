@@ -863,7 +863,7 @@ class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
         service = get_object_or_404(models.Service, id=self.kwargs['pk'])
         if importform.is_valid():
             data = importform.clean()
-            counters = prometheus.import_rules(data['rules'], service)
+            counters = prometheus.import_rules_v2(data['rules'], service)
             messages.info(request, 'Imported %s' % counters)
             return HttpResponseRedirect(service.get_absolute_url())
 
@@ -996,15 +996,10 @@ class Commit(LoginRequiredMixin, View):
 
 class _ExportRules(View):
     def format(self, rules=None, name='promgen'):
-        version = settings.PROMGEN['prometheus'].get('version', 1)
-        content = prometheus.render_rules(rules, version=version)
+        content = prometheus.render_rules(rules)
         response = HttpResponse(content)
-        if version == 1:
-            response['Content-Type'] = 'text/plain; charset=utf-8'
-            response['Content-Disposition'] = 'attachment; filename=%s.rule' % name
-        else:
-            response['Content-Type'] = 'application/x-yaml'
-            response['Content-Disposition'] = 'attachment; filename=%s.rule.yml' % name
+        response['Content-Type'] = 'application/x-yaml'
+        response['Content-Disposition'] = 'attachment; filename=%s.rule.yml' % name
         return response
 
 
@@ -1152,7 +1147,6 @@ class RuleImport(PromgenPermissionMixin, FormView):
     permission_required = ('sites.change_site', 'promgen.change_rule')
     permisison_denied_message = 'User lacks permission to import'
 
-
     def form_valid(self, form):
         data = form.clean()
         if data.get('file_field'):
@@ -1164,7 +1158,7 @@ class RuleImport(PromgenPermissionMixin, FormView):
             return self.form_invalid(form)
 
         try:
-            counters = prometheus.import_rules(rules)
+            counters = prometheus.import_rules_v2(rules)
             messages.info(self.request, 'Imported %s' % counters)
             return redirect('rule-import')
         except:

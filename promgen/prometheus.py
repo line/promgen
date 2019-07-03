@@ -4,7 +4,6 @@ import collections
 import datetime
 import json
 import logging
-import re
 import subprocess
 import tempfile
 from urllib.parse import urljoin
@@ -16,7 +15,6 @@ from dateutil import parser
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import prefetch_related_objects
-from django.template.loader import render_to_string
 from django.utils import timezone
 from promgen import models, util
 
@@ -55,7 +53,7 @@ def check_rules(rules):
             raise ValidationError(rendered.decode('utf8') + e.output.decode('utf8'))
 
 
-def render_rules(rules=None, version=None):
+def render_rules(rules=None):
     '''
     Render rules in a format that Prometheus understands
 
@@ -71,8 +69,6 @@ def render_rules(rules=None, version=None):
     '''
     if rules is None:
         rules = models.Rule.objects.filter(enabled=True)
-    if version is None:
-        version = settings.PROMGEN['prometheus'].get('version', 1)
 
     prefetch_related_objects(
         rules,
@@ -83,11 +79,6 @@ def render_rules(rules=None, version=None):
         'ruleannotation_set',
         'rulelabel_set',
     )
-
-    # V1 format is a custom format which we render through django templates
-    # See promgen/tests/examples/import.rule
-    if version == 1:
-        return render_to_string('promgen/prometheus.rule', {'rules': rules}).encode('utf-8')
 
     # V2 format is a yaml dictionary which we build and then render
     # See promgen/tests/examples/import.rule.yml
@@ -186,6 +177,10 @@ def import_rules_v2(config, content_object=None):
     This assumes a dictonary in the 2.x rule format.
     See promgen/tests/examples/import.rule.yml for an example
     '''
+    # If not already a dictionary, try to load as YAML
+    if not isinstance(config, dict):
+        config = yaml.safe_load(config)
+
     counters = collections.defaultdict(int)
     for group in config['groups']:
         for r in group['rules']:
@@ -221,94 +216,6 @@ def import_rules_v2(config, content_object=None):
                 rule.add_annotation(k, v)
 
     return dict(counters)
-
-
-def import_rules_v1(config, content_object=None):
-    '''
-    Parse text and extract Prometheus rules
-
-    This assumes text in the 1.x rule format.
-    See promgen/tests/examples/import.rule for an example
-    '''
-    # Attemps to match the pattern name="value" for Prometheus labels and annotations
-    RULE_MATCH = re.compile('((?P<key>\w+)\s*=\s*\"(?P<value>.*?)\")')
-    counters = collections.defaultdict(int)
-
-    def parse_prom(text):
-        if not text:
-            return {}
-        converted = {}
-        for match, key, value in RULE_MATCH.findall(text.strip().strip('{}')):
-            converted[key] = value
-        return converted
-
-    tokens = {}
-    rules = []
-    for line in config.split('\n'):
-        line = line.strip()
-        if not line:
-            continue
-        if line.startswith('#'):
-            continue
-
-        keyword, data = line.split(' ', 1)
-
-        if keyword != 'ALERT':
-            tokens[keyword] = data
-            continue
-
-        if keyword == 'ALERT' and 'ALERT' not in tokens:
-            tokens[keyword] = data
-            continue
-
-        rules.append(tokens)
-        # Start building our next rule
-        tokens = {keyword: data}
-    # Make sure we keep our last token after parsing all lines
-    rules.append(tokens)
-
-    for tokens in rules:
-        labels = parse_prom(tokens.get('LABELS'))
-        annotations = parse_prom(tokens.get('ANNOTATIONS'))
-
-        # Check our labels to see if we have a project or service
-        # label set and if not, default it to a global rule
-        if content_object:
-            obj = content_object
-        elif 'project' in labels:
-            obj = models.Project.objects.get(name=labels['project'])
-        elif 'service' in labels:
-            obj = models.Service.objects.get(name=labels['service'])
-        else:
-            obj = models.Site.objects.get_current()
-
-        rule, created = models.Rule.objects.get_or_create(
-            name=tokens['ALERT'],
-            defaults={
-                'clause': tokens['IF'],
-                'duration': tokens['FOR'],
-                'obj': obj,
-            }
-        )
-
-        if created:
-            counters['Rules'] += 1
-        for k, v in labels.items():
-            rule.add_label(k, v)
-        for k, v in annotations.items():
-            rule.add_annotation(k, v)
-
-    return dict(counters)
-
-
-def import_rules(config, content_object=None):
-    try:
-        data = yaml.safe_load(config)
-    except Exception as e:
-        logger.debug('If we fail to parse yaml, then assume it is v1 format')
-        return import_rules_v1(config, content_object)
-    else:
-        return import_rules_v2(data, content_object)
 
 
 def import_config(config, replace_shard=None):
