@@ -100,7 +100,11 @@ class ServiceUpdate(forms.ModelForm):
 class URLForm(forms.ModelForm):
     class Meta:
         model = models.URL
-        exclude = ['project']
+        fields = ["url", "probe"]
+        widgets = {
+            "url": forms.TextInput(attrs={"class": "form-control input-sm"}),
+            "probe": forms.Select(attrs={"class": "form-control input-sm"}),
+        }
 
 
 class RuleForm(forms.ModelForm):

@@ -444,6 +444,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetail, self).get_context_data(**kwargs)
         context['sources'] = models.Farm.driver_set()
+        context['url_form'] = forms.URLForm()
         return context
 
 
@@ -698,6 +699,7 @@ class URLList(LoginRequiredMixin, ListView):
             'project',
             'project__service',
             'project__shard',
+            'probe',
         )
 
 

@@ -1,28 +1,32 @@
 {% load i18n %}
 <div class="panel panel-primary">
   <div class="panel-heading">HTTP Checks</div>
-  <table class="table">
+  <table class="table table-condensed">
     <tr>
       <th>URL</th>
+      <th>Probe</th>
       <th>&nbsp;</th>
     </tr>
-  {% for url in project.url_set.all %}
+    {% for url in project.url_set.all %}
     <tr>
       <td>{{ url.url }}</td>
+      <td title="{{ url.probe.description }}">{{ url.probe.module }}</td>
       <td>
         <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
           {% csrf_token %}
-          <button class="btn btn-danger">{% trans "Delete" %}</button>
+          <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
         </form>
       </td>
     </tr>
-  {% endfor %}
+    {% endfor %}
   </table>
-  <div class="panel-footer">
-    <form method="post" action="{% url 'url-new' project.id %}"  style="display: inline">
-      <input id="id_url" maxlength="256" name="url" type="url" required="">
-      {% csrf_token %}
-      <button class="btn btn-primary">{% trans "Register URL" %}</button>
-    </form>
-  </div>
+  <form method="post" action="{% url 'url-new' project.id %}" style="display: inline">
+    {% csrf_token %}
+    <table class="table table-condensed">
+      {{url_form.as_table}}
+    </table>
+    <div class="panel-footer">
+      <button class="btn btn-primary btn-sm">{% trans "Register URL" %}</button>
+    </div>
+  </form>
 </div>

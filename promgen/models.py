@@ -340,22 +340,31 @@ class DefaultExporter(models.Model):
     path = models.CharField(max_length=128, blank=True)
 
     class Meta:
-        ordering = ['job', 'port']
-        unique_together = (('job', 'port', 'path'),)
+        ordering = ["job", "port"]
+        unique_together = (("job", "port", "path"),)
 
     def __str__(self):
-        return '{}:{}{}'.format(self.job, self.port, self.path or '/metrics')
+        return "{}:{}{}".format(self.job, self.port, self.path or "/metrics")
+
+
+class Probe(models.Model):
+    module = models.CharField(help_text='Probe Module from blackbox_exporter config', max_length=128, unique=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return "{} » {}".format(self.module, self.description)
 
 
 class URL(models.Model):
     url = models.URLField(max_length=256)
-    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    project = models.ForeignKey("Project", on_delete=models.CASCADE)
+    probe = models.ForeignKey("promgen.Probe", on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['project__service', 'project', 'url']
+        ordering = ["project__service", "project", "url"]
 
     def __str__(self):
-        return '{} [{}]'.format(self.project, self.url)
+        return "{} [{}]".format(self.project, self.url)
 
 
 class Rule(models.Model):

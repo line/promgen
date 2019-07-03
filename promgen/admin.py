@@ -79,10 +79,22 @@ class DefaultExporterAdmin(admin.ModelAdmin):
     list_filter = ('job', 'port')
 
 
+@admin.register(models.Probe)
+class ProbeAdmin(admin.ModelAdmin):
+    list_display = ("module", "description")
+
+
 @admin.register(models.URL)
 class URLAdmin(admin.ModelAdmin):
-    list_display = ('url', 'project')
-    list_select_related = ('project', 'project__service', 'project__shard')
+    # Disable add permission and project editing because of the difficult UI
+    # but leave support for editing url/probe through admin panel
+    def has_add_permission(self, request):
+        return False
+
+    list_display = ("url", "probe", "project")
+    list_filter = ("probe", ("project__service", admin.RelatedOnlyFieldListFilter))
+    list_select_related = ("project", "project__service", "probe")
+    readonly_fields = ("project",)
 
 
 class RuleLabelInline(admin.TabularInline):

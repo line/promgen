@@ -83,7 +83,7 @@ def reload_prometheus():
 @shared_task
 def write_urls(path=None, reload=True, chmod=0o644):
     if path is None:
-        path = settings.PROMGEN["url_writer"]["path"]
+        path = settings.PROMGEN["prometheus"]["blackbox"]
     with atomic_write(path, overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
