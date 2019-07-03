@@ -12,17 +12,7 @@ from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.urls import reverse
 
-_RULES = '''
-ALERT RuleName
-  IF up==0
-  FOR 1s
-  LABELS {severity="severe"}
-  ANNOTATIONS {rule="http://example.com/rule/%d/edit", summary="Test case"}
-
-
-'''.lstrip().encode('utf-8')
-
-_RULE_NEW = '''
+_RULE_V2 = '''
 groups:
 - name: example.com
   rules:
@@ -57,14 +47,9 @@ class RuleTest(PromgenTest):
         models.RuleAnnotation.objects.create(name='summary', value='Test case', rule=self.rule)
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
-    def test_write_old(self, mock_post):
-        result = prometheus.render_rules(version=1)
-        self.assertEqual(result, _RULES % self.rule.id)
-
-    @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_write_new(self, mock_post):
-        result = prometheus.render_rules(version=2)
-        self.assertEqual(result, _RULE_NEW % self.rule.id)
+        result = prometheus.render_rules()
+        self.assertEqual(result, _RULE_V2 % self.rule.id)
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_copy(self, mock_post):
@@ -76,21 +61,6 @@ class RuleTest(PromgenTest):
         # and test that we actually duplicated them and not moved them
         self.assertEqual(models.RuleLabel.objects.count(), 3, 'Copied rule has exiting labels + service label')
         self.assertEqual(models.RuleAnnotation.objects.count(), 2)
-
-    @mock.patch('django.dispatch.dispatcher.Signal.send')
-    def test_import_v1(self, mock_post):
-        self.user.user_permissions.add(
-            Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site', content_type__app_label='sites'),
-        )
-        self.client.post(reverse('rule-import'), {
-            'rules': PromgenTest.data('examples', 'import.rule')
-        })
-
-        # Includes count of our setUp rule + imported rules
-        self.assertEqual(models.Rule.objects.count(), 3, 'Missing Rule')
-        self.assertEqual(models.RuleLabel.objects.count(), 4, 'Missing labels')
-        self.assertEqual(models.RuleAnnotation.objects.count(), 7, 'Missing annotations')
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_import_v2(self, mock_post):

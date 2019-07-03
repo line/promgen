@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.http import HttpResponse
 from promgen import filters, models, prometheus, serializers
 from rest_framework import viewsets
@@ -22,15 +21,10 @@ class ShardViewSet(viewsets.ModelViewSet):
 
 class SharedViewSet:
     def format(self, rules=None, name='promgen'):
-        version = settings.PROMGEN['prometheus'].get('version', 1)
-        content = prometheus.render_rules(rules, version=version)
+        content = prometheus.render_rules(rules)
         response = HttpResponse(content)
-        if version == 1:
-            response['Content-Type'] = 'text/plain; charset=utf-8'
-            response['Content-Disposition'] = 'attachment; filename=%s.rule' % name
-        else:
-            response['Content-Type'] = 'application/x-yaml'
-            response['Content-Disposition'] = 'attachment; filename=%s.rule.yml' % name
+        response['Content-Type'] = 'application/x-yaml'
+        response['Content-Disposition'] = 'attachment; filename=%s.rule.yml' % name
         return response
 
 

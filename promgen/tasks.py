@@ -105,12 +105,12 @@ def write_config(path=None, reload=True, chmod=0o644):
 
 
 @shared_task
-def write_rules(path=None, reload=True, chmod=0o644, version=None):
+def write_rules(path=None, reload=True, chmod=0o644):
     if path is None:
         path = settings.PROMGEN["prometheus"]["rules"]
     with atomic_write(path, mode="wb", overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
-        fp.write(prometheus.render_rules(version=version))
+        fp.write(prometheus.render_rules())
     if reload:
         reload_prometheus()
