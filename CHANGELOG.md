@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.38 - 2019-07-03
+
+- [CHANGE] Remove old Prometheus v1 rule format #148
+- [IMPROVEMENT] Support selecting probe module for blackbox monitoring #154
+- [IMPROVEMENT] When listing rules, show rule specific labels #153
+
+Setting for `url_writer` changes to `prometheus:blackbox`
+
+See `promgen/tests/examples/promgen.yml`
+
 ## v0.37 - 2019-06-17
 
 - [INTERNAL] Upgrade to Django 2.2.x #152
