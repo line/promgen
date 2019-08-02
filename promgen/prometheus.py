@@ -119,6 +119,7 @@ def render_urls():
             "labels": {
                 "project": k[0],
                 "service": k[1],
+                "job": k[3],
                 "__shard": k[2],
                 "__param_module": k[3],
             },

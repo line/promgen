@@ -33,8 +33,6 @@ scrape_configs:
 
   - job_name: 'blackbox'
     metrics_path: /probe
-    params:
-      module: [http_2xx]  # Look for a HTTP 200 response.
     file_sd_configs:
       - files:
         - "/etc/prometheus/blackbox.json"
