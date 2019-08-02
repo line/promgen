@@ -18,7 +18,7 @@ groups:
   rules:
   - alert: RuleName
     annotations:
-      rule: http://example.com/rule/%d/edit
+      rule: https://example.com/rule/%d/edit
       summary: Test case
     expr: up==0
     for: 1s
@@ -46,6 +46,7 @@ class RuleTest(PromgenTest):
         models.RuleLabel.objects.create(name='severity', value='severe', rule=self.rule)
         models.RuleAnnotation.objects.create(name='summary', value='Test case', rule=self.rule)
 
+    @override_settings(PROMGEN_SCHEME='https')
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_write_new(self, mock_post):
         result = prometheus.render_rules()
