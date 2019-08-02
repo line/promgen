@@ -49,6 +49,7 @@ else:
     PROMGEN = {}
 
 PROMGEN_DEFAULT_GROUP = 'Default'
+PROMGEN_SCHEME = os.environ.get('PROMGEN_SCHEME', 'http')
 
 ALLOWED_HOSTS = ['*']
 

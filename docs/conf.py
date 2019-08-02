@@ -105,7 +105,7 @@ html_theme_options = {
     'github_user': 'line',
     'github_repo': 'promgen',
     'extra_nav_links': {
-        'LINE Engineering Blog': 'http://engineering.linecorp.com',
+        'LINE Engineering Blog': 'https://engineering.linecorp.com',
     }
 }
 
