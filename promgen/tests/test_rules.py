@@ -4,10 +4,10 @@
 from unittest import mock
 
 import promgen.templatetags.promgen as macro
-from promgen import models, prometheus
+from promgen import models, prometheus, views
 from promgen.tests import PromgenTest
 
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.urls import reverse
@@ -63,20 +63,57 @@ class RuleTest(PromgenTest):
         self.assertEqual(models.RuleLabel.objects.count(), 3, 'Copied rule has exiting labels + service label')
         self.assertEqual(models.RuleAnnotation.objects.count(), 2)
 
-    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    @override_settings(PROMGEN=TEST_SETTINGS)
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_import_v2(self, mock_post):
-        self.user.user_permissions.add(
-            Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site', content_type__app_label='promgen'),
+        self.add_user_permissions("promgen.change_rule", "promgen.change_site")
+        response = self.client.post(
+            reverse("rule-import"),
+            {"rules": PromgenTest.data("examples", "import.rule.yml")},
+            follow=True,
         )
-        self.client.post(reverse('rule-import'), {
-            'rules': PromgenTest.data('examples', 'import.rule.yml')
-        })
 
         # Includes count of our setUp rule + imported rules
-        self.assertEqual(models.Rule.objects.count(), 3, 'Missing Rule')
-        self.assertEqual(models.RuleLabel.objects.count(), 4, 'Missing labels')
-        self.assertEqual(models.RuleAnnotation.objects.count(), 9, 'Missing annotations')
+        self.assertRoute(response, views.RuleImport, status=200)
+        self.assertCount(models.Rule, 3, "Missing Rule")
+        self.assertCount(models.RuleLabel, 4, "Missing labels")
+        self.assertCount(models.RuleAnnotation, 9, "Missing annotations")
+
+    @override_settings(PROMGEN=TEST_SETTINGS)
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    def test_import_project_rule(self, mock_post):
+        self.add_user_permissions("promgen.add_rule", "promgen.change_project")
+        project = models.Project.objects.create(
+            name="Project 1", service=self.service, shard=self.shard
+        )
+        response = self.client.post(
+            reverse(
+                "rule-new", kwargs={"content_type": "project", "object_id": project.id}
+            ),
+            {"rules": PromgenTest.data("examples", "import.rule.yml")},
+            follow=True,
+        )
+        self.assertRoute(response, views.ProjectDetail, status=200)
+        self.assertCount(models.Rule, 3, "Missing Rule")
+        self.assertCount(models.RuleLabel, 4, "Missing labels")
+        self.assertCount(models.RuleAnnotation, 9, "Missing annotations")
+
+    @override_settings(PROMGEN=TEST_SETTINGS)
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    def test_import_service_rule(self, mock_post):
+        self.add_user_permissions("promgen.add_rule", "promgen.change_service")
+        response = self.client.post(
+            reverse(
+                "rule-new",
+                kwargs={"content_type": "service", "object_id": self.service.id},
+            ),
+            {"rules": PromgenTest.data("examples", "import.rule.yml")},
+            follow=True,
+        )
+        self.assertRoute(response, views.ServiceDetail, status=200)
+        self.assertCount(models.Rule, 3, "Missing Rule")
+        self.assertCount(models.RuleLabel, 4, "Missing labels")
+        self.assertCount(models.RuleAnnotation, 9, "Missing annotations")
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_missing_permission(self, mock_post):

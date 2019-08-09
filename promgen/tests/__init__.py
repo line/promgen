@@ -3,7 +3,10 @@
 
 import json
 import os
+
 import yaml
+
+from django.contrib.auth.models import Permission
 from django.test import TestCase
 
 
@@ -36,3 +39,21 @@ class PromgenTest(TestCase):
                 name=name,
                 service=service,
             )
+
+    def assertRoute(self, response, view, status=200):
+        self.assertEqual(response.status_code, status)
+        self.assertEqual(response.resolver_match.func.__name__, view.as_view().__name__)
+
+    def assertCount(self, model, count, msg=None):
+        self.assertEqual(model.objects.count(), count, msg)
+
+    def add_user_permissions(self, *args, user=None):
+        codenames = [p.split(".")[1] for p in args]
+        permissions = Permission.objects.filter(
+            codename__in=codenames, content_type__app_label="promgen"
+        )
+
+        if user is None:
+            user = self.user
+
+        user.user_permissions.add(*[p for p in permissions])
