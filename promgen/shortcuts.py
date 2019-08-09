@@ -4,15 +4,15 @@
 from urllib.parse import urlunsplit
 
 from django.conf import settings
-from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import resolve_url
+from promgen import models
 
 
 def resolve_domain(*args, **kwargs):
     return urlunsplit(
         (
             settings.PROMGEN_SCHEME,
-            get_current_site(None).domain,
+            models.Site.objects.get_current().domain,
             resolve_url(*args, **kwargs),
             "",
             "",

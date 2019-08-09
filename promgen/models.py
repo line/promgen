@@ -385,7 +385,7 @@ class Rule(models.Model):
     )
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=(
-        models.Q(app_label='sites', model='site') |
+        models.Q(app_label='promgen', model='site') |
         models.Q(app_label='promgen', model='project') |
         models.Q(app_label='promgen', model='service'))
     )
