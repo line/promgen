@@ -515,7 +515,7 @@ class RulesList(LoginRequiredMixin, ListView, ServiceMixin):
         context = super(RulesList, self).get_context_data(**kwargs)
 
         site_rules = models.Rule.objects.filter(
-            content_type__model="site", content_type__app_label="sites"
+            content_type__model="site", content_type__app_label="promgen"
         ).prefetch_related(
             "content_object",
             "rulelabel_set",
@@ -831,10 +831,7 @@ class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
         # In the case of rules, we want to make sure the user has permission
         # to add the rule itself, but also permission to change the linked object
         yield 'promgen.add_rule'
-        if self.kwargs['content_type'] == 'site':
-            yield 'sites.change_site'
-        else:
-            yield 'promgen.change_' + self.kwargs['content_type']
+        yield 'promgen.change_' + self.kwargs['content_type']
 
     def get_context_data(self, **kwargs):
         context = super(RuleRegister, self).get_context_data(**kwargs)
@@ -1144,7 +1141,7 @@ class RuleImport(PromgenPermissionMixin, FormView):
 
     # Since rule imports can change a lot of site wide stuff we
     # require site edit permission here
-    permission_required = ('sites.change_site', 'promgen.change_rule')
+    permission_required = ('promgen.change_site', 'promgen.change_rule')
     permisison_denied_message = 'User lacks permission to import'
 
     def form_valid(self, form):
@@ -1173,7 +1170,7 @@ class Import(PromgenPermissionMixin, FormView):
     # Since imports can change a lot of site wide stuff we
     # require site edit permission here
     permission_required = (
-        'sites.change_site', 'promgen.change_rule', 'promgen.change_exporter'
+        'promgen.change_site', 'promgen.change_rule', 'promgen.change_exporter'
     )
 
     permission_denied_message = 'User lacks permission to import'
