@@ -13,7 +13,6 @@ envdir==1.0.1
 gunicorn==19.9.0
 idna==2.8
 kombu==4.6.1
-mysqlclient==1.4.2
 oauthlib==3.0.1
 prometheus-client==0.7.0
 pyjwt==1.7.1

@@ -8,7 +8,7 @@ all: clean pipenv test build
 
 .PHONY: build
 build: pipenv
-	docker-compose build
+	docker-compose build base
 
 
 .PHONY:	shell
