@@ -7,7 +7,6 @@ import promgen.templatetags.promgen as macro
 from promgen import models, prometheus, views
 from promgen.tests import PromgenTest
 
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.urls import reverse
@@ -32,8 +31,7 @@ TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
 class RuleTest(PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
-        self.user = User.objects.create_user(id=999, username="Foo")
-        self.client.force_login(self.user)
+        self.user = self.add_force_login(id=999, username="Foo")
         self.site = models.Site.objects.get_current()
         self.shard = models.Shard.objects.create(name='Shard 1')
         self.service = models.Service.objects.create(id=999, name='Service 1')
@@ -60,8 +58,8 @@ class RuleTest(PromgenTest):
         self.assertIn('severity', copy.labels)
         self.assertIn('summary', copy.annotations)
         # and test that we actually duplicated them and not moved them
-        self.assertEqual(models.RuleLabel.objects.count(), 3, 'Copied rule has exiting labels + service label')
-        self.assertEqual(models.RuleAnnotation.objects.count(), 2)
+        self.assertCount(models.RuleLabel, 3, 'Copied rule has exiting labels + service label')
+        self.assertCount(models.RuleAnnotation, 2)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
@@ -122,7 +120,7 @@ class RuleTest(PromgenTest):
         })
 
         # Should only be a single rule from our initial setup
-        self.assertEqual(models.Rule.objects.count(), 1, 'Missing Rule')
+        self.assertCount(models.Rule, 1, 'Missing Rule')
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_macro(self, mock_post):

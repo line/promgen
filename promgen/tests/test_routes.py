@@ -3,9 +3,9 @@
 
 from unittest import mock
 
-import factory.django
-from django.contrib.auth.models import User, Permission
-from django.db.models.signals import post_save, pre_save
+from promgen import models, views
+from promgen.tests import PromgenTest
+
 from django.test import override_settings
 from django.urls import reverse
 
@@ -21,10 +21,8 @@ TEST_REPLACE = PromgenTest.data('examples', 'replace.json')
 class RouteTests(PromgenTest):
     longMessage = True
 
-    @factory.django.mute_signals(pre_save, post_save)
     def setUp(self):
-        self.user = User.objects.create_user(id=999, username="Foo")
-        self.client.force_login(self.user, 'django.contrib.auth.backends.ModelBackend')
+        self.user = self.add_force_login(id=999, username="Foo")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
@@ -37,64 +35,57 @@ class RouteTests(PromgenTest):
     @mock.patch('promgen.signals._trigger_write_config')
     @mock.patch('promgen.tasks.reload_prometheus')
     def test_import(self, mock_write, mock_reload):
-        self.user.user_permissions.add(
-            Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site', content_type__app_label='promgen'),
-            Permission.objects.get(codename='change_exporter'),
+        self.add_user_permissions(
+            "promgen.change_rule", "promgen.change_site", "promgen.change_exporter"
         )
-        response = self.client.post(reverse('import'), {'config': TEST_IMPORT})
+        response = self.client.post(reverse("import"), {"config": TEST_IMPORT})
 
-        self.assertEqual(response.status_code, 302, 'Redirect to imported object')
-        self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
-        self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')
-        self.assertEqual(models.Exporter.objects.count(), 2, 'Import two exporters')
-        self.assertEqual(models.Host.objects.count(), 3, 'Import three hosts')
-        self.assertEqual(models.Farm.objects.filter(source='pmc').count(), 1, 'One PMC Farm')
-        self.assertEqual(models.Farm.objects.filter(source='other').count(), 1, 'One other Farm')
+        self.assertRoute(response, views.Import, 302, "Redirect to imported object")
+        self.assertCount(models.Service, 1, "Import one service")
+        self.assertCount(models.Project, 2, "Import two projects")
+        self.assertCount(models.Exporter, 2, "Import two exporters")
+        self.assertCount(models.Host, 3, "Import three hosts")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    @mock.patch('promgen.signals._trigger_write_config')
-    @mock.patch('promgen.tasks.reload_prometheus')
+    @mock.patch("promgen.signals._trigger_write_config")
+    @mock.patch("promgen.tasks.reload_prometheus")
     def test_replace(self, mock_write, mock_reload):
-        # Set the required permissions
-        self.user.user_permissions.add(
-            Permission.objects.get(codename='change_rule'),
-            Permission.objects.get(codename='change_site', content_type__app_label='promgen'),
-            Permission.objects.get(codename='change_exporter'),
+        self.add_user_permissions(
+            "promgen.change_rule", "promgen.change_site", "promgen.change_exporter"
         )
 
-        response = self.client.post(reverse('import'), {'config': TEST_IMPORT})
-        self.assertEqual(response.status_code, 302, 'Redirect to imported object')
+        response = self.client.post(reverse("import"), {"config": TEST_IMPORT})
+        self.assertRoute(response, views.Import, 302, "Redirect to imported object")
 
-        response = self.client.post(reverse('import'), {'config': TEST_REPLACE})
-        self.assertEqual(response.status_code, 302, 'Redirect to imported object (2)')
+        response = self.client.post(reverse("import"), {"config": TEST_REPLACE})
+        self.assertRoute(response, views.Import, 302, "Redirect to imported object (2)")
 
-        self.assertEqual(models.Service.objects.count(), 1, 'Import one service')
-        self.assertEqual(models.Project.objects.count(), 2, 'Import two projects')
-        self.assertEqual(models.Exporter.objects.count(), 2, 'Import two exporters')
-        self.assertEqual(models.Farm.objects.count(), 3, 'Original two farms and one new farm')
-        self.assertEqual(models.Host.objects.count(), 5, 'Original 3 hosts and two new ones')
+        self.assertCount(models.Service, 1, "Import one service")
+        self.assertCount(models.Project, 2, "Import two projects")
+        self.assertCount(models.Exporter, 2, "Import two exporters")
+        self.assertCount(models.Farm, 3, "Original two farms and one new farm")
+        self.assertCount(models.Host, 5, "Original 3 hosts and two new ones")
 
     def test_service(self):
-        response = self.client.get(reverse('service-list'))
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse("service-list"))
+        self.assertRoute(response, views.ServiceList, 200)
 
     def test_project(self):
         shard = models.Shard.objects.create(name='Shard Test')
         service = models.Service.objects.create(name='Service Test')
         project = models.Project.objects.create(name='Project Test', service=service, shard=shard)
 
-        response = self.client.get(reverse('project-detail', kwargs={'pk': project.pk}))
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse("project-detail", kwargs={"pk": project.pk}))
+        self.assertRoute(response, views.ProjectDetail, 200)
 
     def test_farms(self):
-        response = self.client.get(reverse('farm-list'))
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse("farm-list"))
+        self.assertRoute(response, views.FarmList, 200)
 
     def test_hosts(self):
-        response = self.client.get(reverse('host-list'))
-        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse("host-list"))
+        self.assertRoute(response, views.HostList, 200)
 
     @mock.patch('promgen.util.get')
     def test_scrape(self, mock_get):
@@ -132,16 +123,13 @@ class RouteTests(PromgenTest):
 
     def test_failed_permission(self):
         # Test for redirect
-        for request in [{'viewname': 'rule-new', 'args': ('site', 1)}]:
+        for request in [{"viewname": "rule-new", "args": ("site", 1)}]:
             response = self.client.get(reverse(**request))
-            self.assertEqual(response.status_code, 302)
-            self.assertTrue(response.url.startswith('/login'))
+            self.assertRoute(response, views.RuleRegister, 302)
+            self.assertTrue(response.url.startswith("/login"))
 
     def test_other_routes(self):
-        self.user.user_permissions.add(
-            Permission.objects.get(codename='add_rule'),
-            Permission.objects.get(codename='change_site', content_type__app_label='promgen'),
-        )
-        for request in [{'viewname': 'rule-new', 'args': ('site', 1)}]:
+        self.add_user_permissions("promgen.add_rule", "promgen.change_site")
+        for request in [{"viewname": "rule-new", "args": ("site", 1)}]:
             response = self.client.get(reverse(**request))
-            self.assertEqual(response.status_code, 200)
+            self.assertRoute(response, views.RuleRegister, 200)

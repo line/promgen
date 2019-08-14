@@ -49,7 +49,6 @@ setup(
         'dev': [
             'codecov',
             'django-nose',
-            'factory_boy',
             'nose-cov',
         ],
         'docs': [

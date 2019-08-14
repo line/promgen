@@ -3,13 +3,12 @@
 
 from unittest import mock
 
-from django.test import override_settings
-from django.urls import reverse
-
-from promgen import models
+from promgen import models, views
 from promgen.notification.webhook import NotificationWebhook
 from promgen.tests import PromgenTest
 
+from django.test import override_settings
+from django.urls import reverse
 
 TEST_SETTINGS = PromgenTest.data_yaml("examples", "promgen.yml")
 TEST_ALERT = PromgenTest.data("examples", "alertmanager.json")
@@ -45,8 +44,8 @@ class WebhookTest(PromgenTest):
             reverse("alert"), data=TEST_ALERT, content_type="application/json"
         )
 
-        self.assertEqual(response.status_code, 202)
-        self.assertEqual(models.Alert.objects.count(), 1, "Alert should be queued")
+        self.assertRoute(response, views.Alert, 202)
+        self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 2, "Two alerts should be sent")
 
         # Our sample is the same as the original, with some annotations added
@@ -84,12 +83,12 @@ class WebhookTest(PromgenTest):
             sender=self.senderB, name="severity", value="major"
         )
 
-        self.assertEqual(models.Filter.objects.count(), 3, "Should be three filters")
+        self.assertCount(models.Filter, 3, "Should be three filters")
 
         response = self.client.post(
             reverse("alert"), data=TEST_ALERT, content_type="application/json"
         )
-        self.assertEqual(response.status_code, 202)
+        self.assertRoute(response, views.Alert, 202)
 
-        self.assertEqual(models.Alert.objects.count(), 1, "Alert should be queued")
+        self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 1, "One notification should be skipped")
