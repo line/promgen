@@ -822,7 +822,7 @@ class RuleUpdate(PromgenPermissionMixin, UpdateView):
         return self.form_valid(form)
 
 
-class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
+class RuleRegister(PromgenPermissionMixin, FormView):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.RuleForm
@@ -857,12 +857,14 @@ class RuleRegister(PromgenPermissionMixin, FormView, ServiceMixin):
             return self.form_invalid(form)
 
         importform = forms.ImportRuleForm(request.POST)
-        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
+        ct = ContentType.objects.get_by_natural_key('promgen', content_type).model_class()
+        obj = ct.objects.get(pk=object_id)
+
         if importform.is_valid():
             data = importform.clean()
-            counters = prometheus.import_rules_v2(data['rules'], service)
+            counters = prometheus.import_rules_v2(data['rules'], obj)
             messages.info(request, 'Imported %s' % counters)
-            return HttpResponseRedirect(service.get_absolute_url())
+            return HttpResponseRedirect(obj.get_absolute_url())
 
         return self.form_invalid(form)
 
