@@ -41,10 +41,10 @@ Promgen / Rule / {{ rule.name }}
     <table class="table">
         <tr>
             <td>
-                <a href="{% url 'rule-detail' rule.parent.id %}">{{rule.parent.name}}</a>
+                <a href="{{rule.parent.get_absolute_url}}">{{rule.parent.name}}</a>
             </td>
             <td>
-                <code v-pre data-href="{% url 'rule-test' r.id %}">
+                <code v-pre data-href="{% url 'rule-test' rule.parent.pk %}">
                     {{ rule.parent|rulemacro }}
                 </code>
             </td>
