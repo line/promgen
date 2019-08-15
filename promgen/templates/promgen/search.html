@@ -33,7 +33,7 @@
       <td>
         <ul class="list-unstyled">
         {% for rule in service.rule_set.all %}
-          <li><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></li>
+          <li><a href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a></li>
         {% endfor %}
         </ul>
       </td>

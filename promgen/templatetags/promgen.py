@@ -5,13 +5,16 @@ import collections
 import difflib
 import json
 from datetime import datetime
-from django.utils.translation import ugettext as _
+
+import yaml
+from pytz import timezone
+
 from django import template
 from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from pytz import timezone
+from django.utils.translation import ugettext as _
 
 register = template.Library()
 
@@ -24,15 +27,14 @@ def klass(value):
 
 
 @register.filter()
-def to_prom(value):
-    '''
-    Render a Python dictionary using Prometheus' dictonary format
-    '''
-    values = [
-        '{}="{}"'.format(k, v) for k, v in value.items()
-    ]
-
-    return '{' + ', '.join(sorted(values)) + '}'
+def rule_dict(rule):
+    return {
+        "alert": rule.name,
+        "expr": rulemacro(rule),
+        "for": rule.duration,
+        "labels": rule.labels,
+        "annotations": rule.annotations,
+    }
 
 
 @register.filter()
@@ -113,6 +115,11 @@ def pretty_json(data):
     if isinstance(data, str):
         data = json.loads(data)
     return json.dumps(data, indent=4, sort_keys=True)
+
+
+@register.filter()
+def pretty_yaml(data):
+    return yaml.safe_dump(data)
 
 
 @register.filter()
