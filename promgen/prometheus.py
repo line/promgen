@@ -86,7 +86,7 @@ def render_rules(rules=None):
     for r in rules:
         rule_list[str(r.content_object)].append({
             'alert': r.name,
-            'expr': macro.rulemacro(r.clause, r),
+            'expr': macro.rulemacro(r),
             'for': r.duration,
             'labels': r.labels,
             'annotations': r.annotations,

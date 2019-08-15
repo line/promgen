@@ -81,7 +81,7 @@ Promgen / Rule / {{ rule.name }}
         <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
         <td class="col-xs-8">
           <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
-            {{ r.clause|rulemacro:r }}
+            {{ r|rulemacro }}
           </code>
         </td>
       </tr>

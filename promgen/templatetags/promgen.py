@@ -36,11 +36,13 @@ def to_prom(value):
 
 
 @register.filter()
-def rulemacro(value, rule):
+def rulemacro(rule, clause=None):
     '''
     Macro rule expansion
 
     Assuming a list of rules with children and parents, expand our macro to exclude child rules
+
+    Can optionally pass expression to render in the context of the passed rule
 
     .. code-block:: none
 
@@ -53,6 +55,9 @@ def rulemacro(value, rule):
         foo{project="B"} / bar{project="B"} > 4
     '''
 
+    if not clause:
+        clause = rule.clause
+
     labels = collections.defaultdict(list)
     for r in rule.overrides.all():
         labels[r.content_type.model].append(r.content_object.name)
@@ -63,7 +68,7 @@ def rulemacro(value, rule):
     macro = ','.join(
         sorted('{}!~"{}"'.format(k, v) for k, v in filters.items())
     )
-    return value.replace(EXCLUSION_MACRO, macro)
+    return clause.replace(EXCLUSION_MACRO, macro)
 
 
 @register.simple_tag
