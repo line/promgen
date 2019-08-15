@@ -1230,7 +1230,7 @@ class RuleTest(LoginRequiredMixin, View):
         else:
             rule = get_object_or_404(models.Rule, id=pk)
 
-        query = macro.rulemacro(request.POST['query'], rule)
+        query = macro.rulemacro(rule, request.POST['query'])
         # Since our rules affect all servers we use Promgen's proxy-query to test our rule
         # against all the servers at once
         url = resolve_domain('proxy-query')
