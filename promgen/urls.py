@@ -8,13 +8,13 @@ The `urlpatterns` list routes URLs to views. For more information please see:
 Examples:
 Function views
     1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
+    2. Add a URL to urlpatterns:  path('', views.home, name='home')
 Class-based views
     1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
+    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
+    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import url
 from django.contrib import admin
@@ -30,71 +30,71 @@ router.register('project', rest.ProjectViewSet)
 
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
 
-    url(r'^$', views.HomeList.as_view(), name='home'),
-    url(r'^shard/$', views.ShardList.as_view(), name='shard-list'),
-    url(r'^shard/(?P<pk>[0-9]+)/$', views.ShardDetail.as_view(), name='shard-detail'),
+    path('', views.HomeList.as_view(), name='home'),
+    path('shard', views.ShardList.as_view(), name='shard-list'),
+    path('shard/<int:pk>', views.ShardDetail.as_view(), name='shard-detail'),
 
     path('new/service', views.ServiceRegister.as_view(), name='service-new'),
-    url(r'^service/$', views.ServiceList.as_view(), name='service-list'),
-    url(r'^service/(?P<pk>[0-9]+)/$', views.ServiceDetail.as_view(), name='service-detail'),
-    url(r'^service/(?P<pk>[0-9]+)/delete$', views.ServiceDelete.as_view(), name='service-delete'),
-    url(r'^service/(?P<pk>[0-9]+)/new$', views.ProjectRegister.as_view(), name='project-new'),
-    url(r'^service/(?P<pk>[0-9]+)/update$', views.ServiceUpdate.as_view(), name='service-update'),
-    url(r'^service/(?P<pk>[0-9]+)/notifier$', views.ServiceNotifierRegister.as_view(), name='service-notifier'),
+    path('service', views.ServiceList.as_view(), name='service-list'),
+    path('service/<int:pk>', views.ServiceDetail.as_view(), name='service-detail'),
+    path('service/<int:pk>/delete', views.ServiceDelete.as_view(), name='service-delete'),
+    path('service/<int:pk>/new', views.ProjectRegister.as_view(), name='project-new'),
+    path('service/<int:pk>/update', views.ServiceUpdate.as_view(), name='service-update'),
+    path('service/<int:pk>/notifier', views.ServiceNotifierRegister.as_view(), name='service-notifier'),
 
-    url(r'^project/(?P<pk>[0-9]+)/$', views.ProjectDetail.as_view(), name='project-detail'),
-    url(r'^project/(?P<pk>[0-9]+)/delete$', views.ProjectDelete.as_view(), name='project-delete'),
-    url(r'^project/(?P<pk>[0-9]+)/update$', views.ProjectUpdate.as_view(), name='project-update'),
-    url(r'^project/(?P<pk>[0-9]+)/unlink$', views.UnlinkFarm.as_view(), name='farm-unlink'),
-    url(r'^project/(?P<pk>[0-9]+)/link/(?P<source>\w+)$', views.FarmLink.as_view(), name='farm-link'),
-    url(r'^project/(?P<pk>[0-9]+)/newfarm$', views.FarmRegister.as_view(), name='farm-new'),
-    url(r'^project/(?P<pk>[0-9]+)/scrape$', views.ExporterScrape.as_view(), name='exporter-scrape'),
-    url(r'^project/(?P<pk>[0-9]+)/exporter$', views.ExporterRegister.as_view(), name='project-exporter'),
-    url(r'^project/(?P<pk>[0-9]+)/notifier$', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
+    path('project/<int:pk>', views.ProjectDetail.as_view(), name='project-detail'),
+    path('project/<int:pk>/delete', views.ProjectDelete.as_view(), name='project-delete'),
+    path('project/<int:pk>/update', views.ProjectUpdate.as_view(), name='project-update'),
+    path('project/<int:pk>/unlink', views.UnlinkFarm.as_view(), name='farm-unlink'),
+    path('project/<int:pk>/link/<source>', views.FarmLink.as_view(), name='farm-link'),
+    path('project/<int:pk>/newfarm', views.FarmRegister.as_view(), name='farm-new'),
+    path('project/<int:pk>/scrape', views.ExporterScrape.as_view(), name='exporter-scrape'),
+    path('project/<int:pk>/exporter', views.ExporterRegister.as_view(), name='project-exporter'),
+    path('project/<int:pk>/notifier', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
 
-    url(r'^exporter/(?P<pk>[0-9]+)/delete$', views.ExporterDelete.as_view(), name='exporter-delete'),
-    url(r'^exporter/(?P<pk>[0-9]+)/toggle$', views.ExporterToggle.as_view(), name='exporter-toggle'),
+    path('exporter/<int:pk>/delete', views.ExporterDelete.as_view(), name='exporter-delete'),
+    path('exporter/<int:pk>/toggle', views.ExporterToggle.as_view(), name='exporter-toggle'),
 
-    url(r'^url$', views.URLList.as_view(), name='url-list'),
-    url(r'^url/(?P<pk>[0-9]+)/new$', views.URLRegister.as_view(), name='url-new'),
-    url(r'^url/(?P<pk>[0-9]+)/delete$', views.URLDelete.as_view(), name='url-delete'),
+    path('url', views.URLList.as_view(), name='url-list'),
+    path('url/<int:pk>/new', views.URLRegister.as_view(), name='url-new'),
+    path('url/<int:pk>/delete', views.URLDelete.as_view(), name='url-delete'),
 
-    url(r'^farm/$', views.FarmList.as_view(), name='farm-list'),
-    url(r'^farm/(?P<pk>[0-9]+)$', views.FarmDetail.as_view(), name='farm-detail'),
-    url(r'^farm/(?P<pk>[0-9]+)/refresh$', views.FarmRefresh.as_view(), name='farm-refresh'),
-    url(r'^farm/(?P<pk>[0-9]+)/hosts$', views.HostRegister.as_view(), name='hosts-add'),
-    url(r'^farm/(?P<pk>[0-9]+)/update$', views.FarmUpdate.as_view(), name='farm-update'),
-    url(r'^farm/(?P<pk>[0-9]+)/delete$', views.FarmDelete.as_view(), name='farm-delete'),
-    url(r'^farm/(?P<pk>[0-9]+)/convert$', views.FarmConvert.as_view(), name='farm-convert'),
+    path('farm', views.FarmList.as_view(), name='farm-list'),
+    path('farm/<int:pk>', views.FarmDetail.as_view(), name='farm-detail'),
+    path('farm/<int:pk>/refresh', views.FarmRefresh.as_view(), name='farm-refresh'),
+    path('farm/<int:pk>/hosts', views.HostRegister.as_view(), name='hosts-add'),
+    path('farm/<int:pk>/update', views.FarmUpdate.as_view(), name='farm-update'),
+    path('farm/<int:pk>/delete', views.FarmDelete.as_view(), name='farm-delete'),
+    path('farm/<int:pk>/convert', views.FarmConvert.as_view(), name='farm-convert'),
 
-    url(r'^host/$', views.HostList.as_view(), name='host-list'),
-    url(r'^host/(?P<slug>\S+)/$', views.HostDetail.as_view(), name='host-detail'),
-    url(r'^host/(?P<pk>[0-9]+)/delete$', views.HostDelete.as_view(), name='host-delete'),
+    path('host/', views.HostList.as_view(), name='host-list'),
+    path('host/<slug>', views.HostDetail.as_view(), name='host-detail'),
+    path('host/<int:pk>/delete', views.HostDelete.as_view(), name='host-delete'),
 
     path('notifier/<int:pk>/delete', views.NotifierDelete.as_view(), name='notifier-delete'),
     path('notifier/<int:pk>/test', views.NotifierTest.as_view(), name='notifier-test'),
     path('notifier/<int:pk>', views.NotifierUpdate.as_view(), name='notifier-edit'),
 
-    url(r'^rules/$', views.RulesList.as_view(), name='rules-list'),
-    url(r'^rule/import$', views.RuleImport.as_view(), name='rule-import'),
-    url(r'^rule/(?P<pk>[0-9]+)/edit$', views.RuleUpdate.as_view(), name='rule-edit'),
-    url(r'^rule/(?P<pk>[0-9]+)/delete$', views.RuleDelete.as_view(), name='rule-delete'),
-    url(r'^rule/(?P<pk>[0-9]+)/toggle$', views.RuleToggle.as_view(), name='rule-toggle'),
-    url(r'^rule/(?P<pk>[0-9]+)/test$', csrf_exempt(views.RuleTest.as_view()), name='rule-test'),
-    url(r'^rule/(?P<pk>[0-9]+)/duplicate$', views.RulesCopy.as_view(), name='rule-overwrite'),
+    path('rule', views.RulesList.as_view(), name='rules-list'),
+    path('rule/<int:pk>/edit', views.RuleUpdate.as_view(), name='rule-edit'),
+    path('rule/<int:pk>/delete', views.RuleDelete.as_view(), name='rule-delete'),
+    path('rule/<int:pk>/toggle', views.RuleToggle.as_view(), name='rule-toggle'),
+    path('rule/<int:pk>/test', csrf_exempt(views.RuleTest.as_view()), name='rule-test'),
+    path('rule/<int:pk>/duplicate', views.RulesCopy.as_view(), name='rule-overwrite'),
 
     path('<content_type>/<object_id>/rule', views.RuleRegister.as_view(), name='rule-new'),
 
-    url(r'^audit/$', views.AuditList.as_view(), name='audit-list'),
-    url(r'^status/$', views.Status.as_view(), name='status'),
-    url(r'^import/$', views.Import.as_view(), name='import'),
+    path('audit', views.AuditList.as_view(), name='audit-list'),
+    path('status', views.Status.as_view(), name='status'),
+    path('import', views.Import.as_view(), name='import'),
+    path('import/rules', views.RuleImport.as_view(), name='rule-import'),
 
-    url(r'^search/$', views.Search.as_view(), name='search'),
+    path('search', views.Search.as_view(), name='search'),
 
-    url(r'^metrics$', csrf_exempt(views.Metrics.as_view()), name='metrics'),
-    url(r'^commit$', csrf_exempt(views.Commit.as_view()), name='commit'),
+    path('metrics', csrf_exempt(views.Metrics.as_view()), name='metrics'),
+    path('commit', csrf_exempt(views.Commit.as_view()), name='commit'),
 
     url('', include('django.contrib.auth.urls')),
     url('', include('social_django.urls', namespace='social')),
@@ -102,8 +102,8 @@ urlpatterns = [
     # Public API
 
     # Legacy API
-    url(r'^alert$', csrf_exempt(views.Alert.as_view())),
-    url(r'^api/v1/config', csrf_exempt(views.ApiConfig.as_view())),
+    path('alert$', csrf_exempt(views.Alert.as_view())),
+    path('api/v1/config', csrf_exempt(views.ApiConfig.as_view())),
 
     # Promgen API
     path('api/v1/targets', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
@@ -133,7 +133,7 @@ urlpatterns = [
 try:
     import debug_toolbar
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
+        path('__debug__/', include(debug_toolbar.urls)),
     ]
 except ImportError:
     pass
