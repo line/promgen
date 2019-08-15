@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 class Site(django.contrib.sites.models.Site):
     # Proxy model for sites so that we can easily
     # query our related Rules
-    rule_set = GenericRelation('Rule')
+    rule_set = GenericRelation('promgen.Rule', for_concrete_model=False)
 
     def get_absolute_url(self):
         return reverse('rules-list')

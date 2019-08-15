@@ -103,7 +103,7 @@ urlpatterns = [
     # Public API
 
     # Legacy API
-    path('alert$', csrf_exempt(views.Alert.as_view())),
+    path('alert', csrf_exempt(views.Alert.as_view())),
     path('api/v1/config', csrf_exempt(views.ApiConfig.as_view())),
 
     # Promgen API
