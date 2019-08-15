@@ -18,10 +18,8 @@ from promgen import (celery, discovery, forms, models, plugins, prometheus,
                      signals, tasks, util, version)
 from promgen.shortcuts import resolve_domain
 
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import (LoginRequiredMixin,
-                                        PermissionRequiredMixin)
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
@@ -1059,8 +1057,6 @@ class Metrics(View):
     sender = Gauge('promgen_notifiers', 'Registered Notifiers', ['type', 'sender'])
     services = Gauge('promgen_services', 'Registered Services')
     urls = Gauge('promgen_urls', 'Registered URLs')
-    # Celery Queues
-    queues = Gauge('promgen_queue_length', 'Queue Size', ['name'])
 
     def get(self, request, *args, **kwargs):
         self.version.labels(version.__version__, platform.python_version()).set(1)
@@ -1074,14 +1070,6 @@ class Metrics(View):
         self.rules.set(models.Rule.objects.count())
         self.urls.set(models.URL.objects.count())
         self.hosts.set(len(models.Host.objects.values('name').annotate(Count('name'))))
-
-        # TODO: This is likely far from optimal and should be re-done in a way
-        # that is not redis specific, but this should work for the short term
-        if hasattr(settings, 'CELERY_BROKER_URL'):
-            with celery.app.connection_for_write() as conn:
-                with conn.channel() as channel:
-                    for queue in ['celery'] + [host.host for host in models.Prometheus.objects.all()]:
-                        self.queues.labels(queue).set(channel.client.llen(queue))
 
         return HttpResponse(generate_latest(), content_type='text/plain')
 
