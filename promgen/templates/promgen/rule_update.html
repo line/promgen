@@ -25,7 +25,7 @@ Promgen / Rule / {{ rule.name }}
   </table>
 </div>
 
-<form action="{% url 'rule-edit' rule.pk %}" class="input-group" method="post">{% csrf_token %}
+<form action="{% url 'rule-detail' rule.pk %}" class="input-group" method="post">{% csrf_token %}
   <div class="row">
 
     {% if form.non_field_errors  %}
@@ -78,7 +78,7 @@ Promgen / Rule / {{ rule.name }}
       {% for r in rule.overrides.all %}
       <tr>
         <td class="col-xs-2"><a href="{{ r.content_object.get_absolute_url }}">{{ r.content_object }}</a></td>
-        <td class="col-xs-2"><a href="{% url 'rule-edit' r.pk %}">{{ r.name }}</a></td>
+        <td class="col-xs-2"><a href="{% url 'rule-detail' r.pk %}">{{ r.name }}</a></td>
         <td class="col-xs-8">
           <code data-href="{% url 'rule-test' r.id %}" data-source="self" data-target="#ajax-clause-check">
             {{ r|rulemacro }}

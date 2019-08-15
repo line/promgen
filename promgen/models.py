@@ -418,7 +418,7 @@ class Rule(models.Model):
         return '{} [{}]'.format(self.name, self.content_object.name)
 
     def get_absolute_url(self):
-        return reverse('rule-edit', kwargs={'pk': self.pk})
+        return reverse('rule-detail', kwargs={'pk': self.pk})
 
     def set_object(self, content_type, object_id):
         self.content_type = ContentType.objects.get(

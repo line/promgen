@@ -41,7 +41,7 @@
       <table class="table">
 {% for rule in project.service.rule_set.all %}
         <tr>
-          <td><a href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a></td>
+          <td><a href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a></td>
           <td>{{ rule.clause }}</td>
         </tr>
 {% endfor %}

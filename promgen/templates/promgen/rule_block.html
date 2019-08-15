@@ -3,9 +3,9 @@
 {% for rule in rule_list %}
 <tr {% if collapse %}class="active collapse {{ collapse }}{{overwrite_id}}" {% endif %}>
   <td>
-    <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-edit' rule.id %}">{{ rule.name }}</a>
+    <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a>
     {% if rule.parent %}
-    <a class="pull-right" title="{% trans "View Parent" %}" href="{% url 'rule-edit' rule.parent.id %}">
+    <a class="pull-right" title="{% trans "View Parent" %}" href="{% url 'rule-detail' rule.parent.id %}">
       <span class="glyphicon glyphicon-upload"></span>
     </a>
     {% endif %}

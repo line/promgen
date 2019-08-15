@@ -744,7 +744,20 @@ class ServiceUpdate(LoginRequiredMixin, UpdateView):
     button_label = _('Update Service')
     form_class = forms.ServiceUpdate
     model = models.Service
-    template_name = 'promgen/service_form.html'
+
+
+class RuleDetail(LoginRequiredMixin, DetailView):
+    queryset = models.Rule.objects.prefetch_related(
+        "content_object",
+        "content_type",
+        "ruleannotation_set",
+        "rulelabel_set",
+        'overrides',
+        'overrides__ruleannotation_set',
+        'overrides__rulelabel_set',
+        "overrides__content_object",
+        "overrides__content_type",
+    )
 
 
 class RuleUpdate(PromgenPermissionMixin, UpdateView):
