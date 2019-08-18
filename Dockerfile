@@ -14,20 +14,18 @@ RUN adduser -D -u 1000 promgen promgen
 RUN pip install --no-cache-dir -U pip==19.2.1
 
 # Install MySQL Support
-RUN apk update \
-    && apk add --virtual build-deps mariadb-dev build-base bash \
+RUN apk add --no-cache --virtual build-deps mariadb-dev build-base bash \
     && pip --no-cache-dir install mysqlclient \
     && apk del build-deps
 
 # Install Postgres Support
-RUN apk update \
-    && apk add --virtual build-deps gcc python3-dev musl-dev postgresql-dev \
+RUN apk add --no-cache --virtual build-deps gcc python3-dev musl-dev postgresql-dev \
     && pip install --no-cache-dir psycopg2-binary \
     && apk del build-deps
 
 # Install Prometheus Binary
 RUN set -ex; \
-    apk add --virtual build-deps curl tar \
+    apk add --no-cache --virtual build-deps curl tar \
     && curl -L -s $PROMETHEUS_DOWNLOAD_URL \
     | tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool \
     && apk del build-deps
