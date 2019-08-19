@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.39 - 2019-08-19
+
+- [BUGFIX] Fix queries for promgen.Rule and promgen.Site #170
+- [BUGFIX] Fix rule import for Project/Service #165
+- [BUGFIX] Migrate from sites.site to promgen.site to fix references #164
+- [IMPROVEMENT] Add PROMGEN_SCHEME to support https links #160
+- [IMPROVEMENT] Add silence button to blackbox exporter entries #156
+- [IMPROVEMENT] Import probe config from blackbox_exporter #155
+- [IMPROVEMENT] Read-only rule page #169
+- [INTERNAL] Cleanup URL paths #167
+- [INTERNAL] Minor version updates and Dockerfile cleanup #163
+- [INTERNAL] Refactor apk commands in Dockerfile #172
+- [INTERNAL] Refactor macro for common use case #168
+- [INTERNAL] Remove fragile celery metrics #171
+
 ## v0.38 - 2019-07-03
 
 - [CHANGE] Remove old Prometheus v1 rule format #148
