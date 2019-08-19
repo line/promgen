@@ -14,7 +14,7 @@ services:
 
   web:
     extends: base
-    command: promgen runserver 0.0.0.0:8000
+    command: web -b 0.0.0.0:8000
     ports:
       - "8080:8000"
     links:
@@ -52,7 +52,7 @@ services:
 
   alertmanager:
     image: prom/alertmanager
-    command: -config.file=/etc/prometheus/alertmanager.yml
+    command: --config.file=/etc/prometheus/alertmanager.yml
     links:
       - web
     ports:
