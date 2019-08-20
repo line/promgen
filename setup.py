@@ -34,7 +34,7 @@ setup(
         'celery==4.3.0',
         'dj-database-url',
         'django-filter',
-        'Django==2.2.2',
+        'Django==2.2.4',
         'djangorestframework==3.9.4',
         'envdir',
         'prometheus-client==0.7.0',
