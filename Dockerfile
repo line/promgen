@@ -11,21 +11,25 @@ ENV PROMGEN_CONFIG_DIR=/etc/promgen
 RUN adduser -D -u 1000 promgen promgen
 
 # Upgrade Pip
-RUN pip install --no-cache-dir -U pip==19.2.1
+RUN pip install --no-cache-dir -U pip==19.2.2
 
 # Install MySQL Support
-RUN apk add --no-cache --virtual build-deps mariadb-dev build-base bash \
+RUN set -ex \
+    && apk add --no-cache mariadb-dev \
+    && apk add --no-cache --virtual build-deps build-base \
     && pip --no-cache-dir install mysqlclient \
-    && apk del build-deps
+    && apk del build-deps 
 
 # Install Postgres Support
-RUN apk add --no-cache --virtual build-deps gcc python3-dev musl-dev postgresql-dev \
+RUN set -ex \
+    && apk add --no-cache postgresql-dev \
+    && apk add --no-cache --virtual build-deps build-base \
     && pip install --no-cache-dir psycopg2-binary \
     && apk del build-deps
 
 # Install Prometheus Binary
-RUN set -ex; \
-    apk add --no-cache --virtual build-deps curl tar \
+RUN set -ex \
+    && apk add --no-cache --virtual build-deps curl tar \
     && curl -L -s $PROMETHEUS_DOWNLOAD_URL \
     | tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool \
     && apk del build-deps
