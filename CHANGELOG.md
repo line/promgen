@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.39.1 - 2019-08-21
+
+- [BUGFIX] Fixes for Docker build #174
+
 ## v0.39 - 2019-08-19
 
 - [BUGFIX] Fix queries for promgen.Rule and promgen.Site #170
