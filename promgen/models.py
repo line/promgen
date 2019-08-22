@@ -411,7 +411,7 @@ class Rule(models.Model):
         _annotations = {obj.name: obj.value for obj in self.ruleannotation_set.all()}
         # Skip when pk is not set, such as when test rendering a rule
         if self.pk and 'rule' not in _annotations:
-            _annotations['rule'] = resolve_domain('rule-edit', pk=self.pk)
+            _annotations['rule'] = resolve_domain('rule-detail', pk=self.pk)
         return _annotations
 
     def __str__(self):

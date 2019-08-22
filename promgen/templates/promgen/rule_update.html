@@ -25,7 +25,7 @@ Promgen / Rule / {{ rule.name }}
   </table>
 </div>
 
-<form action="{% url 'rule-detail' rule.pk %}" class="input-group" method="post">{% csrf_token %}
+<form action="{% url 'rule-edit' rule.pk %}" class="input-group" method="post">{% csrf_token %}
   <div class="row">
 
     {% if form.non_field_errors  %}
