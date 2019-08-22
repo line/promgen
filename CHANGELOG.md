@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.39.2 - 2019-08-22
+
+- [BUGFIX] Fix HTTP 405 when updating a rule #176
+
 ## v0.39.1 - 2019-08-21
 
 - [BUGFIX] Fixes for Docker build #174
