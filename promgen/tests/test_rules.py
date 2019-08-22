@@ -18,7 +18,7 @@ groups:
   rules:
   - alert: RuleName
     annotations:
-      rule: https://example.com/rule/%d/edit
+      rule: https://example.com/rule/%d
       summary: Test case
     expr: up==0
     for: 1s
