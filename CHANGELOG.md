@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.39.3 - 2019-09-05
+
+- [BUGFIX] pk should always be an integer #178
+
 ## v0.39.2 - 2019-08-22
 
 - [BUGFIX] Fix HTTP 405 when updating a rule #176
