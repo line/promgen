@@ -1225,7 +1225,7 @@ class Import(PromgenPermissionMixin, FormView):
 
 class RuleTest(LoginRequiredMixin, View):
     def post(self, request, pk):
-        if pk == '0':
+        if pk == 0:
             rule = models.Rule()
             rule.set_object(request.POST['content_type'], request.POST['object_id'])
         else:
