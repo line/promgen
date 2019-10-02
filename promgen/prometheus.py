@@ -161,7 +161,7 @@ def render_config(service=None, project=None):
             labels['__metrics_path__'] = exporter.path
 
         hosts = []
-        for host in exporter.project.farm.host_set.all():
+        for host in exporter.project.farm.host_set.filter(enabled=True):
             hosts.append('{}:{}'.format(host.name, exporter.port))
 
         data.append({

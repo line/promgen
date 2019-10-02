@@ -3,6 +3,8 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 */
 
+Vue.use(window['vue-js-toggle-button'].default)
+
 Vue.config.devtools = true
 
 var dataStore = {
@@ -12,10 +14,33 @@ var dataStore = {
     globalMessages: []
 };
 
+/* Django CSRF compat */
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+}
+
 var app = new Vue({
     el: '#vue',
     data: dataStore,
     methods: {
+        toggleEnabled: function (event) {
+            let ele = event.srcElement.parentNode.dataset;
+            console.log(ele);
+            // TODO: Fix animation on confirmation
+            if (window.confirm(ele.confirm)) {
+                fetch(ele.target, { method: 'POST', headers: { "X-CSRFToken": readCookie('csrftoken') } })
+                    .then(function (response) {
+                        location.reload();
+                    })
+            }
+        },
         toggleTarget: function (target) {
             let tgt = document.getElementById(target);
             tgt.classList.toggle('collapse');

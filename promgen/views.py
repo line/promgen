@@ -14,7 +14,7 @@ from itertools import chain
 from prometheus_client import Gauge, generate_latest
 
 import promgen.templatetags.promgen as macro
-from promgen import (celery, discovery, forms, models, plugins, prometheus,
+from promgen import (celery, discovery, forms, models, plugins, prometheus, serializers,
                      signals, tasks, util, version)
 from promgen.shortcuts import resolve_domain
 
@@ -371,7 +371,7 @@ class ExporterToggle(LoginRequiredMixin, View):
         exporter.enabled = not exporter.enabled
         exporter.save()
         signals.trigger_write_config.send(request)
-        return JsonResponse({'redirect': exporter.project.get_absolute_url()})
+        return JsonResponse(serializers.ExporterSeralizer(exporter).data)
 
 
 class RuleDelete(PromgenPermissionMixin, DeleteView):
@@ -413,7 +413,7 @@ class RuleToggle(PromgenPermissionMixin, SingleObjectMixin, View):
     def post(self, request, pk):
         self.object.enabled = not self.object.enabled
         self.object.save()
-        return JsonResponse({'redirect': self.object.content_object.get_absolute_url()})
+        return JsonResponse(serializers.RuleSeralizer(self.object).data)
 
 
 class HostDelete(LoginRequiredMixin, DeleteView):
@@ -969,6 +969,15 @@ class HostRegister(LoginRequiredMixin, FormView):
         if farm.project_set.count() == 0:
             return redirect("farm-detail", pk=farm.id)
         return redirect("project-detail", pk=farm.project_set.first().id)
+
+
+class HostToggle(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        host = get_object_or_404(models.Host, pk=pk)
+        host.enabled = not host.enabled
+        host.save()
+        signals.trigger_write_config.send(request)
+        return JsonResponse(serializers.HostSeralizer(host).data)
 
 
 class ApiConfig(View):

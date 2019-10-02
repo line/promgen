@@ -48,4 +48,21 @@ class SenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Sender
-        fields = ('sender', 'owner', 'label')
+
+
+class HostSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Host
+        fields = ("pk", "name", "enabled")
+
+
+class ExporterSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Exporter
+        fields = ("pk", "job", "port", "enabled")
+
+
+class RuleSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Rule
+        fields = ("pk", "name", "enabled")
