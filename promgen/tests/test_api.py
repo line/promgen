@@ -2,10 +2,13 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 
+from promgen import models, views
+from promgen.tests import PromgenTest
+
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models
+from promgen import models, views
 
 from promgen.tests import PromgenTest
 
@@ -21,7 +24,5 @@ class APITest(PromgenTest):
         response = self.client.post(
             reverse('alert'), data=TEST_HEARTBEAT, content_type='application/json'
         )
-        self.assertEqual(response.status_code, 202)
-        self.assertEqual(
-            models.Alert.objects.count(), 0, 'Heartbeat alert should be deleted'
-        )
+        self.assertRoute(response, views.Alert, 202)
+        self.assertCount(models.Alert, 0, "Heartbeat alert should be deleted")

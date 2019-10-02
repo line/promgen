@@ -6,7 +6,7 @@ import os
 
 import yaml
 
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 
 
@@ -26,26 +26,17 @@ class PromgenTest(TestCase):
         with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
             return fp.read()
 
-    def factory(self, klass, name):
-        from promgen import models
-        if klass == models.Project:
-            shard = models.Shard.objects.create(
-                name='Shard ' + name)
-            service = models.Service.objects.create(
-                name='Service ' + name,
-                shard=shard,
-                )
-            return models.Project.objects.create(
-                name=name,
-                service=service,
-            )
-
-    def assertRoute(self, response, view, status=200):
-        self.assertEqual(response.status_code, status)
+    def assertRoute(self, response, view, status=200, msg=None):
+        self.assertEqual(response.status_code, status, msg)
         self.assertEqual(response.resolver_match.func.__name__, view.as_view().__name__)
 
     def assertCount(self, model, count, msg=None):
         self.assertEqual(model.objects.count(), count, msg)
+
+    def add_force_login(self, **kwargs):
+        user = User.objects.create_user(**kwargs)
+        self.client.force_login(user, "django.contrib.auth.backends.ModelBackend")
+        return user
 
     def add_user_permissions(self, *args, user=None):
         codenames = [p.split(".")[1] for p in args]

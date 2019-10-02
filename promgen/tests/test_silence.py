@@ -4,7 +4,6 @@
 import datetime
 from unittest import mock
 
-from django.contrib.auth.models import User
 from django.test import override_settings
 from django.urls import reverse
 
@@ -20,8 +19,7 @@ TEST_SETTINGS['timezone'] = 'Asia/Tokyo'
 
 class SilenceTest(PromgenTest):
     def setUp(self):
-        self.user = User.objects.create_user(id=999, username="Foo")
-        self.client.force_login(self.user)
+        self.user = self.add_force_login(id=999, username="Foo")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('promgen.util.post')
