@@ -948,31 +948,27 @@ class Status(LoginRequiredMixin, FormView):
 
 class HostRegister(LoginRequiredMixin, FormView):
     model = models.Host
-    template_name = 'promgen/host_form.html'
+    template_name = "promgen/host_form.html"
     form_class = forms.HostForm
 
     def get_context_data(self, **kwargs):
         context = super(HostRegister, self).get_context_data(**kwargs)
-        context['farm'] = get_object_or_404(models.Farm, id=self.kwargs['pk'])
-        context['project'] = context['farm'].project_set.first()
+        context["farm"] = get_object_or_404(models.Farm, pk=self.kwargs["pk"])
+        context["project"] = context["farm"].project_set.first()
         return context
 
     def form_valid(self, form):
-        farm = get_object_or_404(models.Farm, id=self.kwargs['pk'])
-        for hostname in re.split('[,\s]+', form.clean()['hosts']):
-            if hostname == '':
-                continue
-
+        farm = get_object_or_404(models.Farm, id=self.kwargs["pk"])
+        for hostname in form.cleaned_data["hosts"]:
             host, created = models.Host.objects.get_or_create(
-                name=hostname,
-                farm_id=farm.id,
+                name=hostname, farm_id=farm.id
             )
             if created:
-                logger.debug('Added %s to %s', host.name, farm.name)
+                logger.debug("Added %s to %s", host.name, farm.name)
 
         if farm.project_set.count() == 0:
-            return HttpResponseRedirect(reverse('farm-detail', args=[farm.id]))
-        return HttpResponseRedirect(reverse('project-detail', args=[farm.project_set.first().id]))
+            return redirect("farm-detail", pk=farm.id)
+        return redirect("project-detail", pk=farm.project_set.first().id)
 
 
 class ApiConfig(View):

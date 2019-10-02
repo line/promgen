@@ -1,11 +1,14 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
+import re
+
 from dateutil import parser
 
 from promgen import models, plugins, prometheus, validators
 
 from django import forms
+from django.core.exceptions import ValidationError
 
 
 class ImportConfigForm(forms.Form):
@@ -162,6 +165,21 @@ class NotifierUpdate(forms.ModelForm):
 
 class HostForm(forms.Form):
     hosts = forms.CharField(widget=forms.Textarea)
+
+    def clean(self):
+        # Hosts may be submitted delimiated by either , or newline so
+        # once we split on that, we want to make sure there are no invalid
+        # hostnames
+        hosts = set()
+        for hostname in re.split("[,\s]+", self.cleaned_data["hosts"]):
+            if hostname == "":
+                continue
+            if ":" in hostname:
+                raise ValidationError("Invalid hostname %s" % hostname)
+            hosts.add(hostname)
+        if not hosts:
+            raise ValidationError("No valid hosts")
+        self.cleaned_data["hosts"] = list(hosts)
 
 
 LabelFormset = forms.inlineformset_factory(
