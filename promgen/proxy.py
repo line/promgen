@@ -172,7 +172,7 @@ class ProxyQuery(PrometheusProxy):
 class ProxyAlerts(View):
     def get(self, request):
         try:
-            url = urljoin(settings.PROMGEN["alertmanager"]["url"], "/api/v1/alerts")
+            url = urljoin(util.setting("alertmanager:url"), "/api/v1/alerts")
             response = util.get(url)
         except requests.exceptions.ConnectionError:
             logger.error("Error connecting to %s", url)
@@ -184,7 +184,7 @@ class ProxyAlerts(View):
 class ProxySilences(View):
     def get(self, request):
         try:
-            url = urljoin(settings.PROMGEN["alertmanager"]["url"], "/api/v1/silences")
+            url = urljoin(util.setting("alertmanager:url"), "/api/v1/silences")
             response = util.get(url, params={"silenced": False})
         except requests.exceptions.ConnectionError:
             logger.error("Error connecting to %s", url)
@@ -226,7 +226,7 @@ class ProxySilences(View):
 class ProxyDeleteSilence(View):
     def delete(self, request, silence_id):
         url = urljoin(
-            settings.PROMGEN["alertmanager"]["url"], "/api/v1/silence/%s" % silence_id
+            util.setting("alertmanager:url"), "/api/v1/silence/%s" % silence_id
         )
         response = util.delete(url)
         return HttpResponse(

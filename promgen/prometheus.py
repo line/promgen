@@ -8,15 +8,17 @@ import subprocess
 import tempfile
 from urllib.parse import urljoin
 
-import promgen.templatetags.promgen as macro
 import pytz
 import yaml
 from dateutil import parser
+
+import promgen.templatetags.promgen as macro
+from promgen import models, util
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import prefetch_related_objects
 from django.utils import timezone
-from promgen import models, util
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +42,7 @@ def check_rules(rules):
         fp.flush()
 
         # This command changed to be without a space in 2.x
-        cmd = [settings.PROMGEN['prometheus']['promtool']]
-        if settings.PROMGEN['prometheus'].get('version') == 2:
-            cmd += ['check', 'rules']
-        else:
-            cmd += ['check-rules']
-        cmd += [fp.name]
+        cmd = [util.setting("prometheus:promtool"), "check", "rules", fp.name]
 
         try:
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
@@ -311,7 +308,7 @@ def silence(labels, duration=None, **kwargs):
         kwargs['endsAt'] = end.isoformat()
         kwargs.pop('startsAt', False)
     else:
-        local_timezone = pytz.timezone(settings.PROMGEN.get('timezone', 'UTC'))
+        local_timezone = pytz.timezone(util.setting("timezone", "UTC"))
         for key in ['startsAt', 'endsAt']:
             kwargs[key] = local_timezone.localize(
                 parser.parse(kwargs[key])
@@ -323,8 +320,8 @@ def silence(labels, duration=None, **kwargs):
         'isRegex': True if value.endswith("*") else False
     } for name, value in labels.items()]
 
-    logger.debug('Sending silence for %s', kwargs)
-    url = urljoin(settings.PROMGEN['alertmanager']['url'], '/api/v1/silences')
+    logger.debug("Sending silence for %s", kwargs)
+    url = urljoin(util.setting("alertmanager:url"), "/api/v1/silences")
     response = util.post(url, json=kwargs)
     response.raise_for_status()
     return response

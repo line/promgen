@@ -9,8 +9,9 @@ from datetime import datetime
 import yaml
 from pytz import timezone
 
+from promgen import util
+
 from django import template
-from django.conf import settings
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -124,7 +125,7 @@ def pretty_yaml(data):
 
 @register.filter()
 def strftime(timestamp, fmt):
-    tz = settings.PROMGEN.get('timezone', 'UTC')
+    tz = util.setting("timezone", "UTC")
     if isinstance(timestamp, int) or isinstance(timestamp, float):
         return timezone(tz).localize(datetime.fromtimestamp(timestamp)).strftime(fmt)
     return timestamp
