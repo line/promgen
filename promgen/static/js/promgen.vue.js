@@ -172,3 +172,30 @@ var app = new Vue({
         }
     }
 })
+
+
+Vue.component('promql-query', {
+    props: ['href', 'query'],
+    data: function () {
+        return {
+            count: 0
+        }
+    },
+    template: '<span style="display:none"><slot></slot>{{count}}</span>',
+    mounted() {
+        var this_ = this;
+        var url = new URL(this.href)
+        url.search = new URLSearchParams({ query: this.query })
+        fetch(url)
+            .then(response => response.json())
+            .then(result => {
+                this_.count = Number.parseInt(result.data.result[0].value[1]).toLocaleString();
+                this_.$el.classList.add('label-info')
+                this_.$el.style.display = "inline";
+            })
+            .catch(error => {
+                this_.$el.classList.add('label-warning')
+                this_.$el.style.display = "inline";
+            })
+    }
+})
