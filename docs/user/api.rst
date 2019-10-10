@@ -18,7 +18,7 @@ Prometheus nodes. See the `Prometheus API <https://prometheus.io/docs/prometheus
 Promgen API
 ===========
 
-.. http:get:: /api/v1/alerts
+.. http:post:: /api/v1/alerts
 
 .. http:get:: /api/v1/targets
 
