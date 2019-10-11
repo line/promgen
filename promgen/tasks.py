@@ -28,7 +28,7 @@ def process_alert(alert_pk):
 
     # For any blacklisted label patterns, we delete them from the queue
     # and consider it done (do not send any notification)
-    blacklist = settings.PROMGEN.get("alert_blacklist", {})
+    blacklist = util.setting("alertmanager:blacklist", {})
     for key in blacklist:
         logger.debug("Checking key %s", key)
         if key in data["commonLabels"]:
@@ -75,7 +75,7 @@ def send_alert(sender, target, data, alert_pk=None):
 def reload_prometheus():
     from promgen import signals
 
-    target = urljoin(settings.PROMGEN["prometheus"]["url"], "/-/reload")
+    target = urljoin(util.setting("prometheus:url"), "/-/reload")
     response = util.post(target)
     signals.post_reload.send(response)
 
@@ -83,7 +83,7 @@ def reload_prometheus():
 @shared_task
 def write_urls(path=None, reload=True, chmod=0o644):
     if path is None:
-        path = settings.PROMGEN["prometheus"]["blackbox"]
+        path = util.setting("prometheus:blackbox")
     with atomic_write(path, overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
@@ -95,7 +95,7 @@ def write_urls(path=None, reload=True, chmod=0o644):
 @shared_task
 def write_config(path=None, reload=True, chmod=0o644):
     if path is None:
-        path = settings.PROMGEN["config_writer"]["path"]
+        path = util.setting("prometheus:targets")
     with atomic_write(path, overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
@@ -107,7 +107,7 @@ def write_config(path=None, reload=True, chmod=0o644):
 @shared_task
 def write_rules(path=None, reload=True, chmod=0o644):
     if path is None:
-        path = settings.PROMGEN["prometheus"]["rules"]
+        path = util.setting("prometheus:rules")
     with atomic_write(path, mode="wb", overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)

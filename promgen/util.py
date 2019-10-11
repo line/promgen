@@ -5,6 +5,8 @@ import requests.sessions
 
 from promgen.version import __version__
 
+from django.conf import settings
+
 # Wrappers around request api to ensure we always attach our user agent
 # https://github.com/requests/requests/blob/master/requests/api.py
 
@@ -25,3 +27,25 @@ def delete(url, **kwargs):
     with requests.sessions.Session() as session:
         session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
         return session.delete(url, **kwargs)
+
+
+def setting(key, default=None, domain=None):
+    """
+    Settings helper based on saltstack's query
+
+    Allows a simple way to query settings from YAML
+    using the style `path:to:key` to represent
+    
+    path:
+      to:
+        key: value
+    """
+    rtn = settings.PROMGEN
+    if domain:
+        rtn = rtn[domain]
+    for index in key.split(":"):
+        try:
+            rtn = rtn[index]
+        except KeyError:
+            return default
+    return rtn
