@@ -4,8 +4,9 @@
 import logging
 import textwrap
 
+from promgen import util
+
 from django import forms
-from django.conf import settings
 from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ class NotificationBase(object):
         the specific key.
         '''
         try:
-            return settings.PROMGEN[self.__module__][key]
+            return util.setting(key, domain=self.__module__)
         except KeyError:
             logger.error('Undefined setting. Please check for %s under %s in settings.yml', key, self.__module__)
 

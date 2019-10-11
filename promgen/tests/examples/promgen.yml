@@ -2,26 +2,21 @@
 # These are used for Promgen to automatically trigger a reload on target changes
 prometheus:
   url: http://prometheus:9090/
-  version: 2
   # Path to promtool to verify valid rules file
   promtool: /usr/local/bin/promtool
   # Output rule configuration to this path
   rules: /etc/prometheus/promgen.rule.yml
   # Output blackbox configuration to this path
   blackbox: /etc/prometheus/blackbox.json
+  # Output target configuration to this path
+  targets: /etc/prometheus/promgen.json
 
 alertmanager:
   url: http://alertmanager:9093
-
-# Blacklist labels we want to filter out and prevent
-# sending alerts on
-alert_blacklist:
-  severity: ["debug", "blackhole"]
-
-# Settings related to target configuration file.
-config_writer:
-  # Output target configuration to this path
-  path: /etc/prometheus/promgen.json
+  # Blacklist labels we want to filter out and prevent
+  # sending alerts on
+  blacklist:
+    severity: ["debug", "blackhole"]
 
 # Sender Configuration Settings
 # These match the module path of the plugin itself
