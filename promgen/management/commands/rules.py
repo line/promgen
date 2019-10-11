@@ -28,4 +28,4 @@ class Command(BaseCommand):
             # Since we're already working with utf8 encoded data, we can skip
             # the newline ending here
             self.stdout.ending = None
-            self.stdout.write(prometheus.render_rules())
+            self.stdout.buffer.write(prometheus.render_rules())
