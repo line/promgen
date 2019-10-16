@@ -631,46 +631,48 @@ class ExporterRegister(LoginRequiredMixin, FormView, ProjectMixin):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ExporterScrape(LoginRequiredMixin, FormView):
-    model = models.Exporter
-    form_class = forms.ExporterForm
-
-    def form_valid(self, form):
-        project = get_object_or_404(models.Project, id=self.kwargs['pk'])
+class ExporterScrape(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        form = forms.ExporterForm(request.POST)
+        if not form.is_valid():
+            return JsonResponse(
+                {"message": "Form Errors", "errors": form.errors}, status=400
+            )
 
         futures = []
-        context = {
-            'target': self.request.POST['target'].strip('#'),
-            'results': [],
-            'errors': [],
-        }
-        headers = {
-            'referer': project.get_absolute_url()
-        }
+        project = get_object_or_404(models.Project, id=self.kwargs["pk"])
 
         # The default __metrics_path__ for Prometheus is /metrics so we need to
         # manually add it here in the case it's not set for our test
-        if not form.cleaned_data['path']:
-            form.cleaned_data['path'] = '/metrics'
+        if not form.cleaned_data["path"]:
+            form.cleaned_data["path"] = "/metrics"
 
         if not project.farm:
-            context['errors'].append({'url': headers['referer'], 'message': 'Missing Farm'})
-        else:
+            return JsonResponse({"message": "Missing Farm"}, status=400)
+
+        def query():
             with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
                 for host in project.farm.host_set.all():
-                    futures.append(executor.submit(util.get, 'http://{}:{}{}'.format(
-                        host.name, form.cleaned_data['port'], form.cleaned_data['path']
-                    ), headers=headers))
+                    futures.append(
+                        executor.submit(
+                            util.get,
+                            "http://{}:{}{}".format(
+                                host.name,
+                                form.cleaned_data["port"],
+                                form.cleaned_data["path"],
+                            ),
+                        )
+                    )
                 for future in concurrent.futures.as_completed(futures):
                     try:
                         result = future.result()
-                        context['results'].append(result)
-                    except:
+                        yield result.request.url, result.status_code
+                    except Exception as e:
                         result = future.exception()
-                        logger.warning('Error with response')
-                        context['errors'].append({'url': result.request.url, 'message': result})
+                        logger.warning("Error with response")
+                        yield result.request.url, str(result)
 
-        return JsonResponse({'#' + context['target']: render_to_string('promgen/ajax_exporter.html', context)})
+        return JsonResponse(dict(query()))
 
 
 class URLRegister(LoginRequiredMixin, FormView, ProjectMixin):

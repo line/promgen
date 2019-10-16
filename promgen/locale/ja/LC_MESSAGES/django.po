@@ -23,7 +23,7 @@ msgstr "Expire"
 
 #: templates/promgen/notifier_block.html:15
 msgid "Test"
-msgstr "Test"
+msgstr "テスト"
 
 #: templates/promgen/notifier_block.html:19
 msgid "Delete notificiation?"
