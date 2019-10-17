@@ -1,16 +1,14 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
-
 from unittest import mock
+
+import requests
 
 from promgen import models, views
 from promgen.tests import PromgenTest
 
 from django.test import override_settings
 from django.urls import reverse
-
-from promgen import models
-from promgen.tests import PromgenTest
 
 TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
 TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
@@ -113,6 +111,10 @@ class RouteTests(PromgenTest):
         }
 
         for url, body in exporters.items():
+            response = requests.Response()
+            response.url = url
+            mock_get.return_value = response
+
             # For each POST body, check to see that we generate and attempt to
             # scrape the correct URL
             self.client.post(

@@ -666,11 +666,11 @@ class ExporterScrape(LoginRequiredMixin, View):
                 for future in concurrent.futures.as_completed(futures):
                     try:
                         result = future.result()
-                        yield result.request.url, result.status_code
+                        yield result.url, result.status_code
                     except Exception as e:
                         result = future.exception()
                         logger.warning("Error with response")
-                        yield result.request.url, str(result)
+                        yield result.url, str(result)
 
         return JsonResponse(dict(query()))
 
