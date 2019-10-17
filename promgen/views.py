@@ -640,19 +640,16 @@ class ExporterScrape(LoginRequiredMixin, View):
             )
 
         futures = []
-        project = get_object_or_404(models.Project, id=self.kwargs["pk"])
+        farm = get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
         # The default __metrics_path__ for Prometheus is /metrics so we need to
         # manually add it here in the case it's not set for our test
         if not form.cleaned_data["path"]:
             form.cleaned_data["path"] = "/metrics"
 
-        if not project.farm:
-            return JsonResponse({"message": "Missing Farm"}, status=400)
-
         def query():
             with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-                for host in project.farm.host_set.all():
+                for host in farm.host_set.all():
                     futures.append(
                         executor.submit(
                             util.get,

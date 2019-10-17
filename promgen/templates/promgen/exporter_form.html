@@ -39,7 +39,7 @@
           <button class="btn btn-primary">Register Exporter</button>
           <exporter-test
             class="btn btn-info"
-            href="{% url 'exporter-scrape' project.id %}"
+            href="{% url 'exporter-scrape' project.farm.id %}"
             form="#exporter_form"
             target="#exporterresult"
             >Test</a>
@@ -65,7 +65,7 @@
             <exporter-test
               style="width:20%"
               class="btn btn-info"
-              href="{% url 'exporter-scrape' project.id %}"
+              href="{% url 'exporter-scrape' project.farm.id %}"
               target="#exporterresult"
               >{% trans "Test" %}</exporter-test>
           </div>

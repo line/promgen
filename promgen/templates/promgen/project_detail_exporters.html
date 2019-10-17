@@ -34,7 +34,7 @@
           <input type="hidden" name="path" value="{{ exporter.path }}" />
           <exporter-test
               class="btn btn-info btn-xs"
-              href="{% url 'exporter-scrape' project.id %}"
+              href="{% url 'exporter-scrape' project.farm.id %}"
               target="#exporterresult"
               >{% trans "Test" %}</exporter-test>
           </div>

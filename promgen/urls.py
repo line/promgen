@@ -50,7 +50,6 @@ urlpatterns = [
     path('project/<int:pk>/unlink', views.UnlinkFarm.as_view(), name='farm-unlink'),
     path('project/<int:pk>/link/<source>', views.FarmLink.as_view(), name='farm-link'),
     path('project/<int:pk>/newfarm', views.FarmRegister.as_view(), name='farm-new'),
-    path('project/<int:pk>/scrape', views.ExporterScrape.as_view(), name='exporter-scrape'),
     path('project/<int:pk>/exporter', views.ExporterRegister.as_view(), name='project-exporter'),
     path('project/<int:pk>/notifier', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
 
@@ -63,6 +62,7 @@ urlpatterns = [
 
     path('farm', views.FarmList.as_view(), name='farm-list'),
     path('farm/<int:pk>', views.FarmDetail.as_view(), name='farm-detail'),
+    path('farm/<int:pk>/scrape', views.ExporterScrape.as_view(), name='exporter-scrape'),
     path('farm/<int:pk>/refresh', views.FarmRefresh.as_view(), name='farm-refresh'),
     path('farm/<int:pk>/hosts', views.HostRegister.as_view(), name='hosts-add'),
     path('farm/<int:pk>/update', views.FarmUpdate.as_view(), name='farm-update'),
