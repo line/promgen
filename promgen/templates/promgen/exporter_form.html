@@ -37,12 +37,12 @@
       <div class="panel-footer">
         <div class="input-group-btn">
           <button class="btn btn-primary">Register Exporter</button>
-          <a
+          <exporter-test
             class="btn btn-info"
-            data-href="{% url 'exporter-scrape' project.id %}"
-            data-form="#exporter_form"
-            data-target="#exporterresult"
-            >Test</a>
+            href="{% url 'exporter-scrape' project.farm.id %}"
+            form="#exporter_form"
+            target="#exporterresult"
+            >{% trans "Test" %}</exporter-test>
         </div>
         </div>
     </div>
@@ -62,13 +62,12 @@
           <input type="hidden" name="enabled" value="1" />
           <div class="input-group-btn">
             <button style="width:80%" class="btn btn-primary">Register {{ default.job }} :{{ default.port }}{{ default.path }}</button>
-            <a
+            <exporter-test
               style="width:20%"
-              class="btn btn-info promgen-exporter"
-              data-href="{% url 'exporter-scrape' project.id %}"
-              data-form="#{{ default.job }}_{{ default.port }}"
-              data-target="#exporterresult"
-              >{% trans "Test" %}</a>
+              class="btn btn-info"
+              href="{% url 'exporter-scrape' project.farm.id %}"
+              target="#exporterresult"
+              >{% trans "Test" %}</exporter-test>
           </div>
       </form>
 {% endfor %}
@@ -77,6 +76,6 @@
   </div>
 </div>
 
-<div id="exporterresult" class="panel-body" style="display:none;"></div>
+<div id="exporterresult" style="display:none;"></div>
 
 {% endblock %}

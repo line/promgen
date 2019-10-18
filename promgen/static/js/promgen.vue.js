@@ -199,3 +199,40 @@ Vue.component('promql-query', {
             })
     }
 })
+
+Vue.component('bootstrap-panel', {
+    props: ['heading'],
+    template: '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body"><slot /></div></div>'
+})
+
+
+const ExporterResult = Vue.component('exporter-result', {
+    props: ['results'],
+    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>'
+})
+
+const ExporterTest = Vue.component('exporter-test', {
+    // Exporter Test button for Forms
+    // Acts like a regular form submit button, but hijacks the button
+    // click and submits it to an alternate URL for testing
+    props: ['href', 'target'],
+    template: '<button @click.prevent="onTestSubmit"><slot /></button>',
+    methods: {
+        onTestSubmit: function (event) {
+            // Find the parent form our button belongs to so that we can
+            // simulate a form submission
+            let form = new FormData(event.srcElement.closest('form'))
+            let tgt = document.querySelector(this.target);
+            fetch(this.href, { body: form, method: "post", })
+                .then(result => result.json())
+                .then(result => {
+                    // If we have a valid result, then create a new
+                    // ExporterResult component that we can render
+                    var component = new ExporterResult().$mount(tgt);
+                    component.$el.id = tgt.id;
+                    component.$props.results = result;
+                })
+                .catch(error => alert(error))
+        }
+    }
+})

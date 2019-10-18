@@ -1,16 +1,14 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
-
 from unittest import mock
+
+import requests
 
 from promgen import models, views
 from promgen.tests import PromgenTest
 
 from django.test import override_settings
 from django.urls import reverse
-
-from promgen import models
-from promgen.tests import PromgenTest
 
 TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
 TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
@@ -87,38 +85,35 @@ class RouteTests(PromgenTest):
         response = self.client.get(reverse("host-list"))
         self.assertRoute(response, views.HostList, 200)
 
-    @mock.patch('promgen.util.get')
+    @mock.patch("promgen.util.get")
     def test_scrape(self, mock_get):
-        shard = models.Shard.objects.create(name='Shard Test')
-        service = models.Service.objects.create(name='Service Test')
-        project = models.Project.objects.create(name='Project Test', service=service, shard=shard)
-        project.farm = models.Farm.objects.create(name='test_scrape')
-        project.farm.host_set.create(name='example.com')
-        project.save()
+        farm = models.Farm.objects.create(name="test_scrape")
+        farm.host_set.create(name="example.com")
 
         # Uses the scrape target as the key, and the POST body that should
         # result in that URL
         exporters = {
-            'http://example.com:8000/metrics': {
-                'target': '#exporterresult',
-                'job': 'foo',
-                'port': 8000
+            "http://example.com:8000/metrics": {
+                "target": "#exporterresult",
+                "job": "foo",
+                "port": 8000,
             },
-            'http://example.com:8000/foo': {
-                'target': '#exporterresult',
-                'job': 'foo',
-                'port': 8000,
-                'path': '/foo'
-            }
+            "http://example.com:8000/foo": {
+                "target": "#exporterresult",
+                "job": "foo",
+                "port": 8000,
+                "path": "/foo",
+            },
         }
 
         for url, body in exporters.items():
+            response = requests.Response()
+            response.url = url
+            mock_get.return_value = response
+
             # For each POST body, check to see that we generate and attempt to
             # scrape the correct URL
-            self.client.post(
-                reverse('exporter-scrape', args=(project.pk, )),
-                body,
-            )
+            self.client.post(reverse("exporter-scrape", args=(farm.pk,)), body)
             self.assertEqual(mock_get.call_args[0][0], url)
 
     def test_failed_permission(self):
