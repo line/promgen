@@ -34,7 +34,12 @@
           <input type="hidden" name="path" value="{{ exporter.path }}" />
           <exporter-test
               class="btn btn-info btn-xs"
+              {% if project.farm %}
               href="{% url 'exporter-scrape' project.farm.id %}"
+              {% else %}
+              title="Please assign farm to test"
+              disabled
+              {% endif %}
               target="#exporterresult"
               >{% trans "Test" %}</exporter-test>
           </div>
