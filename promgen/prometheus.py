@@ -179,6 +179,14 @@ def import_rules_v2(config, content_object=None):
     if not isinstance(config, dict):
         config = yaml.safe_load(config)
 
+    # If 'groups' does not exist in our config, assume that a single
+    # rule is being imported (perhaps from Promgen's UI) so wrap it
+    # to be the full rule format we expect
+    # https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
+    # TODO In the future want to refactor this into the API itself
+    if "groups" not in config:
+        config = {"groups": [{"name": "Import", "rules": [config]}]}
+
     counters = collections.defaultdict(int)
     for group in config['groups']:
         for r in group['rules']:
