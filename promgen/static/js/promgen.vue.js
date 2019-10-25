@@ -215,15 +215,23 @@ Vue.component('bootstrap-panel', {
     template: '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body"><slot /></div></div>'
 })
 
-const ExporterResult = Vue.component('exporter-result', {
+const PromgenResult = Vue.component('promgen-result', {
     props: ['results'],
-    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>',
     methods: {
         replace: function (ele) {
             this.$mount(ele);
             this.$el.id = ele.id;
             return this;
         },
+    }
+})
+
+
+const ExporterResult = Vue.component('exporter-result', {
+    extends: PromgenResult,
+    props: ['results'],
+    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>',
+    methods: {
         query: function (href, data) {
             fetch(href, { body: data, method: "post" })
                 .then(result => result.json())
@@ -251,13 +259,9 @@ Vue.component('exporter-test', {
 })
 
 const RuleResult = Vue.component('rule-result', {
+    extends: PromgenResult,
     template: '<div>Loading...</div>',
     methods: {
-        replace: function (ele) {
-            this.$mount(ele);
-            this.$el.id = ele.id;
-            return this;
-        },
         query: function (href, data) {
             var formData = new FormData()
             for (var key in data) {
@@ -293,9 +297,7 @@ Vue.component('code-sample', {
     methods: {
         onClick: function (event) {
             // Build our query
-            // var data = event.target.dataset;
             var data = event.target.dataset;
-            console.log(data);
             data.query = event.target.innerText;
 
             // Create result and call query
