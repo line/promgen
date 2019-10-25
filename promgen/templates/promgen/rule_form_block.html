@@ -56,30 +56,28 @@
     <dl class="list-inline">
       <dt>Example Query</dt>
       <dd>
-        <code
-          data-href="{% url 'rule-test' rule.id %}"
-          data-source="self"
-          data-target="#ajax-clause-check"
+        <code-sample
+          href="{% url 'rule-test' rule.id %}"
+          target="#ajax-clause-check"
           data-content_type="{{rule.content_type.name}}"
           data-object_id="{{rule.object_id}}"
           >
           node_load1{% templatetag openbrace %}{{rule.content_type.model}}="{{ rule.content_object.name }}", {{ macro }}} > 5
-        </code>
+        </code-sample>
       </dd>
 {% if rule.parent %}
       <dt>
         <a href="{% url 'rule-detail' rule.parent.pk %}" />Parent Query</a>
       </dt>
       <dd>
-        <code
-          data-href="{% url 'rule-test' rule.id %}"
-          data-source="self"
+        <code-sample
+          href="{% url 'rule-test' rule.id %}"
           data-target="#ajax-clause-check"
           data-content_type="{{rule.content_type.name}}"
           data-object_id="{{rule.object_id}}"
           >
           {{rule.parent.clause}}
-        </code>
+        </code-sample>
       </dd>
 {% endif %}
     </dl>
@@ -101,14 +99,14 @@
   </div>
 -->
   <div class="panel-body">
-    <a
+    <rule-test
       class="btn btn-primary btn-sm"
-      data-href="{% url 'rule-test' rule.id %}"
-      data-source="#id_clause"
-      data-target="#ajax-clause-check"
+      href="{% url 'rule-test' rule.id %}"
+      source="#id_clause"
+      target="#ajax-clause-check"
       data-content_type="{{rule.content_type.name}}"
       data-object_id="{{rule.object_id}}"
-      >Test Query</a>
+      >Test Query</rule-test>
   </div>
 </div>
 

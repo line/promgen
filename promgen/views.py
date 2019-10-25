@@ -1325,4 +1325,4 @@ class RuleTest(LoginRequiredMixin, View):
             context['status'] = 'danger'
             context['errors']['Query'] = result['error']
 
-        return JsonResponse({request.POST['target']: render_to_string('promgen/ajax_clause_check.html', context)})
+        return JsonResponse(context)
