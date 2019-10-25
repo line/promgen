@@ -72,7 +72,7 @@
       <dd>
         <code-sample
           href="{% url 'rule-test' rule.id %}"
-          data-target="#ajax-clause-check"
+          target="#ajax-clause-check"
           data-content_type="{{rule.content_type.name}}"
           data-object_id="{{rule.object_id}}"
           >
@@ -86,18 +86,6 @@
     {% include 'promgen/error_block.html' with errors=form.clause.errors only %}
     {{ form.clause }}
   </div>
-<!-- Disable pending refactoring
-  <div class="panel-body">
-      <select
-        data-target="#id_clause"
-        data-ajax="{% url 'proxy-values' '__name__' %}"
-        data-append='{% templatetag openbrace %}{{rule.content_type.name}}="{{ rule.content_object.name }}"}'
-        class="form-control"
-        >
-        <option value="">- insert metric at cursor -</option>
-      </select>
-  </div>
--->
   <div class="panel-body">
     <rule-test
       class="btn btn-primary btn-sm"

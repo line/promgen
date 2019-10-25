@@ -216,11 +216,11 @@ Vue.component('bootstrap-panel', {
 })
 
 const PromgenResult = Vue.component('promgen-result', {
-    props: ['results'],
     methods: {
         replace: function (ele) {
             this.$mount(ele);
             this.$el.id = ele.id;
+            app.$children.push(this);
             return this;
         },
     }
@@ -230,7 +230,15 @@ const PromgenResult = Vue.component('promgen-result', {
 const ExporterResult = Vue.component('exporter-result', {
     extends: PromgenResult,
     props: ['results'],
-    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>',
+    template: `
+    <bootstrap-panel class="panel-info" heading="Results">
+        <table class="table">
+            <tr v-for="(val, key, index) in results">
+                <td>{{key}}</td>
+                <td>{{val}}</td>
+            </tr>
+        </table>
+    </bootstrap-panel>`,
     methods: {
         query: function (href, data) {
             fetch(href, { body: data, method: "post" })
@@ -260,7 +268,32 @@ Vue.component('exporter-test', {
 
 const RuleResult = Vue.component('rule-result', {
     extends: PromgenResult,
-    template: '<div>Loading...</div>',
+    data: function () {
+        return {
+            results: {}
+        }
+    },
+    template: `
+    <bootstrap-panel class="panel-info" heading="Results">
+        <div v-if="results.data === undefined" class="panel-body">Loading...</div>
+        <div class="panel-body">
+            <dl>
+                <dt>Query</dt>
+                <dd><code>{{results.query}}</code></dd>
+                <dt>Duration</dt>
+                <dd>{{results.duration}}</dd>
+                <dt>Status</dt>
+                <dd>{{results.status}}</dd>
+            </dl>
+        </divL
+        <table class="table" v-show="results.errors !== undefined" >
+            <tr v-for="(val, key, index) in results.errors">
+                <td>{{key}}</td>
+                <td>{{val}}</td>
+            </tr>
+        </table>
+    </bootstrap-panel>
+    `,
     methods: {
         query: function (href, data) {
             var formData = new FormData()
@@ -269,7 +302,7 @@ const RuleResult = Vue.component('rule-result', {
             }
             fetch(href, { body: formData, method: "post" })
                 .then(result => result.json())
-                .then(result => console.log(result))
+                .then(result => this.results = result)
         }
     }
 })
