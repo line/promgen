@@ -1,5 +1,28 @@
 # Changelog
 
+## v0.40 - 2019-10-28
+
+- [BUGFIX] Disable button when no farm assigned #188
+- [BUGFIX] Fix hostname validation #181
+- [BUGFIX] Fix HTTP 405 when updating a rule #176
+- [BUGFIX] Fix output from `promgen rules` command #186
+- [BUGFIX] Fix rule import #189
+- [BUGFIX] Fixes for Docker build #174
+- [BUGFIX] pk should always be an integer #178
+- [CHANGE] Rewrite exporter test button in Vue #187
+- [DOCUMENTATION] Fix method for route #185
+- [IMPROVEMENT] Add custom promql-query tag #184
+- [IMPROVEMENT] Settings helper for Promgen config #183
+- [INTERNAL] Refactor unittests #166
+- [INTERNAL] Upgrade Django to 2.2.4 #175
+
+Breaking
+
+- `config_writer:path` changes to `prometheus:targets`
+- `alert_blacklist` changes to `alertmanager:blacklist`
+
+See `promgen/tests/examples/promgen.yml`
+
 ## v0.39 - 2019-08-19
 
 - [BUGFIX] Fix queries for promgen.Rule and promgen.Site #170
