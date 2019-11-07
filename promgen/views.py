@@ -7,10 +7,10 @@ import datetime
 import json
 import logging
 import platform
-import re
 import time
 from itertools import chain
 
+import requests
 from prometheus_client import Gauge, generate_latest
 
 import promgen.templatetags.promgen as macro
@@ -663,11 +663,17 @@ class ExporterScrape(LoginRequiredMixin, View):
                 for future in concurrent.futures.as_completed(futures):
                     try:
                         result = future.result()
+                        result.raise_for_status()
                         yield result.url, result.status_code
-                    except Exception as e:
-                        result = future.exception()
+                    except requests.ConnectionError as e:
+                        logger.warning("Error connecting to server")
+                        yield e.request.url, "Error connecting to server"
+                    except requests.RequestException as e:
                         logger.warning("Error with response")
-                        yield result.url, str(result)
+                        yield e.request.url, str(e)
+                    except Exception:
+                        logger.exception('Unknown Exception')
+                        yield "Unknown URL", "Unknown error"
 
         return JsonResponse(dict(query()))
 
