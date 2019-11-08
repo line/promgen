@@ -317,10 +317,10 @@ class Host(models.Model):
 
 
 class Exporter(models.Model):
-    job = models.CharField(max_length=128)
-    port = models.IntegerField()
-    path = models.CharField(max_length=128, blank=True)
-    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    job = models.CharField(max_length=128, help_text="Exporter name. Example node, jmx, app")
+    port = models.IntegerField(help_text="Port Exporter is running on")
+    path = models.CharField(max_length=128, blank=True, help_text="Exporter path. Defaults to /metrics")
+    project = models.ForeignKey("Project", on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
 
     class Meta:
