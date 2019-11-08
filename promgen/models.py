@@ -390,7 +390,7 @@ class Rule(models.Model):
         models.Q(app_label='promgen', model='service'))
     )
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id', for_concrete_model=False)
     description = models.TextField(blank=True)
 
     class Meta:
