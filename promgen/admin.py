@@ -17,7 +17,7 @@ class FilterInline(admin.TabularInline):
 
 @admin.register(models.Host)
 class HostAdmin(admin.ModelAdmin):
-    list_display = ('name', 'farm')
+    list_display = ("name", "farm", "enabled")
 
 
 @admin.register(models.Shard)

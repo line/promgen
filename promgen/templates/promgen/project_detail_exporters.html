@@ -17,14 +17,11 @@
       <td>{{ exporter.port }}</td>
       <td>{{ exporter.path | default:"/metrics" }}</td>
       <td style="white-space: nowrap">
-        <input
-          type="checkbox"
-          {% if exporter.enabled %}checked{% endif %}
-          data-size="mini"
-          data-toggle="toggle"
-          data-csrfmiddlewaretoken="{{csrf_token}}"
-          data-action="{% url 'exporter-toggle' exporter.id %}"
-        />
+        <toggle-button
+                       :value="{{exporter.enabled|lower}}"
+                       @click.native.prevent="toggleEnabled($event)"
+                       data-confirm="Are you sure you want to toggle this exporter?"
+                       data-target="{% url 'exporter-toggle' exporter.pk %}"></toggle-button>
       </td>
       <td>
         <form id="{{exporter.job}}_{{exporter.port}}">

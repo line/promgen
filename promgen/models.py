@@ -304,6 +304,7 @@ class Farm(models.Model):
 class Host(models.Model):
     name = models.CharField(max_length=128)
     farm = models.ForeignKey('Farm', on_delete=models.CASCADE)
+    enabled = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['name']

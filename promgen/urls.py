@@ -72,6 +72,7 @@ urlpatterns = [
     path('host/', views.HostList.as_view(), name='host-list'),
     path('host/<slug>', views.HostDetail.as_view(), name='host-detail'),
     path('host/<int:pk>/delete', views.HostDelete.as_view(), name='host-delete'),
+    path('host/<int:pk>/toggle', views.HostToggle.as_view(), name='host-toggle'),
 
     path('notifier/<int:pk>/delete', views.NotifierDelete.as_view(), name='notifier-delete'),
     path('notifier/<int:pk>/test', views.NotifierTest.as_view(), name='notifier-test'),

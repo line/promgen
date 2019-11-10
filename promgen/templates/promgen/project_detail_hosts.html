@@ -4,14 +4,19 @@
   <table class="table">
     <tr>
       <th>Name</th>
-      <th>&nbsp;</th>
-    {% if project.farm.editable %}
-      <th>&nbsp;</th>
-    {% endif %}
+      <th>Enabled</th>
+      <th colspan="2">Actions</th>
     </tr>
-  {% for host in project.farm.host_set.all %}
+    {% for host in project.farm.host_set.all %}
     <tr>
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
+      <td>
+        <toggle-button
+                       :value="{{host.enabled|lower}}"
+                       @click.native.prevent="toggleEnabled($event)"
+                       data-confirm="Are you sure you want to toggle this host?"
+                       data-target="{% url 'host-toggle' host.pk %}"></toggle-button>
+      </td>
       <td>
         <a
           @click.prevent="silenceSetLabels"
@@ -23,14 +28,14 @@
           style="display: inline-block;"
         >{% trans "Silence" %}</a>
       </td>
-      {% if project.farm.editable %}
       <td>
+        {% if project.farm.editable %}
         <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
           {% csrf_token %}
         <button name="delete" type="submit" class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
         </form>
+        {% endif %}
       </td>
-      {% endif %}
     </tr>
   {% endfor %}
   </table>
