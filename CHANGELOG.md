@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.41 - 2019-11-12
+
+- [BUGFIX] Catch ConnectionError and RequestException for better results #191
+- [BUGFIX] Rule.content_object should use our Site proxy module #194
+- [BUGFIX] Update test data for Alertmanager #196
+- [IMPROVEMENT] Add `promgen register-host` to register host from command line #193
+- [IMPROVEMENT] Add `promgen register-job` to register job from command line #192
+
 ## v0.40 - 2019-10-28
 
 - [BUGFIX] Disable button when no farm assigned #188
