@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.41.1 - 2019-11-13
+
+- [BUGFIX] Pin kombu to 4.6.3 to fix bug with redis exchange #197
+
 ## v0.41 - 2019-11-12
 
 - [BUGFIX] Catch ConnectionError and RequestException for better results #191
