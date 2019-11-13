@@ -37,6 +37,7 @@ setup(
         'Django==2.2.4',
         'djangorestframework==3.9.4',
         'envdir',
+        'kombu==4.6.3',  # https://github.com/celery/kombu/issues/1063
         'prometheus-client==0.7.0',
         'python-dateutil==2.8.0',
         'pyyaml==5.1',
