@@ -65,16 +65,6 @@ def render_rules(rules=None):
     if rules is None:
         rules = models.Rule.objects.filter(enabled=True)
 
-    prefetch_related_objects(
-        rules,
-        'content_object',
-        'content_type',
-        'overrides__content_object',
-        'overrides__content_type',
-        'ruleannotation_set',
-        'rulelabel_set',
-    )
-
     return renderers.RuleRenderer().render(
         serializers.AlertRuleSerializer(rules, many=True).data
     )

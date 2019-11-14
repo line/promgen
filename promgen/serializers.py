@@ -2,6 +2,8 @@ import collections
 
 from rest_framework import serializers
 
+from django.db.models import prefetch_related_objects
+
 import promgen.templatetags.promgen as macro
 from promgen import models, shortcuts
 
@@ -73,7 +75,23 @@ class AlertRuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Rule
         fields = ("alert", "expr", "for", "labels", "annotations")
-        list_serializer_class = AlertRuleList
+
+    @classmethod
+    def many_init(cls, queryset, *args, **kwargs):
+        # when rendering many items at once, we want to make sure we
+        # do our prefetch operations in one go, before passing it off
+        # to our custom list renderer to group things in a dictionary
+        kwargs["child"] = cls()
+        prefetch_related_objects(
+            queryset,
+            "content_object",
+            "content_type",
+            "overrides__content_object",
+            "overrides__content_type",
+            "ruleannotation_set",
+            "rulelabel_set",
+        )
+        return AlertRuleList(queryset, *args, **kwargs)
 
     def to_representation(self, obj):
         return {
