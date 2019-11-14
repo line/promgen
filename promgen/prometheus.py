@@ -12,13 +12,11 @@ import pytz
 import yaml
 from dateutil import parser
 
-import promgen.templatetags.promgen as macro
-from promgen import models, util
-
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import prefetch_related_objects
 from django.utils import timezone
+
+from promgen import models, renderers, serializers, util
 
 logger = logging.getLogger(__name__)
 
@@ -77,21 +75,9 @@ def render_rules(rules=None):
         'rulelabel_set',
     )
 
-    # V2 format is a yaml dictionary which we build and then render
-    # See promgen/tests/examples/import.rule.yml
-    rule_list = collections.defaultdict(list)
-    for r in rules:
-        rule_list[str(r.content_object)].append({
-            'alert': r.name,
-            'expr': macro.rulemacro(r),
-            'for': r.duration,
-            'labels': r.labels,
-            'annotations': r.annotations,
-        })
-
-    return yaml.safe_dump({'groups': [
-        {'name': name, 'rules': rule_list[name]} for name in rule_list
-    ]}, default_flow_style=False, allow_unicode=True, encoding='utf-8')
+    return renderers.RuleRenderer().render(
+        serializers.AlertRuleSerializer(rules, many=True).data
+    )
 
 
 def render_urls():

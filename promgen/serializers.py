@@ -1,5 +1,9 @@
-from promgen import models, shortcuts
+import collections
+
 from rest_framework import serializers
+
+import promgen.templatetags.promgen as macro
+from promgen import models, shortcuts
 
 
 class WebLinkField(serializers.Field):
@@ -48,4 +52,34 @@ class SenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Sender
-        fields = ('sender', 'owner', 'label')
+
+
+class AlertRuleList(serializers.ListSerializer):
+    def to_representation(self, data):
+        grouped_list = collections.defaultdict(list)
+        for item in data:
+            data = self.child.to_representation(item)
+            grouped_list[str(item.content_object)].append(data)
+        return grouped_list
+
+    @property
+    def data(self):
+        if not hasattr(self, "_data"):
+            self._data = self.to_representation(self.instance)
+        return serializers.ReturnDict(self._data, serializer=self)
+
+
+class AlertRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Rule
+        fields = ("alert", "expr", "for", "labels", "annotations")
+        list_serializer_class = AlertRuleList
+
+    def to_representation(self, obj):
+        return {
+            "alert": obj.name,
+            "expr": macro.rulemacro(obj),
+            "for": obj.duration,
+            "labels": obj.labels,
+            "annotations": obj.annotations,
+        }
