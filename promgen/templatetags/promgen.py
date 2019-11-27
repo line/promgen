@@ -153,6 +153,10 @@ def breadcrumb(instance=None, label=None):
         yield from service(obj.service)
         yield obj.get_absolute_url(), obj.name
 
+    def alert(obj):
+        yield reverse("alert-list"), _("Alerts")
+        yield obj.get_absolute_url(), obj.pk
+
     def rule(obj):
         if obj.content_type.model == "site":
             yield reverse("rules-list"), _("Common Rules")
@@ -182,6 +186,8 @@ def breadcrumb(instance=None, label=None):
             yield from shard(instance)
         if isinstance(instance, models.Rule):
             yield from rule(instance)
+        if isinstance(instance, models.Alert):
+            yield from alert(instance)
 
     def to_tag():
         yield '<ol class="breadcrumb">'

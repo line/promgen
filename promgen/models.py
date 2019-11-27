@@ -495,6 +495,9 @@ class Alert(models.Model):
     created = models.DateTimeField(default=timezone.now)
     body = models.TextField()
 
+    def get_absolute_url(self):
+        return reverse("alert-detail", kwargs={"pk": self.pk})
+
     def expand(self):
         # Map of Prometheus labels to Promgen objects
         LABEL_MAPPING = [

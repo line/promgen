@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% include 'promgen/pagination_short.html' %}
+
+<table class="table">
+    <tr>
+        <th>Created</th>
+        <th>Alertname</th>
+        <th>Datasource</th>
+        <th>Service</th>
+        <th>Project</th>
+        <th>Job</th>
+    </tr>
+    {% for alert in alert_list %}
+    <tr>
+        <td><a href="{{alert.get_absolute_url}}">{{alert.created}}</a></td>
+        <td>{{alert.json.commonLabels.alertname}}</td>
+        <td>{{alert.json.commonLabels.datasource}}</td>
+        <td>{{alert.json.commonLabels.service}}</td>
+        <td>{{alert.json.commonLabels.project}}</td>
+        <td>{{alert.json.commonLabels.job}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% include 'promgen/pagination_short.html' %}
+
+{% endblock %}
