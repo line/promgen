@@ -1041,11 +1041,18 @@ class Alert(View):
         # writing to the database, but to keep the alert ingestion queue as simple as possible
         # we will go ahead and write all alerts to the database and then filter out (delete)
         # when we run tasks.process_alert
-        alert = models.Alert.objects.create(
-            body=request.body.decode('utf-8')
-        )
+        alert = models.Alert.objects.create(body=request.body.decode("utf-8"))
         tasks.process_alert.delay(alert.pk)
-        return HttpResponse('OK', status=202)
+        return HttpResponse("OK", status=202)
+
+
+class AlertList(LoginRequiredMixin, ListView):
+    paginate_by = 20
+    queryset = models.Alert.objects.order_by('-created')
+
+
+class AlertDetail(LoginRequiredMixin, DetailView):
+    model = models.Alert
 
 
 class Metrics(View):

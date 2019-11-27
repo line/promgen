@@ -97,13 +97,15 @@ urlpatterns = [
     path('metrics', csrf_exempt(views.Metrics.as_view()), name='metrics'),
     path('commit', csrf_exempt(views.Commit.as_view()), name='commit'),
 
+    path('alert', views.AlertList.as_view(), name='alert-list'),
+    path('alert/<int:pk>', views.AlertDetail.as_view(), name='alert-detail'),
+
     url('', include('django.contrib.auth.urls')),
     url('', include('social_django.urls', namespace='social')),
 
     # Public API
 
     # Legacy API
-    path('alert', csrf_exempt(views.Alert.as_view())),
     path('api/v1/config', csrf_exempt(views.ApiConfig.as_view())),
 
     # Promgen API

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load promgen %}
+{% block content %}
+{% breadcrumb alert %}
+
+<pre>{{alert.json|pretty_json}}</pre>
+{% endblock %}
