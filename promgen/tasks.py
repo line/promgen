@@ -7,8 +7,8 @@ from urllib.parse import urljoin
 
 from atomicwrites import atomic_write
 from celery import shared_task
-from django.conf import settings
-from promgen import models, plugins, prometheus, util
+
+from promgen import models, prometheus, util, notification
 
 logger = logging.getLogger(__name__)
 
@@ -62,13 +62,29 @@ def send_alert(sender, target, data, alert_pk=None):
     """
     Send alert to specific target
 
-    alert_pk is used for debugging purposes
+    alert_pk is used when quering our alert normally and is missing
+    when we send a test message. In the case we send a test message
+    we want to raise any exceptions so that the test function can
+    handle it
     """
     logger.debug("Sending %s %s", sender, target)
-    for plugin in plugins.notifications():
-        if sender == plugin.module_name:
-            instance = plugin.load()()
-            instance._send(target, data)
+    try:
+        notifier = notification.load(sender)
+        notifier._send(target, data)
+    except ImportError:
+        logging.exception("Error loading plugin %s", sender)
+        if alert_pk is None:
+            raise
+    except Exception as e:
+        logging.exception("Error sending notification")
+        if alert_pk:
+            util.inc_for_pk(models.Alert, pk=alert_pk, error_count=1)
+            models.AlertError.objects.create(alert_id=alert_pk, message=str(e))
+        else:
+            raise
+    else:
+        if alert_pk:
+            util.inc_for_pk(models.Alert, pk=alert_pk, sent_count=1)
 
 
 @shared_task

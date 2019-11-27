@@ -3,5 +3,15 @@
 {% block content %}
 {% breadcrumb alert %}
 
+<ul class="list-unstyled">
+    {% for error in alert.alerterror_set.all %}
+    <li class="alert alert-danger" role="alert">
+        <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+        {{error.message}}
+        <span class="pull-right">{{error.created}}</span>
+    </li>
+    {% endfor %}
+</ul>
+
 <pre>{{alert.json|pretty_json}}</pre>
 {% endblock %}

@@ -1,6 +1,8 @@
 {% extends "base.html" %}
-
+{% load promgen %}
 {% block content %}
+
+{% breadcrumb label="Alerts" %}
 
 {% include 'promgen/pagination_short.html' %}
 
@@ -12,6 +14,8 @@
         <th>Service</th>
         <th>Project</th>
         <th>Job</th>
+        <th>Sent</th>
+        <th>Error</th>
     </tr>
     {% for alert in alert_list %}
     <tr>
@@ -21,6 +25,8 @@
         <td>{{alert.json.commonLabels.service}}</td>
         <td>{{alert.json.commonLabels.project}}</td>
         <td>{{alert.json.commonLabels.job}}</td>
+        <td {% if alert.sent_count == 0 %}class="warning" {% endif %}>{{alert.sent_count}}</td>
+        <td {% if alert.error_count %}class="danger" {% endif %}>{{alert.error_count}}</td>
     </tr>
     {% endfor %}
 </table>

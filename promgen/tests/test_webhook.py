@@ -92,3 +92,25 @@ class WebhookTest(PromgenTest):
 
         self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 1, "One notification should be skipped")
+
+    @override_settings(PROMGEN=TEST_SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    @override_settings(CELERY_TASK_EAGER_PROPAGATES=True)
+    @mock.patch("promgen.util.post")
+    def test_failure(self, mock_post):
+        # When our post results in a failure, then our error_count should be
+        # properly updated and some errors should be logged to be viewed later
+        mock_post.side_effect = Exception("Boom!")
+
+        response = self.client.post(
+            reverse("alert"), data=TEST_ALERT, content_type="application/json"
+        )
+
+        self.assertRoute(response, views.Alert, 202)
+        self.assertCount(models.Alert, 1, "Alert should be queued")
+        self.assertEqual(mock_post.call_count, 2, "Two posts should be attempted")
+        self.assertCount(models.AlertError, 2, "Two errors should be logged")
+
+        alert = models.Alert.objects.first()
+        self.assertEqual(alert.sent_count, 0, "No successful sent")
+        self.assertEqual(alert.error_count, 2, "Error incremented")
