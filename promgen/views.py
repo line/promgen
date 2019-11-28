@@ -10,13 +10,13 @@ import platform
 import time
 from itertools import chain
 
+import prometheus_client
 import requests
-from prometheus_client import Gauge, generate_latest
-
-import promgen.templatetags.promgen as macro
-from promgen import (celery, discovery, forms, models, plugins, prometheus,
-                     signals, tasks, util, version)
-from promgen.shortcuts import resolve_domain
+from prometheus_client.core import (
+    CollectorRegistry,
+    CounterMetricFamily,
+    GaugeMetricFamily,
+)
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
@@ -33,6 +33,21 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import ContextMixin, RedirectView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
+
+import promgen.templatetags.promgen as macro
+from promgen import (
+    celery,
+    discovery,
+    forms,
+    models,
+    plugins,
+    prometheus,
+    signals,
+    tasks,
+    util,
+    version,
+)
+from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 
@@ -1056,30 +1071,73 @@ class AlertDetail(LoginRequiredMixin, DetailView):
 
 
 class Metrics(View):
-    version = Gauge('promgen_build_info', 'Promgen Information', ['version', 'python'])
-    # Promgen Objects
-    exporters = Gauge('promgen_exporters', 'Registered Exporters')
-    hosts = Gauge('promgen_hosts', 'Registered Hosts')
-    projects = Gauge('promgen_projects', 'Registered Projects')
-    rules = Gauge('promgen_rules', 'Registered Rules')
-    sender = Gauge('promgen_notifiers', 'Registered Notifiers', ['type', 'sender'])
-    services = Gauge('promgen_services', 'Registered Services')
-    urls = Gauge('promgen_urls', 'Registered URLs')
+    def __init__(self):
+        self.registry = prometheus_client.CollectorRegistry(auto_describe=True)
+        prometheus_client.GCCollector(registry=self.registry)
+        prometheus_client.PlatformCollector(registry=self.registry)
+        prometheus_client.ProcessCollector(registry=self.registry)
+        self.registry.register(self)
 
     def get(self, request, *args, **kwargs):
-        self.version.labels(version.__version__, platform.python_version()).set(1)
+        return HttpResponse(
+            prometheus_client.generate_latest(self.registry),
+            content_type=prometheus_client.CONTENT_TYPE_LATEST,
+        )
 
-        for entry in models.Sender.objects.values('content_type__model', 'sender').annotate(Count('sender'), count=Count('content_type')):
-            self.sender.labels(entry['content_type__model'], entry['sender']).set(entry['count'])
+    def collect(self):
+        # https://github.com/prometheus/client_python#custom-collectors
+        v = GaugeMetricFamily(
+            "promgen_build_info", "Promgen Information", labels=["version", "python"]
+        )
+        v.add_metric([version.__version__, platform.python_version()], 1)
+        yield v
 
-        self.services.set(models.Service.objects.count())
-        self.projects.set(models.Project.objects.count())
-        self.exporters.set(models.Exporter.objects.count())
-        self.rules.set(models.Rule.objects.count())
-        self.urls.set(models.URL.objects.count())
-        self.hosts.set(len(models.Host.objects.values('name').annotate(Count('name'))))
+        try:
+            yield CounterMetricFamily(
+                "promgen_alerts_processed",
+                "Alerts",
+                models.Alert.objects.latest("id").id,
+            )
+        except models.Alert.DoesNotExist:
+            pass
 
-        return HttpResponse(generate_latest(), content_type='text/plain')
+        yield GaugeMetricFamily(
+            "promgen_shards", "Registered Shards", models.Shard.objects.count()
+        )
+        yield GaugeMetricFamily(
+            "promgen_exporters", "Registered Exporters", models.Exporter.objects.count()
+        )
+        yield GaugeMetricFamily(
+            "promgen_services", "Registered Services", models.Service.objects.count()
+        )
+        yield GaugeMetricFamily(
+            "promgen_projects", "Registered Projects", models.Project.objects.count()
+        )
+        yield GaugeMetricFamily(
+            "promgen_rules", "Registered Rules", models.Rule.objects.count()
+        )
+        yield GaugeMetricFamily(
+            "promgen_urls", "Registered URLs", models.URL.objects.count()
+        )
+
+        # TODO Properly de-duplicate after refactoring
+        yield GaugeMetricFamily(
+            "promgen_hosts",
+            "Registered Hosts",
+            len(models.Host.objects.values("name").annotate(Count("name"))),
+        )
+
+        notifier = GaugeMetricFamily(
+            "promgen_notifiers", "Registered Notifiers", labels=["type", "sender"]
+        )
+        for entry in models.Sender.objects.values(
+            "content_type__model", "sender"
+        ).annotate(Count("sender"), count=Count("content_type")):
+            notifier.add_metric(
+                [entry["content_type__model"], entry["sender"]], entry["count"]
+            )
+
+        yield notifier
 
 
 class Search(LoginRequiredMixin, View):
