@@ -360,8 +360,7 @@ class NotifierTest(LoginRequiredMixin, View):
         sender = get_object_or_404(models.Sender, id=pk)
         try:
             sender.test()
-        except:
-            logger.exception('Error sending test message with %s', sender.sender)
+        except Exception:
             messages.warning(request, 'Error sending test message with ' + sender.sender)
         else:
             messages.info(request, 'Sent test message with ' + sender.sender)
@@ -1100,6 +1099,16 @@ class Metrics(View):
             )
         except models.Alert.DoesNotExist:
             pass
+
+        try:
+            yield CounterMetricFamily(
+                "promgen_alerts_failed",
+                "Failed Alerts",
+                models.AlertError.objects.latest("id").id,
+            )
+        except models.AlertError.DoesNotExist:
+            pass
+
 
         yield GaugeMetricFamily(
             "promgen_shards", "Registered Shards", models.Shard.objects.count()

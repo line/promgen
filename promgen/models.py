@@ -494,6 +494,8 @@ class RuleAnnotation(models.Model):
 class Alert(models.Model):
     created = models.DateTimeField(default=timezone.now)
     body = models.TextField()
+    sent_count = models.PositiveIntegerField(default=0)
+    error_count = models.PositiveIntegerField(default=0)
 
     def get_absolute_url(self):
         return reverse("alert-detail", kwargs={"pk": self.pk})
@@ -529,6 +531,12 @@ class Alert(models.Model):
     @cached_property
     def json(self):
         return json.loads(self.body)
+
+
+class AlertError(models.Model):
+    alert = models.ForeignKey(Alert, on_delete=models.CASCADE)
+    created = models.DateTimeField(default=timezone.now)
+    message = models.TextField()
 
 
 class Audit(models.Model):

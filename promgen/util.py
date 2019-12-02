@@ -2,7 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import requests.sessions
-
+from django.db.models import F
 from promgen.version import __version__
 
 from django.conf import settings
@@ -61,3 +61,8 @@ class HelpFor:
 
     def __getattr__(self, name):
         return self.model._meta.get_field(name).help_text
+
+
+def inc_for_pk(model, pk, **kwargs):
+    # key=F('key') + value
+    model.objects.filter(pk=pk).update(**{key: F(key) + kwargs[key] for key in kwargs})

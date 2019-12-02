@@ -4,12 +4,19 @@
 import logging
 import textwrap
 
-from promgen import util
-
 from django import forms
 from django.template.loader import render_to_string
 
+from promgen import plugins, util
+
 logger = logging.getLogger(__name__)
+
+
+def load(name):
+    for driver in plugins.notifications():
+        if name == driver.module_name:
+            return driver.load()()
+    raise ImportError("Unknown notification plugin %s" % name)
 
 
 class FormSenderBase(forms.Form):
