@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.42 - 2019-12-03
+
+- [BUGFIX] Pin kombu to 4.6.3 to fix bug with redis exchange #197
+- [IMPROVEMENT] Show read-only view of incoming alerts #199
+- [IMPROVEMENT] Tracking for failed alerts #200
+- [INTERNAL] Refactor Metrics collector #201
+
 ## v0.41 - 2019-11-12
 
 - [BUGFIX] Catch ConnectionError and RequestException for better results #191

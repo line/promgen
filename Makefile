@@ -1,3 +1,5 @@
+lessopts="--tabs=4 --quit-if-one-screen --RAW-CONTROL-CHARS --no-init"
+
 .PHONY: test
 test: pipenv
 	pipenv run promgen test
@@ -46,3 +48,7 @@ load: pipenv
 .PHONY: circleci
 circleci:
 	circleci local execute
+
+.PHONY: changelog
+changelog:
+	git log --color=always --first-parent --pretty='format:%s|%Cgreen%d%Creset' | column -ts '|' | less "$(lessopts)"
