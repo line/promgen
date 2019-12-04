@@ -1,8 +1,10 @@
-from django.http import HttpResponse
-from promgen import filters, models, prometheus, serializers
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
+from django.http import HttpResponse
+
+from promgen import filters, models, prometheus, renderers, serializers
 
 
 class ShardViewSet(viewsets.ModelViewSet):
@@ -19,16 +21,7 @@ class ShardViewSet(viewsets.ModelViewSet):
         )
 
 
-class SharedViewSet:
-    def format(self, rules=None, name='promgen'):
-        content = prometheus.render_rules(rules)
-        response = HttpResponse(content)
-        response['Content-Type'] = 'application/x-yaml'
-        response['Content-Disposition'] = 'attachment; filename=%s.rule.yml' % name
-        return response
-
-
-class ServiceViewSet(SharedViewSet, viewsets.ModelViewSet):
+class ServiceViewSet(viewsets.ModelViewSet):
     queryset = models.Service.objects.all()
     filterset_class = filters.ServiceFilter
     serializer_class = serializers.ServiceSerializer
@@ -49,10 +42,10 @@ class ServiceViewSet(SharedViewSet, viewsets.ModelViewSet):
             content_type='application/json',
         )
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"], renderer_classes=[renderers.RuleRenderer])
     def rules(self, request, name):
         rules = models.Rule.objects.filter(obj=self.get_object())
-        return self.format(rules)
+        return Response(serializers.AlertRuleSerializer(rules, many=True).data)
 
     @action(detail=True, methods=['get'])
     def notifiers(self, request, name):
@@ -63,7 +56,7 @@ class ServiceViewSet(SharedViewSet, viewsets.ModelViewSet):
         )
 
 
-class ProjectViewSet(SharedViewSet, viewsets.ModelViewSet):
+class ProjectViewSet(viewsets.ModelViewSet):
     queryset = models.Project.objects.prefetch_related(
         'service', 'shard', 'farm'
     )
@@ -79,10 +72,10 @@ class ProjectViewSet(SharedViewSet, viewsets.ModelViewSet):
             content_type='application/json',
         )
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"], renderer_classes=[renderers.RuleRenderer])
     def rules(self, request, name):
         rules = models.Rule.objects.filter(obj=self.get_object())
-        return self.format(rules)
+        return Response(serializers.AlertRuleSerializer(rules, many=True).data)
 
     @action(detail=True, methods=['get'])
     def notifiers(self, request, name):
