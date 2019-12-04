@@ -1,3 +1,5 @@
+# The codecov report is sometimes useful as a glance to see how much is being covered,
+# but we do not want it to fail our pull request because of it so change minimum coverage ratio to 0%.
 coverage:
   status:
     project:
