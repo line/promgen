@@ -13,19 +13,19 @@ from django.conf import settings
 
 def post(url, data=None, json=None, **kwargs):
     with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
+        session.headers["User-Agent"] = "promgen/{}".format(__version__)
         return session.post(url, data=data, json=json, **kwargs)
 
 
 def get(url, params=None, **kwargs):
     with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
+        session.headers["User-Agent"] = "promgen/{}".format(__version__)
         return session.get(url, params=params, **kwargs)
 
 
 def delete(url, **kwargs):
     with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
+        session.headers["User-Agent"] = "promgen/{}".format(__version__)
         return session.delete(url, **kwargs)
 
 
@@ -35,7 +35,7 @@ def setting(key, default=None, domain=None):
 
     Allows a simple way to query settings from YAML
     using the style `path:to:key` to represent
-    
+
     path:
       to:
         key: value

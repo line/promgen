@@ -10,10 +10,10 @@ from promgen.tests import PromgenTest
 from django.test import override_settings
 from django.urls import reverse
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
-TEST_IMPORT = PromgenTest.data('examples', 'import.json')
-TEST_REPLACE = PromgenTest.data('examples', 'replace.json')
+TEST_SETTINGS = PromgenTest.data_yaml("examples", "promgen.yml")
+TEST_ALERT = PromgenTest.data("examples", "alertmanager.json")
+TEST_IMPORT = PromgenTest.data("examples", "import.json")
+TEST_REPLACE = PromgenTest.data("examples", "replace.json")
 
 
 class RouteTests(PromgenTest):
@@ -25,13 +25,15 @@ class RouteTests(PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert(self):
-        response = self.client.post(reverse('alert'), data=TEST_ALERT, content_type='application/json')
+        response = self.client.post(
+            reverse("alert"), data=TEST_ALERT, content_type="application/json"
+        )
         self.assertEqual(response.status_code, 202)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    @mock.patch('promgen.signals._trigger_write_config')
-    @mock.patch('promgen.tasks.reload_prometheus')
+    @mock.patch("promgen.signals._trigger_write_config")
+    @mock.patch("promgen.tasks.reload_prometheus")
     def test_import(self, mock_write, mock_reload):
         self.add_user_permissions(
             "promgen.change_rule", "promgen.change_site", "promgen.change_exporter"
@@ -70,9 +72,11 @@ class RouteTests(PromgenTest):
         self.assertRoute(response, views.ServiceList, 200)
 
     def test_project(self):
-        shard = models.Shard.objects.create(name='Shard Test')
-        service = models.Service.objects.create(name='Service Test')
-        project = models.Project.objects.create(name='Project Test', service=service, shard=shard)
+        shard = models.Shard.objects.create(name="Shard Test")
+        service = models.Service.objects.create(name="Service Test")
+        project = models.Project.objects.create(
+            name="Project Test", service=service, shard=shard
+        )
 
         response = self.client.get(reverse("project-detail", kwargs={"pk": project.pk}))
         self.assertRoute(response, views.ProjectDetail, 200)

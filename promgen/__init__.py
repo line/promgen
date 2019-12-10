@@ -4,9 +4,9 @@
 import os
 import envdir
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'promgen.settings')
-os.environ.setdefault('PROMGEN_CONFIG_DIR', os.path.expanduser('~/.config/promgen'))
-default_app_config = 'promgen.apps.PromgenConfig'
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "promgen.settings")
+os.environ.setdefault("PROMGEN_CONFIG_DIR", os.path.expanduser("~/.config/promgen"))
+default_app_config = "promgen.apps.PromgenConfig"
 
-if os.path.exists(os.environ['PROMGEN_CONFIG_DIR']):
-    envdir.open(os.environ['PROMGEN_CONFIG_DIR'])
+if os.path.exists(os.environ["PROMGEN_CONFIG_DIR"]):
+    envdir.open(os.environ["PROMGEN_CONFIG_DIR"])

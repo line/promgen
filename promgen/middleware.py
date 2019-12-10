@@ -1,7 +1,7 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-'''
+"""
 Promgen middleware
 
 The middleware ensures three main things
@@ -15,7 +15,7 @@ The middleware ensures three main things
 3. Since many different actions can trigger a write of the target.json or rules
 files, we need to handle some deduplication. This is handled by using the django
 caching system to set a key and then triggering the actual event from middleware
-'''
+"""
 
 import logging
 from threading import local
@@ -24,8 +24,11 @@ from django.contrib import messages
 from django.db.models import prefetch_related_objects
 
 from promgen import models
-from promgen.signals import (trigger_write_config, trigger_write_rules,
-                             trigger_write_urls)
+from promgen.signals import (
+    trigger_write_config,
+    trigger_write_rules,
+    trigger_write_urls,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +48,7 @@ class PromgenMiddleware(object):
         request.site = models.Site.objects.get_current()
         # Prefetch our rule_set as needed, since request.site is used on
         # many different pages
-        prefetch_related_objects([request.site], 'rule_set')
+        prefetch_related_objects([request.site], "rule_set")
 
         # Get our logged in user to use with our audit logging plugin
         if request.user.is_authenticated:
@@ -54,17 +57,17 @@ class PromgenMiddleware(object):
         response = self.get_response(request)
 
         triggers = {
-            'Config': trigger_write_config.send,
-            'Rules': trigger_write_rules.send,
-            'URLs': trigger_write_urls.send,
+            "Config": trigger_write_config.send,
+            "Rules": trigger_write_rules.send,
+            "URLs": trigger_write_urls.send,
         }
 
         for msg, func in triggers.items():
             for (receiver, status) in func(self, request=request, force=True):
                 if status is False:
-                    messages.warning(request, 'Error queueing %s ' % msg)
+                    messages.warning(request, "Error queueing %s " % msg)
         return response
 
 
 def get_current_user():
-    return getattr(_user, 'value', None)
+    return getattr(_user, "value", None)

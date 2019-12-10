@@ -8,13 +8,9 @@ from promgen.tests import PromgenTest
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models, views
+TEST_SETTINGS = PromgenTest.data_yaml("examples", "promgen.yml")
 
-from promgen.tests import PromgenTest
-
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-
-TEST_HEARTBEAT = PromgenTest.data('examples', 'heartbeat.json')
+TEST_HEARTBEAT = PromgenTest.data("examples", "heartbeat.json")
 
 
 class APITest(PromgenTest):
@@ -22,7 +18,7 @@ class APITest(PromgenTest):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert_blackhole(self):
         response = self.client.post(
-            reverse('alert'), data=TEST_HEARTBEAT, content_type='application/json'
+            reverse("alert"), data=TEST_HEARTBEAT, content_type="application/json"
         )
         self.assertRoute(response, views.Alert, 202)
         self.assertCount(models.Alert, 0, "Heartbeat alert should be deleted")

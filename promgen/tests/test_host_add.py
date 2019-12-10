@@ -15,15 +15,19 @@ class RouteTests(PromgenTest):
         self.add_force_login(id=999, username="Foo")
 
     def test_newline(self):
-        farm = models.Farm.objects.create(name='Foo')
-        self.client.post(reverse('hosts-add', args=[farm.pk]), {
-            'hosts': "\naaa\nbbb\nccc \n"
-        }, follow=False)
+        farm = models.Farm.objects.create(name="Foo")
+        self.client.post(
+            reverse("hosts-add", args=[farm.pk]),
+            {"hosts": "\naaa\nbbb\nccc \n"},
+            follow=False,
+        )
         self.assertCount(models.Host, 3, "Expected 3 hosts")
 
     def test_comma(self):
-        farm = models.Farm.objects.create(name='Foo')
-        self.client.post(reverse('hosts-add', args=[farm.pk]), {
-            'hosts': ",,aaa, bbb,ccc,"
-        }, follow=False)
+        farm = models.Farm.objects.create(name="Foo")
+        self.client.post(
+            reverse("hosts-add", args=[farm.pk]),
+            {"hosts": ",,aaa, bbb,ccc,"},
+            follow=False,
+        )
         self.assertCount(models.Host, 3, "Expected 3 hosts")

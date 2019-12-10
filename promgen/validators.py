@@ -5,7 +5,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from dateutil import parser
 
-alphanumeric = RegexValidator(r'^[0-9a-zA-Z_]*$', 'Only alphanumeric characters are allowed.')
+alphanumeric = RegexValidator(
+    r"^[0-9a-zA-Z_]*$", "Only alphanumeric characters are allowed."
+)
 
 
 # See definition of duration field

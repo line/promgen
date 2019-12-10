@@ -11,30 +11,21 @@ logger = logging.getLogger(__name__)
 
 
 class FormEmail(forms.Form):
-    value = forms.CharField(
-        required=True,
-        label='Email Address'
-    )
+    value = forms.CharField(required=True, label="Email Address")
     alias = forms.CharField(
-        required=False,
-        help_text='Use to hide email from being displayed'
+        required=False, help_text="Use to hide email from being displayed"
     )
 
 
 class NotificationEmail(NotificationBase):
-    '''
+    """
     Simple plaintext Email notification
-    '''
+    """
 
     form = FormEmail
 
     def _send(self, address, data):
-        subject = self.render('promgen/sender/email.subject.txt', data)
-        body = self.render('promgen/sender/email.body.txt', data)
-        send_mail(
-            subject,
-            body,
-            self.config('sender'),
-            [address]
-        )
+        subject = self.render("promgen/sender/email.subject.txt", data)
+        body = self.render("promgen/sender/email.body.txt", data)
+        send_mail(subject, body, self.config("sender"), [address])
         return True

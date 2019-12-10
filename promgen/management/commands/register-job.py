@@ -14,7 +14,9 @@ class Command(BaseCommand):
         parser.add_argument("job", help=help_text.job)
         parser.add_argument("port", type=int, help=help_text.port)
         parser.add_argument("path", default="", nargs="?", help=help_text.path)
-        parser.add_argument("--enabled", default=False, action="store_true", help=help_text.enabled)
+        parser.add_argument(
+            "--enabled", default=False, action="store_true", help=help_text.enabled
+        )
 
     def handle(self, **kwargs):
         try:

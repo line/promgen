@@ -7,28 +7,35 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('promgen', '0006_exporter_options'),
+        ("promgen", "0006_exporter_options"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Filter',
+            name="Filter",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('value', models.CharField(max_length=128)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("value", models.CharField(max_length=128)),
             ],
-            options={
-                'ordering': ('sender', 'name', 'value'),
-            },
+            options={"ordering": ("sender", "name", "value"),},
         ),
         migrations.AddField(
-            model_name='filter',
-            name='sender',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='promgen.Sender'),
+            model_name="filter",
+            name="sender",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="promgen.Sender"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='filter',
-            unique_together={('sender', 'name', 'value')},
+            name="filter", unique_together={("sender", "name", "value")},
         ),
     ]

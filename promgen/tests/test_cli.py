@@ -17,7 +17,9 @@ class CLITests(PromgenTest):
         # Create a Service and Project and then try adding our job
         shard = models.Shard.objects.create(name="TestShard")
         service = models.Service.objects.create(name="TestService")
-        _ = models.Project.objects.create(name="TestProject", service=service, shard=shard)
+        _ = models.Project.objects.create(
+            name="TestProject", service=service, shard=shard
+        )
         management.call_command("register-job", "TestProject", "example", 1234)
 
         # Ensure the jobs we expect exist
@@ -39,7 +41,9 @@ class CLITests(PromgenTest):
         # Create a Service and Project and then try adding our job
         shard = models.Shard.objects.create(name="TestShard")
         service = models.Service.objects.create(name="TestService")
-        project = models.Project.objects.create(name="TestProject", service=service, shard=shard)
+        project = models.Project.objects.create(
+            name="TestProject", service=service, shard=shard
+        )
 
         # Still assert an error if there is no Farm
         with self.assertRaises(CommandError):

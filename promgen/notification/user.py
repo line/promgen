@@ -12,27 +12,28 @@ logger = logging.getLogger(__name__)
 
 
 def _choices():
-    for user in User.objects.filter(is_active=True).order_by('username'):
+    for user in User.objects.filter(is_active=True).order_by("username"):
         if user.first_name:
-            yield (user.username, '{user.username} ({user.first_name} {user.last_name})'.format(user=user))
+            yield (
+                user.username,
+                "{user.username} ({user.first_name} {user.last_name})".format(
+                    user=user
+                ),
+            )
         elif user.email:
-            yield (user.username, '{user.username} ({user.email})'.format(user=user))
+            yield (user.username, "{user.username} ({user.email})".format(user=user))
         else:
             yield (user.username, user.username)
 
 
 class FormUser(forms.Form):
-    value = forms.ChoiceField(
-        required=True,
-        label='Username',
-        choices=_choices
-    )
+    value = forms.ChoiceField(required=True, label="Username", choices=_choices)
 
 
 class NotificationUser(NotificationBase):
-    '''
+    """
     Send notification to specific user
-    '''
+    """
 
     form = FormUser
 
@@ -46,6 +47,6 @@ class NotificationUser(NotificationBase):
         for sender in models.Sender.objects.filter(obj=user):
             try:
                 sender.driver._send(sender.value, data)
-            except:
-                logger.exception('Error sending with %s', sender)
+            except Exception:
+                logger.exception("Error sending with %s", sender)
         return True

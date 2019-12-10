@@ -13,15 +13,15 @@ from promgen.notification.ikasan import NotificationIkasan
 from promgen.notification.user import NotificationUser
 from promgen.tests import PromgenTest
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
+TEST_SETTINGS = PromgenTest.data_yaml("examples", "promgen.yml")
+TEST_ALERT = PromgenTest.data("examples", "alertmanager.json")
 
 
 class UserEmailTest(TestCase):
-    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
         self.user = User.objects.create_user(id=999, username="Foo")
-        self.service = models.Service.objects.create(name='test.service')
+        self.service = models.Service.objects.create(name="test.service")
 
         self.sender = models.Sender.objects.create(
             obj=self.service,
@@ -30,28 +30,23 @@ class UserEmailTest(TestCase):
         )
 
         models.Sender.objects.create(
-            obj=self.user,
-            sender=NotificationIkasan.__module__,
-            value='#foo'
+            obj=self.user, sender=NotificationIkasan.__module__, value="#foo"
         )
 
         models.Sender.objects.create(
-            obj=self.user,
-            sender=NotificationEmail.__module__,
-            value='foo@bar.example'
+            obj=self.user, sender=NotificationEmail.__module__, value="foo@bar.example"
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    @mock.patch('promgen.notification.email.send_mail')
-    @mock.patch('promgen.util.post')
+    @mock.patch("promgen.notification.email.send_mail")
+    @mock.patch("promgen.util.post")
     def test_user_notification(self, mock_email, mock_post):
-        self.client.post(reverse('alert'),
-            data=TEST_ALERT,
-            content_type='application/json'
+        self.client.post(
+            reverse("alert"), data=TEST_ALERT, content_type="application/json"
         )
 
         # Since we test the specifics elsewhere, just want to check
         # the count of calls here
-        self.assertEqual(mock_post.call_count, 1, 'Called Email')
-        self.assertEqual(mock_email.call_count, 1, 'Called Ikasan')
+        self.assertEqual(mock_post.call_count, 1, "Called Email")
+        self.assertEqual(mock_email.call_count, 1, "Called Ikasan")

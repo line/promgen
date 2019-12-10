@@ -11,58 +11,64 @@ from promgen.notification.email import NotificationEmail
 from promgen.tests import PromgenTest
 
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
+TEST_SETTINGS = PromgenTest.data_yaml("examples", "promgen.yml")
+TEST_ALERT = PromgenTest.data("examples", "alertmanager.json")
 
 
 class EmailTest(PromgenTest):
-    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
-        self.shard = models.Shard.objects.create(name='test.shard')
-        self.service = models.Service.objects.create(name='test.service')
-        self.project = models.Project.objects.create(name='test.project', service=self.service, shard=self.shard)
-        self.project2 = models.Project.objects.create(name='other.project', service=self.service, shard=self.shard)
+        self.shard = models.Shard.objects.create(name="test.shard")
+        self.service = models.Service.objects.create(name="test.service")
+        self.project = models.Project.objects.create(
+            name="test.project", service=self.service, shard=self.shard
+        )
+        self.project2 = models.Project.objects.create(
+            name="other.project", service=self.service, shard=self.shard
+        )
         self.sender = models.Sender.objects.create(
             obj=self.project,
             sender=NotificationEmail.__module__,
-            value='example@example.com',
+            value="example@example.com",
         )
         models.Sender.objects.create(
             obj=self.project,
             sender=NotificationEmail.__module__,
-            value='foo@example.com',
+            value="foo@example.com",
         )
         models.Sender.objects.create(
             obj=self.project2,
             sender=NotificationEmail.__module__,
-            value='bar@example.com',
+            value="bar@example.com",
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    @mock.patch('promgen.notification.email.send_mail')
+    @mock.patch("promgen.notification.email.send_mail")
     def test_email(self, mock_email):
-        self.client.post(reverse('alert'),
-            data=TEST_ALERT,
-            content_type='application/json'
+        self.client.post(
+            reverse("alert"), data=TEST_ALERT, content_type="application/json"
         )
 
-        _SUBJECT = PromgenTest.data('notifications', 'email.subject.txt').strip()
-        _MESSAGE = PromgenTest.data('notifications', 'email.body.txt').strip()
+        _SUBJECT = PromgenTest.data("notifications", "email.subject.txt").strip()
+        _MESSAGE = PromgenTest.data("notifications", "email.body.txt").strip()
 
-        mock_email.assert_has_calls([
-            mock.call(
-                _SUBJECT,
-                _MESSAGE.format(service=self.service, project=self.project),
-                'promgen@example.com',
-                ['example@example.com']
-            ),
-            mock.call(
-                _SUBJECT,
-                _MESSAGE.format(service=self.service, project=self.project),
-                'promgen@example.com',
-                ['foo@example.com']
-            )
-        ], any_order=True)
+        mock_email.assert_has_calls(
+            [
+                mock.call(
+                    _SUBJECT,
+                    _MESSAGE.format(service=self.service, project=self.project),
+                    "promgen@example.com",
+                    ["example@example.com"],
+                ),
+                mock.call(
+                    _SUBJECT,
+                    _MESSAGE.format(service=self.service, project=self.project),
+                    "promgen@example.com",
+                    ["foo@example.com"],
+                ),
+            ],
+            any_order=True,
+        )
         # Three senders are registered but only two should trigger
         self.assertTrue(mock_email.call_count == 2)

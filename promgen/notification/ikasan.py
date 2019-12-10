@@ -12,38 +12,34 @@ logger = logging.getLogger(__name__)
 
 
 class FormIkasan(forms.Form):
-    value = forms.CharField(
-        required=True,
-        label='Channel'
-    )
+    value = forms.CharField(required=True, label="Channel")
     alias = forms.CharField(
-        required=False,
-        help_text='Used to hide chanel from being shown'
+        required=False, help_text="Used to hide chanel from being shown"
     )
 
 
 class NotificationIkasan(NotificationBase):
-    '''
+    """
     Send messages to Hipchat using Ikasan Hipchat bridge
 
     https://github.com/studio3104/ikasan
-    '''
+    """
 
     form = FormIkasan
 
     def _send(self, channel, data):
-        url = self.config('server')
+        url = self.config("server")
 
         params = {
-            'channel': channel,
-            'message_format': 'text',
+            "channel": channel,
+            "message_format": "text",
         }
 
-        if data['status'] == 'resolved':
-            params['color'] = 'green'
-            params['message'] = self.render('promgen/sender/ikasan.resolved.txt', data)
+        if data["status"] == "resolved":
+            params["color"] = "green"
+            params["message"] = self.render("promgen/sender/ikasan.resolved.txt", data)
         else:
-            params['color'] = 'red'
-            params['message'] = self.render('promgen/sender/ikasan.body.txt', data)
+            params["color"] = "red"
+            params["message"] = self.render("promgen/sender/ikasan.body.txt", data)
 
         util.post(url, params).raise_for_status()

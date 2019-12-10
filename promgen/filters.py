@@ -14,9 +14,7 @@ class ProjectFilter(django_filters.rest_framework.FilterSet):
     service = django_filters.CharFilter(
         field_name="service__name", lookup_expr="contains"
     )
-    shard = django_filters.CharFilter(
-        field_name="shard__name", lookup_expr="contains"
-    )
+    shard = django_filters.CharFilter(field_name="shard__name", lookup_expr="contains")
 
 
 class RuleFilter(django_filters.rest_framework.FilterSet):
