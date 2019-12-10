@@ -87,10 +87,11 @@ urlpatterns = [
 
     path('<content_type>/<object_id>/rule', views.RuleRegister.as_view(), name='rule-new'),
 
-    path('audit', views.AuditList.as_view(), name='audit-list'),
-    path('status', views.Status.as_view(), name='status'),
-    path('import', views.Import.as_view(), name='import'),
-    path('import/rules', views.RuleImport.as_view(), name='rule-import'),
+    path("audit", views.AuditList.as_view(), name="audit-list"),
+    path("site", views.SiteDetail.as_view(), name="site-detail"),
+    path("profile", views.Profile.as_view(), name="profile"),
+    path("import", views.Import.as_view(), name="import"),
+    path("import/rules", views.RuleImport.as_view(), name="rule-import"),
 
     path('search', views.Search.as_view(), name='search'),
 

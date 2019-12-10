@@ -141,6 +141,9 @@ def breadcrumb(instance=None, label=None):
     """
     from promgen import models
 
+    def site(obj):
+        yield reverse("site-detail"), obj.domain
+
     def shard(obj):
         yield reverse("shard-list"), _("Shards")
         yield obj.get_absolute_url(), obj.name
@@ -159,7 +162,7 @@ def breadcrumb(instance=None, label=None):
 
     def rule(obj):
         if obj.content_type.model == "site":
-            yield reverse("rules-list"), _("Common Rules")
+            yield from site(obj.content_object)
         if obj.content_type.model == "service":
             yield from service(obj.content_object)
         if obj.content_type.model == "project":

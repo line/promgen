@@ -30,7 +30,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
-from django.views.generic.base import ContextMixin, RedirectView
+from django.views.generic.base import ContextMixin, RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
 
@@ -946,13 +946,24 @@ class ServiceNotifierRegister(LoginRequiredMixin, FormView, ServiceMixin):
         return HttpResponseRedirect(service.get_absolute_url())
 
 
-class Status(LoginRequiredMixin, FormView):
-    form_class = forms.SenderForm
-    model = models.Sender
-    template_name = 'promgen/status.html'
+class SiteDetail(LoginRequiredMixin, TemplateView):
+    template_name = "promgen/site_detail.html"
 
     def get_context_data(self, **kwargs):
-        context = super(Status, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
+        context["rule_list"] = models.Rule.objects.filter(
+            content_type__model="site", content_type__app_label="promgen"
+        ).prefetch_related("content_object", "rulelabel_set", "ruleannotation_set")
+        return context
+
+
+class Profile(LoginRequiredMixin, FormView):
+    form_class = forms.SenderForm
+    model = models.Sender
+    template_name = "promgen/profile.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(Profile, self).get_context_data(**kwargs)
         context['discovery_plugins'] = [entry for entry in plugins.discovery()]
         context['notifier_plugins'] = [entry for entry in plugins.notifications()]
         context['notifiers'] = {'notifiers': models.Sender.objects.filter(obj=self.request.user)}
