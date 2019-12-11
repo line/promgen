@@ -757,7 +757,7 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         "content_object", "overrides", "overrides__content_object"
     )
     template_name = "promgen/rule_update.html"
-    form_class = forms.RuleForm
+    form_class = forms.AlertRuleForm
 
     def get_context_data(self, **kwargs):
         context = super(RuleUpdate, self).get_context_data(**kwargs)
@@ -814,51 +814,41 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         return self.form_valid(form)
 
 
-class RuleRegister(mixins.PromgenPermissionMixin, FormView):
+class AlertRuleRegister(mixins.PromgenPermissionMixin, mixins.RuleFormMixin, FormView):
     model = models.Rule
-    template_name = 'promgen/rule_register.html'
-    form_class = forms.RuleForm
+    template_name = "promgen/rule_register.html"
+    form_class = forms.AlertRuleForm
+    form_import_class = forms.ImportRuleForm
 
     def get_permission_required(self):
         # In the case of rules, we want to make sure the user has permission
         # to add the rule itself, but also permission to change the linked object
-        yield 'promgen.add_rule'
-        yield 'promgen.change_' + self.kwargs['content_type']
+        yield "promgen.add_rule"
+        yield "promgen.change_" + self.kwargs["content_type"]
 
     def get_context_data(self, **kwargs):
-        context = super(RuleRegister, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         # Set a dummy rule, so that our header/breadcrumbs render correctly
-        context['rule'] = models.Rule()
-        context['rule'].pk = 0
-        context['rule'].set_object(self.kwargs['content_type'], self.kwargs['object_id'])
-        context['macro'] = macro.EXCLUSION_MACRO
+        context["rule"] = models.Rule()
+        context["rule"].pk = 0
+        context["rule"].set_object(
+            self.kwargs["content_type"], self.kwargs["object_id"]
+        )
+        context["macro"] = macro.EXCLUSION_MACRO
         return context
 
-    def post(self, request, content_type, object_id):
-        form = self.get_form()
-        # Set an instance of our service here so that we can pass it
-        # along for promtool to render
-        form.instance.set_object(content_type, object_id)
-        if form.is_valid():
-            form.instance.save()
-            form.instance.add_label(form.instance.content_type.model, form.instance.content_object.name)
+    def form_valid(self, form):
+        form.instance.save()
+        form.instance.add_label(
+            form.instance.content_type.model, form.instance.content_object.name
+        )
+        return HttpResponseRedirect(form.instance.get_absolute_url())
 
-            return HttpResponseRedirect(form.instance.get_absolute_url())
-
-        if 'rules' not in request.POST:
-            return self.form_invalid(form)
-
-        importform = forms.ImportRuleForm(request.POST)
-        ct = ContentType.objects.get_by_natural_key('promgen', content_type).model_class()
-        obj = ct.objects.get(pk=object_id)
-
-        if importform.is_valid():
-            data = importform.clean()
-            counters = prometheus.import_rules_v2(data['rules'], obj)
-            messages.info(request, 'Imported %s' % counters)
-            return HttpResponseRedirect(obj.get_absolute_url())
-
-        return self.form_invalid(form)
+    def form_import(self, form, content_object):
+        data = form.clean()
+        counters = prometheus.import_rules_v2(data["rules"], content_object)
+        messages.info(self.request, "Imported %s" % counters)
+        return HttpResponseRedirect(content_object.get_absolute_url())
 
 
 class ServiceRegister(LoginRequiredMixin, CreateView):

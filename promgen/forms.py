@@ -110,7 +110,7 @@ class URLForm(forms.ModelForm):
         }
 
 
-class RuleForm(forms.ModelForm):
+class AlertRuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule
         exclude = ['parent', 'content_type', 'object_id']

@@ -120,11 +120,11 @@ class RouteTests(PromgenTest):
         # Test for redirect
         for request in [{"viewname": "rule-new", "args": ("site", 1)}]:
             response = self.client.get(reverse(**request))
-            self.assertRoute(response, views.RuleRegister, 302)
+            self.assertRoute(response, views.AlertRuleRegister, 302)
             self.assertTrue(response.url.startswith("/login"))
 
     def test_other_routes(self):
         self.add_user_permissions("promgen.add_rule", "promgen.change_site")
         for request in [{"viewname": "rule-new", "args": ("site", 1)}]:
             response = self.client.get(reverse(**request))
-            self.assertRoute(response, views.RuleRegister, 200)
+            self.assertRoute(response, views.AlertRuleRegister, 200)
