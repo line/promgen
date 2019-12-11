@@ -32,9 +32,16 @@
 
   <div class="panel panel-default">
     <div class="panel-body">
-      <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>
-      <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
-      <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {% trans "Register" %} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li role="presentation"><a href="{% url 'project-new' service.id %}">{% trans "Register Project" %}</a></li>
+          <li role="presentation"><a href="{% url 'rule-new' 'service' service.id %}">{% trans "Register Rule" %}</a></li>
+          <li role="presentation"><a href="{% url 'service-notifier' service.id %}">{% trans "Register Notifier" %}</a></li>
+        </ul>
+      </div>
 
       <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post">{% csrf_token %}
         <input type="hidden" name="sender" value="promgen.notification.user">
@@ -86,6 +93,5 @@
   {% endif %}
 
   {% include "promgen/service_block_projects.html" with project_list=project_list|default:service.project_set.all service=service only %}
-
 
 </div><!-- end well-->
