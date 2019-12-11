@@ -85,7 +85,7 @@ urlpatterns = [
     path('rule/<int:pk>/test', csrf_exempt(views.RuleTest.as_view()), name='rule-test'),
     path('rule/<int:pk>/duplicate', views.RulesCopy.as_view(), name='rule-overwrite'),
 
-    path('<content_type>/<object_id>/rule', views.RuleRegister.as_view(), name='rule-new'),
+    path('<content_type>/<object_id>/rule', views.AlertRuleRegister.as_view(), name='rule-new'),
 
     path("audit", views.AuditList.as_view(), name="audit-list"),
     path("site", views.SiteDetail.as_view(), name="site-detail"),

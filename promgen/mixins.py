@@ -19,16 +19,29 @@ class ContentTypeMixin:
         self.object_id = object_id
 
 
-class ContentFormMixin:
+class RuleFormMixin:
+    # When creating a single object, we want to use the
+    # default form class and delagate to form_valid but
+    # when we are importing multiple objects, we delegate
+    # a form_import class to handle processing
     def post(self, request, content_type, object_id):
-        form = self.get_form()
-        # Set an instance of our service here so that we can pass it
-        # along for promtool to render
-        form.instance.set_object(content_type, object_id)
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+        single = self.get_form(self.form_class)
+        # Set an instance of our content_object here so that we can
+        # pass it along for promtool to render
+        single.instance.set_object(content_type, object_id)
+        if single.is_valid():
+            return self.form_valid(single)
+
+        importer = self.get_form(self.form_import_class)
+        if importer.is_valid():
+            ct = ContentType.objects.get_by_natural_key(
+                "promgen", content_type
+            ).model_class()
+            content_object = ct.objects.get(pk=object_id)
+
+            return self.form_import(importer, content_object)
+
+        return self.form_invalid(single)
 
 
 class PromgenPermissionMixin(PermissionRequiredMixin):
