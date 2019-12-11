@@ -1,15 +1,18 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-from promgen import models
-from promgen.tests import PromgenTest
+from unittest import mock
 
 from django.core import management
 from django.core.management.base import CommandError
 
+from promgen import models
+from promgen.tests import PromgenTest
+
 
 class CLITests(PromgenTest):
-    def test_register_job(self):
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    def test_register_job(self, mock_signal):
         # Assert when project doesn't exist
         with self.assertRaises(CommandError):
             management.call_command("register-job", "missing-project", "example", 1234)
@@ -31,7 +34,8 @@ class CLITests(PromgenTest):
         management.call_command("register-job", "TestProject", "example", 4321)
         self.assertCount(models.Exporter, 2)
 
-    def test_register_host(self):
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    def test_register_host(self, mock_signal):
         # Assert when project doesn't exist
         with self.assertRaises(CommandError):
             management.call_command("register-host", "missing-project", "example.com")

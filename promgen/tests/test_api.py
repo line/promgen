@@ -2,14 +2,10 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 
-from promgen import models, views
-from promgen.tests import PromgenTest
-
 from django.test import override_settings
 from django.urls import reverse
 
 from promgen import models, views
-
 from promgen.tests import PromgenTest
 
 TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')

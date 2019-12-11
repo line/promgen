@@ -4,11 +4,11 @@ from unittest import mock
 
 import requests
 
-from promgen import models, views
-from promgen.tests import PromgenTest
-
 from django.test import override_settings
 from django.urls import reverse
+
+from promgen import models, views
+from promgen.tests import PromgenTest
 
 TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
 TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
@@ -19,7 +19,8 @@ TEST_REPLACE = PromgenTest.data('examples', 'replace.json')
 class RouteTests(PromgenTest):
     longMessage = True
 
-    def setUp(self):
+    @mock.patch('django.dispatch.dispatcher.Signal.send')
+    def setUp(self, mock_signal):
         self.user = self.add_force_login(id=999, username="Foo")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
