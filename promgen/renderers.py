@@ -1,3 +1,6 @@
+# Copyright (c) 2019 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 import yaml
 from rest_framework import renderers
 

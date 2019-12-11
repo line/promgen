@@ -1,3 +1,6 @@
+# Copyright (c) 2019 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
