@@ -12,15 +12,10 @@ from itertools import chain
 
 import prometheus_client
 import requests
-from prometheus_client.core import (
-    CollectorRegistry,
-    CounterMetricFamily,
-    GaugeMetricFamily,
-)
+from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Count, Q
 from django.db.utils import IntegrityError
@@ -30,7 +25,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import ugettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
-from django.views.generic.base import ContextMixin, RedirectView, TemplateView
+from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
 
@@ -39,6 +34,7 @@ from promgen import (
     celery,
     discovery,
     forms,
+    mixins,
     models,
     plugins,
     prometheus,
@@ -50,40 +46,6 @@ from promgen import (
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
-
-
-class PromgenPermissionMixin(PermissionRequiredMixin):
-    def handle_no_permission(self):
-        messages.warning(self.request, self.get_permission_denied_message())
-        return redirect_to_login(
-            self.request.get_full_path(),
-            self.get_login_url(),
-            self.get_redirect_field_name(),
-        )
-
-
-class ShardMixin(ContextMixin):
-    def get_context_data(self, **kwargs):
-        context = super(ShardMixin, self).get_context_data(**kwargs)
-        if 'pk' in self.kwargs:
-            context['object'] = context['shard'] = get_object_or_404(models.Shard, id=self.kwargs['pk'])
-        return context
-
-
-class ProjectMixin(ContextMixin):
-    def get_context_data(self, **kwargs):
-        context = super(ProjectMixin, self).get_context_data(**kwargs)
-        if 'pk' in self.kwargs:
-            context['object'] = context['project'] = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        return context
-
-
-class ServiceMixin(ContextMixin):
-    def get_context_data(self, **kwargs):
-        context = super(ServiceMixin, self).get_context_data(**kwargs)
-        if 'pk' in self.kwargs:
-            context['object'] = context['service'] = get_object_or_404(models.Service, id=self.kwargs['pk'])
-        return context
 
 
 class ShardList(LoginRequiredMixin, ListView):
@@ -388,7 +350,7 @@ class ExporterToggle(LoginRequiredMixin, View):
         return JsonResponse({'redirect': exporter.project.get_absolute_url()})
 
 
-class RuleDelete(PromgenPermissionMixin, DeleteView):
+class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
     model = models.Rule
 
     def get_permission_denied_message(self):
@@ -408,7 +370,7 @@ class RuleDelete(PromgenPermissionMixin, DeleteView):
         return self.object.content_object.get_absolute_url()
 
 
-class RuleToggle(PromgenPermissionMixin, SingleObjectMixin, View):
+class RuleToggle(mixins.PromgenPermissionMixin, SingleObjectMixin, View):
     model = models.Rule
 
     def get_permission_denied_message(self):
@@ -519,7 +481,7 @@ class UnlinkFarm(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class RulesList(LoginRequiredMixin, ListView, ServiceMixin):
+class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
     template_name = "promgen/rule_list.html"
     queryset = models.Rule.objects.prefetch_related("content_type", "content_object")
 
@@ -634,7 +596,7 @@ class FarmLink(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ExporterRegister(LoginRequiredMixin, FormView, ProjectMixin):
+class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.Exporter
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
@@ -692,7 +654,7 @@ class ExporterScrape(LoginRequiredMixin, View):
         return JsonResponse(dict(query()))
 
 
-class URLRegister(LoginRequiredMixin, FormView, ProjectMixin):
+class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.URL
     template_name = 'promgen/url_form.html'
     form_class = forms.URLForm
@@ -777,7 +739,7 @@ class RuleDetail(LoginRequiredMixin, DetailView):
     )
 
 
-class RuleUpdate(PromgenPermissionMixin, UpdateView):
+class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
     def get_permission_denied_message(self):
         return "Unable to edit rule %s. User lacks permission" % self.object
 
@@ -852,7 +814,7 @@ class RuleUpdate(PromgenPermissionMixin, UpdateView):
         return self.form_valid(form)
 
 
-class RuleRegister(PromgenPermissionMixin, FormView):
+class RuleRegister(mixins.PromgenPermissionMixin, FormView):
     model = models.Rule
     template_name = 'promgen/rule_register.html'
     form_class = forms.RuleForm
@@ -908,7 +870,7 @@ class ServiceRegister(LoginRequiredMixin, CreateView):
         return {"owner": self.request.user}
 
 
-class FarmRegister(LoginRequiredMixin, FormView, ProjectMixin):
+class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.Farm
     button_label = _('Register Farm')
     template_name = 'promgen/farm_form.html'
@@ -922,7 +884,7 @@ class FarmRegister(LoginRequiredMixin, FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ProjectNotifierRegister(LoginRequiredMixin, FormView, ProjectMixin):
+class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.Sender
     template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
@@ -934,7 +896,7 @@ class ProjectNotifierRegister(LoginRequiredMixin, FormView, ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url())
 
 
-class ServiceNotifierRegister(LoginRequiredMixin, FormView, ServiceMixin):
+class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin):
     model = models.Sender
     template_name = 'promgen/notifier_form.html'
     form_class = forms.SenderForm
@@ -1224,7 +1186,7 @@ class Search(LoginRequiredMixin, View):
         return render(request, 'promgen/search.html', context)
 
 
-class RuleImport(PromgenPermissionMixin, FormView):
+class RuleImport(mixins.PromgenPermissionMixin, FormView):
     form_class = forms.ImportRuleForm
     template_name = 'promgen/rule_import.html'
 
@@ -1252,7 +1214,7 @@ class RuleImport(PromgenPermissionMixin, FormView):
             return self.form_invalid(form)
 
 
-class Import(PromgenPermissionMixin, FormView):
+class Import(mixins.PromgenPermissionMixin, FormView):
     template_name = 'promgen/import_form.html'
     form_class = forms.ImportConfigForm
 
