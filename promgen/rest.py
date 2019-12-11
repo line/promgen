@@ -21,7 +21,27 @@ class ShardViewSet(viewsets.ModelViewSet):
         )
 
 
-class ServiceViewSet(viewsets.ModelViewSet):
+class RuleMixin:
+    @action(detail=True, methods=["get"], renderer_classes=[renderers.RuleRenderer])
+    def rules(self, request, name):
+        rules = models.Rule.objects.filter(obj=self.get_object())
+        return Response(
+            serializers.AlertRuleSerializer(rules, many=True).data,
+            headers={"Content-Disposition": "attachment; filename=%s.rule.yml" % name},
+        )
+
+
+class NotifierMixin:
+    @action(detail=True, methods=["get"])
+    def notifiers(self, request, name):
+        return Response(
+            serializers.SenderSerializer(
+                self.get_object().notifiers.all(), many=True
+            ).data
+        )
+
+
+class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     queryset = models.Service.objects.all()
     filterset_class = filters.ServiceFilter
     serializer_class = serializers.ServiceSerializer
@@ -42,24 +62,9 @@ class ServiceViewSet(viewsets.ModelViewSet):
             content_type='application/json',
         )
 
-    @action(detail=True, methods=["get"], renderer_classes=[renderers.RuleRenderer])
-    def rules(self, request, name):
-        rules = models.Rule.objects.filter(obj=self.get_object())
-        return Response(serializers.AlertRuleSerializer(rules, many=True).data)
 
-    @action(detail=True, methods=['get'])
-    def notifiers(self, request, name):
-        return Response(
-            serializers.SenderSerializer(
-                self.get_object().notifiers.all(), many=True
-            ).data
-        )
-
-
-class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = models.Project.objects.prefetch_related(
-        'service', 'shard', 'farm'
-    )
+class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
+    queryset = models.Project.objects.prefetch_related("service", "shard", "farm")
     filterset_class = filters.ProjectFilter
     serializer_class = serializers.ProjectSerializer
     lookup_value_regex = '[^/]+'
@@ -72,15 +77,3 @@ class ProjectViewSet(viewsets.ModelViewSet):
             content_type='application/json',
         )
 
-    @action(detail=True, methods=["get"], renderer_classes=[renderers.RuleRenderer])
-    def rules(self, request, name):
-        rules = models.Rule.objects.filter(obj=self.get_object())
-        return Response(serializers.AlertRuleSerializer(rules, many=True).data)
-
-    @action(detail=True, methods=['get'])
-    def notifiers(self, request, name):
-        return Response(
-            serializers.SenderSerializer(
-                self.get_object().notifiers.all(), many=True
-            ).data
-        )
