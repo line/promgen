@@ -25,7 +25,8 @@
                         <li><a href="{% url 'audit-list' %}">Edit History</a></li>
                         <li><a href="{% url 'alert-list' %}">Alert History</a></li>
                         <li role="separator" class="divider"></li>
-
+                        
+                        <li><a href="{% url 'site-detail' %}">Shared</a></li>
                         <li><a href="{% url 'farm-list' %}">Farms</a></li>
                         <li><a href="{% url 'host-list' %}">Hosts</a></li>
                         <li><a href="{% url 'shard-list' %}">Shard</a></li>
@@ -72,7 +73,7 @@
                         {{user.username}} <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="{% url 'status' %}">Profile</a></li>
+                        <li><a href="{% url 'profile' %}">Profile</a></li>
                         <li><a href="{% url 'logout' %}">Logout</a></li>
                         {% if user.is_superuser %}
                         <li role="separator" class="divider"></li>

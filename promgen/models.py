@@ -29,7 +29,7 @@ class Site(django.contrib.sites.models.Site):
     rule_set = GenericRelation('promgen.Rule', for_concrete_model=False)
 
     def get_absolute_url(self):
-        return reverse('rules-list')
+        return reverse("site-detail")
 
     class Meta:
         proxy = True

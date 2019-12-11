@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+Promgen / Shared
+{% endblock %}
+
+{% block content %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span>Site Alert Rules</span>
+        <a href="{% url 'rule-new' 'site' 1 %}" class="btn btn-primary btn-xs pull-right">{% trans "Register Rule" %}</a>
+    </div>
+
+    <table class="table table-bordered table-condensed">
+        {% include "promgen/rule_header.html" %}
+        {% include "promgen/rule_block.html" %}
+    </table>
+</div>
+
+{% endblock %}
