@@ -10,7 +10,6 @@ from promgen import models
 from promgen.notification.email import NotificationEmail
 from promgen.tests import PromgenTest
 
-
 TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
 TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
 

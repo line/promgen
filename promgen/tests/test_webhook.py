@@ -3,12 +3,12 @@
 
 from unittest import mock
 
+from django.test import override_settings
+from django.urls import reverse
+
 from promgen import models, views
 from promgen.notification.webhook import NotificationWebhook
 from promgen.tests import PromgenTest
-
-from django.test import override_settings
-from django.urls import reverse
 
 TEST_SETTINGS = PromgenTest.data_yaml("examples", "promgen.yml")
 TEST_ALERT = PromgenTest.data("examples", "alertmanager.json")
