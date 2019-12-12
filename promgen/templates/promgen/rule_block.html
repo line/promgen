@@ -11,7 +11,7 @@
     {% endif %}
     <ul>
       {% for k,v in rule.labels.items|dictsort:0 %}
-      <li class="label label-primary">{{k}}:{{v}}</li>
+      <li class="label label-primary"><code v-pre>{{k}}:{{v}}</pre></code></li>
       {% endfor %}
     </ul>
   </td>
