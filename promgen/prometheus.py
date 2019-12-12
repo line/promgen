@@ -13,7 +13,6 @@ import yaml
 from dateutil import parser
 
 from django.core.exceptions import ValidationError
-from django.db.models import prefetch_related_objects
 from django.utils import timezone
 
 from promgen import models, renderers, serializers, util

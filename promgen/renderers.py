@@ -1,3 +1,6 @@
+# Copyright (c) 2019 LINE Corporation
+# These sources are released under the terms of the MIT license: see LICENSE
+
 import yaml
 from rest_framework import renderers
 
@@ -9,13 +12,6 @@ class RuleRenderer(renderers.BaseRenderer):
     charset = "utf-8"
 
     def render(self, data, media_type=None, renderer_context=None):
-        # If this is a 'real' request, then we'll add a header so
-        # that we get a friendly name with our downloaded file
-        if renderer_context and "response" in renderer_context:
-            renderer_context["response"][
-                "Content-Disposition"
-            ] = "attachment; filename=promgen.rule.yml"
-
         return yaml.safe_dump(
             {"groups": [{"name": name, "rules": data[name]} for name in data]},
             default_flow_style=False,
