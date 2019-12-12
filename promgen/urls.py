@@ -24,9 +24,10 @@ from promgen import proxy, rest, views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register('service', rest.ServiceViewSet)
-router.register('shard', rest.ShardViewSet)
-router.register('project', rest.ProjectViewSet)
+router.register("all", rest.AllViewSet, basename="all")
+router.register("service", rest.ServiceViewSet)
+router.register("shard", rest.ShardViewSet)
+router.register("project", rest.ProjectViewSet)
 
 
 urlpatterns = [
@@ -104,14 +105,12 @@ urlpatterns = [
     url('', include('django.contrib.auth.urls')),
     url('', include('social_django.urls', namespace='social')),
 
-    # Public API
-
     # Legacy API
     path('api/v1/config', csrf_exempt(views.ApiConfig.as_view())),
+    path("api/", include((router.urls, "api"), namespace="old-api")),
+    path('api/v1/rules', csrf_exempt(views.RulesConfig.as_view())),
 
-    # Promgen API
     path('api/v1/targets', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
-    path('api/v1/rules', csrf_exempt(views.RulesConfig.as_view()), name='config-rules'),
     path('api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
     path('api/v1/alerts', csrf_exempt(views.Alert.as_view()), name='alert'),
     path('api/v1/host/<slug>', views.HostDetail.as_view()),
@@ -131,7 +130,8 @@ urlpatterns = [
     path("proxy/v1/silences", csrf_exempt(proxy.ProxySilences.as_view()), name="proxy-silence"),
     path("proxy/v1/silences/<silence_id>", csrf_exempt(proxy.ProxyDeleteSilence.as_view()), name="proxy-silence-delete"),
 
-    path("api/", include((router.urls, "api"), namespace="api")),
+    # Promgen rest API
+    path("rest/", include((router.urls, "api"), namespace="api")),    
 ]
 
 try:

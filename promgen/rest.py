@@ -1,13 +1,25 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-from rest_framework import viewsets
+from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from django.http import HttpResponse
 
 from promgen import filters, models, prometheus, renderers, serializers
+
+
+class AllViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=["get"], renderer_classes=[renderers.RuleRenderer])
+    def rules(self, request):
+        rules = models.Rule.objects.filter(enabled=True)
+        return Response(
+            serializers.AlertRuleSerializer(rules, many=True).data,
+            headers={"Content-Disposition": "attachment; filename=alert.rule.yml"},
+        )
 
 
 class ShardViewSet(viewsets.ModelViewSet):
