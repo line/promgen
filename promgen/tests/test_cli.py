@@ -24,15 +24,15 @@ class CLITests(PromgenTest):
         management.call_command("register-job", "TestProject", "example", 1234)
 
         # Ensure the jobs we expect exist
-        self.assertCount(models.Exporter, 1)
+        self.assertCount(models.Job, 1)
 
         # Registering the same job again shouldn't change our count
         management.call_command("register-job", "TestProject", "example", 1234)
-        self.assertCount(models.Exporter, 1)
+        self.assertCount(models.Job, 1)
 
         # But registering a new one will
         management.call_command("register-job", "TestProject", "example", 4321)
-        self.assertCount(models.Exporter, 2)
+        self.assertCount(models.Job, 2)
 
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_register_host(self, mock_signal):

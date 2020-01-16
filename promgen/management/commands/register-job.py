@@ -8,7 +8,7 @@ from promgen import models, util
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        help_text = util.HelpFor(models.Exporter)
+        help_text = util.HelpFor(models.Job)
 
         parser.add_argument("project", help="Existing Project")
         parser.add_argument("job", help=help_text.job)
@@ -22,7 +22,7 @@ class Command(BaseCommand):
         except models.Project.DoesNotExist:
             raise CommandError("Unable to find Project :%s" % kwargs["project"])
 
-        job, created = models.Exporter.objects.get_or_create(
+        job, created = models.Job.objects.get_or_create(
             project=project,
             job=kwargs["job"],
             port=kwargs["port"],

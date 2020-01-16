@@ -6,7 +6,7 @@
     <div class="panel-heading">Exporters from <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></div>
     <div>
       <table class="table">
-{% for exporter in project.exporter_set.all %}
+{% for exporter in project.job_set.all %}
         <tr>
           <td>{{ exporter.job }}</td>
           <td>{{ exporter.port }}</td>
