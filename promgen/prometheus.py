@@ -104,7 +104,7 @@ def render_urls():
 
 def render_config(service=None, project=None):
     data = []
-    for exporter in models.Exporter.objects.\
+    for exporter in models.Job.objects.\
             prefetch_related(
                 'project__farm__host_set',
                 'project__farm',
@@ -259,7 +259,7 @@ def import_config(config, replace_shard=None):
                 logger.debug('Created host %s', host)
                 counters['Host'].append(host)
 
-            exporter, created = models.Exporter.objects.get_or_create(
+            exporter, created = models.Job.objects.get_or_create(
                 job=entry['labels']['job'],
                 port=port,
                 project=project,

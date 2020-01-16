@@ -42,7 +42,7 @@ class RouteTests(PromgenTest):
         self.assertRoute(response, views.Import, 302, "Redirect to imported object")
         self.assertCount(models.Service, 1, "Import one service")
         self.assertCount(models.Project, 2, "Import two projects")
-        self.assertCount(models.Exporter, 2, "Import two exporters")
+        self.assertCount(models.Job, 2, "Import two exporters")
         self.assertCount(models.Host, 3, "Import three hosts")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
@@ -62,7 +62,7 @@ class RouteTests(PromgenTest):
 
         self.assertCount(models.Service, 1, "Import one service")
         self.assertCount(models.Project, 2, "Import two projects")
-        self.assertCount(models.Exporter, 2, "Import two exporters")
+        self.assertCount(models.Job, 2, "Import two exporters")
         self.assertCount(models.Farm, 3, "Original two farms and one new farm")
         self.assertCount(models.Host, 5, "Original 3 hosts and two new ones")
 

@@ -77,7 +77,7 @@ class SilenceExpireForm(forms.Form):
 
 class ExporterForm(forms.ModelForm):
     class Meta:
-        model = models.Exporter
+        model = models.Job
         exclude = ['project']
 
         widgets = {

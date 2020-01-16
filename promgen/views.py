@@ -58,7 +58,7 @@ class ShardList(LoginRequiredMixin, ListView):
         "project_set",
         "project_set__owner",
         "project_set__farm",
-        "project_set__exporter_set",
+        "project_set__job_set",
         "project_set__notifiers",
         "project_set__notifiers__owner",
         "prometheus_set",
@@ -76,7 +76,7 @@ class ShardDetail(LoginRequiredMixin, DetailView):
         "project_set",
         "project_set__owner",
         "project_set__farm",
-        "project_set__exporter_set",
+        "project_set__job_set",
         "project_set__notifiers",
         "project_set__notifiers__owner",
         "project_set__notifiers__filter_set",
@@ -95,7 +95,7 @@ class ServiceList(LoginRequiredMixin, ListView):
         "project_set__notifiers__owner",
         "project_set__notifiers__filter_set",
         "project_set__farm",
-        "project_set__exporter_set",
+        "project_set__job_set",
         "owner",
         "notifiers",
         "notifiers__owner",
@@ -125,7 +125,7 @@ class HomeList(LoginRequiredMixin, ListView):
             'project_set',
             'project_set__farm',
             'project_set__shard',
-            'project_set__exporter_set',
+            'project_set__job_set',
             'project_set__notifiers',
             'project_set__owner',
             'project_set__notifiers__owner',
@@ -169,7 +169,7 @@ class HostDetail(LoginRequiredMixin, View):
             id__in=context['farm_list'].values_list('project__id', flat=True)
         ).prefetch_related('notifiers', 'rule_set')
 
-        context['exporter_list'] = models.Exporter.objects.filter(
+        context['exporter_list'] = models.Job.objects.filter(
             project_id__in=context['project_list'].values_list('id', flat=True)
         ).prefetch_related('project', 'project__service')
 
@@ -229,8 +229,8 @@ class AuditList(LoginRequiredMixin, ListView):
                 if key == 'project':
                     # Only projects may have exporters
                     qset |= Q(
-                        content_type_id=ContentType.objects.get_for_model(models.Exporter).id,
-                        object_id__in=obj.exporter_set.values_list('id', flat=True)
+                        content_type_id=ContentType.objects.get_for_model(models.Job).id,
+                        object_id__in=obj.job_set.values_list('id', flat=True)
                     )
                     # Only projects may have URLs
                     qset |= Q(
@@ -258,7 +258,7 @@ class ServiceDetail(LoginRequiredMixin, DetailView):
             'project_set',
             'project_set__shard',
             'project_set__farm',
-            'project_set__exporter_set',
+            'project_set__job_set',
             'project_set__notifiers',
             'project_set__notifiers__owner'
         )
@@ -335,7 +335,7 @@ class NotifierTest(LoginRequiredMixin, View):
 
 
 class ExporterDelete(LoginRequiredMixin, DeleteView):
-    model = models.Exporter
+    model = models.Job
 
     def get_success_url(self):
         return reverse('project-detail', args=[self.object.project_id])
@@ -343,7 +343,7 @@ class ExporterDelete(LoginRequiredMixin, DeleteView):
 
 class ExporterToggle(LoginRequiredMixin, View):
     def post(self, request, pk):
-        exporter = get_object_or_404(models.Exporter, id=pk)
+        exporter = get_object_or_404(models.Job, id=pk)
         exporter.enabled = not exporter.enabled
         exporter.save()
         signals.trigger_write_config.send(request)
@@ -597,13 +597,13 @@ class FarmLink(LoginRequiredMixin, View):
 
 
 class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
-    model = models.Exporter
+    model = models.Job
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
+        exporter, _ = models.Job.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
@@ -1077,7 +1077,7 @@ class Metrics(View):
             "promgen_shards", "Registered Shards", models.Shard.objects.count()
         )
         yield GaugeMetricFamily(
-            "promgen_exporters", "Registered Exporters", models.Exporter.objects.count()
+            "promgen_exporters", "Registered Exporters", models.Job.objects.count()
         )
         yield GaugeMetricFamily(
             "promgen_services", "Registered Services", models.Service.objects.count()
@@ -1129,7 +1129,7 @@ class Search(LoginRequiredMixin, View):
             'project_list': {
                 'field': ('name__icontains',),
                 'model': models.Project,
-                'prefetch': ('service', 'notifiers', 'exporter_set', 'notifiers__owner'),
+                'prefetch': ('service', 'notifiers', 'job_set', 'notifiers__owner'),
                 'query': ('search', 'var-project'),
             },
             'rule_list': {

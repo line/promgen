@@ -316,7 +316,7 @@ class Host(models.Model):
         return '{} [{}]'.format(self.name, self.farm.name)
 
 
-class Exporter(models.Model):
+class Job(models.Model):
     job = models.CharField(max_length=128, help_text="Exporter name. Example node, jmx, app")
     port = models.IntegerField(help_text="Port Exporter is running on")
     path = models.CharField(max_length=128, blank=True, help_text="Exporter path. Defaults to /metrics")

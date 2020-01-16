@@ -99,7 +99,7 @@ def update_log(sender, instance, **kwargs):
     if instance.pk:
         old = sender.objects.get(pk=instance.pk)
         models.Audit.log('Updated %s %s' % (sender.__name__, instance), instance, old)
-pre_save.connect(update_log, sender=models.Exporter)
+pre_save.connect(update_log, sender=models.Job)
 pre_save.connect(update_log, sender=models.Farm)
 pre_save.connect(update_log, sender=models.Host)
 pre_save.connect(update_log, sender=models.Project)
@@ -114,7 +114,7 @@ def create_log(sender, instance, created, **kwargs):
     # system.
     if created:
         models.Audit.log('Created %s %s' % (sender.__name__, instance), instance)
-post_save.connect(create_log, sender=models.Exporter)
+post_save.connect(create_log, sender=models.Job)
 post_save.connect(create_log, sender=models.Farm)
 post_save.connect(create_log, sender=models.Host)
 post_save.connect(create_log, sender=models.Project)
@@ -125,7 +125,7 @@ post_save.connect(create_log, sender=models.URL)
 
 def delete_log(sender, instance, **kwargs):
     models.Audit.log('Deleted %s %s' % (sender.__name__, instance), instance)
-post_delete.connect(delete_log, sender=models.Exporter)
+post_delete.connect(delete_log, sender=models.Job)
 post_delete.connect(delete_log, sender=models.Farm)
 post_delete.connect(delete_log, sender=models.Host)
 post_delete.connect(delete_log, sender=models.Project)
@@ -159,7 +159,7 @@ def delete_url(sender, instance, **kwargs):
 def save_host(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.farm.project_set.all():
-        if project.exporter_set:
+        if project.job_set:
             trigger_write_config.send(instance)
 
 
@@ -167,7 +167,7 @@ def save_host(sender, instance, **kwargs):
 def delete_host(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.farm.project_set.all():
-        if project.exporter_set.exists():
+        if project.job_set.exists():
             trigger_write_config.send(instance)
 
 
@@ -178,7 +178,7 @@ def delete_farm(sender, instance, **kwargs):
         trigger_write_config.send(instance)
 
 
-@receiver(post_save, sender=models.Exporter)
+@receiver(post_save, sender=models.Job)
 def save_exporter(sender, instance, **kwargs):
     '''Only trigger write if parent project also has hosts'''
     if instance.project.farm:
@@ -186,7 +186,7 @@ def save_exporter(sender, instance, **kwargs):
             trigger_write_config.send(instance)
 
 
-@receiver(pre_delete, sender=models.Exporter)
+@receiver(pre_delete, sender=models.Job)
 def delete_exporter(sender, instance, **kwargs):
     '''Only trigger write if parent project also has hosts'''
     if instance.project.farm:
@@ -197,14 +197,14 @@ def delete_exporter(sender, instance, **kwargs):
 @receiver(post_save, sender=models.Project)
 def save_project(sender, instance, **kwargs):
     logger.debug('save_project: %s', instance)
-    if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
+    if instance.farm and instance.farm.host_set.exists() and instance.job_set.exists():
         trigger_write_config.send(instance)
         return True
 
 
 @receiver(pre_delete, sender=models.Project)
 def delete_project(sender, instance, **kwargs):
-    if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
+    if instance.farm and instance.farm.host_set.exists() and instance.job_set.exists():
         trigger_write_config.send(instance)
 
 
@@ -219,7 +219,7 @@ def save_service(sender, instance, **kwargs):
     for project in instance.project_set.prefetch_related(
             'farm',
             'farm__host_set',
-            'exporter_set'):
+            'job_set'):
         if save_project(sender=models.Project, instance=project):
             # If any of our save_project returns True, then we do not need to
             # check any others

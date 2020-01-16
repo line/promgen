@@ -66,8 +66,8 @@ class FarmAdmin(admin.ModelAdmin):
     list_filter = ('source',)
 
 
-@admin.register(models.Exporter)
-class ExporterAdmin(admin.ModelAdmin):
+@admin.register(models.Job)
+class JobAdmin(admin.ModelAdmin):
     list_display = ('job', 'port', 'path', 'project', 'enabled')
     list_filter = ('job', 'port',)
     readonly_fields = ('project',)

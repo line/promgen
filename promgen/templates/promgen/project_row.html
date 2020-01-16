@@ -4,7 +4,7 @@
 
     <td>
         <table style="width: 100%">
-            {% for exporter in project.exporter_set.all %}
+            {% for exporter in project.job_set.all %}
             <tr {% if not exporter.enabled %}class="bg-disabled text-muted" {% endif %}>
                 <td>{{ exporter.job }}</td>
                 <td>{{ exporter.port }}</td>
