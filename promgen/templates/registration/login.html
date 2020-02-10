@@ -5,9 +5,10 @@
 <h2 class="form-signin-heading">OAuth Login</h2>
 <div class="panel panel-default">
 {% for backend in backends.not_associated %}
-    <a class="btn btn-block btn-default" href="{% url 'social:begin' backend %}">
-        Sign in with {{backend}}
-    </a>
+    <form action="{% url 'social:begin' backend %}">
+        <input type="hidden" name="next" value="{{ next }}" />
+        <button class="btn btn-block btn-default" type="submit">Sign in with {{backend}}</button>
+    </form>
 {% endfor %}
 </div>
 {% endif %}
