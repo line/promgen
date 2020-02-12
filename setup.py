@@ -34,7 +34,7 @@ setup(
         'celery==4.3.0',
         'dj-database-url',
         'django-filter',
-        'Django==2.2.9',
+        'Django==2.2.10',
         'djangorestframework==3.9.4',
         'envdir',
         'kombu==4.6.3',  # https://github.com/celery/kombu/issues/1063
