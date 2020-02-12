@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.43 - 2020-02-12
+
+- [BUGFIX] Fix login redirect with social auth #230
+- [BUGFIX] Add validation to Shard, Service, Project, and Farm name #228
+- [INTERNAL] Start refactoring api into `/rest/` namespace #224
+- [BUGFIX] Fixes to unit tests to avoid signal errors #216
+- [DOCUMENTATION] Fix reference to old endpoint #206
+
 ## v0.42 - 2019-12-03
 
 - [BUGFIX] Pin kombu to 4.6.3 to fix bug with redis exchange #197
