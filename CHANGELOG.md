@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.43.1 - 2020-02-14
+
+- [BUGFIX] Fix for labelvalues #234
+
 ## v0.43 - 2020-02-12
 
 - [BUGFIX] Fix login redirect with social auth #230
