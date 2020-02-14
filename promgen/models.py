@@ -165,7 +165,7 @@ class Filter(models.Model):
 
 
 class Shard(models.Model):
-    name = models.CharField(max_length=128, unique=True, validators=[validators.alphanumeric])
+    name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     url = models.URLField(max_length=256)
     proxy = models.BooleanField(default=False,
         help_text='Queries can be proxied to these shards')
@@ -185,7 +185,7 @@ class Shard(models.Model):
 
 
 class Service(models.Model):
-    name = models.CharField(max_length=128, unique=True, validators=[validators.alphanumeric])
+    name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
 
@@ -219,7 +219,7 @@ class Service(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=128, unique=True, validators=[validators.alphanumeric])
+    name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
 
@@ -241,7 +241,7 @@ class Project(models.Model):
 
 
 class Farm(models.Model):
-    name = models.CharField(max_length=128, validators=[validators.alphanumeric])
+    name = models.CharField(max_length=128, validators=[validators.labelvalue])
     source = models.CharField(max_length=128)
 
     class Meta:
@@ -370,7 +370,7 @@ class URL(models.Model):
 class Rule(models.Model):
     objects = ObjectFilterManager()
 
-    name = models.CharField(max_length=128, unique=True, validators=[validators.alphanumeric])
+    name = models.CharField(max_length=128, unique=True, validators=[validators.metricname])
     clause = models.TextField(help_text='Prometheus query')
     duration = models.CharField(
         max_length=128, validators=[validators.duration],
