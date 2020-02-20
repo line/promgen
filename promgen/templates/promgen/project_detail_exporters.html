@@ -6,15 +6,13 @@
     <tr>
       <th>Job</th>
       <th>Port</th>
-      <th>Metrics Path</th>
-      <th>Toggle</th>
-      <th>&nbsp;</th>
-      <th>&nbsp;</th>
+      <th>Path</th>
+      <th colspan="4">Actions</th>
     </tr>
   {% for exporter in project.exporter_set.all %}
     <tr {% if not exporter.enabled %}class="bg-disabled text-muted"{% endif %}>
       <td>{{ exporter.job }}</td>
-      <td>{{ exporter.port }}</td>
+      <td>{{ exporter.scheme }}:{{ exporter.port }}</td>
       <td>{{ exporter.path | default:"/metrics" }}</td>
       <td style="white-space: nowrap">
         <input
@@ -30,6 +28,7 @@
         <form id="{{exporter.job}}_{{exporter.port}}">
           {% csrf_token %}
           <input type="hidden" name="job" value="{{ exporter.job }}" />
+          <input type="hidden" name="scheme" value="{{ exporter.scheme }}" />
           <input type="hidden" name="port" value="{{ exporter.port }}" />
           <input type="hidden" name="path" value="{{ exporter.path }}" />
           <exporter-test

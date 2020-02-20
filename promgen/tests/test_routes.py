@@ -98,12 +98,14 @@ class RouteTests(PromgenTest):
                 "target": "#exporterresult",
                 "job": "foo",
                 "port": 8000,
+                "scheme": "http",
             },
-            "http://example.com:8000/foo": {
+            "https://example.com:8000/foo": {
                 "target": "#exporterresult",
                 "job": "foo",
                 "port": 8000,
                 "path": "/foo",
+                "scheme": "https",
             },
         }
 
@@ -114,7 +116,10 @@ class RouteTests(PromgenTest):
 
             # For each POST body, check to see that we generate and attempt to
             # scrape the correct URL
-            self.client.post(reverse("exporter-scrape", args=(farm.pk,)), body)
+            response = self.client.post(
+                reverse("exporter-scrape", args=(farm.pk,)), body
+            )
+            self.assertRoute(response, views.ExporterScrape, 200)
             self.assertEqual(mock_get.call_args[0][0], url)
 
     def test_failed_permission(self):

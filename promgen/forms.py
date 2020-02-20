@@ -78,12 +78,13 @@ class SilenceExpireForm(forms.Form):
 class ExporterForm(forms.ModelForm):
     class Meta:
         model = models.Exporter
-        exclude = ['project']
+        exclude = ["project"]
 
         widgets = {
-            'job': forms.TextInput(attrs={'class': 'form-control'}),
-            'port': forms.TextInput(attrs={'class': 'form-control', 'type': 'number'}),
-            'path': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '/metrics'}),
+            "job": forms.TextInput(attrs={"class": "form-control"}),
+            "port": forms.TextInput(attrs={"class": "form-control", "type": "number"}),
+            "path": forms.TextInput(attrs={"class": "form-control", "placeholder": "/metrics"}),
+            "scheme": forms.Select(attrs={"class": "form-control"}),
         }
 
 

@@ -317,9 +317,17 @@ class Host(models.Model):
 
 
 class Exporter(models.Model):
-    job = models.CharField(max_length=128, help_text="Exporter name. Example node, jmx, app")
+    job = models.CharField(
+        max_length=128, help_text="Exporter name. Example node, jmx, app"
+    )
     port = models.IntegerField(help_text="Port Exporter is running on")
-    path = models.CharField(max_length=128, blank=True, help_text="Exporter path. Defaults to /metrics")
+    path = models.CharField(
+        max_length=128, blank=True, help_text="Exporter path. Defaults to /metrics"
+    )
+    scheme = models.CharField(
+        max_length=5, choices=(("http", "http"), ("https", "https")), default="http", help_text="Scrape exporter over http or https"
+    )
+
     project = models.ForeignKey("Project", on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
 
