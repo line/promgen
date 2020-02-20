@@ -7,9 +7,11 @@
     <br />
     {% include 'promgen/error_block.html' with warning=form.enabled.errors only %}
     {{ form.enabled.label_tag }}
+    <br />
     {{ form.enabled }}
     <br />
     {% include 'promgen/error_block.html' with warning=form.duration.errors only %}
+    {{ form.duration.label_tag }}
     {{ form.duration }}
     <p>
       Examples:
