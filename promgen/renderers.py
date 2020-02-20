@@ -4,6 +4,8 @@
 import yaml
 from rest_framework import renderers
 
+from promgen import models, serializers
+
 
 # https://www.django-rest-framework.org/api-guide/renderers/#custom-renderers
 # https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#recording-rules
@@ -25,3 +27,23 @@ class RuleRenderer(renderers.BaseRenderer):
 class ScrapeRenderer(renderers.JSONRenderer):
     pass
     # TODO handle grouping
+
+
+def rules(rules=None):
+    if rules is None:
+        rules = models.Rule.objects
+    return RuleRenderer().render(
+        serializers.AlertRuleSerializer(rules, many=True).data
+    )
+
+
+def urls():
+    return ScrapeRenderer().render(
+        serializers.UrlSeralizer(models.URL.objects, many=True).data
+    )
+
+
+def targets():
+    return ScrapeRenderer().render(
+        serializers.TargetSeralizer(models.Exporters.objects, many=True).data
+    )

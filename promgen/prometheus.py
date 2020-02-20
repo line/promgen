@@ -14,7 +14,7 @@ from dateutil import parser
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from promgen import models, renderers, serializers, util
+from promgen import models, renderers, util
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def check_rules(rules):
         # Normally we wouldn't bother saving a copy to a variable here and would
         # leave it in the fp.write() call, but saving a copy in the variable
         # means we can see the rendered output in a Sentry stacktrace
-        rendered = render_rules(rules)
+        rendered = renderers.rules(rules)
         fp.write(rendered)
         fp.flush()
 
@@ -44,43 +44,6 @@ def check_rules(rules):
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             raise ValidationError(rendered.decode('utf8') + e.output.decode('utf8'))
-
-
-def render_rules(rules=None):
-    '''
-    Render rules in a format that Prometheus understands
-
-    :param rules: List of rules
-    :type rules: list(Rule)
-    :param int version: Prometheus rule format (1 or 2)
-    :return: Returns rules in yaml or Prometheus v1 format
-    :rtype: bytes
-
-    This function can render in either v1 or v2 format
-    We call prefetch_related_objects within this function to populate the
-    other related objects that are mostly used for the sub lookups.
-    '''
-    if rules is None:
-        rules = models.Rule.objects.filter(enabled=True)
-
-    return renderers.RuleRenderer().render(
-        serializers.AlertRuleSerializer(rules, many=True).data
-    )
-
-
-def render_urls():
-    urls = models.URL.objects.all()
-    return renderers.ScrapeRenderer().render(
-        serializers.UrlSeralizer(urls, many=True).data
-    )
-
-
-def render_config(service=None, project=None):
-    return renderers.ScrapeRenderer().render(
-        serializers.TargetSeralizer(
-            models.Exporters.objects.filter(enabled=True), many=True
-        ).data
-    )
 
 
 def import_rules_v2(config, content_object=None):

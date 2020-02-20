@@ -4,7 +4,7 @@
 from unittest import mock
 
 import promgen.templatetags.promgen as macro
-from promgen import models, prometheus, views
+from promgen import models, prometheus, renderers, views
 from promgen.tests import PromgenTest
 
 from django.core.exceptions import ValidationError
@@ -47,7 +47,7 @@ class RuleTest(PromgenTest):
     @override_settings(PROMGEN_SCHEME='https')
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_write_new(self, mock_post):
-        result = prometheus.render_rules()
+        result = renderers.rules()
         self.assertEqual(result, _RULE_V2 % self.rule.id)
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')

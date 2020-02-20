@@ -4,7 +4,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from promgen import prometheus, tasks
+from promgen import renderers, tasks
 
 logger = logging.getLogger(__name__)
 
@@ -28,4 +28,4 @@ class Command(BaseCommand):
             # Since we're already working with utf8 encoded data, we can skip
             # the newline ending here
             self.stdout.ending = None
-            self.stdout.buffer.write(prometheus.render_rules())
+            self.stdout.buffer.write(renderers.rules())
