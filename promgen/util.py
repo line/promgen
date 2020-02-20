@@ -1,11 +1,14 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
+import argparse
+
 import requests.sessions
-from django.db.models import F
-from promgen.version import __version__
 
 from django.conf import settings
+from django.db.models import F
+
+from promgen.version import __version__
 
 # Wrappers around request api to ensure we always attach our user agent
 # https://github.com/requests/requests/blob/master/requests/api.py
@@ -66,3 +69,35 @@ class HelpFor:
 def inc_for_pk(model, pk, **kwargs):
     # key=F('key') + value
     model.objects.filter(pk=pk).update(**{key: F(key) + kwargs[key] for key in kwargs})
+
+
+def cast(klass):
+    """
+    Used with argparse to cast to a Django model
+
+    Example:
+    parser.add_argument("project", type=util.cast(models.Project))
+    """
+
+    def wrapped(value):
+        try:
+            return klass.objects.get(name=value)
+        except klass.DoesNotExist:
+            raise argparse.ArgumentTypeError("Unable to find :%s" % value)
+
+    return wrapped
+
+
+def help_text(klass):
+    """
+    Used with argparse to lookup help_text for a Django model
+
+    Example:
+    help_text = util.help_text(models.Host)
+    parser.add_argument("host", help=help_text("name"))
+    """
+
+    def wrapped(field):
+        return klass._meta.get_field(field).help_text
+
+    return wrapped
