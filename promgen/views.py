@@ -953,9 +953,6 @@ class HostRegister(LoginRequiredMixin, FormView):
 
 
 class ApiConfig(View):
-    def get(self, request):
-        return HttpResponse(prometheus.render_config(), content_type='application/json')
-
     def post(self, request, *args, **kwargs):
         try:
             body = json.loads(request.body.decode('utf-8'))

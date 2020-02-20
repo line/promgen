@@ -5,9 +5,7 @@ from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from django.http import HttpResponse
-
-from promgen import filters, models, prometheus, renderers, serializers
+from promgen import filters, models, renderers, serializers
 
 
 class AllViewSet(viewsets.ViewSet):
@@ -15,7 +13,7 @@ class AllViewSet(viewsets.ViewSet):
 
     @action(detail=False, renderer_classes=[renderers.RuleRenderer])
     def rules(self, request):
-        rules = models.Rule.objects.filter(enabled=True)
+        rules = models.Rule.objects
         return Response(
             serializers.AlertRuleSerializer(rules, many=True).data,
             headers={"Content-Disposition": "attachment; filename=alert.rule.yml"},
@@ -27,14 +25,20 @@ class AllViewSet(viewsets.ViewSet):
             serializers.UrlSeralizer(models.URL.objects.all(), many=True).data
         )
 
+    @action(detail=False, renderer_classes=[renderers.ScrapeRenderer])
+    def targets(self, request):
+        return Response(
+            serializers.TargetSeralizer(models.Exporter.objects, many=True).data
+        )
+
 
 class ShardViewSet(viewsets.ModelViewSet):
     queryset = models.Shard.objects.all()
     filterset_class = filters.ShardFilter
     serializer_class = serializers.ShardSerializer
-    lookup_field = 'name'
+    lookup_field = "name"
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def services(self, request, name):
         shard = self.get_object()
         return Response(
@@ -66,21 +70,22 @@ class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     queryset = models.Service.objects.all()
     filterset_class = filters.ServiceFilter
     serializer_class = serializers.ServiceSerializer
-    lookup_value_regex = '[^/]+'
-    lookup_field = 'name'
+    lookup_value_regex = "[^/]+"
+    lookup_field = "name"
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def projects(self, request, name):
         service = self.get_object()
         return Response(
             serializers.ProjectSerializer(service.project_set.all(), many=True).data
         )
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True)
     def targets(self, request, name):
-        return HttpResponse(
-            prometheus.render_config(service=self.get_object()),
-            content_type='application/json',
+        return Response(
+            serializers.TargetSeralizer(
+                models.Exporter.objects.filter(project__service__name=name), many=True
+            ).data
         )
 
 
@@ -88,14 +93,15 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     queryset = models.Project.objects.prefetch_related("service", "shard", "farm")
     filterset_class = filters.ProjectFilter
     serializer_class = serializers.ProjectSerializer
-    lookup_value_regex = '[^/]+'
-    lookup_field = 'name'
+    lookup_value_regex = "[^/]+"
+    lookup_field = "name"
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True)
     def targets(self, request, name):
-        return HttpResponse(
-            prometheus.render_config(project=self.get_object()),
-            content_type="application/json",
+        return Response(
+            serializers.TargetSeralizer(
+                models.Exporter.objects.filter(project__name=name), many=True
+            ).data
         )
 
     @action(detail=True, renderer_classes=[renderers.ScrapeRenderer])
@@ -106,4 +112,4 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
 
     @urls.mapping.post
     def post_url(self, request, name):
-        raise NotImplementedError('TODO')
+        raise NotImplementedError("TODO")

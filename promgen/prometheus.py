@@ -2,7 +2,6 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 import collections
 import datetime
-import json
 import logging
 import subprocess
 import tempfile
@@ -77,41 +76,11 @@ def render_urls():
 
 
 def render_config(service=None, project=None):
-    data = []
-    for exporter in models.Exporter.objects.prefetch_related(
-        "project__farm__host_set",
-        "project__farm",
-        "project__service",
-        "project__shard",
-        "project",
-    ):
-        if not exporter.project.farm:
-            continue
-        if service and exporter.project.service.name != service.name:
-            continue
-        if project and exporter.project.name != project.name:
-            continue
-        if not exporter.enabled:
-            continue
-
-        labels = {
-            "__shard": exporter.project.shard.name,
-            "service": exporter.project.service.name,
-            "project": exporter.project.name,
-            "farm": exporter.project.farm.name,
-            "__farm_source": exporter.project.farm.source,
-            "job": exporter.job,
-            "__scheme__": exporter.scheme,
-        }
-        if exporter.path:
-            labels["__metrics_path__"] = exporter.path
-
-        hosts = []
-        for host in exporter.project.farm.host_set.all():
-            hosts.append("{}:{}".format(host.name, exporter.port))
-
-        data.append({"labels": labels, "targets": hosts})
-    return json.dumps(data, indent=2, sort_keys=True)
+    return renderers.ScrapeRenderer().render(
+        serializers.TargetSeralizer(
+            models.Exporters.objects.filter(enabled=True), many=True
+        ).data
+    )
 
 
 def import_rules_v2(config, content_object=None):

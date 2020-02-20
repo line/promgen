@@ -82,6 +82,7 @@ class AlertRuleSerializer(serializers.ModelSerializer):
         # do our prefetch operations in one go, before passing it off
         # to our custom list renderer to group things in a dictionary
         kwargs["child"] = cls()
+        queryset = queryset.filter(enabled=True)
         prefetch_related_objects(
             queryset,
             "content_object",
@@ -141,4 +142,49 @@ class UrlSeralizer(serializers.ModelSerializer):
                 "__param_module": obj.probe.module,
             },
             "targets": [obj.url],
+        }
+
+
+class TargetSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Exporter
+        exclude = ("id",)
+
+    @classmethod
+    def many_init(cls, queryset, *args, **kwargs):
+        # when rendering many items at once, we want to make sure we
+        # do our prefetch operations in one go, before passing it off
+        # to our custom list renderer to group things in a dictionary
+        kwargs["child"] = cls()
+        queryset = queryset.filter(enabled=True).exclude(project__farm=None)
+        prefetch_related_objects(
+            queryset,
+            "project__farm__host_set",
+            "project__farm",
+            "project__service",
+            "project__shard",
+            "project",
+        )
+        return serializers.ListSerializer(queryset, *args, **kwargs)
+
+    def to_representation(self, exporter):
+        labels = {
+            "__shard": exporter.project.shard.name,
+            "service": exporter.project.service.name,
+            "project": exporter.project.name,
+            "farm": exporter.project.farm.name,
+            "__farm_source": exporter.project.farm.source,
+            "job": exporter.job,
+            "__scheme__": exporter.scheme,
+        }
+
+        if exporter.path:
+            labels["__metrics_path__"] = exporter.path
+
+        return {
+            "labels": labels,
+            "targets": [
+                "{}:{}".format(host.name, exporter.port)
+                for host in exporter.project.farm.host_set.all()
+            ],
         }
