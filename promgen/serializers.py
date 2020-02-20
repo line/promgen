@@ -103,7 +103,7 @@ class AlertRuleSerializer(serializers.ModelSerializer):
         }
 
 
-class ScrapeList(serializers.ListSerializer):
+class URLList(serializers.ListSerializer):
     def to_representation(self, data):
         labels = {}
         targets = collections.defaultdict(list)
@@ -113,12 +113,6 @@ class ScrapeList(serializers.ListSerializer):
             labels[fingerprint] = data["labels"]
             targets[fingerprint] += data["targets"]
         return [{"labels": labels[f], "targets": targets[f]} for f in labels]
-
-    @property
-    def data(self):
-        if not hasattr(self, "_data"):
-            self._data = self.to_representation(self.instance)
-        return serializers.ReturnList(self._data, serializer=self)
 
 
 class UrlSeralizer(serializers.ModelSerializer):
@@ -135,7 +129,7 @@ class UrlSeralizer(serializers.ModelSerializer):
         prefetch_related_objects(
             queryset, "project__service", "project__shard", "project", "probe"
         )
-        return ScrapeList(queryset, *args, **kwargs)
+        return URLList(queryset, *args, **kwargs)
 
     def to_representation(self, obj):
         return {
