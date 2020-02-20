@@ -70,36 +70,10 @@ def render_rules(rules=None):
 
 
 def render_urls():
-    urls = collections.defaultdict(list)
-
-    for url in models.URL.objects.prefetch_related(
-        "project__service",
-        "project__shard",
-        "project",
-    ):
-        urls[
-            (
-                url.project.name,
-                url.project.service.name,
-                url.project.shard.name,
-                url.probe.module,
-            )
-        ].append(url.url)
-
-    data = [
-        {
-            "labels": {
-                "project": k[0],
-                "service": k[1],
-                "job": k[3],
-                "__shard": k[2],
-                "__param_module": k[3],
-            },
-            "targets": v,
-        }
-        for k, v in urls.items()
-    ]
-    return json.dumps(data, indent=2, sort_keys=True)
+    urls = models.URL.objects.all()
+    return renderers.ScrapeRenderer().render(
+        serializers.UrlSeralizer(urls, many=True).data
+    )
 
 
 def render_config(service=None, project=None):

@@ -101,3 +101,36 @@ class AlertRuleSerializer(serializers.ModelSerializer):
             "labels": obj.labels,
             "annotations": obj.annotations,
         }
+
+
+class UrlSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = models.URL
+        exclude = ("id",)
+
+    @classmethod
+    def many_init(cls, queryset, *args, **kwargs):
+        # when rendering many items at once, we want to make sure we
+        # do our prefetch operations in one go, before passing it off
+        # to our custom list renderer to group things in a dictionary
+        kwargs["child"] = cls()
+        prefetch_related_objects(
+            queryset,
+            "project__service",
+            "project__shard",
+            "project",
+            "probe",
+        )
+        return serializers.ListSerializer(queryset, *args, **kwargs)
+
+    def to_representation(self, obj):
+        return {
+            "labels": {
+                "project": obj.project.name,
+                "service": obj.project.service.name,
+                "job": obj.probe.module,
+                "__shard": obj.project.shard.name,
+                "__param_module": obj.probe.module,
+            },
+            "targets": [obj.url],
+        }

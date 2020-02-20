@@ -6,6 +6,7 @@ from rest_framework import renderers
 
 
 # https://www.django-rest-framework.org/api-guide/renderers/#custom-renderers
+# https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/#recording-rules
 class RuleRenderer(renderers.BaseRenderer):
     format = "yaml"
     media_type = "application/x-yaml"
@@ -18,3 +19,9 @@ class RuleRenderer(renderers.BaseRenderer):
             allow_unicode=True,
             encoding=self.charset,
         )
+
+
+# https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config
+class ScrapeRenderer(renderers.JSONRenderer):
+    pass
+    # TODO handle grouping

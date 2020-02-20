@@ -13,12 +13,18 @@ from promgen import filters, models, prometheus, renderers, serializers
 class AllViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
 
-    @action(detail=False, methods=["get"], renderer_classes=[renderers.RuleRenderer])
+    @action(detail=False, renderer_classes=[renderers.RuleRenderer])
     def rules(self, request):
         rules = models.Rule.objects.filter(enabled=True)
         return Response(
             serializers.AlertRuleSerializer(rules, many=True).data,
             headers={"Content-Disposition": "attachment; filename=alert.rule.yml"},
+        )
+
+    @action(detail=False, renderer_classes=[renderers.ScrapeRenderer])
+    def urls(self, request):
+        return Response(
+            serializers.UrlSeralizer(models.URL.objects.all(), many=True).data
         )
 
 
@@ -89,6 +95,15 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     def targets(self, request, name):
         return HttpResponse(
             prometheus.render_config(project=self.get_object()),
-            content_type='application/json',
+            content_type="application/json",
         )
 
+    @action(detail=True, renderer_classes=[renderers.ScrapeRenderer])
+    def urls(self, request, name):
+        return Response(
+            serializers.UrlSeralizer(self.get_object().url_set.all(), many=True).data
+        )
+
+    @urls.mapping.post
+    def post_url(self, request, name):
+        raise NotImplementedError('TODO')
