@@ -11,7 +11,7 @@ ENV PROMGEN_CONFIG_DIR=/etc/promgen
 RUN adduser -D -u 1000 promgen promgen
 
 # Upgrade Pip
-RUN pip install --no-cache-dir -U pip==19.2.2
+RUN pip install --no-cache-dir -U pip==20.0.2
 
 # Install MySQL Support
 RUN set -ex \

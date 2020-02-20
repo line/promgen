@@ -17,8 +17,8 @@ import os
 import warnings
 
 import dj_database_url
-import raven
 import yaml
+
 from django.urls import reverse_lazy
 
 from promgen.plugins import apps_from_setuptools
@@ -170,36 +170,14 @@ SITE_ID = 1
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
-if 'SENTRY_DSN' in os.environ:
-    INSTALLED_APPS += ['raven.contrib.django.raven_compat']
-    try:
-        _RELEASE = raven.fetch_git_sha(BASE_DIR)
-    except:
-        _RELEASE = __version__
+if "SENTRY_DSN" in os.environ:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.celery import CeleryIntegration
 
-    RAVEN_CONFIG = {
-        'dsn': os.environ['SENTRY_DSN'],
-        'release': _RELEASE,
-    }
+    os.environ.setdefault("SENTRY_RELEASE", __version__)
+    sentry_sdk.init(integrations=[DjangoIntegration(), CeleryIntegration()])
 
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'sentry': {
-                'level': 'ERROR',
-                'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
-                'dsn': os.environ['SENTRY_DSN'],
-            },
-        },
-        'loggers': {
-            '': {
-                'handlers': ['sentry'],
-                'level': 'ERROR',
-                'propagate': True,
-            },
-        },
-    }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
