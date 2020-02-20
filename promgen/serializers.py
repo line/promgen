@@ -82,7 +82,11 @@ class AlertRuleSerializer(serializers.ModelSerializer):
         # do our prefetch operations in one go, before passing it off
         # to our custom list renderer to group things in a dictionary
         kwargs["child"] = cls()
-        queryset = queryset.filter(enabled=True)
+
+        # TODO Cleanup later
+        if hasattr(queryset, 'filter'):
+            queryset = queryset.filter(enabled=True)
+
         prefetch_related_objects(
             queryset,
             "content_object",
