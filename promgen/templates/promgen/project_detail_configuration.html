@@ -31,6 +31,7 @@
       <ul class="dropdown-menu">
         <li role="presentation"><a href="{% url 'api:project-rules' name=project.name %}">{% trans "Export Rules" %}</a></li>
         <li role="presentation"><a href="{% url 'api:project-targets' name=project.name %}">{% trans "Export Project" %}</a></li>
+        <li role="presentation"><a href="{% url 'api:project-urls' name=project.name %}">{% trans "Export Urls" %}</a></li>
       </ul>
     </div>
 

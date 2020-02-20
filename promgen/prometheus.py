@@ -2,7 +2,6 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 import collections
 import datetime
-import json
 import logging
 import subprocess
 import tempfile
@@ -15,7 +14,7 @@ from dateutil import parser
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from promgen import models, renderers, serializers, util
+from promgen import models, renderers, util
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +33,7 @@ def check_rules(rules):
         # Normally we wouldn't bother saving a copy to a variable here and would
         # leave it in the fp.write() call, but saving a copy in the variable
         # means we can see the rendered output in a Sentry stacktrace
-        rendered = render_rules(rules)
+        rendered = renderers.rules(rules)
         fp.write(rendered)
         fp.flush()
 
@@ -45,99 +44,6 @@ def check_rules(rules):
             subprocess.check_output(cmd, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             raise ValidationError(rendered.decode('utf8') + e.output.decode('utf8'))
-
-
-def render_rules(rules=None):
-    '''
-    Render rules in a format that Prometheus understands
-
-    :param rules: List of rules
-    :type rules: list(Rule)
-    :param int version: Prometheus rule format (1 or 2)
-    :return: Returns rules in yaml or Prometheus v1 format
-    :rtype: bytes
-
-    This function can render in either v1 or v2 format
-    We call prefetch_related_objects within this function to populate the
-    other related objects that are mostly used for the sub lookups.
-    '''
-    if rules is None:
-        rules = models.Rule.objects.filter(enabled=True)
-
-    return renderers.RuleRenderer().render(
-        serializers.AlertRuleSerializer(rules, many=True).data
-    )
-
-
-def render_urls():
-    urls = collections.defaultdict(list)
-
-    for url in models.URL.objects.prefetch_related(
-        "project__service",
-        "project__shard",
-        "project",
-    ):
-        urls[
-            (
-                url.project.name,
-                url.project.service.name,
-                url.project.shard.name,
-                url.probe.module,
-            )
-        ].append(url.url)
-
-    data = [
-        {
-            "labels": {
-                "project": k[0],
-                "service": k[1],
-                "job": k[3],
-                "__shard": k[2],
-                "__param_module": k[3],
-            },
-            "targets": v,
-        }
-        for k, v in urls.items()
-    ]
-    return json.dumps(data, indent=2, sort_keys=True)
-
-
-def render_config(service=None, project=None):
-    data = []
-    for exporter in models.Exporter.objects.prefetch_related(
-        "project__farm__host_set",
-        "project__farm",
-        "project__service",
-        "project__shard",
-        "project",
-    ):
-        if not exporter.project.farm:
-            continue
-        if service and exporter.project.service.name != service.name:
-            continue
-        if project and exporter.project.name != project.name:
-            continue
-        if not exporter.enabled:
-            continue
-
-        labels = {
-            "__shard": exporter.project.shard.name,
-            "service": exporter.project.service.name,
-            "project": exporter.project.name,
-            "farm": exporter.project.farm.name,
-            "__farm_source": exporter.project.farm.source,
-            "job": exporter.job,
-            "__scheme__": exporter.scheme,
-        }
-        if exporter.path:
-            labels["__metrics_path__"] = exporter.path
-
-        hosts = []
-        for host in exporter.project.farm.host_set.all():
-            hosts.append("{}:{}".format(host.name, exporter.port))
-
-        data.append({"labels": labels, "targets": hosts})
-    return json.dumps(data, indent=2, sort_keys=True)
 
 
 def import_rules_v2(config, content_object=None):

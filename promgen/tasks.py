@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from atomicwrites import atomic_write
 from celery import shared_task
 
-from promgen import models, prometheus, util, notification
+from promgen import models, notification, prometheus, renderers, util
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +103,7 @@ def write_urls(path=None, reload=True, chmod=0o644):
     with atomic_write(path, overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
-        fp.write(prometheus.render_urls())
+        fp.write(renderers.urls())
     if reload:
         reload_prometheus()
 
@@ -115,7 +115,7 @@ def write_config(path=None, reload=True, chmod=0o644):
     with atomic_write(path, overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
-        fp.write(prometheus.render_config())
+        fp.write(renderers.targets())
     if reload:
         reload_prometheus()
 
@@ -127,6 +127,6 @@ def write_rules(path=None, reload=True, chmod=0o644):
     with atomic_write(path, mode="wb", overwrite=True) as fp:
         # Set mode on our temporary file before we write and move it
         os.chmod(fp.name, chmod)
-        fp.write(prometheus.render_rules())
+        fp.write(renderers.rules())
     if reload:
         reload_prometheus()

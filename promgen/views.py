@@ -38,6 +38,7 @@ from promgen import (
     models,
     plugins,
     prometheus,
+    renderers,
     signals,
     tasks,
     util,
@@ -953,9 +954,6 @@ class HostRegister(LoginRequiredMixin, FormView):
 
 
 class ApiConfig(View):
-    def get(self, request):
-        return HttpResponse(prometheus.render_config(), content_type='application/json')
-
     def post(self, request, *args, **kwargs):
         try:
             body = json.loads(request.body.decode('utf-8'))
@@ -983,7 +981,7 @@ class Commit(LoginRequiredMixin, View):
 
 class _ExportRules(View):
     def format(self, rules=None, name='promgen'):
-        content = prometheus.render_rules(rules)
+        content = renderers.rules(rules)
         response = HttpResponse(content)
         response['Content-Type'] = 'application/x-yaml'
         response['Content-Disposition'] = 'attachment; filename=%s.rule.yml' % name
@@ -1004,7 +1002,7 @@ class RuleExport(_ExportRules):
 
 class URLConfig(View):
     def get(self, request):
-        return HttpResponse(prometheus.render_urls(), content_type='application/json')
+        return HttpResponse(renderers.urls(), content_type='application/json')
 
     def post(self, request):
         tasks.write_urls()

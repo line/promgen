@@ -4,7 +4,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from promgen import prometheus, tasks
+from promgen import renderers, tasks
 
 logger = logging.getLogger(__name__)
 
@@ -23,4 +23,4 @@ class Command(BaseCommand):
         if kwargs['out']:
             tasks.write_config(kwargs['out'], kwargs['reload'], kwargs['mode'])
         else:
-            self.stdout.write(prometheus.render_config())
+            self.stdout.write(renderers.targets())
