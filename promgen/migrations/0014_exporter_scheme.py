@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='exporter',
             name='scheme',
-            field=models.CharField(choices=[('http', 'http'), ('https', 'https')], default='http', max_length=5),
+            field=models.CharField(choices=[('http', 'http'), ('https', 'https')], default='http', help_text='Scrape exporter over http or https', max_length=5),
         ),
         migrations.AlterField(
             model_name='exporter',
