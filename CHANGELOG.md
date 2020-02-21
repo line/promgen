@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.44 - 2020-02-21
+
+- [BUGFIX] Add missing duration label to rules page #238
+- [BUGFIX] Fix for labelvalues #234, #240
+- [ENHANCEMENT] Support http/https when configuring exporters #235
+
 ## v0.43 - 2020-02-12
 
 - [BUGFIX] Fix login redirect with social auth #230
