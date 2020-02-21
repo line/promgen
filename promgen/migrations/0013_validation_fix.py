@@ -17,12 +17,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='farm',
             name='name',
-            field=models.CharField(max_length=128, validators=[django.core.validators.RegexValidator(re.compile('^[-\\w]+\\Z'), "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.", 'invalid')]),
+            field=models.CharField(max_length=128, validators=[django.core.validators.RegexValidator('^[\\w][- \\w]+\\Z', 'Unicode letters, numbers, underscores, or hyphens or spaces')]),
         ),
         migrations.AlterField(
             model_name='project',
             name='name',
-            field=models.CharField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[-\\w]+\\Z'), "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.", 'invalid')]),
+            field=models.CharField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator('^[\\w][- \\w]+\\Z', 'Unicode letters, numbers, underscores, or hyphens or spaces')]),
         ),
         migrations.AlterField(
             model_name='rule',
@@ -32,11 +32,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='service',
             name='name',
-            field=models.CharField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[-\\w]+\\Z'), "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.", 'invalid')]),
+            field=models.CharField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator('^[\\w][- \\w]+\\Z', 'Unicode letters, numbers, underscores, or hyphens or spaces')]),
         ),
         migrations.AlterField(
             model_name='shard',
             name='name',
-            field=models.CharField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[-\\w]+\\Z'), "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.", 'invalid')]),
+            field=models.CharField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator('^[\\w][- \\w]+\\Z', 'Unicode letters, numbers, underscores, or hyphens or spaces')]),
         ),
     ]

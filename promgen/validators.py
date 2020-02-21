@@ -4,7 +4,7 @@
 from dateutil import parser
 
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator, validate_unicode_slug
+from django.core.validators import RegexValidator
 
 # See definition of duration field
 # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file
@@ -22,7 +22,12 @@ metricname = RegexValidator(
 labelname = RegexValidator(
     r"[a-zA-Z_][a-zA-Z0-9_]*", "Only alphanumeric characters are allowed."
 )
-labelvalue = validate_unicode_slug
+
+# While Prometheus accepts label values of any unicode character, our values sometimes
+# make it into URLs, so we want to make sure we do not have stray / characters
+labelvalue = RegexValidator(
+    r"^[\w][- \w]+\Z", "Unicode letters, numbers, underscores, or hyphens or spaces"
+)
 
 
 def datetime(value):
