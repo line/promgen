@@ -3,7 +3,6 @@
 import collections
 import logging
 import os
-import json
 from urllib.parse import urljoin
 
 from atomicwrites import atomic_write
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 @shared_task
 def index_alert(alert_pk):
     alert = models.Alert.objects.get(pk=alert_pk)
-    labels = json.loads(alert.body)["commonLabels"]
+    labels = alert.json.get("commonLabels")
     for name, value in labels.items():
         models.AlertLabel.objects.create(alert=alert, name=name, value=value)
 
