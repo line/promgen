@@ -10,7 +10,6 @@ from django.urls import reverse
 from promgen import models, views, tests
 
 TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
-TEST_ALERT = tests.Data('examples', 'alertmanager.json').raw()
 TEST_IMPORT = tests.Data('examples', 'import.json').raw()
 TEST_REPLACE = tests.Data('examples', 'replace.json').raw()
 
@@ -21,12 +20,6 @@ class RouteTests(tests.PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.user = self.add_force_login(id=999, username="Foo")
-
-    @override_settings(PROMGEN=TEST_SETTINGS)
-    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    def test_alert(self):
-        response = self.client.post(reverse('alert'), data=TEST_ALERT, content_type='application/json')
-        self.assertEqual(response.status_code, 202)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
