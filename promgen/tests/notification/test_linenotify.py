@@ -7,15 +7,14 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models
+from promgen import models, tests
 from promgen.notification.linenotify import NotificationLineNotify
-from promgen.tests import PromgenTest
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
+TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
+TEST_ALERT = tests.Data('examples', 'alertmanager.json').yaml()
 
 
-class LineNotifyTest(PromgenTest):
+class LineNotifyTest(tests.PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.shard = models.Shard.objects.create(name='test.shard')
@@ -44,7 +43,7 @@ class LineNotifyTest(PromgenTest):
         )
 
         # Swap the status to test our resolved alert
-        SAMPLE = PromgenTest.data_json('examples', 'alertmanager.json')
+        SAMPLE = tests.Data('examples', 'alertmanager.json').json()
         SAMPLE['status'] = 'resolved'
         SAMPLE['commonLabels']['service'] = self.service2.name
         SAMPLE['commonLabels'].pop('project')
@@ -53,8 +52,8 @@ class LineNotifyTest(PromgenTest):
             content_type='application/json'
         )
 
-        _MESSAGE = PromgenTest.data('notifications', 'linenotify.body.txt').strip()
-        _RESOLVED = PromgenTest.data('notifications', 'linenotify.resolved.txt').strip()
+        _MESSAGE = tests.Data('notification', 'linenotify.body.txt').raw().strip()
+        _RESOLVED = tests.Data('notification', 'linenotify.resolved.txt').raw().strip()
 
         mock_post.assert_has_calls([
             mock.call(

@@ -3,13 +3,12 @@
 
 from unittest import mock
 
-import promgen.templatetags.promgen as macro
-from promgen import models, prometheus, views
-from promgen.tests import PromgenTest
-
 from django.core.exceptions import ValidationError
 from django.test import override_settings
 from django.urls import reverse
+
+import promgen.templatetags.promgen as macro
+from promgen import models, prometheus, tests, views
 
 _RULE_V2 = '''
 groups:
@@ -25,10 +24,10 @@ groups:
       severity: severe
 '''.lstrip().encode('utf-8')
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
+TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
 
 
-class RuleTest(PromgenTest):
+class RuleTest(tests.PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.user = self.add_force_login(id=999, username="Foo")
@@ -67,7 +66,7 @@ class RuleTest(PromgenTest):
         self.add_user_permissions("promgen.change_rule", "promgen.change_site")
         response = self.client.post(
             reverse("rule-import"),
-            {"rules": PromgenTest.data("examples", "import.rule.yml")},
+            {"rules": tests.Data("examples", "import.rule.yml").raw()},
             follow=True,
         )
 
@@ -88,7 +87,7 @@ class RuleTest(PromgenTest):
             reverse(
                 "rule-new", kwargs={"content_type": "project", "object_id": project.id}
             ),
-            {"rules": PromgenTest.data("examples", "import.rule.yml")},
+            {"rules": tests.Data("examples", "import.rule.yml").raw()},
             follow=True,
         )
         self.assertRoute(response, views.ProjectDetail, status=200)
@@ -105,7 +104,7 @@ class RuleTest(PromgenTest):
                 "rule-new",
                 kwargs={"content_type": "service", "object_id": self.service.id},
             ),
-            {"rules": PromgenTest.data("examples", "import.rule.yml")},
+            {"rules": tests.Data("examples", "import.rule.yml").raw()},
             follow=True,
         )
         self.assertRoute(response, views.ServiceDetail, status=200)
@@ -116,7 +115,7 @@ class RuleTest(PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def test_missing_permission(self, mock_post):
         self.client.post(reverse('rule-import'), {
-            'rules': PromgenTest.data('examples', 'import.rule.yml')
+            'rules': tests.Data('examples', 'import.rule.yml').raw()
         })
 
         # Should only be a single rule from our initial setup

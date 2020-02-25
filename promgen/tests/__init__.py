@@ -2,7 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import json
-import os
+import pathlib
 
 import yaml
 
@@ -10,22 +10,24 @@ from django.contrib.auth.models import Permission, User
 from django.test import TestCase
 
 
-class PromgenTest(TestCase):
-    @classmethod
-    def data_json(cls, *args):
-        with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
+class Data:
+    def __init__(self, *args):
+        self.path = pathlib.Path(__file__).parent.joinpath(*args)
+
+    def json(self):
+        with self.path.open() as fp:
             return json.load(fp)
 
-    @classmethod
-    def data_yaml(cls, *args):
-        with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
+    def yaml(self):
+        with self.path.open() as fp:
             return yaml.safe_load(fp)
 
-    @classmethod
-    def data(cls, *args):
-        with open(os.path.join(os.path.dirname(__file__), *args)) as fp:
+    def raw(self):
+        with self.path.open() as fp:
             return fp.read()
 
+
+class PromgenTest(TestCase):
     def assertRoute(self, response, view, status=200, msg=None):
         self.assertEqual(response.status_code, status, msg)
         self.assertEqual(response.resolver_match.func.__name__, view.as_view().__name__)

@@ -7,17 +7,17 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen.tests import PromgenTest
+from promgen import tests
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_DURATION = PromgenTest.data_json('examples', 'silence.duration.json')
-TEST_RANGE = PromgenTest.data_json('examples', 'silence.range.json')
+TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
+TEST_DURATION = tests.Data('examples', 'silence.duration.json').json()
+TEST_RANGE = tests.Data('examples', 'silence.range.json').json()
 
 # Explicitly set a timezone for our test to try to catch conversion errors
 TEST_SETTINGS['timezone'] = 'Asia/Tokyo'
 
 
-class SilenceTest(PromgenTest):
+class SilenceTest(tests.PromgenTest):
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
         self.user = self.add_force_login(id=999, username="Foo")

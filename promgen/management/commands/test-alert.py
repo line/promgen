@@ -11,7 +11,7 @@ from promgen import models, tasks, tests
 
 
 class Command(BaseCommand):
-    data = tests.PromgenTest.data_json("examples", "alertmanager.json")
+    data = tests.Data("examples", "alertmanager.json").json()
 
     def add_arguments(self, parser):
         parser.add_argument("--shard", default="Test Shard")

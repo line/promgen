@@ -7,16 +7,15 @@ import requests
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models, views
-from promgen.tests import PromgenTest
+from promgen import models, views, tests
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
-TEST_IMPORT = PromgenTest.data('examples', 'import.json')
-TEST_REPLACE = PromgenTest.data('examples', 'replace.json')
+TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
+TEST_ALERT = tests.Data('examples', 'alertmanager.json').raw()
+TEST_IMPORT = tests.Data('examples', 'import.json').raw()
+TEST_REPLACE = tests.Data('examples', 'replace.json').raw()
 
 
-class RouteTests(PromgenTest):
+class RouteTests(tests.PromgenTest):
     longMessage = True
 
     @mock.patch('django.dispatch.dispatcher.Signal.send')
