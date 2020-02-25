@@ -1019,13 +1019,28 @@ class Alert(View):
         # when we run tasks.process_alert
         alert = models.Alert.objects.create(body=request.body.decode("utf-8"))
         tasks.process_alert.delay(alert.pk)
+        tasks.index_alert.delay(alert.pk)
         return HttpResponse("OK", status=202)
 
 
 class AlertList(LoginRequiredMixin, ListView):
     paginate_by = 20
-    queryset = models.Alert.objects.order_by('-created')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        search = self.request.GET.get('search')
+        if search is not None:
+            context["search"] = search
+        return context
+
+    def get_queryset(self):
+        search = self.request.GET.get('search')
+        if search:
+            return models.Alert.objects.filter(
+                Q(alertlabel__name="Service", alertlabel__value__contains=search) |
+                Q(alertlabel__name="Project", alertlabel__value__contains=search)
+            ).distinct().order_by('-created')
+        return models.Alert.objects.order_by('-created')
 
 class AlertDetail(LoginRequiredMixin, DetailView):
     model = models.Alert

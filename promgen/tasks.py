@@ -3,6 +3,7 @@
 import collections
 import logging
 import os
+import json
 from urllib.parse import urljoin
 
 from atomicwrites import atomic_write
@@ -12,6 +13,12 @@ from promgen import models, prometheus, util, notification
 
 logger = logging.getLogger(__name__)
 
+@shared_task
+def index_alert(alert_pk):
+    alert = models.Alert.objects.get(pk=alert_pk)
+    labels = json.loads(alert.body)["commonLabels"]
+    for name, value in labels.items():
+        models.AlertLabel.objects.create(alert=alert, name=name, value=value)
 
 @shared_task
 def process_alert(alert_pk):
