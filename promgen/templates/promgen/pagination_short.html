@@ -3,7 +3,7 @@
     {% if page_obj.has_other_pages %}
     <ul class="pagination">
         {% if page_obj.has_previous %}
-        <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+        <li><a href="?{% qs_replace 'page' page_obj.previous_page_number %}">&laquo;</a></li>
         {% else %}
         <li class="disabled"><span>&laquo;</span></li>
         {% endif %}
@@ -13,7 +13,7 @@
         </li>
 
         {% if page_obj.has_next %}
-        <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+        <li><a href="?{% qs_replace 'page' page_obj.next_page_number %}">&raquo;</a></li>
         {% else %}
         <li class="disabled"><span>&raquo;</span></li>
         {% endif %}
