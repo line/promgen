@@ -1025,15 +1025,16 @@ class Alert(View):
 
 class AlertList(LoginRequiredMixin, ListView):
     paginate_by = 20
+    queryset = models.Alert.objects.order_by("-created")
 
     def get_queryset(self):
         search = self.request.GET.get('search')
         if search:
-            return models.Alert.objects.filter(
-                Q(alertlabel__name="Service", alertlabel__value__contains=search) |
-                Q(alertlabel__name="Project", alertlabel__value__contains=search)
-            ).distinct().order_by('-created')
-        return models.Alert.objects.order_by('-created')
+            return self.queryset.filter(
+                Q(alertlabel__name="Service", alertlabel__value__contains=search)
+                | Q(alertlabel__name="Project", alertlabel__value__contains=search)
+            )
+        return self.queryset
 
 class AlertDetail(LoginRequiredMixin, DetailView):
     model = models.Alert
