@@ -1033,8 +1033,15 @@ class AlertList(LoginRequiredMixin, ListView):
             return self.queryset.filter(
                 Q(alertlabel__name="Service", alertlabel__value__contains=search)
                 | Q(alertlabel__name="Project", alertlabel__value__contains=search)
+                | Q(alertlabel__name="Job", alertlabel__value__contains=search)
             )
-        return self.queryset
+
+        qs = self.queryset
+        for key, value in self.request.GET.items():
+            if key == "page" or key == "search":
+                continue
+            qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
+        return qs
 
 class AlertDetail(LoginRequiredMixin, DetailView):
     model = models.Alert
