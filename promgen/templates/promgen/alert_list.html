@@ -4,7 +4,12 @@
 
 {% breadcrumb label="Alerts" %}
 
-{% include 'promgen/pagination_short.html' %}
+<form class="navbar-form navbar-left" action="/alert">
+    <div class="form-group">
+        <input name="search" type="text" value="{{ request.GET.search }}" class="form-control" placeholder="Service, Project, Job">
+        <button type="submit" class="btn btn-default">Search</button>
+    </div>
+</form>
 
 <table class="table">
     <tr>
@@ -22,9 +27,9 @@
         <td><a href="{{alert.get_absolute_url}}">{{alert.created}}</a></td>
         <td>{{alert.json.commonLabels.alertname}}</td>
         <td>{{alert.json.commonLabels.datasource}}</td>
-        <td>{{alert.json.commonLabels.service}}</td>
-        <td>{{alert.json.commonLabels.project}}</td>
-        <td>{{alert.json.commonLabels.job}}</td>
+        <td><a href="?service={{alert.json.commonLabels.service}}">{{alert.json.commonLabels.service}}</a></td>
+        <td><a href="?project={{alert.json.commonLabels.project}}">{{alert.json.commonLabels.project}}</a></td>
+        <td><a href="?job={{alert.json.commonLabels.job}}">{{alert.json.commonLabels.job}}</a></td>
         <td {% if alert.sent_count == 0 %}class="warning" {% endif %}>{{alert.sent_count}}</td>
         <td {% if alert.error_count %}class="danger" {% endif %}>{{alert.error_count}}</td>
     </tr>
