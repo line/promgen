@@ -1026,13 +1026,6 @@ class Alert(View):
 class AlertList(LoginRequiredMixin, ListView):
     paginate_by = 20
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        search = self.request.GET.get('search')
-        if search is not None:
-            context["search"] = search
-        return context
-
     def get_queryset(self):
         search = self.request.GET.get('search')
         if search:
