@@ -201,3 +201,24 @@ def breadcrumb(instance=None, label=None):
         yield "</ol>"
 
     return mark_safe("".join(to_tag()))
+
+
+@register.simple_tag(takes_context=True)
+def qs_replace(context, k, v):
+    """
+    Query string handler for paginators
+
+    Assuming we have a query string like ?page=1&search=foo, there are several cases
+    in which we want to replace only the page key, while leaving the rest alone.
+    This tag allows us to replace individual values (like the current page) while
+    carrying over other values (like a search string)
+
+    Example:
+    {% qs_replace 'page' page_obj.next_page_number %}
+    """
+    dict_ = context["request"].GET.copy()
+    if v:
+        dict_[k] = v
+    else:
+        dict_.pop(k, None)
+    return dict_.urlencode()
