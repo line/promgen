@@ -36,26 +36,6 @@
     {% endfor %}
 </table>
 
-<nav aria-label="Page navigation">
-    {% if page_obj.has_other_pages %}
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-        <li><a href="?page={{ page_obj.previous_page_number }}&search={{ search }}">&laquo;</a></li>
-        {% else %}
-        <li class="disabled"><span>&laquo;</span></li>
-        {% endif %}
-
-        <li class="active">
-            <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} <span class="sr-only">(current)</span></span>
-        </li>
-
-        {% if page_obj.has_next %}
-        <li><a href="?page={{ page_obj.next_page_number }}&search={{ search }}">&raquo;</a></li>
-        {% else %}
-        <li class="disabled"><span>&raquo;</span></li>
-        {% endif %}
-    </ul>
-    {% endif %}
-</nav>
+{% include 'promgen/pagination_short.html' %}
 
 {% endblock %}
