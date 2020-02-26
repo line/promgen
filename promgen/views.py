@@ -1031,14 +1031,14 @@ class AlertList(LoginRequiredMixin, ListView):
         search = self.request.GET.get('search')
         if search:
             return self.queryset.filter(
-                Q(alertlabel__name="Service", alertlabel__value__contains=search)
-                | Q(alertlabel__name="Project", alertlabel__value__contains=search)
-                | Q(alertlabel__name="Job", alertlabel__value__contains=search)
+                Q(alertlabel__name="Service", alertlabel__value__icontains=search)
+                | Q(alertlabel__name="Project", alertlabel__value__icontains=search)
+                | Q(alertlabel__name="Job", alertlabel__value__icontains=search)
             )
 
         qs = self.queryset
         for key, value in self.request.GET.items():
-            if key == "page" or key == "search":
+            if key in ["page", "search"]:
                 continue
             qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
         return qs
