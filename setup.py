@@ -51,6 +51,7 @@ setup(
             'codecov',
             'django-nose',
             'nose-cov',
+            'unittest-xml-reporting',
         ],
         'docs': [
             'Sphinx',

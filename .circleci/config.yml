@@ -1,9 +1,12 @@
-version: 2
+version: 2.1
+
+general:
+  branches:
+    ignore:
+      - gh-pages
+
 jobs:
   build:
-    branches:
-      ignore:
-        - gh-pages
     docker:
       - image: circleci/python:3.6.4
         environment:
@@ -17,9 +20,11 @@ jobs:
             curl -L -s https://github.com/prometheus/prometheus/releases/download/v2.8.1/prometheus-2.8.1.linux-amd64.tar.gz |\
             sudo tar -xz -C /usr/local/bin --strip-components=1 prometheus-2.8.1.linux-amd64/promtool
             sudo chmod +x /usr/local/bin/promtool
-      - run: pipenv install --dev
-      - run: pipenv run promgen test
-      - run: pipenv run coverage html -d test-results
-      - run: pipenv run codecov
+      - run: mkdir -p test-results
+      - run: python3 -m venv .venv
+      - run: .venv/bin/pip install -r docker/requirements.txt
+      - run: .venv/bin/pip install -e .[dev]
+      - run: .venv/bin/promgen test --with-xunit --xunit-file test-results/nosetests.xml
+      - run: .venv/bin/codecov
       - store_test_results:
           path: test-results
