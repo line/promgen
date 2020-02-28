@@ -2,17 +2,17 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import json
-import pathlib
 
 import yaml
 
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
+from django.conf import settings
 
 
 class Data:
-    def __init__(self, *args):
-        self.path = pathlib.Path(__file__).parent.joinpath(*args)
+    def __init__(self, *args, test_dir=settings.BASE_DIR / "promgen" / "tests"):
+        self.path = test_dir.joinpath(*args)
 
     def json(self):
         with self.path.open() as fp:
