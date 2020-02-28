@@ -4,20 +4,19 @@
 from unittest import mock
 
 from django.contrib.auth.models import User
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models
+from promgen import models, tests
 from promgen.notification.email import NotificationEmail
 from promgen.notification.ikasan import NotificationIkasan
 from promgen.notification.user import NotificationUser
-from promgen.tests import PromgenTest
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
+TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
+TEST_ALERT = tests.Data('examples', 'alertmanager.json').raw()
 
 
-class UserEmailTest(TestCase):
+class UserEmailTest(tests.PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.user = User.objects.create_user(id=999, username="Foo")

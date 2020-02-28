@@ -6,15 +6,14 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models, views
+from promgen import models, tests, views
 from promgen.notification.webhook import NotificationWebhook
-from promgen.tests import PromgenTest
 
-TEST_SETTINGS = PromgenTest.data_yaml("examples", "promgen.yml")
-TEST_ALERT = PromgenTest.data("examples", "alertmanager.json")
+TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
+TEST_ALERT = tests.Data("examples", "alertmanager.json").raw()
 
 
-class WebhookTest(PromgenTest):
+class WebhookTest(tests.PromgenTest):
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
         self.shard = models.Shard.objects.create(name="test.shard")
@@ -49,7 +48,7 @@ class WebhookTest(PromgenTest):
         self.assertEqual(mock_post.call_count, 2, "Two alerts should be sent")
 
         # Our sample is the same as the original, with some annotations added
-        _SAMPLE = PromgenTest.data_json("examples", "alertmanager.json")
+        _SAMPLE = tests.Data("examples", "alertmanager.json").json()
         _SAMPLE["commonAnnotations"]["service"] = (
             "http://example.com" + self.service.get_absolute_url()
         )

@@ -6,15 +6,14 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models
+from promgen import models, tests
 from promgen.notification.email import NotificationEmail
-from promgen.tests import PromgenTest
 
-TEST_SETTINGS = PromgenTest.data_yaml('examples', 'promgen.yml')
-TEST_ALERT = PromgenTest.data('examples', 'alertmanager.json')
+TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
+TEST_ALERT = tests.Data('examples', 'alertmanager.json').json()
 
 
-class EmailTest(PromgenTest):
+class EmailTest(tests.PromgenTest):
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.shard = models.Shard.objects.create(name='test.shard')
@@ -46,8 +45,8 @@ class EmailTest(PromgenTest):
             content_type='application/json'
         )
 
-        _SUBJECT = PromgenTest.data('notifications', 'email.subject.txt').strip()
-        _MESSAGE = PromgenTest.data('notifications', 'email.body.txt').strip()
+        _SUBJECT = tests.Data('notification', 'email.subject.txt').raw().strip()
+        _MESSAGE = tests.Data('notification', 'email.body.txt').raw().strip()
 
         mock_email.assert_has_calls([
             mock.call(
