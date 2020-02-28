@@ -1,15 +1,15 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-import os
+import pathlib
 from setuptools import find_packages, setup
 
 # Read version information
 # Taken from https://github.com/kennethreitz/pipenv/blob/master/setup.py
 about = {}
-here = os.path.abspath(os.path.dirname(__file__))
-with open(os.path.join(here, "promgen", "version.py")) as f:
-    exec(f.read(), about)
+here = pathlib.Path(__file__).parent / "promgen" / "version.py"
+with here.open() as fp:
+    exec(fp.read(), about)
 
 setup(
     name='promgen',
@@ -32,7 +32,7 @@ setup(
     install_requires=[
         'atomicwrites==1.3.0',
         'celery==4.3.0',
-        'dj-database-url',
+        'django-environ',
         'django-filter',
         'Django==2.2.10',
         'djangorestframework==3.9.4',

@@ -17,13 +17,18 @@ import os
 import pathlib
 import warnings
 
-import dj_database_url
+import environ
 import yaml
 
 from django.urls import reverse_lazy
 
+from promgen import PROMGEN_CONFIG_FILE, PROMGEN_CONFIG_DIR
 from promgen.plugins import apps_from_setuptools
 from promgen.version import __version__
+
+env = environ.Env()
+env.read_env(".env")
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = pathlib.Path(__file__).parent.parent
@@ -32,26 +37,22 @@ BASE_DIR = pathlib.Path(__file__).parent.parent
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = env.str("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', '0') != '0'
+DEBUG = env.bool("DEBUG", default=False)
 
 # Settings for Prometheus paths and such
-PROMGEN_CONFIG_DIR = pathlib.Path(os.environ["PROMGEN_CONFIG_DIR"])
-PROMGEN_CONFIG = pathlib.Path(
-    os.environ.get("PROMGEN_CONFIG", PROMGEN_CONFIG_DIR / "promgen.yml")
-)
-if PROMGEN_CONFIG.exists():
-    with PROMGEN_CONFIG.open() as fp:
+if PROMGEN_CONFIG_FILE.exists():
+    with PROMGEN_CONFIG_FILE.open() as fp:
         PROMGEN = yaml.safe_load(fp)
 else:
     PROMGEN = {}
 
-PROMGEN_DEFAULT_GROUP = 'Default'
-PROMGEN_SCHEME = os.environ.get('PROMGEN_SCHEME', 'http')
+PROMGEN_DEFAULT_GROUP = "Default"
+PROMGEN_SCHEME = env.str("PROMGEN_SCHEME", default="http")
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 
 
 # Application definition
@@ -120,9 +121,8 @@ WSGI_APPLICATION = 'promgen.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(
-        env="DATABASE_URL",
-        default="sqlite:///" + str(BASE_DIR / "db.sqlite3")
+    "default": env.db(
+        "DATABASE_URL", default="sqlite:///" + str(BASE_DIR / "db.sqlite3")
     )
 }
 
@@ -163,10 +163,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.environ.get(
-    'STATIC_ROOT', os.path.expanduser('~/.cache/promgen')
-)
+STATIC_URL = "/static/"
+STATIC_ROOT_DEFAULT = pathlib.Path.home() / ".cache" / "promgen"
+STATIC_ROOT = env.str("STATIC_ROOT", default=str(STATIC_ROOT_DEFAULT))
 
 SITE_ID = 1
 
@@ -198,9 +197,9 @@ REST_FRAMEWORK = {
 # expected. If it is not configured, then we set CELERY_TASK_ALWAYS_EAGER to
 # force celery to run all tasks in the same process (effectively runs each task
 # as a normal function)
-if 'CELERY_BROKER_URL' in os.environ:
-    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
-else:
+try:
+    CELERY_BROKER_URL = env.str("CELERY_BROKER_URL")
+except KeyError:
     CELERY_TASK_ALWAYS_EAGER = True
 
 
