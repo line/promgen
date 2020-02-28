@@ -501,7 +501,7 @@ class RuleAnnotation(models.Model):
 class AlertLabel(models.Model):
     alert = models.ForeignKey('Alert', on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
-    value = models.CharField(max_length=128)
+    value = models.TextField()
 
 class Alert(models.Model):
     created = models.DateTimeField(default=timezone.now)
