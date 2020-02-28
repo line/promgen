@@ -331,7 +331,7 @@ class NotifierTest(LoginRequiredMixin, View):
             return redirect(request.POST['next'])
         if hasattr(sender.content_object, 'get_absolute_url'):
             return redirect(sender.content_object)
-        return reverse("profile")
+        return redirect("profile")
 
 
 class ExporterDelete(LoginRequiredMixin, DeleteView):
