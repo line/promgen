@@ -48,8 +48,10 @@ setup(
     include_package_data=True,
     extras_require={
         'dev': [
+            'black',
             'codecov',
             'django-nose',
+            'flake8',
             'nose-cov',
             'unittest-xml-reporting',
         ],
