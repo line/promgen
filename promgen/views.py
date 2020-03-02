@@ -1019,7 +1019,6 @@ class Alert(View):
         # when we run tasks.process_alert
         alert = models.Alert.objects.create(body=request.body.decode("utf-8"))
         tasks.process_alert.delay(alert.pk)
-        tasks.index_alert.delay(alert.pk)
         return HttpResponse("OK", status=202)
 
 
