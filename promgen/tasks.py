@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from atomicwrites import atomic_write
 from celery import shared_task
 
-from promgen import models, prometheus, util, notification, tasks
+from promgen import models, prometheus, util, notification
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def process_alert(alert_pk):
                 alert.delete()
                 return
 
-    tasks.index_alert.delay(alert.pk)
+    index_alert.delay(alert.pk)
 
     # Now that we have our routable items, we want to check which senders are
     # configured and expand those as needed
