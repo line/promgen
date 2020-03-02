@@ -1,5 +1,16 @@
 # Changelog
 
+# v0.45 - 2020-03-02
+
+- [BUGFIX] Update to redirect to correct location #246
+- [ENHANCEMENT] Allow filtering alerts on alert list page #242
+- [INTERNAL] Cleanup some minor migration issues #241
+- [INTERNAL] Clenaup test cases #243
+- [INTERNAL] Helper to rewrite query string for paginated lists #244
+- [INTERNAL] Refactoring help_text #237
+- [INTERNAL] Rename commands to better group similar functionality #247
+- [INTERNAL] Update circleci config #245
+
 ## v0.44 - 2020-02-21
 
 - [BUGFIX] Add missing duration label to rules page #238
