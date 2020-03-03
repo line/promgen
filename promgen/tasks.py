@@ -43,6 +43,10 @@ def process_alert(alert_pk):
                 alert.delete()
                 return
 
+    # After processing our blacklist, it should be safe to queue our
+    # alert to also index the labels
+    index_alert.delay(alert.pk)
+
     # Now that we have our routable items, we want to check which senders are
     # configured and expand those as needed
     senders = collections.defaultdict(set)
