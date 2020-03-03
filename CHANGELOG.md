@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.45.1 - 2020-03-03
+
+- [BUGFIX] Fix race condition between process and index alerts #251 #250
+
 # v0.45 - 2020-03-02
 
 - [BUGFIX] Update to redirect to correct location #246
