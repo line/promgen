@@ -7,6 +7,7 @@
     <div class="panel-heading">
         Shard
         <a href="{{shard.get_absolute_url}}">{{shard.name}}</a>
+        ( <a href="{{shard.url}}">{{shard.url}}</a> )
         <a href="{% url 'project-new' service.id %}?shard={{shard.id}}" class="btn btn-primary btn-xs pull-right">{% trans "Register Project" %}</a>
     </div>
     <table class="table table-bordered table-condensed">
