@@ -1,54 +1,104 @@
 lessopts="--tabs=4 --quit-if-one-screen --RAW-CONTROL-CHARS --no-init"
 
-.PHONY: test
-test: pipenv
-	pipenv run promgen test
+APP_BIN := .venv/bin/promgen
+PIP_BIN := .venv/bin/pip
+SPHINX  := .venv/bin/sphinx-build
 
-.PHONY:	all
-all: clean pipenv test build
+# Help 'function' taken from
+# https://gist.github.com/prwhite/8168133#gistcomment-2278355
 
+# COLORS
+GREEN  := $(shell tput -Txterm setaf 2)
+YELLOW := $(shell tput -Txterm setaf 3)
+WHITE  := $(shell tput -Txterm setaf 7)
+RESET  := $(shell tput -Txterm sgr0)
+
+TARGET_MAX_CHAR_NUM=20
+.PHONY:	help
+## Show help
+help:
+	@echo ''
+	@echo 'Usage:'
+	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
+	@echo ''
+	@echo 'Targets:'
+	@awk '/^[\%a-zA-Z\-\_0-9]+:/ { \
+		helpMessage = match(lastLine, /^## (.*)/); \
+		if (helpMessage) { \
+			helpCommand = substr($$1, 0, index($$1, ":")-1); \
+			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
+			printf "  ${YELLOW}%-$(TARGET_MAX_CHAR_NUM)s${RESET} ${GREEN}%s${RESET}\n", helpCommand, helpMessage; \
+		} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+
+${PIP_BIN}:
+	python3 -m venv .venv
+	${PIP_BIN} pip -U pip
+
+${APP_BIN}: ${PIP_BIN}
+	${PIP_BIN} install -r docker/requirements.txt
+	${PIP_BIN} install -e .[dev,mysql]
 
 .PHONY: build
+## Docker: Bulid container
 build:
 	docker-compose build base
 
+#### Django Commands
 
-.PHONY:	shell
-shell:
-	docker-compose run --rm worker bash
+.PHONY: test
+test: ${APP_BIN}
+## Django: Run tests
+	${APP_BIN} test -v 2
 
+.PHONY: migrate
+## Django: Run migrations
+migrate: ${APP_BIN}
+	${APP_BIN} migrate
+
+.PHONY:	runserver
+## Django: Run development server
+run: migrate
+	${APP_BIN} runserver
+
+.PHONY: shell
+## Django: Development shell
+shell: ${APP_BIN}
+	@echo opening promgen shell
+	@${APP_BIN} shell
+
+dump: ${APP_BIN}
+	${APP_BIN} dumpdata promgen.DefaultExporter  --indent=2 --output promgen/fixtures/exporters.yaml --format=yaml
+.PHONY: load
+load: ${APP_BIN}
+	${APP_BIN} loaddata exporters
+
+#### Documentation
+
+${SPHINX}: ${APP_BIN}
 
 .PHONY: docs
-docs:
-	pipenv run sphinx-build -avb html docs dist/html
+## Sphinx: Build documentation
+docs: ${SPHINX}
+	${SPHINX} -avb html docs dist/html
 
 
-.PHONY:	pipenv
-pipenv:
-	@echo Testing if Pipenv is already installed
-	@pipenv --venv 1> /dev/null 2> /dev/null || pipenv install --dev
+#### Other assorted commands
 
-
-.PHONY:	clean
+.PHONY: clean
+## Clean our repo
 clean:
-	@echo Removing Pipenv
-	@pipenv --rm || true
+	@echo Removing venv
+	@rm -rf .venv
 	@echo Clearing dist files
 	@rm -rf dist
 
-
-.PHONY:	dump
-dump: pipenv
-	pipenv run promgen dumpdata promgen.DefaultExporter  --indent=2 --output promgen/fixtures/exporters.yaml --format=yaml
-
-.PHONY:	load
-load: pipenv
-	pipenv run promgen loaddata exporters
-
 .PHONY: circleci
+## Test circleci configuration locally
 circleci:
 	circleci local execute
 
 .PHONY: changelog
 changelog:
-	git log --color=always --first-parent --pretty='format:%s|%Cgreen%d%Creset' | column -ts '|' | less "$(lessopts)"
+	git log --color=always --first-parent --pretty='format:%s|%Cgreen%d%Creset' | column -ts '|' | less "$(lessopts)" 
