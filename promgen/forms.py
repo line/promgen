@@ -36,6 +36,11 @@ class ImportRuleForm(forms.Form):
         widget=forms.FileInput(attrs={'class': 'form-control'}),
         required=False)
 
+    def clean(self):
+        if any(self.cleaned_data.values()):
+            return self.cleaned_data
+        raise forms.ValidationError("Must submit data or file")
+
 
 class SilenceForm(forms.Form):
 
