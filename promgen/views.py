@@ -924,7 +924,7 @@ class Profile(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         sender, _ = models.Sender.objects.get_or_create(obj=self.request.user, owner=self.request.user, **form.clean())
-        return redirect('status')
+        return redirect('profile')
 
 
 class HostRegister(LoginRequiredMixin, FormView):
