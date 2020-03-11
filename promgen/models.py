@@ -122,7 +122,7 @@ class Sender(models.Model):
         Uses the same test json from our unittests but subs in the currently
         tested object as part of the test data
         '''
-        data = tests.PromgenTest.data_json('examples', 'alertmanager.json')
+        data = tests.Data("examples", "alertmanager.json").json()
         if hasattr(self.content_object, 'name'):
             data['commonLabels'][self.content_type.name] = self.content_object.name
             for alert in data.get('alerts', []):
