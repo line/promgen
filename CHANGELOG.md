@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.45.2 - 2020-03-11
+
+- [BUGFIX] Fix missing error message with duplicate Rule name #254
+
 # v0.45.1 - 2020-03-03
 
 - [BUGFIX] Fix race condition between process and index alerts #251 #250
