@@ -77,6 +77,7 @@ urlpatterns = [
     path('notifier/<int:pk>/delete', views.NotifierDelete.as_view(), name='notifier-delete'),
     path('notifier/<int:pk>/test', views.NotifierTest.as_view(), name='notifier-test'),
     path('notifier/<int:pk>', views.NotifierUpdate.as_view(), name='notifier-edit'),
+    path('notifier/<int:pk>/toggle', views.NotifierToggle.as_view(), name='notifier-toggle'),
 
     path('rule', views.RulesList.as_view(), name='rules-list'),
     path('rule/<int:pk>', views.RuleDetail.as_view(), name='rule-detail'),

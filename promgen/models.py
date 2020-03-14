@@ -81,6 +81,8 @@ class Sender(models.Model):
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
+    enabled = models.BooleanField(default=True)
+
     def show_value(self):
         if self.alias:
             return self.alias

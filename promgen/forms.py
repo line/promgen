@@ -160,7 +160,7 @@ class SenderForm(forms.ModelForm):
 
     class Meta:
         model = models.Sender
-        exclude = ['content_type', 'object_id', 'owner']
+        exclude = ['content_type', 'object_id', 'owner', 'enabled']
 
 
 class NotifierUpdate(forms.ModelForm):
