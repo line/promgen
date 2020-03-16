@@ -316,7 +316,7 @@ class Host(models.Model):
         return '{} [{}]'.format(self.name, self.farm.name)
 
 
-class Exporter(models.Model):
+class BaseExporter(models.Model):
     job = models.CharField(
         max_length=128, help_text="Exporter name. Example node, jmx, app"
     )
@@ -325,27 +325,25 @@ class Exporter(models.Model):
         max_length=128, blank=True, help_text="Exporter path. Defaults to /metrics"
     )
     scheme = models.CharField(
-        max_length=5, choices=(("http", "http"), ("https", "https")), default="http", help_text="Scrape exporter over http or https"
+        max_length=5,
+        choices=(("http", "http"), ("https", "https")),
+        default="http",
+        help_text="Scrape exporter over http or https",
     )
 
+    class Meta:
+        abstract = True
+
+
+class DefaultExporter(BaseExporter):
+    class Meta:
+        ordering = ["job", "port"]
+        unique_together = (("job", "port", "path"),)
+
+
+class Exporter(BaseExporter):
     project = models.ForeignKey("Project", on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ['job', 'port']
-        unique_together = (('job', 'port', 'project',),)
-
-    def __str__(self):
-        return '{}:{}:{} ({})'.format(self.job, self.port, self.path, self.project)
-
-    def get_absolute_url(self):
-        return reverse('project-detail', kwargs={'pk': self.project.pk})
-
-
-class DefaultExporter(models.Model):
-    job = models.CharField(max_length=128)
-    port = models.IntegerField()
-    path = models.CharField(max_length=128, blank=True)
 
     class Meta:
         ordering = ["job", "port"]
