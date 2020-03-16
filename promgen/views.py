@@ -355,7 +355,6 @@ class NotifierToggle(LoginRequiredMixin, View):
         sender = get_object_or_404(models.Sender, id=pk)
         sender.enabled = not sender.enabled
         sender.save()
-        signals.trigger_write_config.send(request)
         # Redirect to current page
         return JsonResponse({'redirect': ""})
 
