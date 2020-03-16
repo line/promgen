@@ -4,57 +4,51 @@
 import os
 import shutil
 
-import dj_database_url
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.core.validators import URLValidator
 
 
 class Command(BaseCommand):
     def prompt(self, prompt, *args, **kwargs):
         return input(prompt.format(*args, **kwargs))
 
+    def heading(self, str):
+        self.stdout.write(self.style.MIGRATE_HEADING(str))
+
     def write(self, fmtstr, *args, **kwargs):
         self.stdout.write(fmtstr.format(*args, **kwargs))
 
-    def write_setting(self, key, default='', test=None):
-        path = os.path.join(settings.PROMGEN_CONFIG_DIR, key)
-        if os.path.exists(path):
-            self.write('  Setting {} exists', key)
+    def write_setting(self, key, default=None, value=None):
+        path = settings.PROMGEN_CONFIG_DIR / key
+        if path.exists():
+            self.write("  Setting {} exists", key)
             return
 
-        value = None
         if default:
-            if self.prompt('Use {} for {} ? (yes/no) ', default, key).lower() == 'yes':
+            if self.prompt("Use {} for {} ? (yes/no) ", default, key).lower() == "yes":
                 value = default
 
         while not value:
-            value = self.prompt('Please enter a value for {}: ', key).strip()
-            if test:
-                try:
-                    test(value)
-                except:
-                    self.write('Invalid value {} for {}: ', value, key)
-                    value = None
+            value = self.prompt("Please enter a value for {}: ", key).strip()
 
-        self.write('Writing {} to {}', value, path)
-        with open(path, 'w', encoding='utf8') as fp:
+        self.write("Writing {} to {}", value, path)
+        with path.open("w", encoding="utf8") as fp:
             fp.write(value)
 
     def handle(self, **kwargs):
-        self.stdout.write(self.style.MIGRATE_HEADING('Bootstrapping Promgen'))
+        self.heading("Bootstrapping Promgen")
 
-        if not os.path.exists(settings.PROMGEN_CONFIG_DIR):
-            self.write('Creating config directory {} ', settings.PROMGEN_CONFIG_DIR)
+        if not settings.PROMGEN_CONFIG_DIR.exists():
+            self.write("Creating config directory {} ", settings.PROMGEN_CONFIG_DIR)
             os.makedirs(settings.PROMGEN_CONFIG_DIR)
 
-        if not os.path.exists(settings.PROMGEN_CONFIG):
-            path = os.path.join(settings.BASE_DIR, 'promgen', 'tests', 'examples', 'promgen.yml')
-            self.write('  Creating promgen config {} from {}', settings.PROMGEN_CONFIG, path)
+        if not settings.PROMGEN_CONFIG.exists():
+            path = settings.BASE_DIR / "promgen" / "tests" / "examples" / "promgen.yml"
+            self.write("  Creating promgen config {} from {}", settings.PROMGEN_CONFIG, path)
             shutil.copy(path, settings.PROMGEN_CONFIG)
 
-        self.write_setting('SECRET_KEY', default=settings.SECRET_KEY)
-        self.write_setting('DATABASE_URL', test=dj_database_url.parse)
+        self.write_setting("SECRET_KEY", default=settings.SECRET_KEY)
+        self.write_setting("DATABASE_URL")
         # Schemes based on list of supported brokers
         # http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html
-        self.write_setting('CELERY_BROKER_URL', test=URLValidator(schemes=['redis', 'amqp', 'sqs']))
+        self.write_setting("CELERY_BROKER_URL")
