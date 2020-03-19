@@ -38,13 +38,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', '0') != '0'
 
 # Settings for Prometheus paths and such
-PROMGEN_CONFIG_DIR = os.environ['PROMGEN_CONFIG_DIR']
-PROMGEN_CONFIG = os.environ.get(
-    'PROMGEN_CONFIG',
-    os.path.join(PROMGEN_CONFIG_DIR, 'promgen.yml')
+PROMGEN_CONFIG_DIR = pathlib.Path(os.environ["PROMGEN_CONFIG_DIR"])
+PROMGEN_CONFIG = pathlib.Path(
+    os.environ.get("PROMGEN_CONFIG", PROMGEN_CONFIG_DIR / "promgen.yml")
 )
-if os.path.exists(PROMGEN_CONFIG):
-    with open(PROMGEN_CONFIG) as fp:
+if PROMGEN_CONFIG.exists():
+    with PROMGEN_CONFIG.open() as fp:
         PROMGEN = yaml.safe_load(fp)
 else:
     PROMGEN = {}
