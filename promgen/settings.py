@@ -198,7 +198,7 @@ REST_FRAMEWORK = {
 # as a normal function)
 try:
     CELERY_BROKER_URL = env.str("CELERY_BROKER_URL")
-except KeyError:
+except Exception:
     CELERY_TASK_ALWAYS_EAGER = True
 
 
