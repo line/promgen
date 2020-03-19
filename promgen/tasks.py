@@ -52,7 +52,7 @@ def process_alert(alert_pk):
     senders = collections.defaultdict(set)
     for label, obj in routable.items():
         logger.debug("Processing %s %s", label, obj)
-        for sender in models.Sender.objects.filter(obj=obj):
+        for sender in models.Sender.objects.filter(obj=obj, enabled=True):
             if sender.filtered(data):
                 logger.debug("Filtered out sender %s", sender)
                 continue

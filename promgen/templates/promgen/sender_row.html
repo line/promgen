@@ -1,5 +1,5 @@
 {% load i18n %}
-<tr>
+<tr {% if not notifier.enabled %}class="bg-disabled text-muted"{% endif %}>
     <td title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
     <td>{{ notifier.show_value }}</td>
     <td>
@@ -28,6 +28,14 @@
     </td>
     {% if show_edit %}
     <td>
+        <input
+            type="checkbox"
+            {% if notifier.enabled %}checked{% endif %}
+            data-size="mini"
+            data-toggle="toggle"
+            data-csrfmiddlewaretoken="{{csrf_token}}"
+            data-action="{% url 'notifier-toggle' notifier.id %}"
+        />
         <a href="{% url 'notifier-edit' notifier.id %}" class="btn btn-warning btn-xs">{% trans "Edit" %}</a>
         <form method="post" action="{% url 'notifier-test' notifier.id %}" style="display: inline">
             {% csrf_token %}

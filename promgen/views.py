@@ -350,6 +350,15 @@ class ExporterToggle(LoginRequiredMixin, View):
         return JsonResponse({'redirect': exporter.project.get_absolute_url()})
 
 
+class NotifierToggle(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        sender = get_object_or_404(models.Sender, id=pk)
+        sender.enabled = not sender.enabled
+        sender.save()
+        # Redirect to current page
+        return JsonResponse({'redirect': ""})
+
+
 class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
     model = models.Rule
 
