@@ -26,15 +26,14 @@ from promgen import PROMGEN_CONFIG_FILE, PROMGEN_CONFIG_DIR
 from promgen.plugins import apps_from_setuptools
 from promgen.version import __version__
 
-env = environ.Env()
-env.read_env(".env")
-
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = pathlib.Path(__file__).parent.parent
+DOT_ENV = BASE_DIR / ".env"
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
+# Load our environment
+env = environ.Env()
+if DOT_ENV.exists():
+    env.read_env(".env")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str("SECRET_KEY")
