@@ -344,7 +344,6 @@ class ExporterUpdate(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ExporterUpdate, self).get_context_data(**kwargs)
         context["project"] = self.object.project
-        context["url"] = reverse('exporter-edit', args=[self.object.id])
         return context
 
 class ExporterDelete(LoginRequiredMixin, DeleteView):
@@ -623,11 +622,6 @@ class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     button_label = _("Exporter Register")
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
-
-    def get_context_data(self, **kwargs):
-        context = super(ExporterRegister, self).get_context_data(**kwargs)
-        context["url"] = reverse('project-exporter', args=[self.kwargs["pk"]])
-        return context
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
