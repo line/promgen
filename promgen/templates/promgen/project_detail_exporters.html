@@ -45,6 +45,9 @@
         </form>
       </td>
       <td>
+        <a href="{% url 'exporter-edit' exporter.id %}" class="btn btn-warning btn-xs">{% trans "Edit" %}</a>
+      </td>
+      <td>
         <a
           @click.prevent="silenceSetLabels"
           class="btn btn-warning btn-xs"

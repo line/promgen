@@ -11,7 +11,7 @@
 
 <div class="row">
 
-<form id="exporter_form" action="{% url 'project-exporter' project.id %}" method="post">{% csrf_token %}
+<form id="exporter_form" action="{{ url }}" method="post">{% csrf_token %}
   <div class="col-md-8">
     <div class="panel panel-default">
       <div class="panel-heading">Exporter</div>
@@ -36,7 +36,7 @@
         </table>
         <div class="panel-footer">
           <div class="input-group-btn">
-            <button class="btn btn-primary">Register Exporter</button>
+            <button class="btn btn-primary">{{ view.button_label }}</button>
             <exporter-test
                            class="btn btn-info"
                            {% if project.farm %}

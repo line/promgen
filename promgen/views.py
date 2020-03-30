@@ -333,6 +333,19 @@ class NotifierTest(LoginRequiredMixin, View):
             return redirect(sender.content_object)
         return redirect("profile")
 
+class ExporterUpdate(LoginRequiredMixin, UpdateView):
+    model = models.Exporter
+    button_label = _("Exporter Update")
+    fields = ["job", "port", "path", "scheme", "enabled"]
+
+    def get_success_url(self):
+        return reverse('project-detail', args=[self.object.project_id])
+
+    def get_context_data(self, **kwargs):
+        context = super(ExporterUpdate, self).get_context_data(**kwargs)
+        context["project"] = self.object.project
+        context["url"] = reverse('exporter-edit', args=[self.object.id])
+        return context
 
 class ExporterDelete(LoginRequiredMixin, DeleteView):
     model = models.Exporter
@@ -607,8 +620,14 @@ class FarmLink(LoginRequiredMixin, View):
 
 class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.Exporter
+    button_label = _("Exporter Register")
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ExporterRegister, self).get_context_data(**kwargs)
+        context["url"] = reverse('project-exporter', args=[self.kwargs["pk"]])
+        return context
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])

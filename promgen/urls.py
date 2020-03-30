@@ -54,6 +54,7 @@ urlpatterns = [
     path('project/<int:pk>/exporter', views.ExporterRegister.as_view(), name='project-exporter'),
     path('project/<int:pk>/notifier', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
 
+    path('exporter/<int:pk>/edit', views.ExporterUpdate.as_view(), name='exporter-edit'),
     path('exporter/<int:pk>/delete', views.ExporterDelete.as_view(), name='exporter-delete'),
     path('exporter/<int:pk>/toggle', views.ExporterToggle.as_view(), name='exporter-toggle'),
 
