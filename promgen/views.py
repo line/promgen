@@ -336,7 +336,7 @@ class NotifierTest(LoginRequiredMixin, View):
 class ExporterUpdate(LoginRequiredMixin, UpdateView):
     model = models.Exporter
     button_label = _("Exporter Update")
-    fields = ["job", "port", "path", "scheme", "enabled"]
+    form_class = forms.ExporterForm
 
     def get_success_url(self):
         return reverse('project-detail', args=[self.object.project_id])
