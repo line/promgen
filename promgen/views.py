@@ -615,23 +615,18 @@ class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
-class ExporterScrape(LoginRequiredMixin, FormView):
+class ExporterScrape(LoginRequiredMixin, View):
     # TODO: Move to /rest/project/<slug>/scrape
-    form_class = forms.ExporterForm
-
-    def form_invalid(self, form):
-        return JsonResponse(
-            {"message": "Form Errors", "errors": form.errors}, status=400
-        )
-
-    def form_valid(self, form):
+    def post(self, request, pk):
         futures = []
-        farm = get_object_or_404(models.Farm, id=self.kwargs["pk"])
+        farm = get_object_or_404(models.Farm, project=pk)
+        # So we have a mutable dictionary
+        data = request.POST.dict()
 
         # The default __metrics_path__ for Prometheus is /metrics so we need to
         # manually add it here in the case it's not set for our test
-        if not form.cleaned_data["path"]:
-            form.cleaned_data["path"] = "/metrics"
+        if not data["path"]:
+            data["path"] = "/metrics"
 
         def query():
             with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
@@ -640,7 +635,7 @@ class ExporterScrape(LoginRequiredMixin, FormView):
                         executor.submit(
                             util.get,
                             "{scheme}://{host}:{port}{path}".format(
-                                host=host.name, **form.cleaned_data
+                                host=host.name, **data
                             ),
                         )
                     )
@@ -659,7 +654,10 @@ class ExporterScrape(LoginRequiredMixin, FormView):
                         logger.exception("Unknown Exception")
                         yield "Unknown URL", "Unknown error"
 
-        return JsonResponse(dict(query()))
+        try:
+            return JsonResponse(dict(query()))
+        except Exception as e:
+            return JsonResponse({"error": "Error with query %s" % e})
 
 
 class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
