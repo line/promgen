@@ -615,20 +615,23 @@ class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
+
 class ExporterScrape(LoginRequiredMixin, View):
     # TODO: Move to /rest/project/<slug>/scrape
     def post(self, request, pk):
-        futures = []
-        farm = get_object_or_404(models.Farm, project=pk)
+        # Lookup our farm for testing
+        farm = get_object_or_404(models.Project, pk=pk).farm
+
         # So we have a mutable dictionary
         data = request.POST.dict()
 
         # The default __metrics_path__ for Prometheus is /metrics so we need to
         # manually add it here in the case it's not set for our test
-        if not data["path"]:
+        if not data.setdefault("path", "/metrics"):
             data["path"] = "/metrics"
 
         def query():
+            futures = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
                 for host in farm.host_set.all():
                     futures.append(
