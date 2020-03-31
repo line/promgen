@@ -80,8 +80,13 @@ class RouteTests(tests.PromgenTest):
 
     @mock.patch("promgen.util.get")
     def test_scrape(self, mock_get):
-        farm = models.Farm.objects.create(name="test_scrape")
+        shard = models.Shard.objects.create(name="test_scrape_shard")
+        service = models.Service.objects.create(name="test_scrape_service")
+        farm = models.Farm.objects.create(name="test_scrape_farm")
         farm.host_set.create(name="example.com")
+        project = models.Project.objects.create(
+            name="test_scrape_project", service=service, shard=shard, farm=farm
+        )
 
         # Uses the scrape target as the key, and the POST body that should
         # result in that URL
@@ -109,7 +114,7 @@ class RouteTests(tests.PromgenTest):
             # For each POST body, check to see that we generate and attempt to
             # scrape the correct URL
             response = self.client.post(
-                reverse("exporter-scrape", args=(farm.pk,)), body
+                reverse("exporter-scrape", kwargs={"pk": project.pk}), body
             )
             self.assertRoute(response, views.ExporterScrape, 200)
             self.assertEqual(mock_get.call_args[0][0], url)

@@ -37,16 +37,9 @@
         <div class="panel-footer">
           <div class="input-group-btn">
             <button class="btn btn-primary">Register Exporter</button>
-            <exporter-test
-                           class="btn btn-info"
-                           {% if project.farm %}
-                           href="{% url 'exporter-scrape' project.farm.id %}"
-                           {% else %}
-                           title="Please assign farm to test"
-                           disabled
-                           {% endif %}
-                           form="#exporter_form"
-                           target="#exporterresult">{% trans "Test" %}</exporter-test>
+            <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}" target="#exporterresult">
+              {% trans "Test" %}
+            </exporter-test>
           </div>
         </div>
       </div>
@@ -67,16 +60,9 @@
           <input type="hidden" name="enabled" value="1" />
           <div class="input-group-btn">
             <button style="width:80%" class="btn btn-primary">Register {{ default.job }} :{{ default.port }}{{ default.path }}</button>
-            <exporter-test
-                           style="width:20%"
-                           class="btn btn-info"
-                           {% if project.farm %}
-                           href="{% url 'exporter-scrape' project.farm.id %}"
-                           {% else %}
-                           title="Please assign farm to test"
-                           disabled
-                           {% endif %}
-                           target="#exporterresult">{% trans "Test" %}</exporter-test>
+            <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}" target="#exporterresult">
+              {% trans "Test" %}
+            </exporter-test>
           </div>
         </form>
         {% endfor %}
