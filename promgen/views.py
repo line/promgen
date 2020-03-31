@@ -610,6 +610,11 @@ class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
 
+    def get_form_kwargs(self):
+        kwargs = super(ExporterRegister, self).get_form_kwargs()
+        kwargs['instance'] = models.Exporter(project=get_object_or_404(models.Project, id=self.kwargs['pk']))
+        return kwargs
+
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
         exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())

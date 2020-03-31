@@ -92,6 +92,13 @@ class ExporterForm(forms.ModelForm):
             "scheme": forms.Select(attrs={"class": "form-control"}),
         }
 
+    def full_clean(self):
+        super(ExporterForm, self).full_clean()
+        try:
+            self.instance.validate_unique()
+        except forms.ValidationError as e:
+            self._update_errors(e)
+
 
 class ServiceRegister(forms.ModelForm):
     class Meta:
