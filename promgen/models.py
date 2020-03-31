@@ -349,7 +349,7 @@ class Exporter(BaseExporter):
 
     class Meta:
         ordering = ["job", "port"]
-        unique_together = (("job", "port", "path"),)
+        unique_together = (("job", "port", "path", "scheme", "project"),)
 
     def __str__(self):
         return "{}:{}{}".format(self.job, self.port, self.path or "/metrics")
