@@ -1,5 +1,24 @@
 # Changelog
 
+# v0.46 - 2020-04-01
+
+Breaking
+
+Promgen no longer defaults `ALLOWED_HOSTS = ['*']` so deployments should set it properly.
+You can also export `ALLOWED_HOSTS=*` to disable this check
+
+See: https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-ALLOWED_HOSTS
+
+- [BUGFIX] Fix unique_together for Exporter #267
+- [BUGFIX] Fix Makefile command #265
+- [BUGFIX] Fix exporter test button #263
+- [BUGFIX] Fix missing scheme on default exporter #259
+- [BUGFIX] Fix test data for notifier test #257
+- [BUGFIX] Fix missing error message with duplicate Rule name #254
+- [BUGFIX] Fix race condition between process and index alerts #251 #250
+- [ENHANCEMENT] Allow toggling notifiers #258
+- [ENHANCEMENT] Allow quick access to Prometheus ui from Project #252
+
 # v0.45 - 2020-03-02
 
 - [BUGFIX] Update to redirect to correct location #246
