@@ -6,6 +6,7 @@
 Vue.config.devtools = true
 
 var dataStore = {
+    selectedHosts: [],
     newSilence: { 'labels': {} },
     globalSilences: [],
     globalAlerts: [],
@@ -56,6 +57,14 @@ var app = new Vue({
         silenceAppendLabel: function (event) {
             console.debug('silenceAppendLabel', event.target.dataset);
             this.$set(this.newSilence.labels, event.target.dataset.label, event.target.dataset.value);
+            this.showSilenceForm(event);
+        },
+        silenceSelectedHosts: function (event) {
+            this.$set(this.newSilence, 'labels', {});
+            this.$set(this.newSilence.labels, "instance", this.selectedHosts.join("|"));
+            for (key in event.target.dataset) {
+                this.$set(this.newSilence.labels, key, event.target.dataset[key]);
+            }
             this.showSilenceForm(event);
         },
         silenceSetLabels: function (event) {
@@ -204,7 +213,6 @@ Vue.component('bootstrap-panel', {
     props: ['heading'],
     template: '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body"><slot /></div></div>'
 })
-
 
 const ExporterResult = Vue.component('exporter-result', {
     props: ['results'],

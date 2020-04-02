@@ -3,6 +3,7 @@
   <div class="panel-heading">Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
   <table class="table">
     <tr>
+      <th>&nbsp;</th>
       <th>Name</th>
       <th>&nbsp;</th>
     {% if project.farm.editable %}
@@ -11,6 +12,7 @@
     </tr>
   {% for host in project.farm.host_set.all %}
     <tr>
+      <td><input type="checkbox" value="{{ host.name }}:[0-9]*" v-model="selectedHosts"></td>
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       <td>
         <a
@@ -36,6 +38,15 @@
   </table>
 
   <div class="panel-footer">
+    <a
+      @click.prevent="silenceSelectedHosts"
+      class="btn btn-warning"
+      data-project="{{project.name}}"
+      data-service="{{project.service.name}}"
+      href="#"
+      style="display: inline-block;"
+      v-if="selectedHosts.length"
+    >{% trans "Silence selected hosts" %}</a>
 {% if project.farm %}
   {% if project.farm.editable %}
     <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">

@@ -168,3 +168,7 @@ msgstr "Notifiers設定警告"
 #: templates/promgen/shard_list.html:16
 msgid "Register Service"
 msgstr "Serviceを登録"
+
+#: templates/promgen/project_detail_hosts.html:49
+msgid "Silence selected hosts"
+msgstr "選択したHostをSilence"
