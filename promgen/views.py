@@ -1300,8 +1300,18 @@ class RuleTest(LoginRequiredMixin, View):
 
         logger.debug('Querying %s with %s', url, query)
         start = time.time()
-        result = util.get(url, {'query': query}).json()
-        duration = datetime.timedelta(seconds=(time.time() - start))
+        response = util.get(url, {"query": query})
+        duration = datetime.timedelta(seconds=(time.time() - start)).total_seconds()
+
+        try:
+            response.raise_for_status()
+        except Exception as e:
+            return JsonResponse(
+                {"status": str(e), "duration": duration, "query": query, "data": {}},
+                status=response.status_code,
+            )
+        else:
+            result = response.json()
 
         context = {'status': result['status'], 'duration': duration, 'query': query}
         context['data'] = result.get('data', {})
