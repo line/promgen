@@ -15,14 +15,13 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import pathlib
-import warnings
 
 import environ
 import yaml
 
 from django.urls import reverse_lazy
 
-from promgen import PROMGEN_CONFIG_FILE, PROMGEN_CONFIG_DIR
+from promgen import PROMGEN_CONFIG_FILE
 from promgen.plugins import apps_from_setuptools
 from promgen.version import __version__
 
@@ -220,12 +219,3 @@ except ImportError:
 # Load overrides from PROMGEN to replace Django settings
 for k, v in PROMGEN.pop('django', {}).items():
     globals()[k] = v
-
-# If we still don't have a SECRET_KEY set, we can set something random here.
-# This is placed at the very bottom to allow SECRET_KEY to be written into the
-# config file instead of an environment variable
-if not SECRET_KEY:
-    warnings.warn('Unset SECRET_KEY setting to random for now')
-    # Taken from Django's generation function
-    from django.utils.crypto import get_random_string
-    SECRET_KEY = get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
