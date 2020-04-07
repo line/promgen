@@ -3,25 +3,34 @@
 
 import os
 import shutil
-
+from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
+from promgen import PROMGEN_CONFIG_DIR, PROMGEN_CONFIG_FILE
+
+PROMGEN_CONFIG_DEFAULT = (
+    settings.BASE_DIR / "promgen" / "tests" / "examples" / "promgen.yml"
+)
 
 
 class Command(BaseCommand):
     def prompt(self, prompt, *args, **kwargs):
         return input(prompt.format(*args, **kwargs))
 
-    def heading(self, str):
-        self.stdout.write(self.style.MIGRATE_HEADING(str))
+    def write(self, str, color):
+        self.stdout.write(color(str))
 
-    def write(self, fmtstr, *args, **kwargs):
-        self.stdout.write(fmtstr.format(*args, **kwargs))
+    def success(self, fmtstr, *args, **kwargs):
+        self.write(fmtstr.format(*args, **kwargs), color=self.style.SUCCESS)
 
-    def write_setting(self, key, default=None, value=None):
-        path = settings.PROMGEN_CONFIG_DIR / key
+    def warning(self, fmtstr, *args, **kwargs):
+        self.write(fmtstr.format(*args, **kwargs), color=self.style.WARNING)
+
+    def setting(self, key, default=None, value=None):
+        path = PROMGEN_CONFIG_DIR / key
         if path.exists():
-            self.write("  Setting {} exists", key)
+            self.success("{:20} : {}", key, os.environ[key])
             return
 
         if default:
@@ -31,24 +40,32 @@ class Command(BaseCommand):
         while not value:
             value = self.prompt("Please enter a value for {}: ", key).strip()
 
-        self.write("Writing {} to {}", value, path)
+        self.warning("{:20} : {}", key, value)
         with path.open("w", encoding="utf8") as fp:
             fp.write(value)
 
     def handle(self, **kwargs):
-        self.heading("Bootstrapping Promgen")
+        self.write("Bootstrapping Promgen", color=self.style.MIGRATE_HEADING)
 
-        if not settings.PROMGEN_CONFIG_DIR.exists():
-            self.write("Creating config directory {} ", settings.PROMGEN_CONFIG_DIR)
-            os.makedirs(settings.PROMGEN_CONFIG_DIR)
+        if not PROMGEN_CONFIG_DIR.exists():
+            self.warning("Config {} Created", PROMGEN_CONFIG_DIR)
+            os.makedirs(PROMGEN_CONFIG_DIR)
 
-        if not settings.PROMGEN_CONFIG.exists():
-            path = settings.BASE_DIR / "promgen" / "tests" / "examples" / "promgen.yml"
-            self.write("  Creating promgen config {} from {}", settings.PROMGEN_CONFIG, path)
-            shutil.copy(path, settings.PROMGEN_CONFIG)
+        if not PROMGEN_CONFIG_FILE.exists():
+            self.warning(
+                "Creating promgen config {} from {}",
+                PROMGEN_CONFIG_FILE,
+                PROMGEN_CONFIG_DEFAULT,
+            )
+            shutil.copy(PROMGEN_CONFIG_DEFAULT, PROMGEN_CONFIG_FILE)
+        else:
+            self.success("Config {} Exists", PROMGEN_CONFIG_FILE)
 
-        self.write_setting("SECRET_KEY", default=settings.SECRET_KEY)
-        self.write_setting("DATABASE_URL")
-        # Schemes based on list of supported brokers
-        # http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html
-        self.write_setting("CELERY_BROKER_URL")
+        self.write("Checking environment settings", color=self.style.MIGRATE_HEADING)
+        self.setting("SECRET_KEY", default=settings.SECRET_KEY)
+        self.setting("DATABASE_URL")
+        self.setting("CELERY_BROKER_URL")
+        self.stdout.write('')
+
+        self.write("Running django system checks", color=self.style.MIGRATE_HEADING)
+        self.check(display_num_errors=True)
