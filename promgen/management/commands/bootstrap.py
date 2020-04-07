@@ -3,13 +3,11 @@
 
 import os
 import shutil
-
+from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from promgen import PROMGEN_CONFIG_DIR, PROMGEN_CONFIG_FILE
-from django.contrib.sites.models import Site
-
 
 PROMGEN_CONFIG_DEFAULT = (
     settings.BASE_DIR / "promgen" / "tests" / "examples" / "promgen.yml"
@@ -46,23 +44,6 @@ class Command(BaseCommand):
         with path.open("w", encoding="utf8") as fp:
             fp.write(value)
 
-    def site(self, **defaults):
-        """
-        Check our site object to ensure that we are not directed at example.com
-        """
-        site, created = Site.objects.get_or_create(
-            pk=settings.SITE_ID, defaults=defaults,
-        )
-        if site.domain == "example.com":
-            Site.objects.filter(pk=settings.SITE_ID).update(**defaults)
-            self.warning("site {:<15} : {domain} ({name})", settings.SITE_ID, **defaults)
-        else:
-            self.success("site {site.pk:<15} : {site.domain} ({site.name})", site=site)
-
-    def add_arguments(self, parser):
-        parser.add_argument("--domain", default="localhost:8000")
-        parser.add_argument("--name", default="Promgen")
-
     def handle(self, **kwargs):
         self.write("Bootstrapping Promgen", color=self.style.MIGRATE_HEADING)
 
@@ -84,6 +65,7 @@ class Command(BaseCommand):
         self.setting("SECRET_KEY", default=settings.SECRET_KEY)
         self.setting("DATABASE_URL")
         self.setting("CELERY_BROKER_URL")
+        self.stdout.write('')
 
-        self.write("Checking other settings", color=self.style.MIGRATE_HEADING)
-        self.site(domain=kwargs["domain"], name=kwargs["name"])
+        self.write("Running django system checks", color=self.style.MIGRATE_HEADING)
+        self.check(display_num_errors=True)
