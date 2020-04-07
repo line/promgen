@@ -41,9 +41,10 @@ def default_shard(sender, apps, interactive, **kwargs):
 
 
 class PromgenConfig(AppConfig):
-    name = 'promgen'
+    name = "promgen"
 
     def ready(self):
-        from promgen import signals  # NOQA
+        from promgen import signals, checks  # NOQA
+
         post_migrate.connect(default_shard, sender=self)
         post_migrate.connect(default_admin, sender=self)
