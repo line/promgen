@@ -6,11 +6,12 @@ import logging
 from django import forms
 from django.core.mail import send_mail
 from promgen.notification import NotificationBase
+from promgen import models
 
 logger = logging.getLogger(__name__)
 
 
-class FormEmail(forms.Form):
+class FormEmail(forms.ModelForm):
     value = forms.CharField(
         required=True,
         label='Email Address'
@@ -19,7 +20,9 @@ class FormEmail(forms.Form):
         required=False,
         help_text='Use to hide email from being displayed'
     )
-
+    class Meta:
+        model = models.Sender
+        fields = ["value", "alias"]
 
 class NotificationEmail(NotificationBase):
     '''

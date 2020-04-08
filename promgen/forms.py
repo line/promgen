@@ -163,12 +163,6 @@ class SenderForm(forms.ModelForm):
         exclude = ['content_type', 'object_id', 'owner', 'enabled']
 
 
-class NotifierUpdate(forms.ModelForm):
-    class Meta:
-        model = models.Sender
-        exclude = ['value']
-
-
 class HostForm(forms.Form):
     hosts = forms.CharField(widget=forms.Textarea)
 

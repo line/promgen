@@ -5,13 +5,13 @@ import logging
 
 from django import forms
 
-from promgen import util
+from promgen import util, models
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
-class FormIkasan(forms.Form):
+class FormIkasan(forms.ModelForm):
     value = forms.CharField(
         required=True,
         label='Channel'
@@ -20,7 +20,9 @@ class FormIkasan(forms.Form):
         required=False,
         help_text='Used to hide chanel from being shown'
     )
-
+    class Meta:
+        model = models.Sender
+        fields = ["value", "alias"]
 
 class NotificationIkasan(NotificationBase):
     '''

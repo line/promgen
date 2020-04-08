@@ -21,13 +21,15 @@ def _choices():
             yield (user.username, user.username)
 
 
-class FormUser(forms.Form):
+class FormUser(forms.ModelForm):
     value = forms.ChoiceField(
         required=True,
         label='Username',
         choices=_choices
     )
-
+    class Meta:
+        model = models.Sender
+        fields = ["value"]
 
 class NotificationUser(NotificationBase):
     '''

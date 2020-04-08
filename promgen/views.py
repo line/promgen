@@ -280,13 +280,17 @@ class ProjectDelete(LoginRequiredMixin, DeleteView):
 
 class NotifierUpdate(LoginRequiredMixin, UpdateView):
     model = models.Sender
-    form_class = forms.NotifierUpdate
+    template_name = "promgen/notifier_detail.html"
+
+    def get_form_class(self):
+        return self.get_object().driver.form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
         # For populating breadcrumb
         context[obj.content_type.model] = obj.content_object
+        context["driver"] = obj.driver
         return context
 
     def post(self, request, pk):
@@ -303,6 +307,10 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
                 messages.warning(request, 'Updated filter {f.name} {f.value}'.format(f=f))
         if 'next' in request.POST:
             return redirect(request.POST['next'])
+        if 'value' in request.POST:
+            super().post(request, pk)
+            return redirect(self.object.content_object.get_absolute_url())
+
         return self.get(self, request, pk)
 
 

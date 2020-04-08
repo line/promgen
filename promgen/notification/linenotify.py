@@ -5,13 +5,13 @@ import logging
 
 from django import forms
 
-from promgen import util
+from promgen import util, models
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
-class FormLineNotify(forms.Form):
+class FormLineNotify(forms.ModelForm):
     value = forms.CharField(
         required=True,
         label='LINE Notify Token'
@@ -20,7 +20,9 @@ class FormLineNotify(forms.Form):
         required=True,
         help_text='Use to hide token from being displayed'
     )
-
+    class Meta:
+        model = models.Sender
+        fields = ["value", "alias"]
 
 class NotificationLineNotify(NotificationBase):
     '''

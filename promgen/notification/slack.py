@@ -4,13 +4,13 @@ import logging
 
 from django import forms
 
-from promgen import util
+from promgen import util, models
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
-class FormSlack(forms.Form):
+class FormSlack(forms.ModelForm):
     value = forms.URLField(
         required=True,
         label='Slack webhook URL'
@@ -19,6 +19,9 @@ class FormSlack(forms.Form):
         required=False,
         help_text='Optional description to be displayed instead of the URL.'
     )
+    class Meta:
+        model = models.Sender
+        fields = ["value", "alias"]
 
 class NotificationSlack(NotificationBase):
     '''

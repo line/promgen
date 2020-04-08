@@ -11,17 +11,20 @@ import logging
 
 from django import forms
 
-from promgen import util
+from promgen import util, models
 from promgen.notification import NotificationBase
 
 logger = logging.getLogger(__name__)
 
 
-class FormWebhook(forms.Form):
+class FormWebhook(forms.ModelForm):
     value = forms.URLField(
         required=True,
         label='URL'
     )
+    class Meta:
+        model = models.Sender
+        fields = ["value"]
 
 
 class NotificationWebhook(NotificationBase):

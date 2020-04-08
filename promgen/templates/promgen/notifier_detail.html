@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load promgen %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Notifier</h1>
+</div>
+
+{% breadcrumb object 'Update Notifier' %}
+
+<div>
+    <div role="tabpanel" class="tab-pane panel panel-default">
+        <form action="" method="post">{% csrf_token %}
+          <div class="panel-body">
+            <pre class="help-block">{{ driver.help|urlize }}</pre>
+          </div>
+          <table class="table">
+            {{ form.as_table }}
+          </table>
+          <div class="panel-footer">
+            <button class="btn btn-primary">Update Notifier</button>
+          </div>
+          </form>
+    </div>
+  </div>
+
+{% endblock %}

@@ -83,6 +83,9 @@ class Sender(models.Model):
 
     enabled = models.BooleanField(default=True)
 
+    def get_absolute_url(self):
+        return reverse('notifier-edit', kwargs={'pk': self.pk})
+
     def show_value(self):
         if self.alias:
             return self.alias
