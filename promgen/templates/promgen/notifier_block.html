@@ -1,5 +1,4 @@
 {% load i18n %}
-<div style="overflow: scroll; white-space: nowrap;">
 <table class="table table-bordered table-condensed{% if collapse %} collapse" id="{{ collapse }}{% endif %}">
   <tr>
     <th>Notifier</th>
@@ -13,4 +12,3 @@
   {% include 'promgen/sender_row.html' %}
   {% endfor %}
 </table>
-</div>

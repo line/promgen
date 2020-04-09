@@ -1,7 +1,11 @@
 {% load i18n %}
 <tr {% if not notifier.enabled %}class="bg-disabled text-muted"{% endif %}>
     <td title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
-    <td>{{ notifier.show_value }}</td>
+    <td>
+        <div style="overflow: scroll; white-space: nowrap; width: 90px">
+        {{ notifier.show_value }}
+        </div>
+    </td>
     <td>
         {% for f in notifier.filter_set.all %}
         <form method="post" action="{% url 'notifier-edit' notifier.id %}" onsubmit="return confirm('Delete this filter?')" style="display: inline">
