@@ -285,6 +285,13 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
     def get_form_class(self):
         return self.get_object().driver.form
 
+    def get_initial(self):
+        initial = super().get_initial()
+        # sender.value can often be an API key like a LINE Notify token or some other kind of secret.
+        # So the form should only allow replacing the value, and should NEVER show the existing value.
+        initial["value"] = ""
+        return initial
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         obj = self.get_object()
