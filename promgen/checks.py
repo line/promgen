@@ -36,7 +36,9 @@ def directories(**kwargs):
         try:
             path = pathlib.Path(util.setting(key)).parent
         except TypeError:
-            yield checks.Warning("Missing setting for " + key)
+            yield checks.Warning(
+                "Missing setting for %s in %s " % (key, settings.PROMGEN_CONFIG_FILE)
+            )
         else:
             if not os.access(path, os.W_OK):
                 yield checks.Warning("Unable to write to %s" % path)
@@ -44,10 +46,13 @@ def directories(**kwargs):
 
 @checks.register("settings")
 def promtool(**kwargs):
+    key = "prometheus:promtool"
     try:
-        path = pathlib.Path(util.setting("prometheus:promtool"))
+        path = pathlib.Path(util.setting(key))
     except TypeError:
-        yield checks.Warning("Missing setting for " + key)
+        yield checks.Warning(
+            "Missing setting for %s in %s " % (key, settings.PROMGEN_CONFIG_FILE)
+        )
     else:
         if not os.access(path, os.X_OK):
             yield checks.Warning("Unable to execute file %s" % path)
