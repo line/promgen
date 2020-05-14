@@ -7,7 +7,7 @@ from django.core import checks
 from promgen import models, util
 
 
-@checks.register(checks.Tags.models)
+@checks.register(checks.Tags.models, deploy=True)
 def sites(app_configs, **kwargs):
     if models.Site.objects.count() == 0:
         yield checks.Error(
@@ -22,7 +22,7 @@ def sites(app_configs, **kwargs):
         )
 
 
-@checks.register(checks.Tags.models)
+@checks.register(checks.Tags.models, deploy=True)
 def shards(**kwargs):
     if models.Shard.objects.filter(enabled=True).count() == 0:
         yield checks.Warning("Missing shards", hint="Ensure some shards are enabled")
