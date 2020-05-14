@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.47.1 - 2020-05-14
+
+- [BUGFIX] Temporarily move some checks to require `deploy=True`
+
 # v0.47 - 2020-05-14
 
 - [BUGFIX] Fix our check warning messages #277
