@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.47 - 2020-05-14
+
+- [BUGFIX] Fix our check warning messages #277
+- [BUGFIX] Add scroll bar to notifier table #273
+- [INTERNAL] Refactoring and cleaning up `promgen bootstrap` #270
+- [ENHANCEMENT] Use the django checks framework to diagnose common errors #271
+- [ENHANCEMENT] Select multiple servers to silence #268
+
 # v0.46 - 2020-04-01
 
 Breaking
