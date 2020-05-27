@@ -3,11 +3,12 @@
 
 import os
 import shutil
-from django.apps import apps
+
 from django.conf import settings
+from django.core.checks import registry
 from django.core.management.base import BaseCommand
 
-from promgen import PROMGEN_CONFIG_DIR, PROMGEN_CONFIG_FILE
+from promgen import PROMGEN_CONFIG_DIR, PROMGEN_CONFIG_FILE, checks
 
 PROMGEN_CONFIG_DEFAULT = (
     settings.BASE_DIR / "promgen" / "tests" / "examples" / "promgen.yml"
@@ -15,6 +16,9 @@ PROMGEN_CONFIG_DEFAULT = (
 
 
 class Command(BaseCommand):
+    # We manually run the system checks at the end
+    requires_system_checks = False
+
     def prompt(self, prompt, *args, **kwargs):
         return input(prompt.format(*args, **kwargs))
 
@@ -65,7 +69,12 @@ class Command(BaseCommand):
         self.setting("SECRET_KEY", default=settings.SECRET_KEY)
         self.setting("DATABASE_URL")
         self.setting("CELERY_BROKER_URL")
-        self.stdout.write('')
+        self.stdout.write("")
 
         self.write("Running django system checks", color=self.style.MIGRATE_HEADING)
-        self.check(display_num_errors=True)
+        # Since we want to run a few check commands that specifically require database access
+        # we will manually register them here (instead of automatically) so that they do not
+        # affect other commands that automatically run checks, or the management command checks
+        registry.register(checks.sites, "promgen")
+        registry.register(checks.shards, "promgen")
+        self.check(display_num_errors=True, tags=registry.registry.tags_available())
