@@ -1,7 +1,7 @@
 # Reference for exteranl_links and bridge containers
 # https://blog.virtualzone.de/2016/09/docker-compose-link-containers-outside-compose-file-using-external_links.html
 
-version: '2'
+version: '2.1'
 services:
   base:
     build: .
@@ -14,30 +14,28 @@ services:
 
   web:
     extends: base
-    command: web -b 0.0.0.0:8000
+    command: web -b 0.0.0.0:8000 --reload
     ports:
       - "8080:8000"
-    links:
-      - mysql
-      - redis
     environment:
-      DEBUG: 1
+      - DEBUG=1
+      - ALLOWED_HOSTS=127.0.0.1,localhost,web
 
   worker:
     extends: base
-    command: worker -l info --queues localhost,celery
-    links:
-      - prometheus
-      - mysql
-      - redis
+    command: worker -l info --queues localhost,celery,prometheus,alertmanager
     volumes:
       - ./docker:/etc/prometheus
 
   prometheus:
     image: prom/prometheus
-    links:
-      - alertmanager
-      - blackbox
+    user: "root"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+      - --web.enable-lifecycle
     ports:
       - "9090:9090"
     volumes:
@@ -47,14 +45,14 @@ services:
   blackbox:
     image: prom/blackbox-exporter
     network_mode: bridge
+    ports:
+      - "9115:9115"
     volumes:
       - ./docker:/etc/prometheus
 
   alertmanager:
     image: prom/alertmanager
     command: --config.file=/etc/prometheus/alertmanager.yml
-    links:
-      - web
     ports:
       - "9093:9093"
     volumes:
