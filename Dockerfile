@@ -51,10 +51,10 @@ COPY promgen/tests/examples/promgen.yml /etc/promgen/promgen.yml
 WORKDIR /usr/src/app
 RUN pip install --no-cache-dir -e .
 
+RUN SECRET_KEY=1 promgen collectstatic --noinput
+
 USER promgen
 EXPOSE 8000
-
-RUN SECRET_KEY=1 promgen collectstatic --noinput
 
 VOLUME ["/etc/promgen", "/etc/prometheus"]
 ENTRYPOINT ["/docker-entrypoint.sh"]
