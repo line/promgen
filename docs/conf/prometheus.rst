@@ -13,17 +13,19 @@ Worker Model (Push)
 Promgen's Push mode relies on `celery <http://docs.celeryproject.org>`__ to push updates to Prometheus.
 A Promgen worker is run on each Prometheus server which subscribes to a named queue to signal when to write
 out an updated configuration file, and update Prometheus.
+Communication between Promgen and workers happens in Celery which in turn delegates this to the underlying broker mechanism: for example if you're using RabbitMQ as a broker then a change in the config in Promgen will send a message to the queue in RabbitMQ, a worker running on one of the many Prometheus servers will pick up that message which will tell it to update the `promehteus.yml` config in the local filesystem (it's assumed that this worker shares at least part of the filesystem with the Prometheus that it tries to update).
 
 .. code-block:: bash
 
-    # Assuming we have a Prometheus shard named promshard and two servers we
-    # may deploy the workers like this
+    # Assuming we have a Prometheus shard named promshard and two servers, we
+    # may register the workers like this on the Promgen server (master)
     promgen register-server promshard prometheus001 9090
     promgen register-server promshard prometheus002 9090
 
     # Then on each Prometheus server, we would want to run a celery worker with
     # the queue name matching the name that we registered
-    celery -A promgen -l info --queues prometheus001
+    # Note that rabbitmq:5672 is the same RabbitMQ instance that Promgen has access to
+    CELERY_BROKER_URL=amqp://rabbitmq:5672/ celery worker -A promgen -l info --queues prometheus001
     # If running within docker, the same command would look like this
     docker run --rm \
         -v ~/.config/promgen:/etc/promgen/ \
