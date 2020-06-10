@@ -1,18 +1,17 @@
 {% load i18n %}
-{% verbatim %}
-<td class="col-xs-1">{{silence.endsAt|time}}</td>
+<td class="col-xs-1">[[silence.endsAt|time]]</td>
 <td>
     <ul class="list-inline">
         <li v-for="match in silence.matchers">
             <a @click.prevent="silenceAppendLabel" class="label label-warning" :data-label="match.name" :data-value="match.value">
-                {{match.name}}:{{match.value}}
+                [[match.name]]:[[match.value]]
             </a>
         </li>
     </ul>
 </td>
 <td style="word-break: break-all;" :inner-html.prop="silence.comment|urlize"></td>
-<td>{{silence.createdBy}}</td>
-{% endverbatim %}
+<td>[[silence.createdBy]]</td>
+
 <td>
     <a @click.prevent="silenceExpire(silence.id)" class="btn btn-warning btn-xs">{% trans "Expire" %}</a>
 </td>
