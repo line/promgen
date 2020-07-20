@@ -1,12 +1,8 @@
 {% load i18n %}
 <tr {% if not notifier.enabled %}class="bg-disabled text-muted"{% endif %}>
-    <td title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
-    <td>
-        <div style="overflow: scroll; white-space: nowrap; width: 90px">
-        {{ notifier.show_value }}
-        </div>
-    </td>
-    <td>
+    <td class="col-xs-2" title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
+    <td class="col-xs-5" style="word-break: break-all;" >{{ notifier.show_value }}</td>
+    <td class="col-xs-2">
         {% for f in notifier.filter_set.all %}
         <form method="post" action="{% url 'notifier-edit' notifier.id %}" onsubmit="return confirm('Delete this filter?')" style="display: inline">
             {% csrf_token %}
@@ -31,7 +27,7 @@
         </div>
     </td>
     {% if show_edit %}
-    <td>
+    <td class="col-xs-3">
         <input
             type="checkbox"
             {% if notifier.enabled %}checked{% endif %}
