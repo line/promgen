@@ -1,5 +1,12 @@
 # Changelog
 
+# v0.48 - 2020-07-21
+
+- [BUGFIX] Fix checks that rely on database connection #280
+- [BUGFIX] Fix overflow formatting for notifiers #290
+- [BUGFIX] Use alternate Vue delimiters to fix double rendering bugs #288
+- [INTERNAL] Bump django from 2.2.10 to 2.2.13 #284
+
 # v0.47 - 2020-05-14
 
 - [BUGFIX] Fix our check warning messages #277
