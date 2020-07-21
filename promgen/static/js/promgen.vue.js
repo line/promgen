@@ -15,6 +15,7 @@ var dataStore = {
 
 var app = new Vue({
     el: '#vue',
+    delimiters: ['[[', ']]'],
     data: dataStore,
     methods: {
         toggleTarget: function (target) {

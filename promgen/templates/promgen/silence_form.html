@@ -13,9 +13,7 @@
       <ul class="list-inline">
         <li v-for="(value, label) in newSilence.labels">
           <a @click.prevent="silenceRemoveLabel(label)" class="label label-warning">
-            {% verbatim %}
-            {{label}}: {{ value }}
-            {% endverbatim %}
+            [[label]]: [[value]]
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
           </a>
         </li>
