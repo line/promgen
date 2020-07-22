@@ -164,6 +164,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT_DEFAULT = pathlib.Path.home() / ".cache" / "promgen"
 STATIC_ROOT = env.str("STATIC_ROOT", default=str(STATIC_ROOT_DEFAULT))
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
 SITE_ID = 1
 
