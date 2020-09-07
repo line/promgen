@@ -1318,7 +1318,7 @@ class RuleTest(LoginRequiredMixin, View):
                     context['status'] = 'warning'
         else:
             context['status'] = 'info'
-            context['errors']['no_results'] = 'No Results. May need to remove conditional check (> < ==) to verity'
+            context['errors']['no_results'] = 'No results. You may need to remove conditional checks (> < ==) to verify'
 
         # Place this at the bottom to have a query error show up as danger
         if result['status'] != 'success':
