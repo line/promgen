@@ -18,6 +18,8 @@ Below are the steps to get started with Promgen.
 
 Please see [CONTRIBUTING.md](https://github.com/line/promgen/blob/master/CONTRIBUTING.md) for contributing to Promgen.
 
+If you believe you have discovered a vulnerability or have an issue related to security, please DO NOT open a public issue. Instead, send us a mail to dl_oss_dev@linecorp.com.
+
 ### 1. Initialize Promgen
 
 Initialize Promgen using Docker.
