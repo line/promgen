@@ -280,7 +280,7 @@ prometheus:
 ## v0.22
 
 - [IMPROVEMENT] Add test button to test exporters from Promgen
-- [IMPROVEMENT] Further simplify notifications by dedeuplicating labels/annotations
+- [IMPROVEMENT] Further simplify notifications by deduplicating labels/annotations
 - [BUGFIX] Ensure we properly raise Exceptions if a sender fails
 - [IMPROVEMENT] Urlize comments in Silence list (for linking to bug tracker)
 - [IMPROVEMENT] Add description field to rules so developers can add additional context
