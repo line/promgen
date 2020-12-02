@@ -33,7 +33,7 @@ make migrate
 # Run tests
 make test
 # Run development server
-make runserver
+make run
 ```
 
 For development and testing, it may be useful to make a symlink for running Promgen
