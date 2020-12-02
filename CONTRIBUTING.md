@@ -11,6 +11,9 @@ First of all, thank you so much for taking your time to contribute! We always we
 The Promgen repository has a Makefile with various commands to make development easier.
 You can see some of the commands by running `make help`
 
+If you are using an external database, you will want to create a `promgen` and `test_promgen`
+database before running bootstrap or `make migrate` and `make test` will fail.
+
 ```bash
 # If you need to install Python first, try using your system's package manager
 # Examples
@@ -31,6 +34,13 @@ make migrate
 make test
 # Run development server
 make runserver
+```
+
+For development and testing, it may be useful to make a symlink for running Promgen
+
+```bash
+# Example symlink
+ln -s $PWD/.venv/bin/promgen ~/bin/promgen 
 ```
 
 By default promgen listens on port `8000`. Login with the user `admin` and password `admin`.

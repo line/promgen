@@ -67,7 +67,7 @@ check: ${APP_BIN}
 migrate: ${APP_BIN}
 	${APP_BIN} migrate
 
-.PHONY:	runserver
+.PHONY:	run
 ## Django: Run development server
 run: migrate
 	${APP_BIN} runserver
