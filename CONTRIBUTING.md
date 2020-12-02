@@ -2,32 +2,35 @@
 
 First of all, thank you so much for taking your time to contribute! We always welcome your ideas and feedback. Please feel free to make any pull requests.
 
-* File an issue in [the issue tracker](https://github.com/line/promgen/issues) to report bugs and propose new features and improvements.
-* Ask a question using [the issue tracker](https://github.com/line/promgen/issues).
-* Contribute your work by sending [a pull request](https://github.com/line/promgen/pulls).
+- File an issue in [the issue tracker](https://github.com/line/promgen/issues) to report bugs and propose new features and improvements.
+- Ask a question using [the issue tracker](https://github.com/line/promgen/issues).
+- Contribute your work by sending [a pull request](https://github.com/line/promgen/pulls).
 
 ### Setting up Promgen for development
 
-You can install Promgen for a development environment as follows.
+The Promgen repository has a Makefile with various commands to make development easier.
+You can see some of the commands by running `make help`
 
 ```bash
-python3 -m venv /path/to/virtualenv
-source /path/to/virtualenv/bin/activate
-pip install -e .[dev]
-pip install mysqlclient # psycopg or another database driver
-# Boostrap initial configuration
-promgen bootstrap
-# Enable DEBUG (and development) mode
+# If you need to install Python first, try using your system's package manager
+# Examples
+# yum install python3 python3-pip
+# homebrew install python3
+# If using OSX with Homebrew, you may need to export some flags
+# to get mysql client to install
+# export LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"
+make bootstrap
+# If you want to enable DEBUG (and development mode)
 echo 1 > ~/.config/promgen/DEBUG
 
 # Amend bootstrapped configuration by hand: ~/.config/promgen/promgen.yml
 
 # Setup or update database schemas, create initial user and shard
-promgen migrate
+make migrate
 # Run tests
-promgen test
+make test
 # Run development server
-promgen runserver
+make runserver
 ```
 
 By default promgen listens on port `8000`. Login with the user `admin` and password `admin`.

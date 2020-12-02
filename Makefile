@@ -52,6 +52,16 @@ test: ${APP_BIN}
 ## Django: Run tests
 	${APP_BIN} test -v 2
 
+.PHONY: bootstrap
+## Django: Bootstrap install
+bootstrap: ${APP_BIN}
+	${APP_BIN} bootstrap
+
+.PHONY: check
+## Django: Run Django checks
+check: ${APP_BIN}
+	${APP_BIN} check
+
 .PHONY: migrate
 ## Django: Run migrations
 migrate: ${APP_BIN}
