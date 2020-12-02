@@ -2,8 +2,8 @@
 
 Promgen is a configuration file generator for [Prometheus](http://prometheus.io). Promgen is a web application written with [Django](https://docs.djangoproject.com/en/1.10/) and can help you do the following jobs.
 
-* Create and manage Prometheus configuration files
-* Configure alert rules and notification options
+- Create and manage Prometheus configuration files
+- Configure alert rules and notification options
 
 See the [Promgen introduction slides](http://www.slideshare.net/tokuhirom/promgen-prometheus-managemnet-tool-simpleclientjava-hacks-prometheus-casual) for more details.
 
@@ -11,8 +11,7 @@ See the [Promgen introduction slides](http://www.slideshare.net/tokuhirom/promge
 
 ![screenshot](docs/images/screenshot.png)
 
-
-## Getting started
+## Contributing
 
 Below are the steps to get started with Promgen.
 
@@ -52,11 +51,11 @@ You can then use your favorite configuration management system to deploy to each
 
 Configure Prometheus to load the target file from Prometheus and configure AlertManager to send notifications back to Promgen.
 
-See the example settings files for proper configuration of Prometheus and AlertManager.  
+See the example settings files for proper configuration of Prometheus and AlertManager.
 
-* [Example settings file](promgen/tests/examples/promgen.yml)
-* [Example Prometheus file](docker/prometheus.yml)
-* [Example AlertManager file](docker/alertmanager.yml)
+- [Example settings file](promgen/tests/examples/promgen.yml)
+- [Example Prometheus file](docker/prometheus.yml)
+- [Example AlertManager file](docker/alertmanager.yml)
 
 ### 3. Run Promgen
 
