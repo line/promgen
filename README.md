@@ -38,6 +38,9 @@ docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen bootstrap
 # Apply database updates
 docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen migrate
 
+# You can then check your configuration to ensure everything correct
+docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen check
+
 # Create initial login user. This is the same as the default django-admin command
 # https://docs.djangoproject.com/en/1.10/ref/django-admin/#django-admin-createsuperuser
 docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen createsuperuser
