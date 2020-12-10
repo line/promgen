@@ -36,7 +36,7 @@ web)
   shift
   set -- gunicorn "promgen.wsgi:application" "$@"
   ;;
-bootstrap|createsuperuser|migrate|shell|test|import|queuecheck|rbimport|register-server|register-exporter|rules|targets|urls)
+*)
   # Shortcuts for some commonly used django commands
   set -- promgen "$@"
   ;;

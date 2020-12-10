@@ -56,6 +56,8 @@ test: ${APP_BIN}
 ## Django: Bootstrap install
 bootstrap: ${APP_BIN}
 	${APP_BIN} bootstrap
+	${APP_BIN} migrate
+	${APP_BIN} check
 
 .PHONY: check
 ## Django: Run Django checks

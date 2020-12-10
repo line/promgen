@@ -5,10 +5,32 @@ from django.conf import settings
 from django.core import checks
 
 from promgen import models, util
+from django.db.transaction import get_autocommit
+
+# For a few of our checks, we want to be able to check the
+# database for values that exist or not. The easiest? way
+# to do this, seems to be to wrap our check with a check
+# to the database to see if it is connected
+def db_check(*tags):
+    def outer(func):
+        def inner(**kwargs):
+            try:
+                get_autocommit()
+            except:
+                yield checks.Warning(
+                    "Database not reachable",
+                    hint="Try running bootstrap again",
+                    id="promgen.W000",
+                )
+            else:
+                yield from func(**kwargs)
+
+        return checks.register(check=inner, tags=tags)
+
+    return outer
 
 
-# See notes in bootstrap.py
-# @custom.register(checks.Tags.models)
+@db_check("promgen")
 def sites(app_configs, **kwargs):
     if models.Site.objects.count() == 0:
         yield checks.Warning(
@@ -28,8 +50,7 @@ def sites(app_configs, **kwargs):
         )
 
 
-# See notes in bootstrap.py
-# @custom.register(checks.Tags.models)
+@db_check("promgen")
 def shards(**kwargs):
     if models.Shard.objects.filter(enabled=True).count() == 0:
         yield checks.Warning(
