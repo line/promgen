@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load tz %}
 {% block content %}
 
 {% breadcrumb label="Alerts" %}
@@ -24,7 +25,7 @@
     </tr>
     {% for alert in alert_list %}
     <tr>
-        <td><a href="{{alert.get_absolute_url}}">{{alert.created}}</a></td>
+        <td><a href="{{alert.get_absolute_url}}">{{ alert.created|timezone:TIMEZONE }}</a></td>
         <td>{{alert.json.commonLabels.alertname}}</td>
         <td>{{alert.json.commonLabels.datasource}}</td>
         <td><a href="?service={{alert.json.commonLabels.service}}">{{alert.json.commonLabels.service}}</a></td>
