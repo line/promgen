@@ -1,6 +1,7 @@
 {% load i18n %}
+<td class="col-xs-1">[[silence.startsAt|time]]</td>
 <td class="col-xs-1">[[silence.endsAt|time]]</td>
-<td>
+<td class="col-xs-3 text-wrap">
     <ul class="list-inline">
         <li v-for="match in silence.matchers">
             <a @click.prevent="silenceAppendLabel" class="label label-warning" :data-label="match.name" :data-value="match.value">
@@ -9,9 +10,9 @@
         </li>
     </ul>
 </td>
-<td style="word-break: break-all;" :inner-html.prop="silence.comment|urlize"></td>
-<td>[[silence.createdBy]]</td>
+<td class="col-xs-3" :inner-html.prop="silence.comment|urlize"></td>
+<td class="col-xs-3">[[silence.createdBy]]</td>
 
-<td>
+<td style="col-xs-1">
     <a @click.prevent="silenceExpire(silence.id)" class="btn btn-warning btn-xs">{% trans "Expire" %}</a>
 </td>
