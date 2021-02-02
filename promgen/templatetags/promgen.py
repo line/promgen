@@ -145,7 +145,7 @@ def breadcrumb(instance=None, label=None):
         yield reverse("site-detail"), obj.domain
 
     def shard(obj):
-        yield reverse("shard-list"), _("Shards")
+        yield reverse("shard-list"), _("Datasource")
         yield obj.get_absolute_url(), obj.name
 
     def service(obj):
