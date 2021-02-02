@@ -1,5 +1,14 @@
 # Changelog
 
+# v0.49 - 2021-02-02
+
+- [BUGFIX] Fix some timezone display bugs for alerts page and silence menus #306
+- [BUGFIX] Fix typo in 'No results' message #292
+- [BUGFIX] Split bootstrap checks to avoid check errors #303
+- [DOCUMENTATION] Add note about reporting vulnerability #298
+- [DOCUMENTATION] Update install docs to mention Makefile #299
+- [IMPROVEMENT] Link back to Promgen in processed alert #307
+
 # v0.48 - 2020-07-21
 
 - [BUGFIX] Fix checks that rely on database connection #280
