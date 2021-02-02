@@ -225,9 +225,9 @@ class Project(models.Model):
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
 
-    service = models.ForeignKey('Service', on_delete=models.CASCADE)
-    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
-    farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
+    service = models.ForeignKey('promgen.Service', on_delete=models.CASCADE)
+    shard = models.ForeignKey('promgen.Shard', on_delete=models.CASCADE)
+    farm = models.ForeignKey('promgen.Farm', blank=True, null=True, on_delete=models.SET_NULL)
 
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation('Rule')
@@ -595,7 +595,7 @@ class Audit(models.Model):
 
 
 class Prometheus(models.Model):
-    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
+    shard = models.ForeignKey('promgen.Shard', on_delete=models.CASCADE)
     host = models.CharField(max_length=128)
     port = models.IntegerField()
 
