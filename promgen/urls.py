@@ -34,8 +34,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', views.HomeList.as_view(), name='home'),
-    path('shard', views.ShardList.as_view(), name='shard-list'),
-    path('shard/<int:pk>', views.ShardDetail.as_view(), name='shard-detail'),
+    path('datasource', views.DatasourceList.as_view(), name='datasource-list'),
+    path('datasource/<int:pk>', views.DatasourceDetail.as_view(), name='datasource-detail'),
 
     path('new/service', views.ServiceRegister.as_view(), name='service-new'),
     path('service', views.ServiceList.as_view(), name='service-list'),

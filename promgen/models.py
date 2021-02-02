@@ -178,7 +178,7 @@ class Shard(models.Model):
         ordering = ['name']
 
     def get_absolute_url(self):
-        return reverse('shard-detail', kwargs={'pk': self.pk})
+        return reverse('datasource-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         if self.enabled:

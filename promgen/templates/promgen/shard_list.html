@@ -13,7 +13,7 @@
 <div class="service-grid">
   {% for shard in shard_list|dictsortreversed:"project_set.count" %}
   <div>
-    <h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
+    <h2><a href="{% url 'datasource-detail' shard.id %}">{{ shard.name }}</a></h2>
     <a href="{{shard.url}}">{{shard.url}}</a>
     <hr>
 

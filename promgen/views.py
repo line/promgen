@@ -48,7 +48,7 @@ from promgen.shortcuts import resolve_domain
 logger = logging.getLogger(__name__)
 
 
-class ShardList(LoginRequiredMixin, ListView):
+class DatasourceList(LoginRequiredMixin, ListView):
     queryset = models.Shard.objects.prefetch_related(
         "project_set__service",
         "project_set__service__owner",
@@ -65,7 +65,7 @@ class ShardList(LoginRequiredMixin, ListView):
     )
 
 
-class ShardDetail(LoginRequiredMixin, DetailView):
+class DatasourceDetail(LoginRequiredMixin, DetailView):
     queryset = models.Shard.objects.prefetch_related(
         "project_set__service",
         "project_set__service__owner",
