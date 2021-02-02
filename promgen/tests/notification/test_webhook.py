@@ -49,6 +49,7 @@ class WebhookTest(tests.PromgenTest):
 
         # Our sample is the same as the original, with some annotations added
         _SAMPLE = tests.Data("examples", "alertmanager.json").json()
+        _SAMPLE["externalURL"] = "http://example.com/alert/11"
         _SAMPLE["commonAnnotations"]["service"] = (
             "http://example.com" + self.service.get_absolute_url()
         )

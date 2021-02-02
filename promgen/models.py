@@ -523,6 +523,9 @@ class Alert(models.Model):
 
         data.setdefault('commonLabels', {})
         data.setdefault('commonAnnotations', {})
+        # Set our link back to Promgen for processed notifications
+        # The original externalURL can still be visible from the alerts page
+        data['externalURL'] = resolve_domain(self.get_absolute_url())
 
         # Look through our labels and find the object from Promgen's DB
         # If we find an object in Promgen, add an annotation with a direct link
