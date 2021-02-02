@@ -15,6 +15,7 @@
 {% endif %}
   <table class="table table-bordered table-condensed">
   <tr>
+    <th>Starts</th>
     <th>Ends</th>
     <th>Matchers</th>
     <th>Comment</th>
@@ -23,6 +24,7 @@
   </tr>
 {% for silence in silences|dictsort:"endsAt" %}
   <tr>
+    <td>{{ silence.startsAt|timezone:TIMEZONE }}</td>
     <td>{{ silence.endsAt|timezone:TIMEZONE }}</td>
     <td>
       {% for matcher in silence.matchers %}
