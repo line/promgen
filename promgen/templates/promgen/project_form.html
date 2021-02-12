@@ -71,16 +71,17 @@
 
   {# Color red and collapse by default for existing projects #}
   <div class="panel{% if project.pk %} panel-danger collapse{% else %} panel-primary{% endif %}" id="shard-selector">
+    {% include 'promgen/shard_help.inc.html' %}
     <table class="table">
       <tr>
-        <th>Datasource</th>
-        <th>&nbsp;</th>
+        <th colspan="3">Datasource</th>
         <th>Samples</th>
         <th>Exporters</th>
       </tr>
       {% for shard in shard_list|dictsort:'name' %}
       <tr {% if shard.enabled is False %}class="text-muted" title="Datasource disabled for new registrations" {% endif %}>
         <th>{{shard.name}}</th>
+        <th>{{shard.url|urlize}}</th>
         <td>
           <input type="radio" name="shard" value="{{shard.id}}" {% if shard.id == form.shard.value %}checked{% elif shard.enabled is False %}disabled{% endif %}>
         </td>
