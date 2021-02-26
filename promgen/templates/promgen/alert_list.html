@@ -26,7 +26,7 @@
     {% for alert in alert_list %}
     <tr>
         <td><a href="{{alert.get_absolute_url}}">{{ alert.created|timezone:TIMEZONE }}</a></td>
-        <td>{{alert.json.commonLabels.alertname}}</td>
+        <td><a href="?alertname={{alert.json.commonLabels.alertname}}">{{alert.json.commonLabels.alertname}}</a></td>
         <td>{{alert.json.commonLabels.datasource}}</td>
         <td><a href="?service={{alert.json.commonLabels.service}}">{{alert.json.commonLabels.service}}</a></td>
         <td><a href="?project={{alert.json.commonLabels.project}}">{{alert.json.commonLabels.project}}</a></td>
