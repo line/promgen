@@ -10,7 +10,8 @@ services:
     environment:
       CELERY_BROKER_URL: redis://redis:6379/0
       DATABASE_URL: mysql://promgen:promgen@mysql:3306/promgen
-      SECRET_KEY: asdf
+      SECRET_KEY: docker-compose-demo
+
 
   web:
     extends: base
@@ -20,8 +21,6 @@ services:
     links:
       - mysql
       - redis
-    environment:
-      DEBUG: 1
 
   worker:
     extends: base
