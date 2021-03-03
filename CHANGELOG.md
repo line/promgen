@@ -1,5 +1,10 @@
 # Changelog
 
+# v0.50 - 2021-03-03
+
+- [IMPROVEMENT] Improved Alert detail view #313
+- [BUGFIX] Move checks that require database, to post_migrate #314
+
 # v0.49 - 2021-02-02
 
 - [BUGFIX] Fix some timezone display bugs for alerts page and silence menus #306
