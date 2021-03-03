@@ -1,5 +1,7 @@
 # Changelog
 
+# v0.51 - Unreleased
+
 # v0.50 - 2021-03-03
 
 - [IMPROVEMENT] Improved Alert detail view #313
