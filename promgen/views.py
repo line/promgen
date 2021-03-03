@@ -1052,8 +1052,22 @@ class AlertList(LoginRequiredMixin, ListView):
             qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
         return qs
 
+
 class AlertDetail(LoginRequiredMixin, DetailView):
     model = models.Alert
+
+    def get_context_data(self, **kwargs):
+        data = super().get_context_data(**kwargs)
+        data["data"] = data["object"].json
+        groupLabels = data["data"].get("groupLabels", {})
+        commonLabels = data["data"].get("commonLabels", {})
+        data["groupLabels"] = groupLabels
+        data["otherLabels"] = {
+            x: commonLabels[x] for x in commonLabels if x not in groupLabels
+        }
+        data['redirects'] = ['service', 'project']
+
+        return data
 
 
 class Metrics(View):

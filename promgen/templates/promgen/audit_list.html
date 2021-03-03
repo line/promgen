@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load tz %}
 {% block content %}
 <div class="page-header">
   <h1>Log</h1>
@@ -30,7 +31,7 @@
       </thead>
 {% for entry in audit_list %}
       <tr class="{{ entry.hilight }}">
-        <td>{{ entry.created }}</td>
+        <td>{{ entry.created|timezone:TIMEZONE }}</td>
         <td>
           <a href="{% url 'audit-list' %}?{% qsfilter request 'user' entry.user.id %}">{{ entry.user }}</a>
         </td>
