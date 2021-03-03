@@ -5,6 +5,7 @@ import logging
 
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +39,24 @@ def default_shard(sender, apps, interactive, **kwargs):
             proxy=True,
             enabled=True,
         )
+    if Shard.objects.filter(enabled=True).count() == 0:
+        warnings.warn("No shards enabled", category=RuntimeWarning)
+    if Shard.objects.filter(proxy=True).count() == 0:
+        warnings.warn("No proxy shards", category=RuntimeWarning)
+
+
+def check_site(app_config, **kwargs):
+    Site = app_config.get_model("Site")
+    if Site.objects.filter(domain__in=["example.com"]).count():
+        warnings.warn("Site unconfigured", category=RuntimeWarning)
 
 
 class PromgenConfig(AppConfig):
     name = "promgen"
 
     def ready(self):
-        from promgen import signals, checks  # NOQA
+        from promgen import checks, signals  # NOQA
 
         post_migrate.connect(default_shard, sender=self)
         post_migrate.connect(default_admin, sender=self)
+        post_migrate.connect(check_site, sender=self)

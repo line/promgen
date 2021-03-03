@@ -45,6 +45,11 @@ ${APP_BIN}: ${PIP_BIN}
 build:
 	docker-compose build base
 
+.PHONY: demo
+## Docker: Run a demo via docker-compose
+demo:
+	docker-compose up
+
 #### Django Commands
 
 .PHONY: test
