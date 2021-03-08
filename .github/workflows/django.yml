@@ -1,0 +1,38 @@
+name: "Promgen Tests"
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  docs:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ hashFiles('setup.cfg') }}-${{ hashFiles('docker/requirements.txt') }}
+
+      - name: Fetch Promtool
+        run: |
+          sudo mkdir -p /usr/local/bin
+          curl -L -s https://github.com/prometheus/prometheus/releases/download/v2.8.1/prometheus-2.8.1.linux-amd64.tar.gz |\
+          sudo tar -xz -C /usr/local/bin --strip-components=1 prometheus-2.8.1.linux-amd64/promtool
+          sudo chmod +x /usr/local/bin/promtool
+
+      - name: Run Unittests
+        run: make test
