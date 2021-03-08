@@ -1,0 +1,36 @@
+name: "Sphinx Documentation"
+
+on:
+  push:
+    branches: [$default-branch]
+  pull_request:
+    branches: [$default-branch]
+
+jobs:
+  docs:
+    name: Build Sphinx Documentation
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.6"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ hashFiles('setup.py') }}-${{ hashFiles('docker/requirements.txt') }}
+
+      - name: Build Docs
+        run: make docs
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: dist/html
