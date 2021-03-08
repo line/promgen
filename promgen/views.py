@@ -985,12 +985,6 @@ class ApiQueue(View):
         return HttpResponse('OK', status=202)
 
 
-class Commit(LoginRequiredMixin, View):
-    def post(self, request):
-        signals.trigger_write_config.send(request)
-        return HttpResponseRedirect(request.POST.get('next', '/'))
-
-
 class _ExportRules(View):
     def format(self, rules=None, name='promgen'):
         content = prometheus.render_rules(rules)

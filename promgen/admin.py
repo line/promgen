@@ -5,11 +5,13 @@ import json
 from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
-from promgen import models, plugins
+
+from promgen import actions, models, plugins
 
 
 class PrometheusInline(admin.TabularInline):
     model = models.Prometheus
+
 
 class FilterInline(admin.TabularInline):
     model = models.Filter
@@ -22,9 +24,14 @@ class HostAdmin(admin.ModelAdmin):
 
 @admin.register(models.Shard)
 class ShardAdmin(admin.ModelAdmin):
-    list_display = ('name', 'url', 'proxy', 'enabled')
-    list_filter = ('proxy', 'enabled')
+    list_display = ("name", "url", "proxy", "enabled")
+    list_filter = ("proxy", "enabled")
     inlines = [PrometheusInline]
+    actions = [
+        actions.shard_targets,
+        actions.shard_rules,
+        actions.shard_urls,
+    ]
 
 
 @admin.register(models.Service)
@@ -119,8 +126,15 @@ class RuleAdmin(admin.ModelAdmin):
 
 @admin.register(models.Prometheus)
 class PrometheusAdmin(admin.ModelAdmin):
-    list_display = ('shard', 'host', 'port')
-    list_filter = ('shard',)
+    list_display = ("shard", "host", "port")
+    list_filter = ("shard",)
+    actions = [
+        actions.prometheus_targets,
+        actions.prometheus_rules,
+        actions.prometheus_urls,
+        actions.prometheus_reload,
+        actions.prometheus_tombstones,
+    ]
 
 
 @admin.register(models.Alert)

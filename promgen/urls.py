@@ -98,7 +98,6 @@ urlpatterns = [
     path('search', views.Search.as_view(), name='search'),
 
     path('metrics', csrf_exempt(views.Metrics.as_view()), name='metrics'),
-    path('commit', csrf_exempt(views.Commit.as_view()), name='commit'),
 
     path('alert', views.AlertList.as_view(), name='alert-list'),
     path('alert/<int:pk>', views.AlertDetail.as_view(), name='alert-detail'),

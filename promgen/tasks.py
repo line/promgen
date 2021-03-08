@@ -12,12 +12,14 @@ from promgen import models, prometheus, util, notification
 
 logger = logging.getLogger(__name__)
 
+
 @shared_task
 def index_alert(alert_pk):
     alert = models.Alert.objects.get(pk=alert_pk)
     labels = alert.json.get("commonLabels")
     for name, value in labels.items():
         models.AlertLabel.objects.create(alert=alert, name=name, value=value)
+
 
 @shared_task
 def process_alert(alert_pk):
@@ -103,7 +105,17 @@ def reload_prometheus():
 
     target = urljoin(util.setting("prometheus:url"), "/-/reload")
     response = util.post(target)
+    response.raise_for_status()
     signals.post_reload.send(response)
+
+
+@shared_task
+def clear_tombstones():
+    target = urljoin(
+        util.setting("prometheus:url"), "/api/v1/admin/tsdb/clean_tombstones"
+    )
+    response = util.post(target)
+    response.raise_for_status()
 
 
 @shared_task
