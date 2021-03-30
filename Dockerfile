@@ -45,6 +45,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 COPY docker/docker-entrypoint.sh /
 COPY setup.py /usr/src/app/setup.py
+COPY setup.cfg /usr/src/app/setup.cfg
 COPY promgen /usr/src/app/promgen
 COPY promgen/tests/examples/promgen.yml /etc/promgen/promgen.yml
 
