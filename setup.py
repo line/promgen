@@ -35,7 +35,7 @@ setup(
         'django-environ',
         'django-filter',
         'Django==2.2.13',
-        'djangorestframework==3.9.4',
+        'djangorestframework==3.11.2',
         'envdir',
         'kombu==4.6.3',  # https://github.com/celery/kombu/issues/1063
         'prometheus-client==0.7.0',
