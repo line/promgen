@@ -28,6 +28,7 @@ jobs:
             sudo chmod +x /usr/local/bin/promtool
       - run: mkdir -p test-results
       - run: python3 -m venv .venv
+      - run: .venv/bin/pip install pip -U
       - run: .venv/bin/pip install -r docker/requirements.txt
       - run: .venv/bin/pip install -e .[dev,mysql]
       - run: .venv/bin/promgen test --with-xunit --xunit-file test-results/nosetests.xml --noinput
