@@ -17,6 +17,19 @@ jobs:
       matrix:
         python-version: ["3.6", "3.7", "3.8"]
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -36,3 +49,6 @@ jobs:
 
       - name: Run Unittests
         run: make test
+        env:
+          SECRET_KEY: abcd
+          DATABASE_URL: mysql://root:password@127.0.0.1/promgen?charset=utf8mb4
