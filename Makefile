@@ -40,6 +40,11 @@ ${APP_BIN}: ${PIP_BIN}
 	${PIP_BIN} install -r docker/requirements.txt
 	${PIP_BIN} install -e .[dev,mysql]
 
+.PHONY: pip
+pip: ${PIP_BIN}
+	${PIP_BIN} install -r docker/requirements.txt
+	${PIP_BIN} install -e .[dev,mysql]
+
 .PHONY: build
 ## Docker: Bulid container
 build:
