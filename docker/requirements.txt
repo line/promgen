@@ -7,8 +7,8 @@ chardet==3.0.4
 defusedxml==0.6.0 ; python_version >= '3.0'
 django-environ==0.4.5
 django-filter==2.2.0
-django==2.2.13
-djangorestframework==3.9.4
+django==2.2.18
+djangorestframework==3.11.2
 envdir==1.0.1
 gunicorn==19.9.0
 idna==2.8
@@ -20,7 +20,7 @@ pyjwt==1.7.1
 python-dateutil==2.8.0
 python3-openid==3.1.0 ; python_version >= '3.0'
 pytz==2019.2
-pyyaml==5.1
+pyyaml==5.4
 redis==3.2.1
 requests-oauthlib==1.2.0
 requests==2.22.0
