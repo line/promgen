@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Discovery Plugins &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Notification Plugins" href="notification.html" />
+    <link rel="prev" title="Authentication Plugins" href="auth.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="discovery-plugins">
+<h1>Discovery Plugins<a class="headerlink" href="#discovery-plugins" title="Permalink to this headline">¶</a></h1>
+<p>Promgen uses discovery plugins to bridge non-natively supported discovery
+mechanisms to Prometheus’s file configuration format. They should be registered
+using setuptools <a class="reference external" href="http://setuptools.readthedocs.io/en/latest/setuptools.html#automatic-script-creation">entry_points</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;promgen.discovery&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">&#39;example = module.path.discovery:DiscoveryExample&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Plugins should inherit from DiscoveryBase, should implement <em>farms()</em> and
+<em>fetch()</em> methods</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">promgen.discovery</span> <span class="kn">import</span> <span class="n">DiscoveryBase</span>
+
+<span class="n">EXAMPLE</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;Farm-A&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;AA&#39;</span><span class="p">,</span> <span class="s1">&#39;AB&#39;</span><span class="p">,</span> <span class="s1">&#39;AC&#39;</span><span class="p">]</span>
+  <span class="s1">&#39;Farm-B&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;BA&#39;</span><span class="p">,</span> <span class="s1">&#39;BB&#39;</span><span class="p">,</span> <span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;BD&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">DiscoveryExample</span><span class="p">(</span><span class="n">DiscoveryBase</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">farm_name</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">EXAMPLE</span><span class="p">[</span><span class="n">farm_name</span><span class="p">]</span>
+
+  <span class="k">def</span> <span class="nf">farms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">EXAMPLE</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Extending Promgen</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="auth.html">Authentication Plugins</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Discovery Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notification.html">Notification Plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Extending Promgen</a><ul>
+      <li>Previous: <a href="auth.html" title="previous chapter">Authentication Plugins</a></li>
+      <li>Next: <a href="notification.html" title="next chapter">Notification Plugins</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/plugin/discovery.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

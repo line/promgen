@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prometheus Server &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Alert Worker" href="alert.html" />
+    <link rel="prev" title="Management UI" href="web.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="prometheus-server">
+<h1>Prometheus Server<a class="headerlink" href="#prometheus-server" title="Permalink to this headline">¶</a></h1>
+<p>One of Promgen’s primary roles is to manage a list of targets for Prometheus to scrape.
+For high availability, it is generally prefered to have multiple Prometheus servers running together.
+There are multiple ways to deploy these targets to a Prometheus server.</p>
+<div class="section" id="worker-model-push">
+<h2>Worker Model (Push)<a class="headerlink" href="#worker-model-push" title="Permalink to this headline">¶</a></h2>
+<img alt="../_images/worker.png" src="../_images/worker.png" />
+<p>Promgen’s Push mode relies on <a class="reference external" href="http://docs.celeryproject.org">celery</a> to push updates to Prometheus.
+A Promgen worker is run on each Prometheus server which subscribes to a named queue to signal when to write
+out an updated configuration file, and update Prometheus.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Assuming we have a Prometheus shard named promshard and two servers we</span>
+<span class="c1"># may deploy the workers like this</span>
+promgen register-server promshard prometheus001 <span class="m">9090</span>
+promgen register-server promshard prometheus002 <span class="m">9090</span>
+
+<span class="c1"># Then on each Prometheus server, we would want to run a celery worker with</span>
+<span class="c1"># the queue name matching the name that we registered</span>
+celery -A promgen -l info --queues prometheus001
+<span class="c1"># If running within docker, the same command would look like this</span>
+docker run --rm <span class="se">\</span>
+    -v ~/.config/promgen:/etc/promgen/ <span class="se">\</span>
+    -v /etc/prometheus:/etc/prometheus <span class="se">\</span>
+    line/promgen worker -l info --queues prometheus001
+</pre></div>
+</div>
+</div>
+<div class="section" id="cron-model-pull">
+<h2>Cron Model (Pull)<a class="headerlink" href="#cron-model-pull" title="Permalink to this headline">¶</a></h2>
+<img alt="../_images/cron.png" src="../_images/cron.png" />
+<p>In some cases it is not possible (or not desired) to install Promgen beside Prometheus.
+In this case, Promgne’s pull mode can be used by trigging a small script running from cron
+or any other job framework. This only requires the server where Prometheus is running,
+to be able to access Promgen over HTTP.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
+<span class="nb">set</span> -e
+<span class="c1"># Download all the targets from Promgen to a temporary file</span>
+curl http://promgen/api/v1/targets --output /etc/prometheus/targets.tmp
+<span class="c1"># Optionally you could download from a specific service or project</span>
+<span class="c1"># curl http://promgen/service/123/targets -o /etc/prometheus/targets.tmp</span>
+<span class="c1"># curl http://promgen/project/456/targets -o /etc/prometheus/targets.tmp</span>
+<span class="c1"># Move our file to make it more atomic</span>
+mv /etc/prometheus/targets.tmp /etc/prometheus/targets.json
+<span class="c1"># Tell Prometheus to reload</span>
+curl -XPOST http://localhost:9090/-/reload
+</pre></div>
+</div>
+<p>If it’s possible to install Promgen, then there is a Promgen helper command that
+handles the same basic steps as the above command. This will however require
+the Prometheus server to be able to access the same database as the Promgen
+web instance.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Internally Promgen uses an atomic write function so you can give</span>
+<span class="c1"># it the path where you want to save it and have it --reload automatically</span>
+promgen targets /etc/prometheus/targets.json --reload
+</pre></div>
+</div>
+</div>
+<div class="section" id="filtering-targets-both">
+<h2>Filtering Targets (Both)<a class="headerlink" href="#filtering-targets-both" title="Permalink to this headline">¶</a></h2>
+<p>In both models, you will want to ensure that the Prometheus server only scrapes
+the correct subset of targets. Ensure that the correct rewrite_labels is configured</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span> <span class="nt">job_name</span><span class="p">:</span> <span class="s">&#39;promgen&#39;</span>
+  <span class="nt">file_sd_configs</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">files</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="s">&quot;/etc/prometheus/promgen.json&quot;</span>
+  <span class="nt">relabel_configs</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">source_labels</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">__shard</span><span class="p p-Indicator">]</span>
+    <span class="c1"># Our regex value here should match the shard name (exported as __shard)</span>
+    <span class="c1"># that shows up in Promgen. In the case we want our Prometheus server to</span>
+    <span class="c1"># scrape all targets, then we can ommit the relable config.</span>
+    <span class="nt">regex</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">promshard</span>
+    <span class="nt">action</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">keep</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Installing Promgen</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="web.html">Management UI</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Prometheus Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alert.html">Alert Worker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Running with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="django.html">Configuring Django</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Installing Promgen</a><ul>
+      <li>Previous: <a href="web.html" title="previous chapter">Management UI</a></li>
+      <li>Next: <a href="alert.html" title="next chapter">Alert Worker</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/conf/prometheus.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

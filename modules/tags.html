@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Template Tags &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Promgen Models" href="models.html" />
+    <link rel="prev" title="Prometheus Interactions" href="prometheus.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-promgen.templatetags.promgen">
+<span id="template-tags"></span><h1>Template Tags<a class="headerlink" href="#module-promgen.templatetags.promgen" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.breadcrumb">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">breadcrumb</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#breadcrumb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.breadcrumb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create HTML Breadcrumb from instance</p>
+<p>Starting with the instance, walk up the tree building a bootstrap3
+compatiable breadcrumb</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.diff_json">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">diff_json</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#diff_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.diff_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.klass">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">klass</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#klass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.klass" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.pretty_json">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">pretty_json</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#pretty_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.pretty_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.pretty_yaml">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">pretty_yaml</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#pretty_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.pretty_yaml" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.qs_replace">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">qs_replace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#qs_replace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.qs_replace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query string handler for paginators</p>
+<p>Assuming we have a query string like ?page=1&amp;search=foo, there are several cases
+in which we want to replace only the page key, while leaving the rest alone.
+This tag allows us to replace individual values (like the current page) while
+carrying over other values (like a search string)</p>
+<p>Example:
+{% qs_replace ‘page’ page_obj.next_page_number %}</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.qsfilter">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">qsfilter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#qsfilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.qsfilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper to rewrite query string for URLs</p>
+<p>{% qsfilter request ‘foo’ ‘baz’ %}
+When passed the request object, it will take a querystring like
+?foo=bar&amp;donottouch=1
+and change it to
+?foo=baz&amp;donottouch=1</p>
+<p>Useful when working with filtering on a page that also uses pagination to
+avoid losing other query strings
+{% qsfilter request ‘page’ page_obj.previous_page_number %}</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.rule_dict">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">rule_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#rule_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.rule_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.rulemacro">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">rulemacro</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rule</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clause</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#rulemacro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.rulemacro" title="Permalink to this definition">¶</a></dt>
+<dd><p>Macro rule expansion</p>
+<p>Assuming a list of rules with children and parents, expand our macro to exclude child rules</p>
+<p>Can optionally pass expression to render in the context of the passed rule</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>foo{&lt;exclude&gt;} / bar{&lt;exclude&gt;} &gt; 5 # Parent Rule
+foo{project=&quot;A&quot;, &lt;exclude&gt;} / bar{project=&quot;A&quot;, &lt;exclude&gt;} &gt; 3 # Child Rule
+foo{project=&quot;B&quot;} / bar{project=&quot;B&quot;} &gt; 4 # Child Rule
+
+foo{project~=&quot;A|B&quot;} / bar{project~=&quot;A|B&quot;} &gt; 5
+foo{project=&quot;A&quot;, } / bar{project=&quot;A&quot;} &gt; 3
+foo{project=&quot;B&quot;} / bar{project=&quot;B&quot;} &gt; 4
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="promgen.templatetags.promgen.strftime">
+<code class="sig-prename descclassname"><span class="pre">promgen.templatetags.promgen.</span></code><code class="sig-name descname"><span class="pre">strftime</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/templatetags/promgen.html#strftime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.templatetags.promgen.strftime" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Module Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="discovery.html">Discovery Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notification.html">Notification Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prometheus.html">Prometheus Interactions</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Template Tags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">Promgen Models</a></li>
+</ul>
+</li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module Reference</a><ul>
+      <li>Previous: <a href="prometheus.html" title="previous chapter">Prometheus Interactions</a></li>
+      <li>Next: <a href="models.html" title="next chapter">Promgen Models</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/tags.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

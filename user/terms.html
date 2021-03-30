@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glossary &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Extending Promgen" href="../plugin/index.html" />
+    <link rel="prev" title="API" href="api.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="glossary">
+<h1>Glossary<a class="headerlink" href="#glossary" title="Permalink to this headline">¶</a></h1>
+ digraph {
+   rankdir=RL;
+   { Service Prometheus} -&gt; Shard;
+   { Rule Notifier Project} -&gt; Service;
+   { Rule Notifier Exporter URL Farm} -&gt; Project;
+   Host -&gt; Farm;
+   { rank=same Project Rule };
+}<div class="section" id="shard">
+<h2>Shard<a class="headerlink" href="#shard" title="Permalink to this headline">¶</a></h2>
+<p>Shards are the top level object in Promgen which contain both Services and
+Prometheus servers</p>
+</div>
+<div class="section" id="service">
+<h2>Service<a class="headerlink" href="#service" title="Permalink to this headline">¶</a></h2>
+<p>A service in Prometheus is a group of related Projects and are assigned to a
+specific shard</p>
+</div>
+<div class="section" id="projects">
+<h2>Projects<a class="headerlink" href="#projects" title="Permalink to this headline">¶</a></h2>
+<p>Projects are one of the main groupings for Promgen. This represents a typical
+monitoring target and brings together a collection of servers (Farm) with
+Exporters and URL endpoints</p>
+</div>
+<div class="section" id="farm">
+<h2>Farm<a class="headerlink" href="#farm" title="Permalink to this headline">¶</a></h2>
+<p>Farm is a group of servers. Farms may be updated using <a class="reference internal" href="../plugin/discovery.html"><span class="doc">discovery plugins</span></a></p>
+</div>
+<div class="section" id="notifiers">
+<h2>Notifiers<a class="headerlink" href="#notifiers" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="../plugin/notification.html"><span class="doc">Notifiers</span></a> are used for routing messages to a specific destination such as Email or
+LINE Notify</p>
+</div>
+<div class="section" id="rule">
+<h2>Rule<a class="headerlink" href="#rule" title="Permalink to this headline">¶</a></h2>
+<p>Rules represent the rules that Prometheus itself uses for alerting</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Using Promgen</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rules.html">Alerting Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notification Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="admin.html">Administration Tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Glossary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Using Promgen</a><ul>
+      <li>Previous: <a href="api.html" title="previous chapter">API</a></li>
+      <li>Next: <a href="../plugin/index.html" title="next chapter">Extending Promgen</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/user/terms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

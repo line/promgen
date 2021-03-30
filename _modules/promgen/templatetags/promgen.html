@@ -1,0 +1,339 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>promgen.templatetags.promgen &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for promgen.templatetags.promgen</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2017 LINE Corporation</span>
+<span class="c1"># These sources are released under the terms of the MIT license: see LICENSE</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">difflib</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">pytz</span> <span class="kn">import</span> <span class="n">timezone</span>
+
+<span class="kn">from</span> <span class="nn">promgen</span> <span class="kn">import</span> <span class="n">util</span>
+
+<span class="kn">from</span> <span class="nn">django</span> <span class="kn">import</span> <span class="n">template</span>
+<span class="kn">from</span> <span class="nn">django.urls</span> <span class="kn">import</span> <span class="n">reverse</span>
+<span class="kn">from</span> <span class="nn">django.utils.html</span> <span class="kn">import</span> <span class="n">format_html</span>
+<span class="kn">from</span> <span class="nn">django.utils.safestring</span> <span class="kn">import</span> <span class="n">mark_safe</span>
+<span class="kn">from</span> <span class="nn">django.utils.translation</span> <span class="kn">import</span> <span class="n">ugettext</span> <span class="k">as</span> <span class="n">_</span>
+
+<span class="n">register</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+
+<span class="n">EXCLUSION_MACRO</span> <span class="o">=</span> <span class="s1">&#39;&lt;exclude&gt;&#39;</span>
+
+
+<div class="viewcode-block" id="klass"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.klass">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">klass</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span></div>
+
+
+<div class="viewcode-block" id="rule_dict"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.rule_dict">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">rule_dict</span><span class="p">(</span><span class="n">rule</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;alert&quot;</span><span class="p">:</span> <span class="n">rule</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+        <span class="s2">&quot;expr&quot;</span><span class="p">:</span> <span class="n">rulemacro</span><span class="p">(</span><span class="n">rule</span><span class="p">),</span>
+        <span class="s2">&quot;for&quot;</span><span class="p">:</span> <span class="n">rule</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
+        <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">rule</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+        <span class="s2">&quot;annotations&quot;</span><span class="p">:</span> <span class="n">rule</span><span class="o">.</span><span class="n">annotations</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="rulemacro"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.rulemacro">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">rulemacro</span><span class="p">(</span><span class="n">rule</span><span class="p">,</span> <span class="n">clause</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Macro rule expansion</span>
+
+<span class="sd">    Assuming a list of rules with children and parents, expand our macro to exclude child rules</span>
+
+<span class="sd">    Can optionally pass expression to render in the context of the passed rule</span>
+
+<span class="sd">    .. code-block:: none</span>
+
+<span class="sd">        foo{&lt;exclude&gt;} / bar{&lt;exclude&gt;} &gt; 5 # Parent Rule</span>
+<span class="sd">        foo{project=&quot;A&quot;, &lt;exclude&gt;} / bar{project=&quot;A&quot;, &lt;exclude&gt;} &gt; 3 # Child Rule</span>
+<span class="sd">        foo{project=&quot;B&quot;} / bar{project=&quot;B&quot;} &gt; 4 # Child Rule</span>
+
+<span class="sd">        foo{project~=&quot;A|B&quot;} / bar{project~=&quot;A|B&quot;} &gt; 5</span>
+<span class="sd">        foo{project=&quot;A&quot;, } / bar{project=&quot;A&quot;} &gt; 3</span>
+<span class="sd">        foo{project=&quot;B&quot;} / bar{project=&quot;B&quot;} &gt; 4</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">clause</span><span class="p">:</span>
+        <span class="n">clause</span> <span class="o">=</span> <span class="n">rule</span><span class="o">.</span><span class="n">clause</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rule</span><span class="o">.</span><span class="n">overrides</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="n">labels</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">model</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content_object</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">filters</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">k</span><span class="p">:</span> <span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">macro</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="nb">sorted</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">!~&quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">filters</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">clause</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">EXCLUSION_MACRO</span><span class="p">,</span> <span class="n">macro</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="qsfilter"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.qsfilter">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">simple_tag</span>
+<span class="k">def</span> <span class="nf">qsfilter</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Helper to rewrite query string for URLs</span>
+
+<span class="sd">    {% qsfilter request &#39;foo&#39; &#39;baz&#39; %}</span>
+<span class="sd">    When passed the request object, it will take a querystring like</span>
+<span class="sd">    ?foo=bar&amp;donottouch=1</span>
+<span class="sd">    and change it to</span>
+<span class="sd">    ?foo=baz&amp;donottouch=1</span>
+
+<span class="sd">    Useful when working with filtering on a page that also uses pagination to</span>
+<span class="sd">    avoid losing other query strings</span>
+<span class="sd">    {% qsfilter request &#39;page&#39; page_obj.previous_page_number %}</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">dict_</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+        <span class="n">dict_</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dict_</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dict_</span><span class="o">.</span><span class="n">urlencode</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="diff_json"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.diff_json">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">simple_tag</span>
+<span class="k">def</span> <span class="nf">diff_json</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="n">keepends</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">difflib</span><span class="o">.</span><span class="n">unified_diff</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">diff</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diff</span>
+    <span class="k">return</span> <span class="s1">&#39;No Changes&#39;</span></div>
+
+
+<div class="viewcode-block" id="pretty_json"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.pretty_json">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">pretty_json</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="pretty_yaml"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.pretty_yaml">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">pretty_yaml</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="strftime"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.strftime">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">filter</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">strftime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">fmt</span><span class="p">):</span>
+    <span class="n">tz</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">setting</span><span class="p">(</span><span class="s2">&quot;timezone&quot;</span><span class="p">,</span> <span class="s2">&quot;UTC&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">timezone</span><span class="p">(</span><span class="n">tz</span><span class="p">)</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">timestamp</span></div>
+
+
+<div class="viewcode-block" id="breadcrumb"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.breadcrumb">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">simple_tag</span>
+<span class="k">def</span> <span class="nf">breadcrumb</span><span class="p">(</span><span class="n">instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create HTML Breadcrumb from instance</span>
+
+<span class="sd">    Starting with the instance, walk up the tree building a bootstrap3</span>
+<span class="sd">    compatiable breadcrumb</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">promgen</span> <span class="kn">import</span> <span class="n">models</span>
+
+    <span class="k">def</span> <span class="nf">site</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;site-detail&quot;</span><span class="p">),</span> <span class="n">obj</span><span class="o">.</span><span class="n">domain</span>
+
+    <span class="k">def</span> <span class="nf">shard</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;shard-list&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Shards&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">(),</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">service</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;service-list&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Services&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">(),</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">project</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">yield from</span> <span class="n">service</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">service</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">(),</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">alert</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;alert-list&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Alerts&quot;</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">(),</span> <span class="n">obj</span><span class="o">.</span><span class="n">pk</span>
+
+    <span class="k">def</span> <span class="nf">rule</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;site&quot;</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">site</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">content_object</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;service&quot;</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">service</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">content_object</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">project</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">content_object</span><span class="p">)</span>
+        <span class="c1"># If we have a new rule, it won&#39;t have a name</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">pk</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">obj</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">(),</span> <span class="n">obj</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">def</span> <span class="nf">sender</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;service&quot;</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">service</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">content_object</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">content_type</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">project</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">content_object</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">generator</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;home&quot;</span><span class="p">),</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;Home&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Sender</span><span class="p">):</span>
+            <span class="k">yield from</span> <span class="n">sender</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Project</span><span class="p">):</span>
+            <span class="k">yield from</span> <span class="n">project</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Service</span><span class="p">):</span>
+            <span class="k">yield from</span> <span class="n">service</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Shard</span><span class="p">):</span>
+            <span class="k">yield from</span> <span class="n">shard</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Rule</span><span class="p">):</span>
+            <span class="k">yield from</span> <span class="n">rule</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">models</span><span class="o">.</span><span class="n">Alert</span><span class="p">):</span>
+            <span class="k">yield from</span> <span class="n">alert</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">to_tag</span><span class="p">():</span>
+        <span class="k">yield</span> <span class="s1">&#39;&lt;ol class=&quot;breadcrumb&quot;&gt;&#39;</span>
+        <span class="k">for</span> <span class="n">href</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">generator</span><span class="p">():</span>
+            <span class="k">yield</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;li&gt;&lt;a href=&quot;</span><span class="si">{}</span><span class="s1">&quot;&gt;</span><span class="si">{}</span><span class="s1">&lt;/a&gt;&lt;/li&gt;&#39;</span><span class="p">,</span> <span class="n">mark_safe</span><span class="p">(</span><span class="n">href</span><span class="p">),</span> <span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">format_html</span><span class="p">(</span><span class="s1">&#39;&lt;li class=&quot;active&quot;&gt;</span><span class="si">{}</span><span class="s1">&lt;/li&gt;&#39;</span><span class="p">,</span> <span class="n">_</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
+        <span class="k">yield</span> <span class="s2">&quot;&lt;/ol&gt;&quot;</span>
+
+    <span class="k">return</span> <span class="n">mark_safe</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">to_tag</span><span class="p">()))</span></div>
+
+
+<div class="viewcode-block" id="qs_replace"><a class="viewcode-back" href="../../../modules/tags.html#promgen.templatetags.promgen.qs_replace">[docs]</a><span class="nd">@register</span><span class="o">.</span><span class="n">simple_tag</span><span class="p">(</span><span class="n">takes_context</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">qs_replace</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Query string handler for paginators</span>
+
+<span class="sd">    Assuming we have a query string like ?page=1&amp;search=foo, there are several cases</span>
+<span class="sd">    in which we want to replace only the page key, while leaving the rest alone.</span>
+<span class="sd">    This tag allows us to replace individual values (like the current page) while</span>
+<span class="sd">    carrying over other values (like a search string)</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">    {% qs_replace &#39;page&#39; page_obj.next_page_number %}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dict_</span> <span class="o">=</span> <span class="n">context</span><span class="p">[</span><span class="s2">&quot;request&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">GET</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">v</span><span class="p">:</span>
+        <span class="n">dict_</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dict_</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dict_</span><span class="o">.</span><span class="n">urlencode</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../../../genindex.html">Index</a></li>
+  <li><a href="../../../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

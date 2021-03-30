@@ -1,0 +1,175 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notification Plugins &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Module Reference" href="../modules/index.html" />
+    <link rel="prev" title="Discovery Plugins" href="discovery.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="notification-plugins">
+<h1>Notification Plugins<a class="headerlink" href="#notification-plugins" title="Permalink to this headline">¶</a></h1>
+<p>Promgen uses notifier plugins to route notifications to different services such as
+Email or LINE Notify. Sender plugins are registered using setuptools <a class="reference external" href="http://setuptools.readthedocs.io/en/latest/setuptools.html#automatic-script-creation">entry_points</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">entry_points</span><span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;promgen.notification&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">&#39;sender_name = module.path.notification:NotificationExample&#39;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Plugins should inherit from SenderBase, and at a minimum impelement a <em>_send()</em>
+method</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">promgen.celery</span> <span class="kn">import</span> <span class="n">app</span> <span class="k">as</span> <span class="n">celery</span>
+<span class="kn">from</span> <span class="nn">promgen.notification</span> <span class="kn">import</span> <span class="n">NotificationBase</span>
+
+<span class="k">class</span> <span class="nc">NotificationExample</span><span class="p">(</span><span class="n">NotificationBase</span><span class="p">):</span>
+    <span class="nd">@celery</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_send</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">alert</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1">## Code specific to sender</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">alert</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<div class="section" id="notes-about-celery">
+<h2>Notes about Celery<a class="headerlink" href="#notes-about-celery" title="Permalink to this headline">¶</a></h2>
+<p>Because of the way Celery works, when you wrap a method call with
+<code class="docutils literal notranslate"><span class="pre">`&#64;celery.task`</span></code>, you lose access to the self instance of the Sender class.
+If you use <code class="docutils literal notranslate"><span class="pre">`&#64;celery.task(bind=True)`</span></code> then you can get an instance of the
+task. If you need to have an instance of the class, you can use this to get an
+instance of the class</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">promgen.celery</span> <span class="kn">import</span> <span class="n">app</span> <span class="k">as</span> <span class="n">celery</span>
+<span class="kn">from</span> <span class="nn">promgen.notification</span> <span class="kn">import</span> <span class="n">NotificationBase</span>
+
+<span class="k">class</span> <span class="nc">SenderCeleryExample</span><span class="p">(</span><span class="n">NotificationBase</span><span class="p">):</span>
+    <span class="nd">@celery</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_send</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">alert</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="bp">self</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">__klass__</span><span class="p">()</span>
+        <span class="c1">## Code specific to sender</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">alert</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+<span class="c1"># Set an instance we can retrive from within our _send method</span>
+<span class="n">SenderCeleryExample</span><span class="o">.</span><span class="n">_send</span><span class="o">.</span><span class="n">__klass__</span> <span class="o">=</span> <span class="n">SenderCeleryExample</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Extending Promgen</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="auth.html">Authentication Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="discovery.html">Discovery Plugins</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Notification Plugins</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Extending Promgen</a><ul>
+      <li>Previous: <a href="discovery.html" title="previous chapter">Discovery Plugins</a></li>
+      <li>Next: <a href="../modules/index.html" title="next chapter">Module Reference</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/plugin/notification.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

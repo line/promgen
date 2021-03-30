@@ -1,0 +1,230 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notification Modules &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Prometheus Interactions" href="prometheus.html" />
+    <link rel="prev" title="Discovery Plugins" href="discovery.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-promgen.notification">
+<span id="notification-modules"></span><h1>Notification Modules<a class="headerlink" href="#module-promgen.notification" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="promgen.notification.FormSenderBase">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.</span></code><code class="sig-name descname"><span class="pre">FormSenderBase</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data=None</span></em>, <em class="sig-param"><span class="pre">files=None</span></em>, <em class="sig-param"><span class="pre">auto_id='id_%s'</span></em>, <em class="sig-param"><span class="pre">prefix=None</span></em>, <em class="sig-param"><span class="pre">initial=None</span></em>, <em class="sig-param"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></em>, <em class="sig-param"><span class="pre">label_suffix=None</span></em>, <em class="sig-param"><span class="pre">empty_permitted=False</span></em>, <em class="sig-param"><span class="pre">field_order=None</span></em>, <em class="sig-param"><span class="pre">use_required_attribute=None</span></em>, <em class="sig-param"><span class="pre">renderer=None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/notification.html#FormSenderBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.FormSenderBase" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="promgen.notification.NotificationBase">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.</span></code><code class="sig-name descname"><span class="pre">NotificationBase</span></code><a class="reference internal" href="../_modules/promgen/notification.html#NotificationBase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.NotificationBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base Notification class</p>
+<dl class="py method">
+<dt id="promgen.notification.NotificationBase.config">
+<code class="sig-name descname"><span class="pre">config</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/notification.html#NotificationBase.config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.NotificationBase.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plugin specific configuration</p>
+<p>This wraps our PROMGEN settings so that a plugin author does not need to
+be concerned with how the configuration files are handled but only about
+the specific key.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="promgen.notification.NotificationBase.form">
+<code class="sig-name descname"><span class="pre">form</span></code><a class="headerlink" href="#promgen.notification.NotificationBase.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#promgen.notification.FormSenderBase" title="promgen.notification.FormSenderBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">promgen.notification.FormSenderBase</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-promgen.notification.email"></span><dl class="py class">
+<dt id="promgen.notification.email.FormEmail">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.email.</span></code><code class="sig-name descname"><span class="pre">FormEmail</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data=None</span></em>, <em class="sig-param"><span class="pre">files=None</span></em>, <em class="sig-param"><span class="pre">auto_id='id_%s'</span></em>, <em class="sig-param"><span class="pre">prefix=None</span></em>, <em class="sig-param"><span class="pre">initial=None</span></em>, <em class="sig-param"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></em>, <em class="sig-param"><span class="pre">label_suffix=None</span></em>, <em class="sig-param"><span class="pre">empty_permitted=False</span></em>, <em class="sig-param"><span class="pre">field_order=None</span></em>, <em class="sig-param"><span class="pre">use_required_attribute=None</span></em>, <em class="sig-param"><span class="pre">renderer=None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/notification/email.html#FormEmail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.email.FormEmail" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="promgen.notification.email.NotificationEmail">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.email.</span></code><code class="sig-name descname"><span class="pre">NotificationEmail</span></code><a class="reference internal" href="../_modules/promgen/notification/email.html#NotificationEmail"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.email.NotificationEmail" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simple plaintext Email notification</p>
+<dl class="py attribute">
+<dt id="promgen.notification.email.NotificationEmail.form">
+<code class="sig-name descname"><span class="pre">form</span></code><a class="headerlink" href="#promgen.notification.email.NotificationEmail.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#promgen.notification.email.FormEmail" title="promgen.notification.email.FormEmail"><code class="xref py py-class docutils literal notranslate"><span class="pre">promgen.notification.email.FormEmail</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-promgen.notification.ikasan"></span><dl class="py class">
+<dt id="promgen.notification.ikasan.FormIkasan">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.ikasan.</span></code><code class="sig-name descname"><span class="pre">FormIkasan</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data=None</span></em>, <em class="sig-param"><span class="pre">files=None</span></em>, <em class="sig-param"><span class="pre">auto_id='id_%s'</span></em>, <em class="sig-param"><span class="pre">prefix=None</span></em>, <em class="sig-param"><span class="pre">initial=None</span></em>, <em class="sig-param"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></em>, <em class="sig-param"><span class="pre">label_suffix=None</span></em>, <em class="sig-param"><span class="pre">empty_permitted=False</span></em>, <em class="sig-param"><span class="pre">field_order=None</span></em>, <em class="sig-param"><span class="pre">use_required_attribute=None</span></em>, <em class="sig-param"><span class="pre">renderer=None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/notification/ikasan.html#FormIkasan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.ikasan.FormIkasan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="promgen.notification.ikasan.NotificationIkasan">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.ikasan.</span></code><code class="sig-name descname"><span class="pre">NotificationIkasan</span></code><a class="reference internal" href="../_modules/promgen/notification/ikasan.html#NotificationIkasan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.ikasan.NotificationIkasan" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send messages to Hipchat using Ikasan Hipchat bridge</p>
+<p><a class="reference external" href="https://github.com/studio3104/ikasan">https://github.com/studio3104/ikasan</a></p>
+<dl class="py attribute">
+<dt id="promgen.notification.ikasan.NotificationIkasan.form">
+<code class="sig-name descname"><span class="pre">form</span></code><a class="headerlink" href="#promgen.notification.ikasan.NotificationIkasan.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#promgen.notification.ikasan.FormIkasan" title="promgen.notification.ikasan.FormIkasan"><code class="xref py py-class docutils literal notranslate"><span class="pre">promgen.notification.ikasan.FormIkasan</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-promgen.notification.linenotify"></span><dl class="py class">
+<dt id="promgen.notification.linenotify.FormLineNotify">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.linenotify.</span></code><code class="sig-name descname"><span class="pre">FormLineNotify</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data=None</span></em>, <em class="sig-param"><span class="pre">files=None</span></em>, <em class="sig-param"><span class="pre">auto_id='id_%s'</span></em>, <em class="sig-param"><span class="pre">prefix=None</span></em>, <em class="sig-param"><span class="pre">initial=None</span></em>, <em class="sig-param"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></em>, <em class="sig-param"><span class="pre">label_suffix=None</span></em>, <em class="sig-param"><span class="pre">empty_permitted=False</span></em>, <em class="sig-param"><span class="pre">field_order=None</span></em>, <em class="sig-param"><span class="pre">use_required_attribute=None</span></em>, <em class="sig-param"><span class="pre">renderer=None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/notification/linenotify.html#FormLineNotify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.linenotify.FormLineNotify" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="promgen.notification.linenotify.NotificationLineNotify">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.linenotify.</span></code><code class="sig-name descname"><span class="pre">NotificationLineNotify</span></code><a class="reference internal" href="../_modules/promgen/notification/linenotify.html#NotificationLineNotify"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.linenotify.NotificationLineNotify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send messages to line notify</p>
+<p><a class="reference external" href="https://notify-bot.line.me/en/">https://notify-bot.line.me/en/</a></p>
+<dl class="py attribute">
+<dt id="promgen.notification.linenotify.NotificationLineNotify.form">
+<code class="sig-name descname"><span class="pre">form</span></code><a class="headerlink" href="#promgen.notification.linenotify.NotificationLineNotify.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#promgen.notification.linenotify.FormLineNotify" title="promgen.notification.linenotify.FormLineNotify"><code class="xref py py-class docutils literal notranslate"><span class="pre">promgen.notification.linenotify.FormLineNotify</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-promgen.notification.webhook"></span><p>Simple webhook bridge
+Accepts alert json from Alert Manager and then POSTs individual alerts to
+configured webhook destinations</p>
+<dl class="py class">
+<dt id="promgen.notification.webhook.FormWebhook">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.webhook.</span></code><code class="sig-name descname"><span class="pre">FormWebhook</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data=None</span></em>, <em class="sig-param"><span class="pre">files=None</span></em>, <em class="sig-param"><span class="pre">auto_id='id_%s'</span></em>, <em class="sig-param"><span class="pre">prefix=None</span></em>, <em class="sig-param"><span class="pre">initial=None</span></em>, <em class="sig-param"><span class="pre">error_class=&lt;class</span> <span class="pre">'django.forms.utils.ErrorList'&gt;</span></em>, <em class="sig-param"><span class="pre">label_suffix=None</span></em>, <em class="sig-param"><span class="pre">empty_permitted=False</span></em>, <em class="sig-param"><span class="pre">field_order=None</span></em>, <em class="sig-param"><span class="pre">use_required_attribute=None</span></em>, <em class="sig-param"><span class="pre">renderer=None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/notification/webhook.html#FormWebhook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.webhook.FormWebhook" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="promgen.notification.webhook.NotificationWebhook">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.notification.webhook.</span></code><code class="sig-name descname"><span class="pre">NotificationWebhook</span></code><a class="reference internal" href="../_modules/promgen/notification/webhook.html#NotificationWebhook"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.notification.webhook.NotificationWebhook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Post notifications to a specific web endpoint</p>
+<dl class="py attribute">
+<dt id="promgen.notification.webhook.NotificationWebhook.form">
+<code class="sig-name descname"><span class="pre">form</span></code><a class="headerlink" href="#promgen.notification.webhook.NotificationWebhook.form" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#promgen.notification.webhook.FormWebhook" title="promgen.notification.webhook.FormWebhook"><code class="xref py py-class docutils literal notranslate"><span class="pre">promgen.notification.webhook.FormWebhook</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Module Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="discovery.html">Discovery Plugins</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Notification Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prometheus.html">Prometheus Interactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tags.html">Template Tags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">Promgen Models</a></li>
+</ul>
+</li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module Reference</a><ul>
+      <li>Previous: <a href="discovery.html" title="previous chapter">Discovery Plugins</a></li>
+      <li>Next: <a href="prometheus.html" title="next chapter">Prometheus Interactions</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/notification.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

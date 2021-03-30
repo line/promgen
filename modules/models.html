@@ -1,0 +1,479 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Promgen Models &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Template Tags" href="tags.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-promgen.models">
+<span id="promgen-models"></span><h1>Promgen Models<a class="headerlink" href="#module-promgen.models" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="promgen.models.Alert">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Alert</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sent_count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_count</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Alert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Alert" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Alert.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Alert.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Alert.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Alert.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.AlertError">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">AlertError</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#AlertError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.AlertError" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.AlertError.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.AlertError.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.AlertError.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.AlertError.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.AlertLabel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">AlertLabel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alert</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#AlertLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.AlertLabel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.AlertLabel.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.AlertLabel.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.AlertLabel.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.AlertLabel.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Audit">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Audit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Audit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Audit" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Audit.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Audit.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Audit.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Audit.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.DefaultExporter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">DefaultExporter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#DefaultExporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.DefaultExporter" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.DefaultExporter.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.DefaultExporter.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.DefaultExporter.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.DefaultExporter.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Exporter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Exporter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Exporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Exporter" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Exporter.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Exporter.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Exporter.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Exporter.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Farm">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Farm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Farm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Farm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Farm.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Farm.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Farm.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Farm.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="promgen.models.Farm.driver">
+<code class="sig-name descname"><span class="pre">driver</span></code><a class="headerlink" href="#promgen.models.Farm.driver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return configured driver for Farm model instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="promgen.models.Farm.driver_set">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">driver_set</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Farm.driver_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Farm.driver_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of drivers for Farm model</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Filter">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Filter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Filter.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Filter.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Filter.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Filter.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Host">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Host</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">farm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Host"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Host" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Host.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Host.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Host.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Host.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Probe">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Probe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Probe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Probe" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Probe.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Probe.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Probe.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Probe.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Project">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Project</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">farm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Project"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Project" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Project.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Project.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Project.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Project.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Prometheus">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Prometheus</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Prometheus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Prometheus" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Prometheus.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Prometheus.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Prometheus.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Prometheus.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Rule">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Rule</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clause</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duration</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Rule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Rule" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Rule.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Rule.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Rule.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Rule.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="promgen.models.Rule.copy_to">
+<code class="sig-name descname"><span class="pre">copy_to</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Rule.copy_to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Rule.copy_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a copy under a new service</p>
+<p>It’s important that we set pk to None so a new object is created, but we
+also need to ensure the new name is unique by appending some unique data
+to the end of the name</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.RuleAnnotation">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">RuleAnnotation</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#RuleAnnotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.RuleAnnotation" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.RuleAnnotation.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.RuleAnnotation.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.RuleAnnotation.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.RuleAnnotation.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.RuleLabel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">RuleLabel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rule</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#RuleLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.RuleLabel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.RuleLabel.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.RuleLabel.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.RuleLabel.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.RuleLabel.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Sender">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Sender</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">object_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Sender"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Sender" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Sender.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Sender.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Sender.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Sender.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="promgen.models.Sender.driver">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">driver</span></code><a class="headerlink" href="#promgen.models.Sender.driver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return configured driver for Sender model instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="promgen.models.Sender.driver_set">
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">driver_set</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Sender.driver_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Sender.driver_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the list of drivers for Sender model</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="promgen.models.Sender.filtered">
+<code class="sig-name descname"><span class="pre">filtered</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alert</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Sender.filtered"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Sender.filtered" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check filters for a specific sender</p>
+<p>If no filters are defined, then we let the message through
+If filters are defined, then we check to see if at least one filter matches
+If no filters match, then we assume it’s filtered out</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="promgen.models.Sender.test">
+<code class="sig-name descname"><span class="pre">test</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Sender.test"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Sender.test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Test sender plugin</p>
+<p>Uses the same test json from our unittests but subs in the currently
+tested object as part of the test data</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Service">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Service</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">owner</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Service"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Service" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Service.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Service.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Service.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Service.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Shard">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Shard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proxy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enabled</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Shard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Shard" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Shard.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Shard.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Shard.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Shard.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.Site">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">Site</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#Site"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.Site" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.Site.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.Site.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.Site.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.Site.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="promgen.models.URL">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">promgen.models.</span></code><code class="sig-name descname"><span class="pre">URL</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">probe</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/promgen/models.html#URL"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#promgen.models.URL" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py exception">
+<dt id="promgen.models.URL.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#promgen.models.URL.DoesNotExist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt id="promgen.models.URL.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#promgen.models.URL.MultipleObjectsReturned" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Module Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="discovery.html">Discovery Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notification.html">Notification Modules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prometheus.html">Prometheus Interactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tags.html">Template Tags</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Promgen Models</a></li>
+</ul>
+</li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module Reference</a><ul>
+      <li>Previous: <a href="tags.html" title="previous chapter">Template Tags</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/modules/models.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

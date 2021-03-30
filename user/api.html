@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Glossary" href="terms.html" />
+    <link rel="prev" title="Administration Tasks" href="admin.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prometheus-proxy-api">
+<h2>Prometheus Proxy API<a class="headerlink" href="#prometheus-proxy-api" title="Permalink to this headline">¶</a></h2>
+<p>Promgen provides a simple proxy api to proxy certain requests across all managed
+Prometheus nodes. See the <a class="reference external" href="https://prometheus.io/docs/prometheus/latest/querying/api/">Prometheus API</a> for more details</p>
+<dl class="http get">
+<dt id="get--api-v1-label-(string-labelname)-values">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/api/v1/label/</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">string:</span> </em><em class="sig-param"><span class="pre">labelname</span></em><span class="sig-paren">)</span><code class="sig-name descname"><span class="pre">/values</span></code><a class="headerlink" href="#get--api-v1-label-(string-labelname)-values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="http get">
+<dt id="get--api-v1-series">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/api/v1/series</span></code><a class="headerlink" href="#get--api-v1-series" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="http get">
+<dt id="get--api-v1-query_range">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/api/v1/query_range</span></code><a class="headerlink" href="#get--api-v1-query_range" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="promgen-api">
+<h2>Promgen API<a class="headerlink" href="#promgen-api" title="Permalink to this headline">¶</a></h2>
+<dl class="http post">
+<dt id="post--api-v1-alerts">
+<code class="sig-name descname"><span class="pre">POST</span> </code><code class="sig-name descname"><span class="pre">/api/v1/alerts</span></code><a class="headerlink" href="#post--api-v1-alerts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="http get">
+<dt id="get--api-v1-targets">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/api/v1/targets</span></code><a class="headerlink" href="#get--api-v1-targets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="http get">
+<dt id="get--api-v1-rules">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/api/v1/rules</span></code><a class="headerlink" href="#get--api-v1-rules" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="http get">
+<dt id="get--api-v1-urls">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/api/v1/urls</span></code><a class="headerlink" href="#get--api-v1-urls" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="http get">
+<dt id="get--api-v1-host-(string-hostname)">
+<code class="sig-name descname"><span class="pre">GET</span> </code><code class="sig-name descname"><span class="pre">/api/v1/host/</span></code><span class="sig-paren">(</span><em class="property"><span class="pre">string:</span> </em><em class="sig-param"><span class="pre">hostname</span></em><span class="sig-paren">)</span><a class="headerlink" href="#get--api-v1-host-(string-hostname)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Using Promgen</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rules.html">Alerting Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notification Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="admin.html">Administration Tasks</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="terms.html">Glossary</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Using Promgen</a><ul>
+      <li>Previous: <a href="admin.html" title="previous chapter">Administration Tasks</a></li>
+      <li>Next: <a href="terms.html" title="next chapter">Glossary</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/user/api.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

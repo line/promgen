@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>promgen.prometheus &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for promgen.prometheus</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2017 LINE Corporation</span>
+<span class="c1"># These sources are released under the terms of the MIT license: see LICENSE</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urljoin</span>
+
+<span class="kn">import</span> <span class="nn">pytz</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">dateutil</span> <span class="kn">import</span> <span class="n">parser</span>
+
+<span class="kn">from</span> <span class="nn">django.core.exceptions</span> <span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">django.utils</span> <span class="kn">import</span> <span class="n">timezone</span>
+
+<span class="kn">from</span> <span class="nn">promgen</span> <span class="kn">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">renderers</span><span class="p">,</span> <span class="n">serializers</span><span class="p">,</span> <span class="n">util</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="check_rules"><a class="viewcode-back" href="../../modules/prometheus.html#promgen.prometheus.check_rules">[docs]</a><span class="k">def</span> <span class="nf">check_rules</span><span class="p">(</span><span class="n">rules</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Use promtool to check to see if a rule is valid or not</span>
+
+<span class="sd">    The command name changed slightly from 1.x -&gt; 2.x but this uses promtool</span>
+<span class="sd">    to verify if the rules are correct or not. This can be bypassed by setting</span>
+<span class="sd">    a dummy command such as /usr/bin/true that always returns true</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w+b&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Rendering to </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Normally we wouldn&#39;t bother saving a copy to a variable here and would</span>
+        <span class="c1"># leave it in the fp.write() call, but saving a copy in the variable</span>
+        <span class="c1"># means we can see the rendered output in a Sentry stacktrace</span>
+        <span class="n">rendered</span> <span class="o">=</span> <span class="n">render_rules</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
+        <span class="n">fp</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+        <span class="c1"># This command changed to be without a space in 2.x</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span><span class="n">util</span><span class="o">.</span><span class="n">setting</span><span class="p">(</span><span class="s2">&quot;prometheus:promtool&quot;</span><span class="p">),</span> <span class="s2">&quot;check&quot;</span><span class="p">,</span> <span class="s2">&quot;rules&quot;</span><span class="p">,</span> <span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="n">rendered</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">e</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="render_rules"><a class="viewcode-back" href="../../modules/prometheus.html#promgen.prometheus.render_rules">[docs]</a><span class="k">def</span> <span class="nf">render_rules</span><span class="p">(</span><span class="n">rules</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Render rules in a format that Prometheus understands</span>
+
+<span class="sd">    :param rules: List of rules</span>
+<span class="sd">    :type rules: list(Rule)</span>
+<span class="sd">    :param int version: Prometheus rule format (1 or 2)</span>
+<span class="sd">    :return: Returns rules in yaml or Prometheus v1 format</span>
+<span class="sd">    :rtype: bytes</span>
+
+<span class="sd">    This function can render in either v1 or v2 format</span>
+<span class="sd">    We call prefetch_related_objects within this function to populate the</span>
+<span class="sd">    other related objects that are mostly used for the sub lookups.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">rules</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">rules</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Rule</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">enabled</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">renderers</span><span class="o">.</span><span class="n">RuleRenderer</span><span class="p">()</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+        <span class="n">serializers</span><span class="o">.</span><span class="n">AlertRuleSerializer</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="render_urls"><a class="viewcode-back" href="../../modules/prometheus.html#promgen.prometheus.render_urls">[docs]</a><span class="k">def</span> <span class="nf">render_urls</span><span class="p">():</span>
+    <span class="n">urls</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">URL</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span>
+        <span class="s2">&quot;project__service&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;project__shard&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;project&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">urls</span><span class="p">[</span>
+            <span class="p">(</span>
+                <span class="n">url</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">shard</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">url</span><span class="o">.</span><span class="n">probe</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                <span class="s2">&quot;__shard&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="s2">&quot;__param_module&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="n">v</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">urls</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="render_config"><a class="viewcode-back" href="../../modules/prometheus.html#promgen.prometheus.render_config">[docs]</a><span class="k">def</span> <span class="nf">render_config</span><span class="p">(</span><span class="n">service</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">exporter</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">Exporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span>
+        <span class="s2">&quot;project__farm__host_set&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;project__farm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;project__service&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;project__shard&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;project&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">farm</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">service</span> <span class="ow">and</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">project</span> <span class="ow">and</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exporter</span><span class="o">.</span><span class="n">enabled</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;__shard&quot;</span><span class="p">:</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">shard</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">service</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;farm&quot;</span><span class="p">:</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">farm</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;__farm_source&quot;</span><span class="p">:</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">farm</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+            <span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="n">exporter</span><span class="o">.</span><span class="n">job</span><span class="p">,</span>
+            <span class="s2">&quot;__scheme__&quot;</span><span class="p">:</span> <span class="n">exporter</span><span class="o">.</span><span class="n">scheme</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">exporter</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+            <span class="n">labels</span><span class="p">[</span><span class="s2">&quot;__metrics_path__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exporter</span><span class="o">.</span><span class="n">path</span>
+
+        <span class="n">hosts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="n">exporter</span><span class="o">.</span><span class="n">project</span><span class="o">.</span><span class="n">farm</span><span class="o">.</span><span class="n">host_set</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">hosts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">exporter</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;labels&quot;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span> <span class="s2">&quot;targets&quot;</span><span class="p">:</span> <span class="n">hosts</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="import_rules_v2"><a class="viewcode-back" href="../../modules/prometheus.html#promgen.prometheus.import_rules_v2">[docs]</a><span class="k">def</span> <span class="nf">import_rules_v2</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">content_object</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Loop through a dictionary and add rules to the database</span>
+
+<span class="sd">    This assumes a dictonary in the 2.x rule format.</span>
+<span class="sd">    See promgen/tests/examples/import.rule.yml for an example</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># If not already a dictionary, try to load as YAML</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># If &#39;groups&#39; does not exist in our config, assume that a single</span>
+    <span class="c1"># rule is being imported (perhaps from Promgen&#39;s UI) so wrap it</span>
+    <span class="c1"># to be the full rule format we expect</span>
+    <span class="c1"># https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/</span>
+    <span class="c1"># TODO In the future want to refactor this into the API itself</span>
+    <span class="k">if</span> <span class="s2">&quot;groups&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;groups&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Import&quot;</span><span class="p">,</span> <span class="s2">&quot;rules&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">config</span><span class="p">]}]}</span>
+
+    <span class="n">counters</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">group</span><span class="p">[</span><span class="s1">&#39;rules&#39;</span><span class="p">]:</span>
+            <span class="n">labels</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;labels&#39;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">annotations</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;annotations&#39;</span><span class="p">,</span> <span class="p">{})</span>
+
+            <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;clause&#39;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;expr&#39;</span><span class="p">],</span>
+                <span class="s1">&#39;duration&#39;</span><span class="p">:</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;for&#39;</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Check our labels to see if we have a project or service</span>
+            <span class="c1"># label set and if not, default it to a global rule</span>
+            <span class="k">if</span> <span class="n">content_object</span><span class="p">:</span>
+                <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;obj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">content_object</span>
+            <span class="k">elif</span> <span class="s1">&#39;project&#39;</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;obj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;project&#39;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="s1">&#39;service&#39;</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+                <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;obj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Service</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">labels</span><span class="p">[</span><span class="s1">&#39;service&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">defaults</span><span class="p">[</span><span class="s1">&#39;obj&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Site</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_current</span><span class="p">()</span>
+
+            <span class="n">rule</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Rule</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;alert&#39;</span><span class="p">],</span>
+                <span class="n">defaults</span><span class="o">=</span><span class="n">defaults</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+                <span class="n">counters</span><span class="p">[</span><span class="s1">&#39;Rules&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">rule</span><span class="o">.</span><span class="n">add_label</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">annotations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">rule</span><span class="o">.</span><span class="n">add_annotation</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">counters</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="import_config"><a class="viewcode-back" href="../../modules/prometheus.html#promgen.prometheus.import_config">[docs]</a><span class="k">def</span> <span class="nf">import_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">replace_shard</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">counters</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">skipped</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">replace_shard</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Importing into shard </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">replace_shard</span><span class="p">)</span>
+            <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">][</span><span class="s1">&#39;__shard&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">replace_shard</span>
+        <span class="n">shard</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Shard</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__shard&#39;</span><span class="p">,</span> <span class="s1">&#39;Default&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Created shard </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">shard</span><span class="p">)</span>
+            <span class="n">counters</span><span class="p">[</span><span class="s1">&#39;Shard&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shard</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">skipped</span><span class="p">[</span><span class="s1">&#39;Shard&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shard</span><span class="p">)</span>
+
+        <span class="n">service</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Service</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">][</span><span class="s1">&#39;service&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Created service </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">service</span><span class="p">)</span>
+            <span class="n">counters</span><span class="p">[</span><span class="s1">&#39;Service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">skipped</span><span class="p">[</span><span class="s1">&#39;Service&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+
+        <span class="n">farm</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Farm</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">][</span><span class="s1">&#39;farm&#39;</span><span class="p">],</span>
+            <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;source&#39;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__farm_source&#39;</span><span class="p">,</span> <span class="s1">&#39;pmc&#39;</span><span class="p">)}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Created farm </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">farm</span><span class="p">)</span>
+            <span class="n">counters</span><span class="p">[</span><span class="s1">&#39;Farm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">farm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">skipped</span><span class="p">[</span><span class="s1">&#39;Farm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">farm</span><span class="p">)</span>
+
+        <span class="n">project</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Project</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">][</span><span class="s1">&#39;project&#39;</span><span class="p">],</span>
+            <span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span>
+            <span class="n">shard</span><span class="o">=</span><span class="n">shard</span><span class="p">,</span>
+            <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;farm&#39;</span><span class="p">:</span> <span class="n">farm</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Created project </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+            <span class="n">counters</span><span class="p">[</span><span class="s1">&#39;Project&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">project</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">project</span><span class="o">.</span><span class="n">farm</span> <span class="o">!=</span> <span class="n">farm</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Linking farm [</span><span class="si">%s</span><span class="s1">] with [</span><span class="si">%s</span><span class="s1">]&#39;</span><span class="p">,</span> <span class="n">farm</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+            <span class="n">project</span><span class="o">.</span><span class="n">farm</span> <span class="o">=</span> <span class="n">farm</span>
+            <span class="n">project</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;targets&#39;</span><span class="p">]:</span>
+            <span class="n">target</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">host</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Host</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="p">,</span>
+                <span class="n">farm_id</span><span class="o">=</span><span class="n">farm</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Created host </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+                <span class="n">counters</span><span class="p">[</span><span class="s1">&#39;Host&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+
+            <span class="n">exporter</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Exporter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+                <span class="n">job</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">][</span><span class="s1">&#39;job&#39;</span><span class="p">],</span>
+                <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span>
+                <span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;labels&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;__metrics_path__&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Created exporter </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">exporter</span><span class="p">)</span>
+                <span class="n">counters</span><span class="p">[</span><span class="s1">&#39;Exporter&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">exporter</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">counters</span><span class="p">,</span> <span class="n">skipped</span></div>
+
+
+<div class="viewcode-block" id="silence"><a class="viewcode-back" href="../../modules/prometheus.html#promgen.prometheus.silence">[docs]</a><span class="k">def</span> <span class="nf">silence</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Post a silence message to Alert Manager</span>
+<span class="sd">    Duration should be sent in a format like 1m 2h 1d etc</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">duration</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">duration</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;m&#39;</span><span class="p">):</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">duration</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="n">duration</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;h&#39;</span><span class="p">):</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">duration</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">elif</span> <span class="n">duration</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">):</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">duration</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s1">&#39;Unknown time modifier&#39;</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;endsAt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;startsAt&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">local_timezone</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">setting</span><span class="p">(</span><span class="s2">&quot;timezone&quot;</span><span class="p">,</span> <span class="s2">&quot;UTC&quot;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;startsAt&#39;</span><span class="p">,</span> <span class="s1">&#39;endsAt&#39;</span><span class="p">]:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">local_timezone</span><span class="o">.</span><span class="n">localize</span><span class="p">(</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+    <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;matchers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+        <span class="s1">&#39;isRegex&#39;</span><span class="p">:</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span>
+    <span class="p">}</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">labels</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Sending silence for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">urljoin</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">setting</span><span class="p">(</span><span class="s2">&quot;alertmanager:url&quot;</span><span class="p">),</span> <span class="s2">&quot;/api/v1/silences&quot;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">response</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../conf/index.html">Installing Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../../genindex.html">Index</a></li>
+  <li><a href="../../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

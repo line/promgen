@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Installing Promgen &#8212; Promgen 0.51.dev documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Management UI" href="web.html" />
+    <link rel="prev" title="Welcome to Promgen’s documentation!" href="../index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="installing-promgen">
+<h1>Installing Promgen<a class="headerlink" href="#installing-promgen" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="web.html">Management UI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="web.html#running-under-uwsgi">Running under uwsgi</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="prometheus.html">Prometheus Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="prometheus.html#worker-model-push">Worker Model (Push)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prometheus.html#cron-model-pull">Cron Model (Pull)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prometheus.html#filtering-targets-both">Filtering Targets (Both)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="alert.html">Alert Worker</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="alert.html#running-under-systemd">Running under systemd</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="docker.html">Running with Docker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="django.html">Configuring Django</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="django.html#configuring-an-smtp-server">Configuring an SMTP Server</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<img alt="../_images/overview.png" src="../_images/overview.png" />
+<ol class="arabic simple">
+<li><p>Promgen manages a list of Targets and Rules that it deploys to a Prometheus server</p></li>
+<li><p>Prometheus will load these settings and proceed to scrape targets</p></li>
+<li><p>When an alert fires, it will be sent to AlertManager</p></li>
+<li><p>AlertManager will group on labels and handle de-duplication and forward to Promgen</p></li>
+<li><p>Promgen will route the message based on labels to the correct notification</p></li>
+</ol>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Promgen</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=line&repo=promgen&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing Promgen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="web.html">Management UI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="prometheus.html">Prometheus Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="alert.html">Alert Worker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Running with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="django.html">Configuring Django</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user/index.html">Using Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../plugin/index.html">Extending Promgen</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modules/index.html">Module Reference</a></li>
+</ul>
+
+
+<ul>
+  <li><a href="../genindex.html">Index</a></li>
+  <li><a href="../py-modindex.html">Module Index</a></li>
+</ul>
+
+<hr />
+<ul>
+    
+    <li class="toctree-l1"><a href="https://engineering.linecorp.com">LINE Engineering Blog</a></li>
+    
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Welcome to Promgen’s documentation!</a></li>
+      <li>Next: <a href="web.html" title="next chapter">Management UI</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, LINE.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/conf/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
