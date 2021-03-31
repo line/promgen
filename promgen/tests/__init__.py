@@ -2,7 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import json
-
+from django.urls import reverse
 import yaml
 
 from django.contrib.auth.models import Permission, User
@@ -28,6 +28,14 @@ class Data:
 
 
 class PromgenTest(TestCase):
+    def testAlert(self, source="alertmanager.json", data=None):
+        if data is None:
+            data = Data("examples", source).raw()
+
+        return self.client.post(
+            reverse("alert"), data=data, content_type="application/json"
+        )
+
     def assertRoute(self, response, view, status=200, msg=None):
         self.assertEqual(response.status_code, status, msg)
         self.assertEqual(response.resolver_match.func.__name__, view.as_view().__name__)
@@ -50,3 +58,6 @@ class PromgenTest(TestCase):
             user = self.user
 
         user.user_permissions.add(*[p for p in permissions])
+
+
+SETTINGS = Data("examples", "promgen.yml").yaml()

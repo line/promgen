@@ -91,7 +91,9 @@ def _trigger_write_urls(signal, **kwargs):
     return True
 
 
-def update_log(sender, instance, **kwargs):
+def update_log(sender, instance, raw, **kwargs):
+    if raw:
+        return
     # For our update_log, we hook the pre_save signal and make sure it's an
     # existing object by checking for a primary key. We then use that to get a
     # copy of the existing object from the database so that we can show the
