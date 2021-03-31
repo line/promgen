@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from promgen import models, tests
 from promgen.notification.email import NotificationEmail
-from promgen.notification.ikasan import NotificationIkasan
+from promgen.notification.linenotify import NotificationLineNotify
 from promgen.notification.user import NotificationUser
 
 TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
@@ -30,7 +30,7 @@ class UserEmailTest(tests.PromgenTest):
 
         models.Sender.objects.create(
             obj=self.user,
-            sender=NotificationIkasan.__module__,
+            sender=NotificationLineNotify.__module__,
             value='#foo'
         )
 
@@ -52,5 +52,5 @@ class UserEmailTest(tests.PromgenTest):
 
         # Since we test the specifics elsewhere, just want to check
         # the count of calls here
-        self.assertEqual(mock_post.call_count, 1, 'Called Email')
-        self.assertEqual(mock_email.call_count, 1, 'Called Ikasan')
+        self.assertEqual(mock_post.call_count, 1, 'Called LINE Notify')
+        self.assertEqual(mock_email.call_count, 1, 'Called email')
