@@ -34,7 +34,7 @@ help:
 
 ${PIP_BIN}:
 	python3 -m venv .venv
-	${PIP_BIN} install -U pip
+	${PIP_BIN} install -U pip setuptools
 
 ${APP_BIN}: ${PIP_BIN}
 	${PIP_BIN} install -r docker/requirements.txt

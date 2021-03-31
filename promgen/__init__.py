@@ -24,10 +24,14 @@ if PROMGEN_CONFIG_DIR.exists():
 
 
 if "SECRET_KEY" not in os.environ:
-    from django.utils.crypto import get_random_string
-    import warnings
+    try:
+        from django.utils.crypto import get_random_string
+        import warnings
 
-    warnings.warn("Unset SECRET_KEY setting to random for now")
-    os.environ["SECRET_KEY"] = get_random_string(
-        50, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
-    )
+        warnings.warn("Unset SECRET_KEY setting to random for now")
+        os.environ["SECRET_KEY"] = get_random_string(
+            50, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)"
+        )
+    except ImportError:
+        pass
+
