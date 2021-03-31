@@ -48,14 +48,7 @@ class WebhookTest(tests.PromgenTest):
         self.assertEqual(mock_post.call_count, 2, "Two alerts should be sent")
 
         # Our sample is the same as the original, with some annotations added
-        _SAMPLE = tests.Data("examples", "alertmanager.json").json()
-        _SAMPLE["externalURL"] = "http://example.com/alert/11"
-        _SAMPLE["commonAnnotations"]["service"] = (
-            "http://example.com" + self.service.get_absolute_url()
-        )
-        _SAMPLE["commonAnnotations"]["project"] = (
-            "http://example.com" + self.project.get_absolute_url()
-        )
+        _SAMPLE = tests.Data("notification", "webhook.json").json()
 
         mock_post.assert_has_calls(
             [
