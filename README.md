@@ -5,7 +5,9 @@ Promgen is a configuration file generator for [Prometheus](http://prometheus.io)
 - Create and manage Prometheus configuration files
 - Configure alert rules and notification options
 
-See the [Promgen introduction slides](http://www.slideshare.net/tokuhirom/promgen-prometheus-managemnet-tool-simpleclientjava-hacks-prometheus-casual) for more details.
+See the [Promgen introduction slides](http://www.slideshare.net/tokuhirom/promgen-prometheus-managemnet-tool-simpleclientjava-hacks-prometheus-casual) for the original history of Promgen.
+
+See https://line.github.io/promgen/ for additional documentation.
 
 ## Promgen screenshots
 
