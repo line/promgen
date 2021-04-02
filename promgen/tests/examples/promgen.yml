@@ -22,7 +22,5 @@ alertmanager:
 # These match the module path of the plugin itself
 promgen.notification.email:
   sender: promgen@example.com
-promgen.notification.ikasan:
-  server: http://ikasan.example
 promgen.notification.linenotify:
   server: https://notify.example
