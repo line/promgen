@@ -112,7 +112,7 @@ urlpatterns = [
 
     path('api/v1/targets', csrf_exempt(views.ApiConfig.as_view()), name='config-targets'),
     path('api/v1/urls', csrf_exempt(views.URLConfig.as_view()), name='config-urls'),
-    path('api/v1/alerts', csrf_exempt(views.Alert.as_view()), name='alert'),
+    path('api/v1/alerts', csrf_exempt(rest.AlertReceiver.as_view()), name='alert'),
     path('api/v1/host/<slug>', views.HostDetail.as_view()),
 
     # Prometheus Proxy

@@ -4,7 +4,7 @@
 
 from django.test import override_settings
 
-from promgen import models, tests, views
+from promgen import models, rest, tests
 
 
 class RestAPITest(tests.PromgenTest):
@@ -12,7 +12,7 @@ class RestAPITest(tests.PromgenTest):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert_blackhole(self):
         response = self.fireAlert("heartbeat.json")
-        self.assertRoute(response, views.Alert, 202)
+        self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 0, "Heartbeat alert should be deleted")
 
     @override_settings(PROMGEN=tests.SETTINGS)

@@ -5,7 +5,7 @@ from unittest import mock
 
 from django.test import override_settings
 
-from promgen import models, tests, views
+from promgen import models, rest, tests
 from promgen.notification.webhook import NotificationWebhook
 
 
@@ -31,7 +31,7 @@ class WebhookTest(tests.PromgenTest):
     def test_webhook(self, mock_post):
         response = self.fireAlert()
 
-        self.assertRoute(response, views.Alert, 202)
+        self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 2, "Two alerts should be sent")
 
@@ -63,7 +63,7 @@ class WebhookTest(tests.PromgenTest):
         self.assertCount(models.Filter, 3, "Should be three filters")
 
         response = self.fireAlert()
-        self.assertRoute(response, views.Alert, 202)
+        self.assertRoute(response, rest.AlertReceiver, 202)
 
         self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 1, "One notification should be skipped")
@@ -79,7 +79,7 @@ class WebhookTest(tests.PromgenTest):
 
         response = self.fireAlert()
 
-        self.assertRoute(response, views.Alert, 202)
+        self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 2, "Two posts should be attempted")
         self.assertCount(models.AlertError, 2, "Two errors should be logged")

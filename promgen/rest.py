@@ -6,8 +6,20 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from django.http import HttpResponse
+from django.views.generic import View
 
-from promgen import filters, models, prometheus, renderers, serializers
+from promgen import filters, models, prometheus, renderers, serializers, tasks
+
+
+class AlertReceiver(View):
+    def post(self, request, *args, **kwargs):
+        # Normally it would be more 'correct' to check our 'alert_blacklist' here and avoid
+        # writing to the database, but to keep the alert ingestion queue as simple as possible
+        # we will go ahead and write all alerts to the database and then filter out (delete)
+        # when we run tasks.process_alert
+        alert = models.Alert.objects.create(body=request.body.decode("utf-8"))
+        tasks.process_alert.delay(alert.pk)
+        return HttpResponse("OK", status=202)
 
 
 class AllViewSet(viewsets.ViewSet):
