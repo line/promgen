@@ -73,13 +73,13 @@
   <div class="panel{% if project.pk %} panel-danger collapse{% else %} panel-primary{% endif %}" id="shard-selector">
     <table class="table">
       <tr>
-        <th>Shard</th>
+        <th>Datasource</th>
         <th>&nbsp;</th>
         <th>Samples</th>
         <th>Exporters</th>
       </tr>
       {% for shard in shard_list|dictsort:'name' %}
-      <tr {% if shard.enabled is False %}class="text-muted" title="Shard disabled for new registrations" {% endif %}>
+      <tr {% if shard.enabled is False %}class="text-muted" title="Datasource disabled for new registrations" {% endif %}>
         <th>{{shard.name}}</th>
         <td>
           <input type="radio" name="shard" value="{{shard.id}}" {% if shard.id == form.shard.value %}checked{% elif shard.enabled is False %}disabled{% endif %}>

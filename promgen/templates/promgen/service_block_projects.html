@@ -5,7 +5,7 @@
 {% for shard, shard_projects in project_shard_list %}
 <div class="panel panel-default">
     <div class="panel-heading">
-        Shard
+        Datasource
         <a href="{{shard.get_absolute_url}}">{{shard.name}}</a>
         ( <a href="{{shard.url}}">{{shard.url}}</a> )
         <a href="{% url 'project-new' service.id %}?shard={{shard.id}}" class="btn btn-primary btn-xs pull-right">{% trans "Register Project" %}</a>
