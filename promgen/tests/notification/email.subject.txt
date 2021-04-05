@@ -1,1 +1,1 @@
-[firing] test.alert test.project test.service major
+[firing] test-alert test-project test-service major

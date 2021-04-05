@@ -1,1 +1,1 @@
-[resolved] test.alert other.service major
+[resolved] test-alert other-service major
