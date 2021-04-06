@@ -172,9 +172,9 @@ class AlertAdmin(admin.ModelAdmin):
     readonly_fields = ('created', '_json')
     ordering = ('-created',)
 
+    @admin.display(description="json")
     def _json(self, instance):
         return format_html('<pre>{}</pre>', json.dumps(instance.json, indent=2))
-    _json.short_description = "json"
 
     def has_add_permission(self, request, obj=None):
         return False
