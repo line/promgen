@@ -37,6 +37,11 @@ class NotificationSlack(NotificationBase):
     form = FormSlack
 
     def _send(self, url, data):
+        proxies = {
+            'http': self.config('proxies'),
+            'https': self.config('proxies'),
+        }
+        
         if data['status'] == 'resolved':
             message = self.render('promgen/sender/slack.resolved.txt', data)
         else:
@@ -46,4 +51,11 @@ class NotificationSlack(NotificationBase):
             'text': message,
         }
 
-        util.post(url, json=json).raise_for_status()
+        if proxies is None:
+            logger.info('Notifying Slack without proxy')
+            util.post(url, json=json).raise_for_status()
+        else:
+            logger.info('Notifying Slack using proxy')
+            util.post(url, json=json, proxies=proxies).raise_for_status()
+            
+        
