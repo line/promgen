@@ -62,6 +62,6 @@ class NotificationBase(object):
     def render(self, template, context):
         s = render_to_string(template, context).strip()
         # Uncomment to re-generate test templates
-        # with open(template.replace('sender', 'tests/notifications'), 'w+') as fp:
+        # with open(template.replace('sender', 'tests/notification'), 'w+') as fp:
         #     fp.write(s)
         return s

@@ -12,11 +12,11 @@ from promgen import models, prometheus, tests, views
 
 _RULE_V2 = '''
 groups:
-- name: example.com
+- name: promgen.example.com
   rules:
   - alert: RuleName
     annotations:
-      rule: https://example.com/rule/%d
+      rule: https://promgen.example.com/rule/%d
       summary: Test case
     expr: up==0
     for: 1s
@@ -28,6 +28,8 @@ TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
 
 
 class RuleTest(tests.PromgenTest):
+    fixtures = ["testcases.yaml"]
+
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
         self.user = self.add_force_login(id=999, username="Foo")
