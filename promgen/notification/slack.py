@@ -37,10 +37,10 @@ class NotificationSlack(NotificationBase):
     form = FormSlack
 
     def _send(self, url, data):
-        
+        kwargs = {}
         proxy = self.config('proxies')
         if proxy is not None and proxy != "":
-            proxies = {
+            kwargs['proxies'] = {
                 'http': proxy,
                 'https': proxy,
             }
