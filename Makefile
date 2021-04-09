@@ -99,7 +99,7 @@ load: ${APP_BIN}
 #### Documentation
 
 ${SPHINX}: ${PIP_BIN}
-	${PIP_BIN} install .[dev,docs]
+	${PIP_BIN} install -e .[dev,docs]
 
 .PHONY: docs
 ## Sphinx: Build documentation
