@@ -219,3 +219,5 @@ except ImportError:
 # Load overrides from PROMGEN to replace Django settings
 for k, v in PROMGEN.pop('django', {}).items():
     globals()[k] = v
+
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
