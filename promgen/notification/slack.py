@@ -54,10 +54,5 @@ class NotificationSlack(NotificationBase):
             'text': message,
         }
          
-        if proxy is not None and proxy != "":
-            logger.info('Notifying Slack using proxy')
-            util.post(url, json=json, proxies=proxies).raise_for_status()
-        else:
-            logger.info('Notifying Slack without proxy')
-            util.post(url, json=json).raise_for_status()
+        util.post(url, json=json, **kwargs).raise_for_status()
         
