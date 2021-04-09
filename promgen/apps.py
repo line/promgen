@@ -53,6 +53,7 @@ def check_site(app_config, **kwargs):
 
 class PromgenConfig(AppConfig):
     name = "promgen"
+    default_auto_field = "django.db.models.AutoField"
 
     def ready(self):
         from promgen import checks, signals  # NOQA
