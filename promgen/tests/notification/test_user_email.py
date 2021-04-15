@@ -33,8 +33,6 @@ class UserSplayTest(tests.PromgenTest):
         # the count of calls here
         self.assertEqual(mock_post.call_count, 1, "Called LINE Notify")
         self.assertEqual(mock_email.call_count, 1, "Called email")
-        alert = models.Alert.objects.first()
-        self.assertEquals(alert.sent_count, 2, "Sent two messages")
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
@@ -52,5 +50,3 @@ class UserSplayTest(tests.PromgenTest):
         self.assertCount(models.Alert, 1, "Alert Queued")
 
         self.assertEqual(mock_email.call_count, 1, "Still called email")
-        alert = models.Alert.objects.first()
-        self.assertEquals(alert.sent_count, 1, "Sent one and skipped one message")
