@@ -17,21 +17,9 @@ class EmailTest(tests.PromgenTest):
         one = models.Project.objects.get(pk=1)
         two = models.Project.objects.get(pk=2)
 
-        models.Sender.objects.create(
-            obj=one,
-            sender=NotificationEmail.__module__,
-            value="example@example.com",
-        )
-        models.Sender.objects.create(
-            obj=one,
-            sender=NotificationEmail.__module__,
-            value="foo@example.com",
-        )
-        models.Sender.objects.create(
-            obj=two,
-            sender=NotificationEmail.__module__,
-            value="bar@example.com",
-        )
+        NotificationEmail.create(obj=one, value="example@example.com")
+        NotificationEmail.create(obj=one, value="foo@example.com")
+        NotificationEmail.create(obj=two, value="bar@example.com")
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

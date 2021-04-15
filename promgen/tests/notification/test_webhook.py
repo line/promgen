@@ -17,16 +17,11 @@ class WebhookTest(tests.PromgenTest):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=1)
 
-        self.senderA = models.Sender.objects.create(
-            obj=one,
-            sender=NotificationWebhook.__module__,
-            value="http://webhook.example.com/project",
+        self.senderA = NotificationWebhook.create(
+            obj=one, value="http://webhook.example.com/project"
         )
-
-        self.senderB = models.Sender.objects.create(
-            obj=two,
-            sender=NotificationWebhook.__module__,
-            value="http://webhook.example.com/service",
+        self.senderB = NotificationWebhook.create(
+            obj=two, value="http://webhook.example.com/service"
         )
 
     @override_settings(PROMGEN=tests.SETTINGS)
@@ -59,17 +54,11 @@ class WebhookTest(tests.PromgenTest):
     @mock.patch("promgen.util.post")
     def test_filter(self, mock_post):
         # Our first sender will only allow critical messages
-        models.Filter.objects.create(
-            sender=self.senderA, name="severity", value="critical"
-        )
+        self.senderA.filter_set.create(name="severity", value="critical")
 
         # Our second sender allows critical and major
-        models.Filter.objects.create(
-            sender=self.senderB, name="severity", value="critical"
-        )
-        models.Filter.objects.create(
-            sender=self.senderB, name="severity", value="major"
-        )
+        self.senderB.filter_set.create(name="severity", value="critical")
+        self.senderB.filter_set.create(name="severity", value="major")
 
         self.assertCount(models.Filter, 3, "Should be three filters")
 

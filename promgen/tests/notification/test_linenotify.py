@@ -17,17 +17,8 @@ class LineNotifyTest(tests.PromgenTest):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=2)
 
-        models.Sender.objects.create(
-            obj=one,
-            sender=NotificationLineNotify.__module__,
-            value="hogehoge",
-        )
-
-        models.Sender.objects.create(
-            obj=two,
-            sender=NotificationLineNotify.__module__,
-            value="asdfasdf",
-        )
+        NotificationLineNotify.create(obj=one, value="hogehoge")
+        NotificationLineNotify.create(obj=two, value="asdfasdf")
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
