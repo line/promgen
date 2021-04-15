@@ -33,14 +33,14 @@ class LineNotifyTest(tests.PromgenTest):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch("promgen.util.post")
     def test_line_notify(self, mock_post):
-        self.testAlert()
+        self.fireAlert()
 
         # Swap the status to test our resolved alert
         SAMPLE = tests.Data("examples", "alertmanager.json").json()
         SAMPLE["status"] = "resolved"
         SAMPLE["commonLabels"]["service"] = "other-service"
         SAMPLE["commonLabels"].pop("project")
-        self.testAlert(data=SAMPLE)
+        self.fireAlert(data=SAMPLE)
 
         _MESSAGE = tests.Data("notification", "linenotify.body.txt").raw().strip()
         _RESOLVED = tests.Data("notification", "linenotify.resolved.txt").raw().strip()

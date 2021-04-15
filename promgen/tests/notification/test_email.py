@@ -37,7 +37,7 @@ class EmailTest(tests.PromgenTest):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch("promgen.notification.email.send_mail")
     def test_email(self, mock_email):
-        self.testAlert()
+        self.fireAlert()
 
         _SUBJECT = tests.Data("notification", "email.subject.txt").raw().strip()
         _MESSAGE = tests.Data("notification", "email.body.txt").raw().strip()

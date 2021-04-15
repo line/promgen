@@ -28,7 +28,7 @@ class Data:
 
 
 class PromgenTest(TestCase):
-    def testAlert(self, source="alertmanager.json", data=None):
+    def fireAlert(self, source="alertmanager.json", data=None):
         if data is None:
             data = Data("examples", source).raw()
 

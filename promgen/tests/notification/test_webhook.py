@@ -34,7 +34,7 @@ class WebhookTest(tests.PromgenTest):
     @override_settings(CELERY_TASK_EAGER_PROPAGATES=True)
     @mock.patch("promgen.util.post")
     def test_webhook(self, mock_post):
-        response = self.testAlert()
+        response = self.fireAlert()
 
         self.assertRoute(response, views.Alert, 202)
         self.assertCount(models.Alert, 1, "Alert should be queued")
@@ -73,7 +73,7 @@ class WebhookTest(tests.PromgenTest):
 
         self.assertCount(models.Filter, 3, "Should be three filters")
 
-        response = self.testAlert()
+        response = self.fireAlert()
         self.assertRoute(response, views.Alert, 202)
 
         self.assertCount(models.Alert, 1, "Alert should be queued")
@@ -88,7 +88,7 @@ class WebhookTest(tests.PromgenTest):
         # properly updated and some errors should be logged to be viewed later
         mock_post.side_effect = Exception("Boom!")
 
-        response = self.testAlert()
+        response = self.fireAlert()
 
         self.assertRoute(response, views.Alert, 202)
         self.assertCount(models.Alert, 1, "Alert should be queued")

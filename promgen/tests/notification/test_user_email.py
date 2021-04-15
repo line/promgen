@@ -25,7 +25,7 @@ class UserSplayTest(tests.PromgenTest):
         NotificationLineNotify.create(obj=one.owner, value="#foo")
         NotificationEmail.create(obj=one.owner, value="foo@bar.example")
 
-        self.testAlert()
+        self.fireAlert()
 
         # Since we test the specifics elsewhere, just want to check
         # the count of calls here
@@ -43,6 +43,6 @@ class UserSplayTest(tests.PromgenTest):
         NotificationEmail.create(obj=one, value="foo@bar.example")
         NotificationUser.create(obj=one, value="does not exist")
 
-        self.testAlert()
+        self.fireAlert()
 
         self.assertEqual(mock_email.call_count, 1, "Still called email")
