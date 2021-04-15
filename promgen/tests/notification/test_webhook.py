@@ -42,6 +42,8 @@ class WebhookTest(tests.PromgenTest):
 
         # Our sample is the same as the original, with some annotations added
         _SAMPLE = tests.Data("notification", "webhook.json").json()
+        # External URL is depended on test order
+        _SAMPLE["externalURL"] = mock.ANY
 
         mock_post.assert_has_calls(
             [
