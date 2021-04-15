@@ -7,7 +7,7 @@ import textwrap
 from django import forms
 from django.template.loader import render_to_string
 
-from promgen import plugins, util
+from promgen import models, plugins, util
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +30,10 @@ class NotificationBase(object):
     '''
 
     form = FormSenderBase
+
+    @classmethod
+    def create(cls, **kwargs) -> models.Sender:
+        return models.Sender.objects.create(sender=cls.__module__, **kwargs)
 
     @classmethod
     def help(cls):
