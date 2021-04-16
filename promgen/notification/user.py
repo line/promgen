@@ -37,9 +37,13 @@ class NotificationUser(NotificationBase):
     form = FormUser
 
     def splay(self, address):
-        user = User.objects.get(username=address)
-        for sender in models.Sender.objects.filter(obj=user):
-            yield sender
+        try:
+            user = User.objects.get(username=address)
+        except User.DoesNotExist:
+            logger.error("Missing user %s", address)
+        else:
+            for sender in models.Sender.objects.filter(obj=user):
+                yield sender
 
     def _send(self, address, data):
         user = User.objects.get(username=address)
