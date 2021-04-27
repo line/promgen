@@ -1,8 +1,6 @@
 FROM python:3.6.9-alpine
 LABEL maintainer=paul.traylor@linecorp.com
 
-ENV PROMETHEUS_VERSION 2.11.1
-ENV PROMETHEUS_DOWNLOAD_URL https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PIP_NO_CACHE_DIR off
@@ -27,17 +25,13 @@ RUN set -ex \
     && pip install --no-cache-dir psycopg2-binary \
     && apk del build-deps
 
-# Install Prometheus Binary
-RUN set -ex \
-    && apk add --no-cache --virtual build-deps curl tar \
-    && curl -L -s $PROMETHEUS_DOWNLOAD_URL \
-    | tar -xz -C /usr/local/bin --strip-components=1 prometheus-${PROMETHEUS_VERSION}.linux-amd64/promtool \
-    && apk del build-deps
-
 RUN mkdir -p /etc/prometheus; \
     mkdir -p /etc/promgen; \
     mkdir -p /usr/src/app; \
     chown promgen /etc/prometheus
+
+# Get needed prometheus binaries
+COPY --from=prom/prometheus:v2.26.0 /bin/promtool /usr/local/bin/promtool
 
 COPY docker/requirements.txt /tmp/requirements.txt
 

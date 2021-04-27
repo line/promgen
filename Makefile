@@ -3,6 +3,7 @@ lessopts="--tabs=4 --quit-if-one-screen --RAW-CONTROL-CHARS --no-init"
 APP_BIN := .venv/bin/promgen
 PIP_BIN := .venv/bin/pip
 SPHINX  := .venv/bin/sphinx-build
+DOCKER_TAG := promgen:local
 
 # Help 'function' taken from
 # https://gist.github.com/prwhite/8168133#gistcomment-2278355
@@ -46,7 +47,7 @@ pip: ${PIP_BIN}
 .PHONY: build
 ## Docker: Bulid container
 build:
-	docker-compose build base
+	docker build . --tag ${DOCKER_TAG}
 
 .PHONY: demo
 ## Docker: Run a demo via docker-compose
