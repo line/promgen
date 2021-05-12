@@ -47,7 +47,7 @@ class NotificationUser(NotificationBase):
 
     def _send(self, address, data):
         user = User.objects.get(username=address)
-        for sender in models.Sender.objects.filter(obj=user):
+        for sender in models.Sender.objects.filter(obj=user, enabled=True):
             try:
                 sender.driver._send(sender.value, data)
             except:
