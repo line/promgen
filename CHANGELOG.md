@@ -1,6 +1,15 @@
 # Changelog
 
-# v0.51 - Unreleased
+# v0.51 - 2021-05-21
+
+- [BUGFIX] Ensure that our splay query cannot fail on DoesNotExist #340
+- [BUGFIX] User notifier should only return enabled senders #345
+- [CHANGE] Remove ikasan notifier #331
+- [CHANGE] Stubs for including extra help information #333
+- [CHANGE] Rename "Shard" to "Datasource" #309
+- [DOCUMENTATION] Use Github pages for canonical documentation #332
+- [IMPROVEMENT] Allow custom proxy for Slack notifier #336
+- [INTERNAL] Upgrade to Django 3.2 #338
 
 # v0.50 - 2021-03-03
 
