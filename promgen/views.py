@@ -1015,17 +1015,6 @@ class URLConfig(View):
         return HttpResponse('OK', status=202)
 
 
-class Alert(View):
-    def post(self, request, *args, **kwargs):
-        # Normally it would be more 'correct' to check our 'alert_blacklist' here and avoid
-        # writing to the database, but to keep the alert ingestion queue as simple as possible
-        # we will go ahead and write all alerts to the database and then filter out (delete)
-        # when we run tasks.process_alert
-        alert = models.Alert.objects.create(body=request.body.decode("utf-8"))
-        tasks.process_alert.delay(alert.pk)
-        return HttpResponse("OK", status=202)
-
-
 class AlertList(LoginRequiredMixin, ListView):
     paginate_by = 20
     queryset = models.Alert.objects.order_by("-created")

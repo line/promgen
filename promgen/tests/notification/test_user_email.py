@@ -5,7 +5,7 @@ from unittest import mock
 
 from django.test import override_settings
 
-from promgen import models, tests, views
+from promgen import models, rest, tests
 from promgen.notification.email import NotificationEmail
 from promgen.notification.linenotify import NotificationLineNotify
 from promgen.notification.user import NotificationUser
@@ -26,7 +26,7 @@ class UserSplayTest(tests.PromgenTest):
         NotificationEmail.create(obj=one.owner, value="foo@bar.example")
 
         response = self.fireAlert()
-        self.assertRoute(response, views.Alert, 202)
+        self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 1, "Alert Queued")
 
         # Since we test the specifics elsewhere, just want to check
@@ -46,7 +46,7 @@ class UserSplayTest(tests.PromgenTest):
         NotificationUser.create(obj=one, value="does not exist")
 
         response = self.fireAlert()
-        self.assertRoute(response, views.Alert, 202)
+        self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 1, "Alert Queued")
 
         self.assertEqual(mock_email.call_count, 1, "Still called email")
