@@ -1,5 +1,7 @@
 # Changelog
 
+# v0.52 - Unreleased
+
 # v0.51 - 2021-05-21
 
 - [BUGFIX] Ensure that our splay query cannot fail on DoesNotExist #340
