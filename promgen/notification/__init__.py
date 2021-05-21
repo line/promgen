@@ -50,7 +50,7 @@ class NotificationBase(object):
         """
         raise NotImplementedError()
 
-    def config(self, key):
+    def config(self, key, default=KeyError):
         """
         Plugin specific configuration
 
@@ -59,13 +59,9 @@ class NotificationBase(object):
         the specific key.
         """
         try:
-            return util.setting(key, domain=self.__module__)
-        except KeyError:
-            logger.error(
-                "Undefined setting. Please check for %s under %s in settings.yml",
-                key,
-                self.__module__,
-            )
+            return util.setting(key, default=default, domain=self.__module__)
+        except KeyError as e:
+            raise KeyError(f"Missing key for domain: {self.__module__} {key}") from e
 
     def render(self, template, context):
         s = render_to_string(template, context).strip()
