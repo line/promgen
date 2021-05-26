@@ -38,19 +38,24 @@ def setting(key, default=None, domain=None):
 
     Allows a simple way to query settings from YAML
     using the style `path:to:key` to represent
-    
+
     path:
       to:
         key: value
     """
     rtn = settings.PROMGEN
+    lookup = key.split(":")
+
     if domain:
-        rtn = rtn[domain]
-    for index in key.split(":"):
+        lookup.insert(0, domain)
+
+    for index in lookup:
         try:
             rtn = rtn[index]
         except KeyError:
-            return default
+            if default != KeyError:
+                return default
+            raise KeyError(f"Missing required setting: {key}")
     return rtn
 
 
