@@ -3,6 +3,8 @@
 
 from unittest import mock
 
+from requests.exceptions import RequestException
+
 from django.test import override_settings
 
 from promgen import models, rest, tests
@@ -75,7 +77,7 @@ class WebhookTest(tests.PromgenTest):
     def test_failure(self, mock_post):
         # When our post results in a failure, then our error_count should be
         # properly updated and some errors should be logged to be viewed later
-        mock_post.side_effect = Exception("Boom!")
+        mock_post.side_effect = RequestException("Boom!")
 
         response = self.fireAlert()
 
