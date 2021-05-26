@@ -32,8 +32,9 @@ class WebhookTest(tests.PromgenTest):
     @mock.patch("promgen.util.post")
     def test_webhook(self, mock_post):
         response = self.fireAlert()
-
         self.assertRoute(response, rest.AlertReceiver, 202)
+        self.assertCount(models.AlertError, 0, "No failed alerts")
+
         self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 2, "Two alerts should be sent")
 
@@ -66,7 +67,7 @@ class WebhookTest(tests.PromgenTest):
 
         response = self.fireAlert()
         self.assertRoute(response, rest.AlertReceiver, 202)
-
+        self.assertCount(models.AlertError, 0, "No failed alerts")
         self.assertCount(models.Alert, 1, "Alert should be queued")
         self.assertEqual(mock_post.call_count, 1, "One notification should be skipped")
 
@@ -80,11 +81,10 @@ class WebhookTest(tests.PromgenTest):
         mock_post.side_effect = RequestException("Boom!")
 
         response = self.fireAlert()
-
         self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 1, "Alert should be queued")
-        self.assertEqual(mock_post.call_count, 2, "Two posts should be attempted")
         self.assertCount(models.AlertError, 2, "Two errors should be logged")
+        self.assertEqual(mock_post.call_count, 2, "Two posts should be attempted")
 
         alert = models.Alert.objects.first()
         self.assertEqual(alert.sent_count, 0, "No successful sent")

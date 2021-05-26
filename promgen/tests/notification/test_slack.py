@@ -5,7 +5,7 @@ from unittest import mock
 
 from django.test import override_settings
 
-from promgen import models, tests
+from promgen import models, rest, tests
 from promgen.notification.slack import NotificationSlack
 
 
@@ -31,14 +31,18 @@ class SlackTest(tests.PromgenTest):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch("promgen.util.post")
     def test_slack(self, mock_post):
-        self.fireAlert()
+        response = self.fireAlert()
+        self.assertRoute(response, rest.AlertReceiver, 202)
+        self.assertCount(models.AlertError, 0)
 
         # Swap the status to test our resolved alert
         SAMPLE = tests.Data("examples", "alertmanager.json").json()
         SAMPLE["status"] = "resolved"
         SAMPLE["commonLabels"]["service"] = "other-service"
         SAMPLE["commonLabels"].pop("project")
-        self.fireAlert(data=SAMPLE)
+        response = self.fireAlert(data=SAMPLE)
+        self.assertRoute(response, rest.AlertReceiver, 202)
+        self.assertCount(models.AlertError, 0)
 
         _MESSAGE = tests.Data("notification", "slack.body.txt").raw().strip()
         _RESOLVED = tests.Data("notification", "slack.resolved.txt").raw().strip()
