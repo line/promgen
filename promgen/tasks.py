@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 
 from atomicwrites import atomic_write
 from celery import shared_task
+from requests.exceptions import RequestException
 
 from promgen import models, prometheus, util, notification
 
@@ -66,11 +67,11 @@ def process_alert(alert_pk):
 
     for driver in senders:
         for target in senders[driver]:
-            send_alert.delay(driver, target, data, alert.pk)
+            send_notification.delay(driver, target, data, alert_pk=alert.pk)
 
 
 @shared_task
-def send_alert(sender, target, data, alert_pk=None):
+def send_alert(sender, target, data):
     """
     Send alert to specific target
 
@@ -80,23 +81,36 @@ def send_alert(sender, target, data, alert_pk=None):
     handle it
     """
     logger.debug("Sending %s %s", sender, target)
+
     try:
         notifier = notification.load(sender)
         notifier._send(target, data)
     except ImportError:
         logging.exception("Error loading plugin %s", sender)
-        if alert_pk is None:
-            raise
+        raise
+    except RequestException:
+        logging.exception("Error sending notification %s", sender)
+        raise
+    except Exception:
+        logging.exception("Unknown Error")
+        raise
+
+
+@shared_task
+def send_notification(*args, alert_pk, **kwargs):
+    """
+    Send notification to target
+
+    This wraps send_alert, but wraps it so that we can keep track
+    of the number of sent and error counts
+    """
+    try:
+        send_alert(*args, **kwargs)
     except Exception as e:
-        logging.exception("Error sending notification")
-        if alert_pk:
-            util.inc_for_pk(models.Alert, pk=alert_pk, error_count=1)
-            models.AlertError.objects.create(alert_id=alert_pk, message=str(e))
-        else:
-            raise
+        util.inc_for_pk(models.Alert, pk=alert_pk, error_count=1)
+        models.AlertError.objects.create(alert_id=alert_pk, message=str(e))
     else:
-        if alert_pk:
-            util.inc_for_pk(models.Alert, pk=alert_pk, sent_count=1)
+        util.inc_for_pk(models.Alert, pk=alert_pk, sent_count=1)
 
 
 @shared_task

@@ -38,8 +38,8 @@ class NotificationSlack(NotificationBase):
 
     def _send(self, url, data):
         kwargs = {}
-        proxy = self.config('proxies')
-        if proxy is not None and proxy != "":
+        proxy = self.config("proxies", default=None)
+        if proxy:
             kwargs['proxies'] = {
                 'http': proxy,
                 'https': proxy,

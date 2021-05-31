@@ -28,6 +28,7 @@ class UserSplayTest(tests.PromgenTest):
         response = self.fireAlert()
         self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 1, "Alert Queued")
+        self.assertCount(models.AlertError, 0, "No failed alerts")
 
         # Since we test the specifics elsewhere, just want to check
         # the count of calls here
@@ -48,5 +49,6 @@ class UserSplayTest(tests.PromgenTest):
         response = self.fireAlert()
         self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 1, "Alert Queued")
+        self.assertCount(models.AlertError, 0, "No failed alerts")
 
         self.assertEqual(mock_email.call_count, 1, "Still called email")

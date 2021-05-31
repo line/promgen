@@ -5,7 +5,7 @@ from unittest import mock
 
 from django.test import override_settings
 
-from promgen import models, tests
+from promgen import models, rest, tests
 from promgen.notification.email import NotificationEmail
 
 
@@ -25,7 +25,9 @@ class EmailTest(tests.PromgenTest):
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch("promgen.notification.email.send_mail")
     def test_email(self, mock_email):
-        self.fireAlert()
+        response = self.fireAlert()
+        self.assertRoute(response, rest.AlertReceiver, 202)
+        self.assertCount(models.AlertError, 0, "No failed alerts")
 
         _SUBJECT = tests.Data("notification", "email.subject.txt").raw().strip()
         _MESSAGE = tests.Data("notification", "email.body.txt").raw().strip()
