@@ -23,7 +23,7 @@ pytz==2019.2
 pyyaml==5.4
 redis==3.2.1
 requests-oauthlib==1.2.0
-requests==2.22.0
+requests==2.25.1
 sentry_sdk==0.14.1
 setuptools>=39.2.0
 six==1.12.0
