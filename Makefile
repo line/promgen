@@ -37,13 +37,11 @@ ${PIP_BIN}:
 	${PIP_BIN} install -U pip setuptools
 
 ${APP_BIN}: ${PIP_BIN}
-	${PIP_BIN} install -r docker/requirements.txt
-	${PIP_BIN} install -e .[dev,mysql]
+	${PIP_BIN} install -e .[dev,mysql] -r docker/requirements.txt
 
 .PHONY: pip
 pip: ${PIP_BIN}
-	${PIP_BIN} install -r docker/requirements.txt
-	${PIP_BIN} install -e .[dev,mysql]
+	${PIP_BIN} install -e .[dev,mysql] -r docker/requirements.txt
 
 .PHONY: build
 ## Docker: Bulid container
