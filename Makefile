@@ -116,11 +116,6 @@ clean:
 	@echo Clearing dist files
 	@rm -rf dist
 
-.PHONY: circleci
-## Test circleci configuration locally
-circleci:
-	circleci local execute
-
 .PHONY: changelog
 changelog:
 	git log --color=always --first-parent --pretty='format:%s|%Cgreen%d%Creset' | column -ts '|' | less "$(lessopts)" 
