@@ -77,18 +77,6 @@ def setting(key, default=None, domain=None):
     return rtn
 
 
-class HelpFor:
-    # Wrap a model's lower level api so that we can easily
-    # grab help_text for a specific field
-    # help_text = HelpFor(DjangoModel)
-    # help_test.field_name
-    def __init__(self, model):
-        self.model = model
-
-    def __getattr__(self, name):
-        return self.model._meta.get_field(name).help_text
-
-
 def inc_for_pk(model, pk, **kwargs):
     # key=F('key') + value
     model.objects.filter(pk=pk).update(**{key: F(key) + kwargs[key] for key in kwargs})
