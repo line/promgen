@@ -636,7 +636,7 @@ class ExporterScrape(LoginRequiredMixin, View):
                 for host in farm.host_set.all():
                     futures.append(
                         executor.submit(
-                            util.get,
+                            util.scrape,
                             "{scheme}://{host}:{port}{path}".format(
                                 host=host.name, **data
                             ),
