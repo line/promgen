@@ -46,7 +46,7 @@ def scrape(url, params=None, **kwargs):
     headers = kwargs.setdefault("headers", {})
     headers["Accept"] = ACCEPT_HEADER
     headers["User-Agent"] = USER_AGENT
-    headers["X-Prometheus-Scrape-Timeout-Seconds"] = 10.0
+    headers["X-Prometheus-Scrape-Timeout-Seconds"] = "10.0"
     return requests.get(url, params=params, **kwargs)
 
 
