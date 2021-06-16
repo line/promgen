@@ -78,7 +78,7 @@ class RouteTests(tests.PromgenTest):
         response = self.client.get(reverse("host-list"))
         self.assertRoute(response, views.HostList, 200)
 
-    @mock.patch("promgen.util.get")
+    @mock.patch("requests.get")
     def test_scrape(self, mock_get):
         shard = models.Shard.objects.create(name="test_scrape_shard")
         service = models.Service.objects.create(name="test_scrape_service")

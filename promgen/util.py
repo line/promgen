@@ -3,7 +3,7 @@
 
 import argparse
 
-import requests.sessions
+import requests
 
 from django.conf import settings
 from django.db.models import F
@@ -14,22 +14,40 @@ from promgen.version import __version__
 # https://github.com/requests/requests/blob/master/requests/api.py
 
 
+USER_AGENT = "promgen/{}".format(__version__)
+ACCEPT_HEADER = "application/openmetrics-text; version=0.0.1,text/plain;version=0.0.4;q=0.5,*/*;q=0.1"
+
+
 def post(url, data=None, json=None, **kwargs):
-    with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
-        return session.post(url, data=data, json=json, **kwargs)
+    headers = kwargs.setdefault("headers", {})
+    headers["User-Agent"] = USER_AGENT
+    return requests.post(url, data=data, json=json, **kwargs)
 
 
 def get(url, params=None, **kwargs):
-    with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
-        return session.get(url, params=params, **kwargs)
+    headers = kwargs.setdefault("headers", {})
+    headers["User-Agent"] = USER_AGENT
+    return requests.get(url, params=params, **kwargs)
 
 
 def delete(url, **kwargs):
-    with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
-        return session.delete(url, **kwargs)
+    headers = kwargs.setdefault("headers", {})
+    headers["User-Agent"] = USER_AGENT
+    return requests.delete(url, **kwargs)
+
+
+def scrape(url, params=None, **kwargs):
+    """
+    Scrape Prometheus target
+
+    Light wrapper around requests.get so that we add required
+    Accept headers that a target might expect
+    """
+    headers = kwargs.setdefault("headers", {})
+    headers["Accept"] = ACCEPT_HEADER
+    headers["User-Agent"] = USER_AGENT
+    headers["X-Prometheus-Scrape-Timeout-Seconds"] = "10.0"
+    return requests.get(url, params=params, **kwargs)
 
 
 def setting(key, default=None, domain=None):
@@ -57,18 +75,6 @@ def setting(key, default=None, domain=None):
                 return default
             raise KeyError(f"Missing required setting: {key}")
     return rtn
-
-
-class HelpFor:
-    # Wrap a model's lower level api so that we can easily
-    # grab help_text for a specific field
-    # help_text = HelpFor(DjangoModel)
-    # help_test.field_name
-    def __init__(self, model):
-        self.model = model
-
-    def __getattr__(self, name):
-        return self.model._meta.get_field(name).help_text
 
 
 def inc_for_pk(model, pk, **kwargs):
@@ -106,3 +112,9 @@ def help_text(klass):
         return klass._meta.get_field(field).help_text
 
     return wrapped
+
+
+# Comment wrappers to get the docstrings from the upstream functions
+get.__doc__ = requests.get.__doc__
+post.__doc__ = requests.post.__doc__
+delete.__doc__ = requests.delete.__doc__
