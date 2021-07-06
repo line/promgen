@@ -181,11 +181,11 @@ class Shard(models.Model):
     )
 
     samples = models.PositiveBigIntegerField(
-        default=0,
+        default=5000000,
         help_text="Estimated Sample Count",
     )
     targets = models.PositiveBigIntegerField(
-        default=0,
+        default=10000,
         help_text="Estimated Target Count",
     )
 
