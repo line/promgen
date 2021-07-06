@@ -75,6 +75,8 @@ docker run --rm -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prome
 
 # Or if using docker-compose you can spin up a complete test environment
 docker-compose up -d
+# Database Migration
+docker-compose run web migrate
 # Create initial user
 docker-compose run web createsuperuser
 ```
