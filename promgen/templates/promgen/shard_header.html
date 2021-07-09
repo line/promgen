@@ -1,8 +1,8 @@
 {% load i18n %}
 <div class="well">
   {% if shard.proxy %}
-  <promql-query class="label" href='{{shard.url}}/api/v1/query' query='sum(scrape_samples_scraped)'>Samples: </promql-query>
-  <promql-query class="label" href='{{shard.url}}/api/v1/query' query='count(up)'>Exporters: </promql-query>
+  <promql-query class="label" href='{{shard.url}}/api/v1/query' query='sum(scrape_samples_scraped)' max="{{shard.samples}}">Samples: </promql-query>
+  <promql-query class="label" href='{{shard.url}}/api/v1/query' query='count(up)' max="{{shard.targets}}">Exporters: </promql-query>
   {% endif %}
 
   {% if user.is_superuser %}

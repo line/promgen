@@ -167,23 +167,38 @@ class Filter(models.Model):
 
 
 class Shard(models.Model):
-    name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
+    name = models.CharField(
+        max_length=128, unique=True, validators=[validators.labelvalue]
+    )
     url = models.URLField(max_length=256)
-    proxy = models.BooleanField(default=False,
-        help_text='Queries can be proxied to these shards')
-    enabled = models.BooleanField(default=True,
-        help_text='Able to register new Services and Projects')
+    proxy = models.BooleanField(
+        default=False,
+        help_text="Queries can be proxied to these shards",
+    )
+    enabled = models.BooleanField(
+        default=True,
+        help_text="Able to register new Services and Projects",
+    )
+
+    samples = models.PositiveBigIntegerField(
+        default=5000000,
+        help_text="Estimated Sample Count",
+    )
+    targets = models.PositiveBigIntegerField(
+        default=10000,
+        help_text="Estimated Target Count",
+    )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def get_absolute_url(self):
-        return reverse('datasource-detail', kwargs={'pk': self.pk})
+        return reverse("datasource-detail", kwargs={"pk": self.pk})
 
     def __str__(self):
         if self.enabled:
             return self.name
-        return self.name + ' (disabled)'
+        return self.name + " (disabled)"
 
 
 class Service(models.Model):

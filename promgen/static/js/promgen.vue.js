@@ -173,42 +173,64 @@ var app = new Vue({
         this.fetchAlerts();
         this.fetchSilences();
     },
-    filters: {
-        urlize: function (value) {
-            return linkifyStr(value);
-        },
-        time: function (value, fmtstr = 'YYYY-MM-DD HH:mm:ss') {
-            return moment(value).format(fmtstr);
-        }
-    }
-})
+});
 
+Vue.filter("localize", function (number) {
+    return number.toLocaleString();
+});
 
-Vue.component('promql-query', {
-    props: ['href', 'query'],
+Vue.filter("percent", function (number) {
+    return (number * 100).toLocaleString() + "%"
+});
+
+Vue.filter("urlize", function (value) {
+    return linkifyStr(value);
+});
+
+Vue.filter("time", function (value, fmtstr = "YYYY-MM-DD HH:mm:ss") {
+    return moment(value).format(fmtstr);
+});
+
+Vue.component("promql-query", {
+    props: ["href", "query", "max"],
     data: function () {
         return {
-            count: 0
-        }
+            count: 0,
+        };
     },
-    template: '<span style="display:none"><slot></slot>{{count}}</span>',
+    computed: {
+        load: function () {
+            return this.count / Number.parseInt(this.max);
+        },
+        classes: function () {
+            if (this.load > 0.9) return "label label-danger";
+            if (this.load > 0.7) return "label label-warning";
+            if (this.load > 0.5) return "label label-info";
+            if (this.count == 0) return "label label-default";
+            return "label label-success";
+        },
+    },
+    template: `
+    <span style="display:none" :title="load|percent" :class="classes">
+        {{count|localize}} <slot></slot>
+    </span>
+    `,
     mounted() {
         var this_ = this;
-        var url = new URL(this.href)
-        url.search = new URLSearchParams({ query: this.query })
+        var url = new URL(this.href);
+        url.search = new URLSearchParams({ query: this.query });
         fetch(url)
             .then(response => response.json())
+            .then(result => Number.parseInt(result.data.result[0].value[1]))
             .then(result => {
-                this_.count = Number.parseInt(result.data.result[0].value[1]).toLocaleString();
-                this_.$el.classList.add('label-info')
+                this_.count = result;
                 this_.$el.style.display = "inline";
             })
             .catch(error => {
-                this_.$el.classList.add('label-warning')
                 this_.$el.style.display = "inline";
-            })
-    }
-})
+            });
+    },
+});
 
 Vue.component('bootstrap-panel', {
     props: ['heading'],
