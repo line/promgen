@@ -59,6 +59,7 @@ demo:
 .PHONY: test
 test: ${APP_BIN}
 ## Django: Run tests
+	${APP_BIN} collectstatic --noinput
 	${APP_BIN} test -v 2
 
 .PHONY: bootstrap

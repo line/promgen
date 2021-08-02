@@ -159,11 +159,21 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
 STATIC_ROOT_DEFAULT = pathlib.Path.home() / ".cache" / "promgen"
 STATIC_ROOT = env.str("STATIC_ROOT", default=str(STATIC_ROOT_DEFAULT))
+
+try:
+    # If whitenoise is not available, we will remove it from our middleware
+    import whitenoise.middleware  # NOQA
+except ImportError:
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+    MIDDLEWARE.remove("whitenoise.middleware.WhiteNoiseMiddleware")
+else:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 SITE_ID = 1
 
@@ -200,12 +210,6 @@ try:
 except Exception:
     CELERY_TASK_ALWAYS_EAGER = True
 
-
-try:
-    # If whitenoise is not available, we will remove it from our middleware
-    import whitenoise.middleware  # NOQA
-except ImportError:
-    MIDDLEWARE.remove('whitenoise.middleware.WhiteNoiseMiddleware')
 
 try:
     # If debug_toolbar is not available, we will remove it from our middleware
