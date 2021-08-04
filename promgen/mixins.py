@@ -21,7 +21,7 @@ class ContentTypeMixin:
 
 class RuleFormMixin:
     # When creating a single object, we want to use the
-    # default form class and delagate to form_valid but
+    # default form class and delegate to form_valid but
     # when we are importing multiple objects, we delegate
     # a form_import class to handle processing
     def post(self, request, content_type, object_id):

@@ -42,7 +42,7 @@ class NotificationBase(object):
 
     def _send(self, target, alert):
         """
-        Sender specific implmentation
+        Sender specific implementation
 
         This function will receive some kind of target value, such as an email
         address or post endpoint and an individual alert combined with some

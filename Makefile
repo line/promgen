@@ -45,7 +45,7 @@ pip: ${PIP_BIN}
 	${PIP_BIN} install -e .[dev,mysql] -r docker/requirements.txt
 
 .PHONY: build
-## Docker: Bulid container
+## Docker: Build container
 build:
 	docker build . --tag ${DOCKER_TAG}
 

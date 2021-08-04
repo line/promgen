@@ -582,7 +582,7 @@ class Audit(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
 
     @property
-    def hilight(self):
+    def highlight(self):
         if self.body.startswith('Created'):
             return 'success'
         if self.body.startswith('Updated'):

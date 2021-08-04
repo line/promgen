@@ -22,7 +22,7 @@ scrape_configs:
       - files:
         - "/etc/prometheus/promgen.json"
     # In an advanced setup, you would want to tell Prometheus to scrape only a
-    # subset of targets where the __shard label should corrispond to the same
+    # subset of targets where the __shard label should correspond to the same
     # shard name within Promgen. This is a bit more fragile than I initially
     # intended it to be and I think I want to make the worker a bit smarter at
     # filtering so that this isn't needed.
