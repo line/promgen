@@ -2,7 +2,7 @@ Prometheus Server
 =================
 
 One of Promgen's primary roles is to manage a list of targets for Prometheus to scrape.
-For high availability, it is generally prefered to have multiple Prometheus servers running together.
+For high availability, it is generally preferred to have multiple Prometheus servers running together.
 There are multiple ways to deploy these targets to a Prometheus server.
 
 Worker Model (Push)
@@ -84,6 +84,6 @@ the correct subset of targets. Ensure that the correct rewrite_labels is configu
       - source_labels: [__shard]
         # Our regex value here should match the shard name (exported as __shard)
         # that shows up in Promgen. In the case we want our Prometheus server to
-        # scrape all targets, then we can ommit the relable config.
+        # scrape all targets, then we can omit the relable config.
         regex: promshard
         action: keep

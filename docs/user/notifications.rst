@@ -2,7 +2,7 @@ Notification Settings
 =====================
 
 Promgen allows the developer to easily subscribe to the notifications they want
-for the servies they use.
+for the services they use.
 
 Subscription
 ------------

@@ -26,7 +26,7 @@ msgid "Test"
 msgstr "テスト"
 
 #: templates/promgen/notifier_block.html:19
-msgid "Delete notificiation?"
+msgid "Delete notification?"
 msgstr "Notificiationを削除しますか？"
 
 #: templates/promgen/notifier_block.html:21

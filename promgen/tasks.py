@@ -30,7 +30,7 @@ def process_alert(alert_pk):
     We load our Alert from the database and expand it to determine which labels are routable
 
     Next we loop through all senders configured and de-duplicate sender:target pairs before
-    queing the notification to actually be sent
+    queueing the notification to actually be sent
     """
     alert = models.Alert.objects.get(pk=alert_pk)
     routable, data = alert.expand()
@@ -75,7 +75,7 @@ def send_alert(sender, target, data):
     """
     Send alert to specific target
 
-    alert_pk is used when quering our alert normally and is missing
+    alert_pk is used when querying our alert normally and is missing
     when we send a test message. In the case we send a test message
     we want to raise any exceptions so that the test function can
     handle it

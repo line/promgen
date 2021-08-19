@@ -144,7 +144,7 @@ def import_rules_v2(config, content_object=None):
     '''
     Loop through a dictionary and add rules to the database
 
-    This assumes a dictonary in the 2.x rule format.
+    This assumes a dictionary in the 2.x rule format.
     See promgen/tests/examples/import.rule.yml for an example
     '''
     # If not already a dictionary, try to load as YAML

@@ -137,7 +137,7 @@ def breadcrumb(instance=None, label=None):
     Create HTML Breadcrumb from instance
 
     Starting with the instance, walk up the tree building a bootstrap3
-    compatiable breadcrumb
+    compatible breadcrumb
     """
     from promgen import models
 

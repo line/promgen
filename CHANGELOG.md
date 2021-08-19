@@ -246,7 +246,7 @@ This first version implements permissions primarily for common, shared rules to 
 ## v0.26 - 2018-03-12
 
 - [BUGFIX] Allow STATIC_ROOT to be configured via Environment
-- [BUGFIX] Fix bytes/string mismatch with outputing rules
+- [BUGFIX] Fix bytes/string mismatch with outputting rules
 - [BUGFIX] Fix error message when registering a duplicate Service
 - [BUGFIX] Fix missing list of exporters on host detail page
 - [BUGFIX] Fix typo in view names
