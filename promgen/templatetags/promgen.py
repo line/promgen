@@ -5,17 +5,18 @@ import collections
 import difflib
 import json
 from datetime import datetime
+from urllib.parse import urlencode
 
 import yaml
 from pytz import timezone
-
-from promgen import util
 
 from django import template
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+
+from promgen import util
 
 register = template.Library()
 
@@ -199,3 +200,17 @@ def qs_replace(context, k, v):
     else:
         dict_.pop(k, None)
     return dict_.urlencode()
+
+
+@register.simple_tag
+def urlqs(view, **kwargs):
+    """
+    Query string aware version of url template
+
+    Instead of using {% url 'view' %}
+    Use {% urlqs 'view' param=value %}
+
+    This is useful for linking to pages that use filters.
+    This only works for views that do not need additional parameters
+    """
+    return reverse(view) + "?" + urlencode(kwargs)

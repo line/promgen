@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load promgen %}
 
 <div class="panel panel-primary">
   <div class="panel-heading">Configuration</div>
@@ -20,7 +21,16 @@
       <button class="btn btn-primary btn-sm">{% trans "Subscribe to Notifications" %}</button>
     </form>
 
-    <a href="{% url 'audit-list'  %}?project={{project.id}}" class="btn btn-info btn-sm">{% trans "Edit History" %}</a>
+    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+      <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {% trans "Change History" %} <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li role="presentation"><a href="{% urlqs 'audit-list' project=project.id  %}">{% trans "Edit History" %}</a></li>
+        <li role="presentation"><a href="{% urlqs 'alert-list' project=project.name %}">{% trans "Alert History" %}</a></li>
+      </ul>
+    </div>
+
     <a href="{% url 'project-update' project.id %}" class="btn btn-warning btn-sm">{% trans "Update Project" %}</a>
     <a @click.prevent="silenceSetLabels" class="btn btn-warning btn-sm" data-project="{{project.name}}" data-service="{{project.service.name}}">{% trans "Silence" %}</a>
 
