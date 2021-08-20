@@ -3,7 +3,7 @@
 {% block content %}
 
 {% for service in service_list %}
-<h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
+{% include "promgen/service_header.html" %}
 {% include "promgen/service_block.html" %}
 {% empty %}
 <h3>No Subscriptions Found</h3>
