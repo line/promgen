@@ -75,29 +75,6 @@ def rulemacro(rule, clause=None):
 
 
 @register.simple_tag
-def qsfilter(request, k, v):
-    '''
-    Helper to rewrite query string for URLs
-
-    {% qsfilter request 'foo' 'baz' %}
-    When passed the request object, it will take a querystring like
-    ?foo=bar&donottouch=1
-    and change it to
-    ?foo=baz&donottouch=1
-
-    Useful when working with filtering on a page that also uses pagination to
-    avoid losing other query strings
-    {% qsfilter request 'page' page_obj.previous_page_number %}
-    '''
-    dict_ = request.GET.copy()
-    if v:
-        dict_[k] = v
-    else:
-        dict_.pop(k, None)
-    return dict_.urlencode()
-
-
-@register.simple_tag
 def diff_json(a, b):
     if isinstance(a, str):
         a = json.loads(a)
