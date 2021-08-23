@@ -1,6 +1,14 @@
 # Changelog
 
-# v0.52 - Unreleased
+# v0.52 - 2021-08-23
+
+- [CHANGES] Notification handling improvements #348
+- [CHANGES] Use ManifestStaticFilesStorage for cache busting #356
+- [DOCUMENTATION] add databse migration command in README.md #358
+- [IMPROVEMENT] Change history dropdown #364
+- [IMPROVEMENT] Fix Codespell errors #362
+- [IMPROVEMENT] Show datasource load with colors #359
+- [IMPROVEMENT] Update scrape to mimic Prometheus headers #357
 
 # v0.51 - 2021-05-21
 
