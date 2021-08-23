@@ -13,7 +13,7 @@
 <li>
   <a
     class="btn btn-danger btn-xs"
-    href="{% url 'audit-list' %}?{% qsfilter request k None %}"
+    href="{% url 'audit-list' %}?{% qs_replace k None %}"
     >{{k}} &times;</a>
 {% endfor %}
 </ul>
@@ -33,7 +33,7 @@
       <tr class="{{ entry.highlight }}">
         <td>{{ entry.created|timezone:TIMEZONE }}</td>
         <td>
-          <a href="{% url 'audit-list' %}?{% qsfilter request 'user' entry.user.id %}">{{ entry.user }}</a>
+          <a href="{% url 'audit-list' %}?{% qs_replace 'user' entry.user.id %}">{{ entry.user }}</a>
         </td>
         <td>
           {{ entry.body }}

@@ -5,17 +5,18 @@ import collections
 import difflib
 import json
 from datetime import datetime
+from urllib.parse import urlencode
 
 import yaml
 from pytz import timezone
-
-from promgen import util
 
 from django import template
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+
+from promgen import util
 
 register = template.Library()
 
@@ -72,29 +73,6 @@ def rulemacro(rule, clause=None):
         sorted('{}!~"{}"'.format(k, v) for k, v in filters.items())
     )
     return clause.replace(EXCLUSION_MACRO, macro)
-
-
-@register.simple_tag
-def qsfilter(request, k, v):
-    '''
-    Helper to rewrite query string for URLs
-
-    {% qsfilter request 'foo' 'baz' %}
-    When passed the request object, it will take a querystring like
-    ?foo=bar&donottouch=1
-    and change it to
-    ?foo=baz&donottouch=1
-
-    Useful when working with filtering on a page that also uses pagination to
-    avoid losing other query strings
-    {% qsfilter request 'page' page_obj.previous_page_number %}
-    '''
-    dict_ = request.GET.copy()
-    if v:
-        dict_[k] = v
-    else:
-        dict_.pop(k, None)
-    return dict_.urlencode()
 
 
 @register.simple_tag
@@ -222,3 +200,17 @@ def qs_replace(context, k, v):
     else:
         dict_.pop(k, None)
     return dict_.urlencode()
+
+
+@register.simple_tag
+def urlqs(view, **kwargs):
+    """
+    Query string aware version of url template
+
+    Instead of using {% url 'view' %}
+    Use {% urlqs 'view' param=value %}
+
+    This is useful for linking to pages that use filters.
+    This only works for views that do not need additional parameters
+    """
+    return reverse(view) + "?" + urlencode(kwargs)
