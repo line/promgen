@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.52.1 - 2021-08-24
+
+- [BUGFIX] Fix rest_framework/js reference #365
+
 # v0.52 - 2021-08-23
 
 - [CHANGES] Notification handling improvements #348
