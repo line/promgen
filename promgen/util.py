@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import argparse
+from urllib.parse import urlsplit
 
 import requests
 
@@ -47,6 +48,13 @@ def scrape(url, params=None, **kwargs):
     headers["Accept"] = ACCEPT_HEADER
     headers["User-Agent"] = USER_AGENT
     headers["X-Prometheus-Scrape-Timeout-Seconds"] = "10.0"
+    # According to the spec, having the host with a port is optional, though
+    # so by default, many clients/servers drop the port if it's known (http/https)
+    # in the case of Prometheus it always forces the port in the Host header which
+    # then sometimes fail for servers that do not expect it. Here we force the port
+    # in the Host header to make it match how Prometheus scrapes
+    # https://github.com/prometheus/prometheus/blob/2b55017379786873dc00315ffe65e22ad7026abb/scrape/target.go#L375-L387
+    headers["Host"] = urlsplit(url).netloc
     return requests.get(url, params=params, **kwargs)
 
 
