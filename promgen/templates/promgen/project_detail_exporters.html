@@ -10,7 +10,7 @@
       <th colspan="4">Actions</th>
     </tr>
   {% for exporter in project.exporter_set.all %}
-    <tr {% if not exporter.enabled %}class="bg-disabled text-muted"{% endif %}>
+    <tr {% if not exporter.enabled %}class="promgen-disabled"{% endif %}>
       <td>{{ exporter.job }}</td>
       <td>{{ exporter.scheme }}:{{ exporter.port }}</td>
       <td>{{ exporter.path | default:"/metrics" }}</td>
