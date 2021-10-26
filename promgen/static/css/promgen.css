@@ -42,5 +42,10 @@ a[rel]:after {
 .promgen-disabled {
   text-decoration: line-through;
   color: #777;
-  opacity: .65;
+  opacity: 0.65;
+}
+
+.promgen-clause {
+  word-break: break-word;
+  font-family: monospace;
 }

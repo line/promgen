@@ -74,8 +74,8 @@ Promgen / Rule / {{ rule.name }}
                     {% endfor %}
                 </ul>
             </td>
-            <td class="col-xs-8">
-                <code v-pre data-href="{% url 'rule-test' r.id %}">{{ r|rulemacro }}</code>
+            <td class="col-xs-8 promgen-clause">
+                {{ r|rulemacro }}
             </td>
             <td>
                 {{r.duration}}
