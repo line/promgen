@@ -42,3 +42,9 @@ a[rel]:after {
   padding: 5px; /* firefox bug fix */
   width: auto;
 }
+
+.promgen-disabled {
+  text-decoration: line-through;
+  color: #777;
+  opacity: .65;
+}
