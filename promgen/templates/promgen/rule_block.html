@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% for rule in rule_list %}
-<tr {% if collapse %}class="active collapse {{ collapse }}{{overwrite_id}}" {% endif %}>
+<tr class="{% if not rule.enabled %}promgen-disabled{% endif %} {% if collapse %}active collapse {{ collapse }}{{overwrite_id}}{% endif %}">
   <td>
     <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a>
     {% if rule.parent %}
@@ -15,7 +15,7 @@
       {% endfor %}
     </ul>
   </td>
-  <td {% if not rule.enabled %}class="bg-disabled text-muted" {% endif %} style="word-break: break-word;">{{ rule.clause }}</td>
+  <td class="promgen-clause">{{ rule.clause }}</td>
 
   <td>{{ rule.duration }}</td>
 

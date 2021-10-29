@@ -1,5 +1,5 @@
 {% load i18n %}
-<tr {% if not notifier.enabled %}class="bg-disabled text-muted"{% endif %}>
+<tr {% if not notifier.enabled %}class="promgen-disabled"{% endif %}>
     <td class="col-xs-2" title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
     <td class="col-xs-5" style="word-break: break-all;" >{{ notifier.show_value }}</td>
     <td class="col-xs-2">

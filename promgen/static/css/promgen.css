@@ -3,10 +3,6 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 */
 
-.bg-disabled {
-  opacity: .65;
-}
-
 /* https://stackoverflow.com/questions/5379752/css-style-external-links */
 a[rel]:after {
   content: " " url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAVklEQVR4Xn3PgQkAMQhDUXfqTu7kTtkpd5RA8AInfArtQ2iRXFWT2QedAfttj2FsPIOE1eCOlEuoWWjgzYaB/IkeGOrxXhqB+uA9Bfcm0lAZuh+YIeAD+cAqSz4kCMUAAAAASUVORK5CYII=);
@@ -41,4 +37,15 @@ a[rel]:after {
   height: 100%;
   padding: 5px; /* firefox bug fix */
   width: auto;
+}
+
+.promgen-disabled {
+  text-decoration: line-through;
+  color: #777;
+  opacity: 0.65;
+}
+
+.promgen-clause {
+  word-break: break-word;
+  font-family: monospace;
 }

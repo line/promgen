@@ -61,10 +61,11 @@ Promgen / Rule / {{ rule.name }}
         <tr>
             <th>Rule</th>
             <th>Clause</th>
+            <th>For</th>
             <th>Owner</th>
         </tr>
         {% for r in rule.overrides.all %}
-        <tr>
+        <tr {% if not r.enabled %}class="promgen-disabled" {% endif %}>
             <td class="col-xs-2">
                 <a href="{% url 'rule-detail' r.pk %}">{{ r.name }}</a>
                 <ul>
@@ -73,8 +74,11 @@ Promgen / Rule / {{ rule.name }}
                     {% endfor %}
                 </ul>
             </td>
-            <td class="col-xs-8">
-                <code v-pre data-href="{% url 'rule-test' r.id %}">{{ r|rulemacro }}</code>
+            <td class="col-xs-8 promgen-clause">
+                {{ r|rulemacro }}
+            </td>
+            <td>
+                {{r.duration}}
             </td>
             <td class="col-xs-2"><a href="{{ r.content_object.get_absolute_url }}">{{ r.content_object.name }}</a></td>
         </tr>
