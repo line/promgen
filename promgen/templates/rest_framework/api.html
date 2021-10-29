@@ -9,24 +9,24 @@ https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/
 {% block navbar %}{% include "promgen/navbar.html" %}{% endblock %}
 
 {% block bootstrap_theme %}
-<link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
-<link rel="stylesheet" href="{% static "css/bootstrap-theme.min.css" %}">
-<link rel="stylesheet" href="{% static "css/bootstrap-switch.min.css" %}">
-<link rel="stylesheet" href="{% static "css/promgen.css" %}">
-<link rel="icon" href="{% static "images/promgen_logo_color.png" %}">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/bootstrap-theme.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/bootstrap-switch.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/promgen.css' %}">
+<link rel="icon" href="{% static 'images/promgen_logo_color.png' %}">
 {% endblock %}
 
 {% block script %}
-<script src="{% static "js/jquery.min.js" %}"></script>
-<script src="{% static "js/jquery.selection.js" %}"></script>
-<script src="{% static "js/bootstrap.min.js" %}"></script>
-<script src="{% static "js/bootstrap3-typeahead.min.js" %}"></script>
-<script src="{% static "js/moment.min.js" %}"></script>
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'js/jquery.selection.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/bootstrap3-typeahead.min.js' %}"></script>
+<script src="{% static 'js/moment.min.js' %}"></script>
 
-<script src="{% static "rest_framework/js/ajax-form.js" %}"></script>
-<script src="{% static "rest_framework/js/csrf.js" %}"></script>
-<script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
-<script src="{% static "rest_framework/js/default.js" %}"></script>
+<script src="{% static 'rest_framework/js/ajax-form.js' %}"></script>
+<script src="{% static 'rest_framework/js/csrf.js' %}"></script>
+<script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
+<script src="{% static 'rest_framework/js/default.js' %}"></script>
 <script>
     $(document).ready(function () {
         $('form').ajaxForm();
