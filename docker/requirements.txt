@@ -15,16 +15,16 @@ idna==2.8
 importlib-metadata==0.23
 kombu==4.6.3
 oauthlib==3.1.0
-prometheus-client==0.7.0
+prometheus-client==0.12.0
 pyjwt==1.7.1
 python-dateutil==2.8.0
 python3-openid==3.1.0 ; python_version >= '3.0'
-pytz==2019.2
+pytz==2021.3
 pyyaml==5.4
 redis==3.2.1
 requests-oauthlib==1.2.0
 requests==2.25.1
-sentry_sdk==0.14.1
+sentry_sdk==1.4.3
 setuptools>=39.2.0
 six==1.12.0
 social-auth-app-django==3.1.0
