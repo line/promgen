@@ -28,11 +28,11 @@
         <th>CreatedBy</th>
       </tr>
       <tr>
-        <td><input v-model="newSilence.duration" placeholder="1m/1h/etc" class="form-control" /></td>
-        <td><input v-model="newSilence.startsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /></td>
-        <td><input v-model="newSilence.endsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /></td>
-        <td><input v-model="newSilence.comment" placeholder="Silenced from Promgen" class="form-control" /></td>
-        <td><input v-model="newSilence.createdBy" placeholder="Promgen" class="form-control" /></td>
+        <td><input v-model.lazy="newSilence.duration" placeholder="1m/1h/etc" class="form-control" /></td>
+        <td><input v-model.lazy="newSilence.startsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /></td>
+        <td><input v-model.lazy="newSilence.endsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /></td>
+        <td><input v-model.lazy="newSilence.comment" placeholder="Silenced from Promgen" class="form-control" /></td>
+        <td><input v-model.lazy="newSilence.createdBy" placeholder="Promgen" class="form-control" /></td>
       </tr>
     </table>
     <div class="panel-footer">
