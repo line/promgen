@@ -35,14 +35,21 @@ help:
 
 ${PIP_BIN}:
 	python3 -m venv .venv
-	${PIP_BIN} install -U pip setuptools
+	${PIP_BIN} install --upgrade pip setuptools wheel
 
 ${APP_BIN}: ${PIP_BIN}
 	${PIP_BIN} install -e .[dev,mysql] -r docker/requirements.txt
 
 .PHONY: pip
+## Pip: Reinstall dependencies
 pip: ${PIP_BIN}
+	${PIP_BIN} install --upgrade pip setuptools wheel
 	${PIP_BIN} install -e .[dev,mysql] -r docker/requirements.txt
+
+.PHONY: list
+## Pip: Check installed versions
+list: ${PIP_BIN}
+	${PIP_BIN} list -o
 
 .PHONY: build
 ## Docker: Build container
