@@ -1,5 +1,14 @@
 # Changelog
 
+# v0.53 - 2021-11-10
+
+- [BUGFIX] Fix rest_framework/js reference #365
+- [CHANGE] Stricter scrape test to better match Prometheus #366
+- [IMPROVEMENT] Make RuleDetail page a bit more readable #368
+- [IMPROVEMENT] Use v-model.lazy to reduce input lag #370
+- [INTERNAL] Django version update #371
+- [INTERNAL] Fix quotes to avoid confusing the html linter #369
+
 # v0.52 - 2021-08-23
 
 - [CHANGES] Notification handling improvements #348
