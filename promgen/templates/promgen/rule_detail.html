@@ -14,11 +14,11 @@ Promgen / Rule / {{ rule.name }}
 
 {% breadcrumb rule  %}
 
-<div class="panel panel-danger" v-cloak v-show="alertLabelsRule.has('{{rule.name}}')" data-service="{{rule.name}}">
+<div class="panel panel-danger" v-cloak v-if="alertLabelsRule.has('{{rule.name}}')" data-service="{{rule.name}}">
     <div class="panel-heading">
-        <a @click.prevent="toggleTarget('alerts-service-{{rule.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
+        <a @click="toggleComponent('alerts-service-{{rule.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
     </div>
-    <table id="alerts-service-{{rule.name|slugify}}" class="table table-bordered table-condensed collapse">
+    <table v-if="components['alerts-service-{{rule.name|slugify}}']" class="table table-bordered table-condensed">
         <tr v-for="(alert, index) in globalAlerts" v-if="alert.labels.alertname == '{{rule.name}}'">
             {% include 'promgen/alert_row.html' %}
         </tr>

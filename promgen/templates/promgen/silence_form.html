@@ -1,12 +1,12 @@
 {% load i18n %}
-<form @submit.prevent="silenceSubmit" method="post" action="{% url 'proxy-silence' %}">
+<form v-cloak v-if="components['silence-form']" @submit.prevent="silenceSubmit" method="post" action="{% url 'proxy-silence' %}">
   <input name="next" type="hidden" value="{{ request.get_full_path }}" />
   {% csrf_token %}
 
-  <div class="panel panel-warning collapse" id="silence-form">
+  <div class="panel panel-warning">
     <div class="panel-heading">
       Silence
-      <a @click.prevent="toggleTarget('silence-form')" type="button" class="close">&times;</a>
+      <a @click="toggleComponent('silence-form')" type="button" class="close">&times;</a>
     </div>
 
     <div class="labels panel-body">

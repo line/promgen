@@ -25,7 +25,7 @@
                         <li><a href="{% url 'audit-list' %}">Edit History</a></li>
                         <li><a href="{% url 'alert-list' %}">Alert History</a></li>
                         <li role="separator" class="divider"></li>
-                        
+
                         <li><a href="{% url 'site-detail' %}">Shared</a></li>
                         <li><a href="{% url 'farm-list' %}">Farms</a></li>
                         <li><a href="{% url 'host-list' %}">Hosts</a></li>
@@ -55,10 +55,11 @@
                 </div>
                 <button type="submit" class="btn btn-default">Search</button>
             </form>
-            <a @click.prevent="toggleTarget('globalAlerts')" id="toggleAlerts" class="btn btn-danger navbar-btn" role="button">Alerts
+            <a @click="toggleComponent('global-alerts')" class="btn btn-danger navbar-btn" role="button">
+                Alerts
                 <span v-text="filterActiveAlerts.length" class="badge"></span>
             </a>
-            <a @click.prevent="toggleTarget('globalSilences')" id="toggleSilences" class="btn btn-warning navbar-btn" role="button">
+            <a @click="toggleComponent('global-silences')" class="btn btn-warning navbar-btn" role="button">
                 Silences
                 <span v-text="filterActiveSilences.length" class="badge"></span>
             </a>

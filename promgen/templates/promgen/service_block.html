@@ -1,22 +1,22 @@
 {% load i18n %}
 {% load promgen %}
 <div class="well">
-  <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-show="alertLabelsService.has('{{service.name}}')">
+  <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-if="alertLabelsService.has('{{service.name}}')">
     <div class="panel-heading">
-      <a @click.prevent="toggleTarget('alerts-service-{{service.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
+      <a @click="toggleComponent('alerts-service-{{service.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
     </div>
-    <table id="alerts-service-{{service.name|slugify}}" class="table table-bordered table-condensed collapse">
+    <table v-if="components['alerts-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
       <tr v-for="(alert, index) in globalAlerts" v-if="alert.labels.service == '{{service.name}}'">
         {% include 'promgen/alert_row.html' %}
       </tr>
     </table>
   </div>
 
-  <div id="silence-service-{{ service.name|slugify }}" class="panel panel-warning" v-cloak v-show="silenceLabelsService.has('{{service.name}}')">
+  <div id="silence-service-{{ service.name|slugify }}" class="panel panel-warning" v-cloak v-if="silenceLabelsService.has('{{service.name}}')">
     <div class="panel-heading">
-      <a @click.prevent="toggleTarget('silences-service-{{service.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
+      <a @click="toggleComponent('silences-service-{{service.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
     </div>
-    <table id="silences-service-{{service.name|slugify}}" class="table table-bordered table-condensed collapse">
+    <table v-if="components['silences-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
       <tr v-for="(silence, index) in filterActiveSilences" v-if="silence.labels.service == '{{service.name}}'">
         {% include 'promgen/silence_row.html' %}
       </tr>
