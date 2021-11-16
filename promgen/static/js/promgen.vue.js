@@ -6,6 +6,7 @@
 Vue.config.devtools = true
 
 var dataStore = {
+    components: {},
     selectedHosts: [],
     newSilence: { 'labels': {} },
     globalSilences: [],
@@ -18,7 +19,11 @@ var app = new Vue({
     delimiters: ['[[', ']]'],
     data: dataStore,
     methods: {
-        toggleTarget: function (target) {
+        toggleComponent: function (component) {
+            let state = Boolean(this.components[component]);
+            this.$set(this.components, component, !state);
+        },
+        toggleCollapse: function (target) {
             let tgt = document.getElementById(target);
             tgt.classList.toggle('collapse');
         },
@@ -52,7 +57,7 @@ var app = new Vue({
             this.$delete(this.newSilence.labels, label)
         },
         showSilenceForm: function (event) {
-            document.getElementById('silence-form').classList.remove('collapse');
+            this.$set(this.components, 'silence-form', true);
             scroll(0, 0);
         },
         silenceAppendLabel: function (event) {
@@ -123,43 +128,33 @@ var app = new Vue({
     },
     computed: {
         alertLabelsService: function () {
-            return new Set(this.globalAlerts
-                .filter(x => x.status.state == 'active')
+            return new Set(this.filterActiveAlerts
                 .filter(x => x.labels.service)
                 .map(x => x.labels.service)
-                .sort()
             );
         },
         alertLabelsProject: function () {
-            return new Set(this.globalAlerts
-                .filter(x => x.status.state == 'active')
+            return new Set(this.filterActiveAlerts
                 .filter(x => x.labels.project)
                 .map(x => x.labels.project)
-                .sort()
             );
         },
         alertLabelsRule: function () {
-            return new Set(this.globalAlerts
-                .filter(x => x.status.state == 'active')
+            return new Set(this.filterActiveAlerts
                 .filter(x => x.labels.alertname)
                 .map(x => x.labels.alertname)
-                .sort()
             );
         },
         silenceLabelsService: function () {
-            return new Set(this.globalSilences
-                .filter(x => x.status.state == 'active')
+            return new Set(this.filterActiveSilences
                 .filter(x => x.labels.service)
                 .map(x => x.labels.service)
-                .sort()
             );
         },
         silenceLabelsProject: function () {
-            return new Set(this.globalSilences
-                .filter(x => x.status.state == 'active')
+            return new Set(this.filterActiveSilences
                 .filter(x => x.labels.project)
                 .map(x => x.labels.project)
-                .sort()
             );
         },
         filterActiveAlerts: function () {
