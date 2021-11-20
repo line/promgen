@@ -29,23 +29,23 @@ Promgen / Project / {{ project.name }}
 
 {% include "promgen/project_detail_configuration.html" %}
 
-<div class="panel panel-danger" v-cloak v-if="alertLabelsProject.has('{{project.name}}')">
+<div class="panel panel-danger" v-cloak v-if="activeProjectAlerts.has('{{project.name}}')">
   <div class="panel-heading">
     <a @click="toggleCollapse('alerts-project-{{project.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
   </div>
   <table id="alerts-project-{{project.name|slugify}}" class="table table-bordered table-condensed">
-    <tr v-for="(alert, index) in globalAlerts" v-if="alert.labels.project == '{{project.name}}'">
+    <tr v-for="alert in activeProjectAlerts.get('{{project.name}}')">
       {% include 'promgen/alert_row.html' %}
     </tr>
   </table>
 </div>
 
-<div id="silence-project-{{ project.name|slugify }}" class="panel panel-warning" v-cloak v-if="silenceLabelsProject.has('{{project.name}}')">
+<div id="silence-project-{{ project.name|slugify }}" class="panel panel-warning" v-cloak v-if="activeProjectSilences.has('{{project.name}}')">
   <div class="panel-heading">
     <a @click="toggleCollapse('silences-project-{{project.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
   </div>
   <table id="silences-project-{{project.name|slugify}}" class="table table-bordered table-condensed">
-    <tr v-for="(silence, index) in filterActiveSilences" v-if="silence.labels.project == '{{project.name}}'">
+    <tr v-for="silence in activeProjectSilences.get('{{project.name}}')">
       {% include 'promgen/silence_row.html' %}
     </tr>
   </table>
