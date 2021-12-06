@@ -1,23 +1,23 @@
 {% load i18n %}
 {% load promgen %}
 <div class="well">
-  <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-if="alertLabelsService.has('{{service.name}}')">
+  <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-if="activeServiceAlerts.has('{{service.name}}')">
     <div class="panel-heading">
       <a @click="toggleComponent('alerts-service-{{service.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
     </div>
     <table v-if="components['alerts-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
-      <tr v-for="(alert, index) in globalAlerts" v-if="alert.labels.service == '{{service.name}}'">
+      <tr v-for="alert in activeServiceAlerts.get('{{service.name}}')">
         {% include 'promgen/alert_row.html' %}
       </tr>
     </table>
   </div>
 
-  <div id="silence-service-{{ service.name|slugify }}" class="panel panel-warning" v-cloak v-if="silenceLabelsService.has('{{service.name}}')">
+  <div id="silence-service-{{ service.name|slugify }}" class="panel panel-warning" v-cloak v-if="activeServiceSilences.has('{{service.name}}')">
     <div class="panel-heading">
       <a @click="toggleComponent('silences-service-{{service.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
     </div>
     <table v-if="components['silences-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
-      <tr v-for="(silence, index) in filterActiveSilences" v-if="silence.labels.service == '{{service.name}}'">
+      <tr v-for="silence in activeServiceSilences.get('{{service.name}}')">
         {% include 'promgen/silence_row.html' %}
       </tr>
     </table>

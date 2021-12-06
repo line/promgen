@@ -5,7 +5,7 @@
     </div>
 
     <table class="table table-bordered table-condensed">
-        <tr v-for="(alert, index) in filterActiveAlerts">
+        <tr v-for="alert in activeAlerts">
             {% include 'promgen/alert_row.html' %}
         </tr>
     </table>

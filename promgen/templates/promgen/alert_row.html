@@ -8,12 +8,12 @@
         <dt>Labels</dt>
         <dd>
             <ul class="list-inline">
-                <li v-for="(value, label, index) in alert.labels">
+                <li v-for="(value, label) in alert.labels">
                     <a @click.prevent="silenceAppendLabel" class="label label-danger" :data-label="label" :data-value="value">[[label]]:[[value]]</a>
                 </li>
             </ul>
         </dd>
-        <template v-for="(value, annotation, index) in alert.annotations" class="dl-horizontal">
+        <template v-for="(value, annotation) in alert.annotations" class="dl-horizontal">
             <dt>[[annotation]]</dt>
             <dd :inner-html.prop="value|urlize"></dd>
         </template>

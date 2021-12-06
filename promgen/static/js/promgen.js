@@ -1,7 +1,27 @@
 /*
-# Copyright (c) 2017 LINE Corporation
-# These sources are released under the terms of the MIT license: see LICENSE
-*/
+ * Copyright (c) 2021 LINE Corporation
+ * These sources are released under the terms of the MIT license: see LICENSE
+ */
+
+function groupByLabel(items, label) {
+  const groups = new Map();
+
+  for (const item of items) {
+    const key = item.labels[label];
+    if (!key) {
+      continue;
+    }
+
+    const group = groups.get(key);
+    if (group) {
+      group.push(item);
+    } else {
+      groups.set(key, [item]);
+    }
+  }
+
+  return groups;
+}
 
 function update_page(data) {
   for (var key in data) {

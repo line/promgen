@@ -1,11 +1,11 @@
 /*
-# Copyright (c) 2019 LINE Corporation
-# These sources are released under the terms of the MIT license: see LICENSE
-*/
+ * Copyright (c) 2021 LINE Corporation
+ * These sources are released under the terms of the MIT license: see LICENSE
+ */
 
 Vue.config.devtools = true
 
-var dataStore = {
+const dataStore = {
     components: {},
     selectedHosts: [],
     newSilence: { 'labels': {} },
@@ -14,7 +14,7 @@ var dataStore = {
     globalMessages: []
 };
 
-var app = new Vue({
+const app = new Vue({
     el: '#vue',
     delimiters: ['[[', ']]'],
     data: dataStore,
@@ -92,27 +92,27 @@ var app = new Vue({
             let this_ = this;
             fetch('/proxy/v1/silences')
                 .then(response => response.json())
-                .then(function (silences) {
-                    this_.globalSilences = silences.data.sort(silence => silence.startsAt);
+                .then(function (response) {
+                    let silences = response.data.sort(silence => silence.startsAt);
 
                     // Pull out the matchers and do a simpler label map
-                    // To make other code easier
-                    for (var i in this_.globalSilences) {
-                        var silence = this_.globalSilences[i];
-                        silence.labels = {}
-                        for (var m in silence.matchers) {
-                            let matcher = silence.matchers[m]
-                            silence.labels[matcher.name] = matcher.value
+                    // to make other code easier
+                    for (let silence of silences) {
+                        silence.labels = {};
+                        for (let matcher of silence.matchers) {
+                            silence.labels[matcher.name] = matcher.value;
                         }
                     }
+
+                    this_.globalSilences = silences;
                 });
         },
         fetchAlerts: function () {
             let this_ = this;
             fetch('/proxy/v1/alerts')
                 .then(response => response.json())
-                .then(function (alerts) {
-                    this_.globalAlerts = alerts.data.sort(alert => alert.startsAt);
+                .then(function (response) {
+                    this_.globalAlerts = response.data.sort(alert => alert.startsAt);
                 });
 
         },
@@ -127,40 +127,25 @@ var app = new Vue({
         }
     },
     computed: {
-        alertLabelsService: function () {
-            return new Set(this.filterActiveAlerts
-                .filter(x => x.labels.service)
-                .map(x => x.labels.service)
-            );
+        activeServiceAlerts: function () {
+            return groupByLabel(this.activeAlerts, 'service');
         },
-        alertLabelsProject: function () {
-            return new Set(this.filterActiveAlerts
-                .filter(x => x.labels.project)
-                .map(x => x.labels.project)
-            );
+        activeProjectAlerts: function () {
+            return groupByLabel(this.activeAlerts, 'project');
         },
-        alertLabelsRule: function () {
-            return new Set(this.filterActiveAlerts
-                .filter(x => x.labels.alertname)
-                .map(x => x.labels.alertname)
-            );
+        activeRuleAlerts: function () {
+            return groupByLabel(this.activeAlerts, 'alertname');
         },
-        silenceLabelsService: function () {
-            return new Set(this.filterActiveSilences
-                .filter(x => x.labels.service)
-                .map(x => x.labels.service)
-            );
+        activeServiceSilences: function () {
+            return groupByLabel(this.activeSilences, 'service');
         },
-        silenceLabelsProject: function () {
-            return new Set(this.filterActiveSilences
-                .filter(x => x.labels.project)
-                .map(x => x.labels.project)
-            );
+        activeProjectSilences: function () {
+            return groupByLabel(this.activeSilences, 'project');
         },
-        filterActiveAlerts: function () {
+        activeAlerts: function () {
             return this.globalAlerts.filter(alert => alert.status.state == 'active');
         },
-        filterActiveSilences: function () {
+        activeSilences: function () {
             return this.globalSilences.filter(silence => silence.status.state != 'expired');
         }
     },

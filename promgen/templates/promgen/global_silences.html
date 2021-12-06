@@ -12,7 +12,7 @@
             <th>CreatedBy</th>
             <th>&nbsp;</th>
         </tr>
-        <tr v-for="(silence, index) in filterActiveSilences">
+        <tr v-for="silence in activeSilences">
             {% include 'promgen/silence_row.html' %}
         </tr>
     </table>

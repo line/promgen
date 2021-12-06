@@ -57,11 +57,11 @@
             </form>
             <a @click="toggleComponent('global-alerts')" class="btn btn-danger navbar-btn" role="button">
                 Alerts
-                <span v-text="filterActiveAlerts.length" class="badge"></span>
+                <span v-text="activeAlerts.length" class="badge"></span>
             </a>
             <a @click="toggleComponent('global-silences')" class="btn btn-warning navbar-btn" role="button">
                 Silences
-                <span v-text="filterActiveSilences.length" class="badge"></span>
+                <span v-text="activeSilences.length" class="badge"></span>
             </a>
 
             <ul class="nav navbar-nav navbar-right">
