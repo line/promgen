@@ -17,6 +17,13 @@ https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/
 {% endblock %}
 
 {% block script %}
+<script>
+    window.drf = {
+        csrfHeaderName: "{{ csrf_header_name|default:'X-CSRFToken' }}",
+        csrfToken: "{% if request %}{{ csrf_token }}{% endif %}"
+    };
+</script>
+
 <script src="{% static 'js/jquery.min.js' %}"></script>
 <script src="{% static 'js/jquery.selection.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
@@ -27,6 +34,7 @@ https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/
 <script src="{% static 'rest_framework/js/csrf.js' %}"></script>
 <script src="{% static 'rest_framework/js/prettify-min.js' %}"></script>
 <script src="{% static 'rest_framework/js/default.js' %}"></script>
+
 <script>
     $(document).ready(function () {
         $('form').ajaxForm();
