@@ -167,8 +167,8 @@ Vue.filter("urlize", function (value) {
     return linkifyStr(value);
 });
 
-Vue.filter("time", function (value, fmtstr = "YYYY-MM-DD HH:mm:ss") {
-    return moment(value).format(fmtstr);
+Vue.filter("time", function (value, fmtstr = "yyyy-MM-dd HH:mm:ss") {
+    return luxon.DateTime.fromISO(value).toFormat(fmtstr);
 });
 
 Vue.component("promql-query", {
