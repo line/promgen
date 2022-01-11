@@ -4,7 +4,7 @@
 <td class="col-xs-3 text-wrap">
     <ul class="list-inline">
         <li v-for="match in silence.matchers">
-            <a @click.prevent="silenceAppendLabel" class="label label-warning" :data-label="match.name" :data-value="match.value">
+            <a @click="addSilenceLabel(match.name, match.value)" class="label label-warning">
                 [[match.name]]:[[match.value]]
             </a>
         </li>
@@ -14,5 +14,5 @@
 <td class="col-xs-3">[[silence.createdBy]]</td>
 
 <td style="col-xs-1">
-    <a @click.prevent="silenceExpire(silence.id)" class="btn btn-warning btn-xs">{% trans "Expire" %}</a>
+    <a @click="expireSilence(silence.id)" class="btn btn-warning btn-xs">{% trans "Expire" %}</a>
 </td>

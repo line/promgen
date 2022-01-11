@@ -5,13 +5,37 @@
 
 Vue.config.devtools = true
 
+const globalStore = {
+    state: {
+        messages: []
+    },
+    setMessages(messages) {
+        this.state.messages = [...messages];
+    }
+};
+
 const dataStore = {
+    global: globalStore.state,
     components: {},
     selectedHosts: [],
-    newSilence: { 'labels': {} },
     globalSilences: [],
-    globalAlerts: [],
-    globalMessages: []
+    globalAlerts: []
+};
+
+const silenceStore = {
+    state: {
+        show: false,
+        labels: {}
+    },
+    showForm() {
+        this.state.show = true;
+    },
+    setLabels(labels) {
+        Vue.set(this.state, 'labels', { ...labels });
+    },
+    addLabel(label, value) {
+        Vue.set(this.state.labels, label, value);
+    }
 };
 
 const app = new Vue({
@@ -27,72 +51,33 @@ const app = new Vue({
             let tgt = document.getElementById(target);
             tgt.classList.toggle('collapse');
         },
-        silenceExpire: function (id) {
-            fetch('/proxy/v1/silences/' + id, { method: 'DELETE' }).then(function (response) {
-                location.reload();
-            })
+        expireSilence(id) {
+            fetch(`/proxy/v1/silences/${id}`, { method: 'DELETE' })
+                .then(() => location.reload());
         },
-        silenceChangeEvent: function (event) {
-            this.newSilence[event.target.name] = event.target.value;
-        },
-        silenceSubmit: function (event) {
-            let this_ = this;
-            fetch('/proxy/v1/silences', { method: 'POST', body: JSON.stringify(this.newSilence) })
-                .then(function (response) {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        return response.json()
-                    }
-                })
-                .then(function (result) {
-                    this_.globalMessages = [];
-                    for (key in result.messages) {
-                        this_.$set(this_.globalMessages, key, result.messages[key]);
-                    }
-                })
-        },
-        silenceRemoveLabel: function (label) {
-            console.debug('silenceRemoveLabel', label)
-            this.$delete(this.newSilence.labels, label)
-        },
-        showSilenceForm: function (event) {
-            this.$set(this.components, 'silence-form', true);
+        setSilenceLabels(labels) {
+            if (labels.target) {
+                silenceStore.setLabels(labels.target.dataset);
+            } else {
+                silenceStore.setLabels(labels);
+            }
+
+            silenceStore.showForm();
             scroll(0, 0);
         },
-        silenceAppendLabel: function (event) {
-            console.debug('silenceAppendLabel', event.target.dataset);
-            this.$set(this.newSilence.labels, event.target.dataset.label, event.target.dataset.value);
-            this.showSilenceForm(event);
+        addSilenceLabel(label, value) {
+            silenceStore.addLabel(label, value);
+            silenceStore.showForm();
+            scroll(0, 0);
         },
-        silenceSelectedHosts: function (event) {
-            this.$set(this.newSilence, 'labels', {});
-            this.$set(this.newSilence.labels, "instance", this.selectedHosts.join("|"));
-            for (key in event.target.dataset) {
-                this.$set(this.newSilence.labels, key, event.target.dataset[key]);
-            }
-            this.showSilenceForm(event);
-        },
-        silenceSetLabels: function (event) {
-            console.debug('silenceSetLabels', event.target.dataset);
-            this.$set(this.newSilence, 'labels', {});
-            for (key in event.target.dataset) {
-                this.$set(this.newSilence.labels, key, event.target.dataset[key]);
-            }
-            this.showSilenceForm(event);
-        },
-        silenceAlert: function (alert) {
-            this.$set(this.newSilence, 'labels', {});
-            for (key in alert.labels) {
-                this.$set(this.newSilence.labels, key, alert.labels[key]);
-            }
-            this.showSilenceForm(event);
+        silenceSelectedHosts(event) {
+            this.setSilenceLabels(event.target.dataset);
+            this.addSilenceLabel('instance', this.selectedHosts.join('|'));
         },
         fetchSilences: function () {
-            let this_ = this;
             fetch('/proxy/v1/silences')
                 .then(response => response.json())
-                .then(function (response) {
+                .then(response => {
                     let silences = response.data.sort(silence => silence.startsAt);
 
                     // Pull out the matchers and do a simpler label map
@@ -104,15 +89,14 @@ const app = new Vue({
                         }
                     }
 
-                    this_.globalSilences = silences;
+                    this.globalSilences = silences;
                 });
         },
         fetchAlerts: function () {
-            let this_ = this;
             fetch('/proxy/v1/alerts')
                 .then(response => response.json())
-                .then(function (response) {
-                    this_.globalAlerts = response.data.sort(alert => alert.startsAt);
+                .then(response => {
+                    this.globalAlerts = response.data.sort(alert => alert.startsAt);
                 });
 
         },
@@ -143,16 +127,50 @@ const app = new Vue({
             return groupByLabel(this.activeSilences, 'project');
         },
         activeAlerts: function () {
-            return this.globalAlerts.filter(alert => alert.status.state == 'active');
+            return this.globalAlerts.filter(alert => alert.status.state === 'active');
         },
         activeSilences: function () {
-            return this.globalSilences.filter(silence => silence.status.state != 'expired');
+            return this.globalSilences.filter(silence => silence.status.state !== 'expired');
         }
     },
     mounted: function () {
         this.fetchAlerts();
         this.fetchSilences();
     },
+});
+
+Vue.component('silence-form', {
+    template: '#silence-form-template',
+    delimiters: ['[[', ']]'],
+    data: () => ({
+        state: silenceStore.state,
+        form: {}
+    }),
+    methods: {
+        removeLabel(label) {
+            this.$delete(this.state.labels, label);
+        },
+        submit() {
+            const body = JSON.stringify({
+                labels: this.state.labels,
+                ...this.form
+            });
+
+            fetch('/proxy/v1/silences', { method: 'POST', body })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(result => {
+                    if (result) {
+                        globalStore.setMessages(result.messages);
+                    }
+                });
+        },
+    }
 });
 
 Vue.filter("localize", function (number) {

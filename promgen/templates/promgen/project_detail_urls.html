@@ -13,7 +13,7 @@
       <td>{{ url.url }}</td>
       <td title="{{ url.probe.description }}">{{ url.probe.module }}</td>
       <td>
-        <a @click.prevent="silenceSetLabels"
+        <a @click="setSilenceLabels"
           class="btn btn-warning btn-xs"
           data-job="{{url.probe.module}}"
           data-instance="{{url.url}}">{% trans "Silence" %}</a>

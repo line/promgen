@@ -32,7 +32,7 @@
     </div>
 
     <a href="{% url 'project-update' project.id %}" class="btn btn-warning btn-sm">{% trans "Update Project" %}</a>
-    <a @click.prevent="silenceSetLabels" class="btn btn-warning btn-sm" data-project="{{project.name}}" data-service="{{project.service.name}}">{% trans "Silence" %}</a>
+    <a @click="setSilenceLabels" class="btn btn-warning btn-sm" data-project="{{project.name}}" data-service="{{project.service.name}}">{% trans "Silence" %}</a>
 
     <div class="btn-group btn-group-sm" role="group" aria-label="...">
       <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
