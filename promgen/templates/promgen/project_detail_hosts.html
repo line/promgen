@@ -16,7 +16,7 @@
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       <td>
         <a
-          @click="setSilenceLabels"
+          @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
           data-instance="{{host.name}}:[0-9]*"
           data-project="{{project.name}}"

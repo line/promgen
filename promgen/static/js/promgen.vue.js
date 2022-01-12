@@ -56,14 +56,12 @@ const app = new Vue({
                 .then(() => location.reload());
         },
         setSilenceLabels(labels) {
-            if (labels.target) {
-                silenceStore.setLabels(labels.target.dataset);
-            } else {
-                silenceStore.setLabels(labels);
-            }
-
+            silenceStore.setLabels(labels);
             silenceStore.showForm();
             scroll(0, 0);
+        },
+        setSilenceDataset(event) {
+            this.setSilenceLabels(event.target.dataset);
         },
         addSilenceLabel(label, value) {
             silenceStore.addLabel(label, value);

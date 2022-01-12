@@ -61,7 +61,7 @@
       </div>
 
       <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
-      <a @click="setSilenceLabels" data-service="{{service.name}}" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
+      <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
