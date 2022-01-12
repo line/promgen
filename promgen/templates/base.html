@@ -20,7 +20,7 @@
     {% endblock %}
     <div class="container">
       {% include 'promgen/global_messages.html' %}
-      {% include 'promgen/silence_form.html' %}
+      <silence-form></silence-form>
       {% include 'promgen/global_alerts.html' %}
       {% include 'promgen/global_silences.html' %}
       {% block content %}{% endblock %}
@@ -35,6 +35,9 @@
   <script src="{% static 'js/linkify.min.js' %}"></script>
   <script src="{% static 'js/linkify-string.min.js' %}"></script>
   <script src="{% static 'js/vue.min.js' %}"></script>
+  <script type="text/x-template" id="silence-form-template">
+    {% include 'promgen/silence_form.html' %}
+  </script>
   <script src="{% static 'js/promgen.js' %}"></script>
   <script src="{% static 'js/promgen.vue.js' %}"></script>
   {% block javascript %}{% endblock %}

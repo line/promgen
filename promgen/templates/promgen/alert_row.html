@@ -9,7 +9,7 @@
         <dd>
             <ul class="list-inline">
                 <li v-for="(value, label) in alert.labels">
-                    <a @click.prevent="silenceAppendLabel" class="label label-danger" :data-label="label" :data-value="value">[[label]]:[[value]]</a>
+                    <a @click="addSilenceLabel(label, value)" class="label label-danger">[[label]]:[[value]]</a>
                 </li>
             </ul>
         </dd>
@@ -20,5 +20,5 @@
     </dl>
 </td>
 <td>
-    <a @click.prevent="silenceAlert(alert)" class="btn btn-warning btn-xs">{% trans "Silence" %}</a>
+    <a @click="setSilenceLabels(alert.labels)" class="btn btn-warning btn-xs">{% trans "Silence" %}</a>
 </td>

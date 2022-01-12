@@ -85,10 +85,9 @@
           <li>
             <a href="{% url 'host-detail' host.name %}">{{ host.name }}</a>
             <a
-            @click.prevent="silenceSetLabels"
+            @click="setSilenceDataset"
             class="btn btn-warning btn-xs"
             data-instance="{{host.name}}:[0-9]*"
-            href="#"
             style="display: inline-block;"
           >{% trans "Silence" %}</a></li>
 {% endfor %}
@@ -108,10 +107,9 @@
       <tr>
         <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
         <td><a
-          @click.prevent="silenceSetLabels"
+          @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
           data-instance="{{host.name}}:[0-9]*"
-          href="#"
           style="display: inline-block;"
         >{% trans "Silence" %}</a></td>
       </tr>

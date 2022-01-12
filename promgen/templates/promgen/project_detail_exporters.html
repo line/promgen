@@ -38,12 +38,11 @@
       </td>
       <td>
         <a
-          @click.prevent="silenceSetLabels"
+          @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
           data-job="{{exporter.job}}"
           data-project="{{project.name}}"
           data-service="{{project.service.name}}"
-          href="#"
           style="display: inline-block;"
         >{% trans "Silence" %}</a>
       </td>
