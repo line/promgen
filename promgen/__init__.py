@@ -18,9 +18,12 @@ PROMGEN_CONFIG_FILE = pathlib.Path(
 )
 
 if PROMGEN_CONFIG_DIR.exists():
-    import envdir
-
-    envdir.open(PROMGEN_CONFIG_DIR)
+    try:
+        import envdir
+    except ImportError:
+        pass
+    else:
+        envdir.open(PROMGEN_CONFIG_DIR)
 
 
 if "SECRET_KEY" not in os.environ:
