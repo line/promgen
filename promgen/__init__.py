@@ -17,6 +17,9 @@ PROMGEN_CONFIG_FILE = pathlib.Path(
     os.environ.get("PROMGEN_CONFIG", str(PROMGEN_CONFIG_DIR / "promgen.yml"))
 )
 
+# In the future we want to remove the dependency on envdir, but this will
+# require some cleanup and documentation changes, so for now we will just
+# ensure that it can't fail here if envdir is not already installed
 if PROMGEN_CONFIG_DIR.exists():
     try:
         import envdir
