@@ -2,10 +2,10 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 
-from promgen import models
-from promgen.tests import PromgenTest
-
 from django.urls import reverse
+
+from promgen import forms, models
+from promgen.tests import PromgenTest
 
 
 class RouteTests(PromgenTest):
@@ -27,3 +27,15 @@ class RouteTests(PromgenTest):
             'hosts': ",,aaa, bbb,ccc,"
         }, follow=False)
         self.assertCount(models.Host, 3, "Expected 3 hosts")
+
+    def test_invalid(self):
+        form = forms.HostForm(
+            {
+                "hosts": """
+            foo/bar/baz
+            not-a-valid:host
+            """
+            }
+        )
+        self.assertFalse(form.is_valid(), "Form uses invalid hosts")
+        self.assertEquals(form.errors, {"__all__": ["Invalid hostname foo/bar/baz"]})
