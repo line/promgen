@@ -222,8 +222,7 @@ class HostForm(forms.Form):
         for hostname in re.split("[,\s]+", self.cleaned_data["hosts"]):
             if hostname == "":
                 continue
-            if ":" in hostname:
-                raise ValidationError("Invalid hostname %s" % hostname)
+            validators.hostname(hostname)
             hosts.add(hostname)
         if not hosts:
             raise ValidationError("No valid hosts")

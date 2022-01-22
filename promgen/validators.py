@@ -29,6 +29,8 @@ labelvalue = RegexValidator(
     r"^[\w][- \w]+\Z", "Unicode letters, numbers, underscores, or hyphens or spaces"
 )
 
+hostname = RegexValidator(r"^\w+$", "Invalid hostname %(value)s")
+
 
 def datetime(value):
     try:
