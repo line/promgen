@@ -93,6 +93,48 @@ class ExporterForm(forms.ModelForm):
         }
 
 
+class ExporterLabelForm(ExporterForm):
+    class Meta:
+        model = models.ExporterLabel
+        exclude = ['exporter']
+
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name'}),
+            'value': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Value'}),
+        }
+
+
+class BaseExporterLabelInlineFormSet(forms.BaseFormSet):
+    def clean(self):
+        """Checks that no two labels have the same name"""
+        if any(self.errors):
+            return
+        labels_names = {}
+        for form in self.forms:
+            name = form.cleaned_data.get('name')
+            if not name:
+                continue
+            if name in labels_names:
+                e = ValidationError('Duplicated name', code='invalid')
+                labels_names[name].add_error('name', e)
+                form.add_error('name', e)
+                raise e
+
+            labels_names[name] = form
+
+
+ExporterLabelInlineFormSet = forms.inlineformset_factory(
+    models.Exporter,
+    models.ExporterLabel,
+    form=ExporterLabelForm,
+    formset=BaseExporterLabelInlineFormSet,
+    extra=8,
+    can_delete_extra=False,
+    fields=['name', 'value'],
+    max_num=8,
+)
+
+
 class ServiceRegister(forms.ModelForm):
     class Meta:
         model = models.Service
@@ -132,7 +174,7 @@ class AlertRuleForm(forms.ModelForm):
         # Check our cleaned data then let Prometheus check our rule
         super().clean()
         rule = models.Rule(**self.cleaned_data)
-        
+
         # Make sure we pull in our labels and annotations for
         # testing if needed
         # See django docs on cached_property

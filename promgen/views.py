@@ -605,14 +605,30 @@ class FarmLink(LoginRequiredMixin, View):
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 
-class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+class ExporterCreate(LoginRequiredMixin, CreateView, mixins.ProjectMixin):
     model = models.Exporter
     template_name = 'promgen/exporter_form.html'
     form_class = forms.ExporterForm
 
-    def form_valid(self, form):
+    def get_context_data(self, **kwargs):
+        context = super(ExporterCreate, self).get_context_data(**kwargs)
+        context['labels_formset'] = forms.ExporterLabelInlineFormSet()
+        return context
+
+    def post(self, request, *args, **kwargs):
         project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
+        exporter_form = forms.ExporterForm(request.POST)
+        labels_formset = forms.ExporterLabelInlineFormSet(request.POST)
+        context = {'form': exporter_form, 'labels_formset': labels_formset, 'project': project}
+        if not exporter_form.is_valid() or not labels_formset.is_valid():
+            return render(request, self.template_name, context)
+
+        exporter, _ = models.Exporter.objects.get_or_create(project=project, **exporter_form.clean())
+        for label_form in labels_formset:
+            if label_form.cleaned_data.get('name'):  # Label name is not empty
+                label = label_form.save(commit=False)
+                exporter.exporterlabel_set.add(label, bulk=False)
+                label.save()
         return HttpResponseRedirect(reverse('project-detail', args=[project.id]))
 
 

@@ -73,11 +73,17 @@ class FarmAdmin(admin.ModelAdmin):
     list_filter = ('source',)
 
 
+class ExporterLabelInline(admin.TabularInline):
+    model = models.ExporterLabel
+    extra = 1
+
+
 @admin.register(models.Exporter)
 class ExporterAdmin(admin.ModelAdmin):
     list_display = ('job', 'port', 'path', 'project', 'enabled')
     list_filter = ('job', 'port',)
     readonly_fields = ('project',)
+    inlines = [ExporterLabelInline]
 
 
 @admin.register(models.DefaultExporter)

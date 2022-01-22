@@ -34,6 +34,40 @@
         <table class="table">
           {{ form.as_table }}
         </table>
+    <div class="labels-formset" style="padding: 8px">
+        {{ labels_formset.management_form }}
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="labels-formset-panel-header">
+                <a role="button" data-toggle="collapse" href="#labels-formset-panel" aria-expanded="false"
+                   aria-controls="labels-formset-panel" style="display: block; width: 100%">Labels</a></div>
+
+            <div id="labels-formset-panel" class="panel-collapse collapse {% if labels_formset.errors %} in{% endif %}"
+                 role="tabpanel" aria-labelledby="labels-formset-panel-header">
+
+                <div class="panel-body">
+                    <p class="help-text">To use label as URL parameter name it with prefix <code>__param_</code></p>
+
+                    {% for label_form in labels_formset %}
+                        <div class="row">
+                            <div class="label-form">
+                                <div class=" form-group">
+                                    {% for field in label_form.visible_fields %}
+                                        <div class="form-group col-md-6{% if field.errors %} has-error{% endif %}">
+                                            <label for="{{ field.id_for_label }}" class="sr-only">{{ field.label }}</label>
+                                            {{ field }}
+                                            {% if field.errors %}
+                                                <span class="help-block">{% for error in field.errors %}{{ error }} {% endfor %}</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
         <div class="panel-footer">
           <div class="input-group-btn">
             <button class="btn btn-primary">Register Exporter</button>

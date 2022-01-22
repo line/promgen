@@ -370,6 +370,23 @@ class Exporter(BaseExporter):
         return "{}:{}{}".format(self.job, self.port, self.path or "/metrics")
 
 
+class ExporterLabel(models.Model):
+    name = models.CharField(
+        blank=False,
+        max_length=128,
+    )
+    value = models.CharField(
+        max_length=128,
+    )
+    exporter = models.ForeignKey(Exporter, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = (("exporter_id", "name"),)
+
+    def __str__(self):
+        return "{}: {}".format(self.name, self.value)
+
+
 class Probe(models.Model):
     module = models.CharField(help_text='Probe Module from blackbox_exporter config', max_length=128, unique=True)
     description = models.TextField(blank=True)

@@ -51,7 +51,7 @@ urlpatterns = [
     path('project/<int:pk>/unlink', views.UnlinkFarm.as_view(), name='farm-unlink'),
     path('project/<int:pk>/link/<source>', views.FarmLink.as_view(), name='farm-link'),
     path('project/<int:pk>/newfarm', views.FarmRegister.as_view(), name='farm-new'),
-    path('project/<int:pk>/exporter', views.ExporterRegister.as_view(), name='project-exporter'),
+    path('project/<int:pk>/exporter', views.ExporterCreate.as_view(), name='project-exporter'),
     path('project/<int:pk>/notifier', views.ProjectNotifierRegister.as_view(), name='project-notifier'),
     path('project/<int:pk>/scrape', views.ExporterScrape.as_view(), name='exporter-scrape'),
 
