@@ -1,5 +1,16 @@
 # Changelog
 
+# v0.54 - 2022-01-24
+
+- [BUGFIX] envdir import fix #379
+- [BUGFIX] Missing CSRF token on API page #374
+- [BUGFIX] Use RegexValidator for validating hostnames #380
+- [CLEANUP] Remove unused JS dependencies #378
+- [IMPROVEMENT] Improve list rendering in Vue #373
+- [IMPROVEMENT] Improve performance of rendering alerts and silences #372
+- [IMPROVEMENT] Move silence form to a separate component #377
+- [IMPROVEMENT] Replace Moment with Luxon #375
+
 # v0.53 - 2021-11-10
 
 - [BUGFIX] Fix rest_framework/js reference #365
