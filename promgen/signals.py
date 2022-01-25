@@ -58,6 +58,18 @@ def run_once(signal):
     return _decorator
 
 
+def skip_raw(func):
+    @wraps(func)
+    def _wrapper(*args, raw, instance, **kwargs):
+        if raw:
+            logger.debug("Skipping %s:%s for raw %s", __name__, func.__name__, instance)
+            return
+        logger.debug("Running %s:%s for %s", __name__, func.__name__, instance)
+        return func(*args, raw=raw, instance=instance, **kwargs)
+
+    return _wrapper
+
+
 @run_once(trigger_write_config)
 def _trigger_write_config(signal, **kwargs):
     targets = [server.host for server in models.Prometheus.objects.all()]
@@ -197,8 +209,8 @@ def delete_exporter(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=models.Project)
-def save_project(sender, instance, **kwargs):
-    logger.debug('save_project: %s', instance)
+@skip_raw
+def save_project(instance, **kwargs):
     if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
         trigger_write_config.send(instance)
         return True
@@ -211,13 +223,13 @@ def delete_project(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=models.Service)
-def save_service(sender, instance, **kwargs):
+@skip_raw
+def save_service(instance, **kwargs):
     # We saving a service, we delegate the configuration reload triggering to
     # the child projects which have additional information about if we need to
     # write out our file or not. We call our save_project signal directly
     # (instead of through post_save.save) because we don't want to trigger other
     # attached signals
-    logger.debug('save_service: %s', instance)
     for project in instance.project_set.prefetch_related(
             'farm',
             'farm__host_set',
@@ -228,8 +240,9 @@ def save_service(sender, instance, **kwargs):
             return True
 
 
-@receiver(post_save, sender=User)
-def add_user_to_default_group(sender, instance, created, **kwargs):
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+@skip_raw
+def add_user_to_default_group(instance, created, **kwargs):
     # If we enabled our default group, then we want to ensure that all newly
     # created users are also added to our default group so they inherit the
     # default permissions
@@ -241,8 +254,9 @@ def add_user_to_default_group(sender, instance, created, **kwargs):
     instance.groups.add(Group.objects.get(name=settings.PROMGEN_DEFAULT_GROUP))
 
 
-@receiver(post_save, sender=User)
-def add_email_sender(sender, instance, created, **kwargs):
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+@skip_raw
+def add_email_sender(instance, created, **kwargs):
     if instance.email:
         models.Sender.objects.get_or_create(obj=instance, sender='promgen.notification.email', value=instance.email)
     else:
