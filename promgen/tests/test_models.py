@@ -2,8 +2,6 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 
-from unittest import mock
-
 from django.core.exceptions import ValidationError
 
 from promgen import models
@@ -11,8 +9,7 @@ from promgen.tests import PromgenTest
 
 
 class ModelTest(PromgenTest):
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
-    def setUp(self, mock_signal):
+    def setUp(self):
         self.user = self.force_login(username="demo")
 
     def test_names(self):

@@ -12,8 +12,7 @@ from promgen.notification.webhook import NotificationWebhook
 
 
 class WebhookTest(tests.PromgenTest):
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
-    def setUp(self, mock_signal):
+    def setUp(self):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=1)
 

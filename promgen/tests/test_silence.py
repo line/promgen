@@ -18,8 +18,7 @@ TEST_SETTINGS['timezone'] = 'Asia/Tokyo'
 
 
 class SilenceTest(tests.PromgenTest):
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
-    def setUp(self, mock_signal):
+    def setUp(self):
         self.user = self.force_login(username="demo")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
