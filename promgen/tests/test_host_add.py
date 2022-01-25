@@ -9,11 +9,8 @@ from promgen.tests import PromgenTest
 
 
 class HostTests(PromgenTest):
-    longMessage = True
-    fixtures = ["testcases.yaml"]
-
     def setUp(self):
-        self.add_force_login(id=999, username="Foo")
+        self.force_login(username="demo")
 
     def test_newline(self):
         self.client.post(

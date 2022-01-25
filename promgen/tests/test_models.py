@@ -13,7 +13,7 @@ from promgen.tests import PromgenTest
 class ModelTest(PromgenTest):
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
-        self.user = self.add_force_login(id=999, username="Foo")
+        self.user = self.force_login(username="demo")
 
     def test_names(self):
         # Unicode is ok

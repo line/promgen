@@ -12,8 +12,6 @@ from promgen.notification.user import NotificationUser
 
 
 class UserSplayTest(tests.PromgenTest):
-    fixtures = ["testcases.yaml"]
-
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch("promgen.notification.email.send_mail")

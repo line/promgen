@@ -10,8 +10,6 @@ from promgen.notification.linenotify import NotificationLineNotify
 
 
 class LineNotifyTest(tests.PromgenTest):
-    fixtures = ["testcases.yaml"]
-
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
         one = models.Project.objects.get(pk=1)

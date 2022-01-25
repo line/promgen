@@ -10,8 +10,6 @@ from promgen.notification.email import NotificationEmail
 
 
 class EmailTest(tests.PromgenTest):
-    fixtures = ["testcases.yaml"]
-
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
         one = models.Project.objects.get(pk=1)

@@ -10,8 +10,6 @@ from promgen.notification.slack import NotificationSlack
 
 
 class SlackTest(tests.PromgenTest):
-    fixtures = ["testcases.yaml"]
-
     TestHook1 = (
         "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
     )

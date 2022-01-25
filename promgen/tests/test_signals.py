@@ -8,7 +8,6 @@ from promgen import models
 
 
 class SignalTest(TestCase):
-    longMessage = True
     @mock.patch('promgen.models.Audit.log')
     @mock.patch('promgen.signals.trigger_write_config.send')
     def test_write_signal(self, write_mock, log_mock):
