@@ -103,9 +103,8 @@ def _trigger_write_urls(signal, **kwargs):
     return True
 
 
-def update_log(sender, instance, raw, **kwargs):
-    if raw:
-        return
+@skip_raw
+def update_log(sender, instance, **kwargs):
     # For our update_log, we hook the pre_save signal and make sure it's an
     # existing object by checking for a primary key. We then use that to get a
     # copy of the existing object from the database so that we can show the
@@ -122,6 +121,7 @@ pre_save.connect(update_log, sender=models.Service)
 pre_save.connect(update_log, sender=models.URL)
 
 
+@skip_raw
 def create_log(sender, instance, created, **kwargs):
     # For our create_log, we have to hook post_save to make sure we have a
     # primary key set so that we can link back to it using the ContentType
