@@ -101,6 +101,7 @@ class ExporterLabelForm(ExporterForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Name'}),
             'value': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Value'}),
+            'is_parameter': forms.CheckboxInput()
         }
 
 
@@ -130,7 +131,7 @@ ExporterLabelInlineFormSet = forms.inlineformset_factory(
     formset=BaseExporterLabelInlineFormSet,
     extra=8,
     can_delete_extra=False,
-    fields=['name', 'value'],
+    fields=['name', 'value', 'is_parameter'],
     max_num=8,
 )
 

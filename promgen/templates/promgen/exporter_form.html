@@ -45,25 +45,39 @@
                  role="tabpanel" aria-labelledby="labels-formset-panel-header">
 
                 <div class="panel-body">
-                    <p class="help-text">To use label as URL parameter name it with prefix <code>__param_</code></p>
-
-                    {% for label_form in labels_formset %}
-                        <div class="row">
-                            <div class="label-form">
-                                <div class=" form-group">
-                                    {% for field in label_form.visible_fields %}
-                                        <div class="form-group col-md-6{% if field.errors %} has-error{% endif %}">
-                                            <label for="{{ field.id_for_label }}" class="sr-only">{{ field.label }}</label>
-                                            {{ field }}
-                                            {% if field.errors %}
-                                                <span class="help-block">{% for error in field.errors %}{{ error }} {% endfor %}</span>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Value</th>
+                            <th title="Use label as URL query parameter">Param</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for label_form in labels_formset %}
+                            <tr>
+                            <th class="{% if label_form.name.errors %} has-error {% endif %}">
+                                {{ label_form.name }}
+                                {% if label_form.name.errors %}
+                                    <span class="help-block">{% for error in label_form.name.errors %}{{ error }} {% endfor %}</span>
+                                {% endif %}
+                            </th>
+                            <th class="{% if label_form.value.errors %} has-error {% endif %}">
+                                {{ label_form.value }}
+                                {% if label_form.value.errors %}
+                                    <span class="help-block">{% for error in label_form.value.errors %}{{ error }} {% endfor %}</span>
+                                {% endif %}
+                            </th>
+                            <th class="{% if label_form.is_parameter.errors %} has-error {% endif %}" title="Use label as URL query parameter">
+                                {{ label_form.is_parameter }}
+                                {% if label_form.is_parameter.errors %}
+                                    <span class="help-block">{% for error in label_form.is_param.errors %}{{ error }} {% endfor %}</span>
+                                {% endif %}
+                            </th>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

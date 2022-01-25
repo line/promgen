@@ -34,6 +34,9 @@ class ExporterFormTest(PromgenTest):
             "form-0-value": "value1",
             "form-1-name": "name2",
             "form-1-value": "value2",
+            "form-2-name": "name3",
+            "form-2-value": "value3",
+            "form-2-is_parameter": "on",
         }})
         exporter = models.Exporter.objects.first()
 
@@ -42,9 +45,11 @@ class ExporterFormTest(PromgenTest):
         self.assertIsNotNone(exporter)
         self.assertEqual('blackbox', exporter.job)
         self.assertEqual(9115, exporter.port)
-        self.assertEqual(exporter.exporterlabel_set.all().count(), 2)
+        self.assertEqual(exporter.exporterlabel_set.all().count(), 3)
         self.assertEqual('value1', exporter.exporterlabel_set.get(name__exact='name1').value)
         self.assertEqual('value2', exporter.exporterlabel_set.get(name__exact='name2').value)
+        self.assertEqual('value3', exporter.exporterlabel_set.get(name__exact='name3').value)
+        self.assertTrue(exporter.exporterlabel_set.get(name__exact='name3').is_parameter)
 
     def test_create_with_duplicated_labels_names(self):
         response = self.client.post('/project/999/exporter', {**self.__COMMON_REQUEST_DATA, **{

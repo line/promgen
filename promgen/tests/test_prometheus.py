@@ -27,7 +27,7 @@ class PrometheusConfigTest(PromgenTest):
                                 'path': '/path1',
                                 'scheme': 'http',
                                 'enabled': True,
-                                'labels': [('__param_target', 'prometheus.io'), ('name1_2', 'value1_2'),
+                                'labels': [('target', 'prometheus.io', True), ('name1_2', 'value1_2'),
                                            ('__farm_source', 'should be skipped')],
                             },
                             {
@@ -269,5 +269,6 @@ class PrometheusConfigTest(PromgenTest):
                     exporter = models.Exporter.objects.create(job=exporter_data['job'], port=exporter_data['port'],
                                                               path=exporter_data['path'],
                                                               enabled=exporter_data['enabled'], project=project)
-                    for name, value in exporter_data['labels']:
-                        models.ExporterLabel.objects.create(name=name, value=value, exporter=exporter)
+                    for name, value, *is_parameter in exporter_data['labels']:
+                        models.ExporterLabel.objects.create(name=name, value=value, is_parameter=bool(is_parameter),
+                                                            exporter=exporter)
