@@ -59,6 +59,12 @@ def run_once(signal):
 
 
 def skip_raw(func):
+    """
+    For many of our signals that call out to an external service, we want to skip
+    it any time we have a raw object from a fixture. This decorator helps us centralize
+    our check code to keep it consistent
+    """
+
     @wraps(func)
     def _wrapper(*args, raw, instance, **kwargs):
         if raw:
