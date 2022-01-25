@@ -11,7 +11,7 @@ from promgen.tests import PromgenTest
 
 
 class CLITests(PromgenTest):
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    @mock.patch("promgen.signals._trigger_write_config")
     def test_register_job(self, mock_signal):
         # Assert when project doesn't exist
         with self.assertRaises(CommandError):
@@ -34,7 +34,7 @@ class CLITests(PromgenTest):
         management.call_command("register-job", "TestProject", "example", 4321)
         self.assertCount(models.Exporter, 2)
 
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    @mock.patch("promgen.signals._trigger_write_config")
     def test_register_host(self, mock_signal):
         # Assert when project doesn't exist
         with self.assertRaises(CommandError):
