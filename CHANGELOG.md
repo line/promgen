@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.54.1 - 2022-01-25
+
+- [BUGFIX] Hostname validator based off URLValidator #383
+
 # v0.54 - 2022-01-24
 
 - [BUGFIX] envdir import fix #379
