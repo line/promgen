@@ -8,24 +8,27 @@ from promgen import forms, models
 from promgen.tests import PromgenTest
 
 
-class RouteTests(PromgenTest):
+class HostTests(PromgenTest):
     longMessage = True
+    fixtures = ["testcases.yaml"]
 
     def setUp(self):
         self.add_force_login(id=999, username="Foo")
 
     def test_newline(self):
-        farm = models.Farm.objects.create(name='Foo')
-        self.client.post(reverse('hosts-add', args=[farm.pk]), {
-            'hosts': "\naaa\nbbb\nccc \n"
-        }, follow=False)
+        self.client.post(
+            reverse("hosts-add", args=[1]),
+            {"hosts": "\naaa.example.com\nbbb.example.com\nccc.example.com \n"},
+            follow=False,
+        )
         self.assertCount(models.Host, 3, "Expected 3 hosts")
 
     def test_comma(self):
-        farm = models.Farm.objects.create(name='Foo')
-        self.client.post(reverse('hosts-add', args=[farm.pk]), {
-            'hosts': ",,aaa, bbb,ccc,"
-        }, follow=False)
+        self.client.post(
+            reverse("hosts-add", args=[1]),
+            {"hosts": ",,aaa.example.com, bbb.example.com,ccc.example.com,"},
+            follow=False,
+        )
         self.assertCount(models.Host, 3, "Expected 3 hosts")
 
     def test_invalid(self):

@@ -4,7 +4,7 @@
 from dateutil import parser
 
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, URLValidator
 
 # See definition of duration field
 # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file
@@ -29,8 +29,16 @@ labelvalue = RegexValidator(
     r"^[\w][- \w]+\Z", "Unicode letters, numbers, underscores, or hyphens or spaces"
 )
 
-hostname = RegexValidator(r"^\w+$", "Invalid hostname %(value)s")
-
+hostname = RegexValidator(
+    regex=r"^("
+    + URLValidator.ipv4_re
+    + "|"
+    + URLValidator.ipv6_re
+    + "|"
+    + URLValidator.host_re
+    + ")$",
+    message="Invalid hostname %(value)s",
+)
 
 def datetime(value):
     try:
