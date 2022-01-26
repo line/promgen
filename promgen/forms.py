@@ -111,17 +111,25 @@ class BaseExporterLabelInlineFormSet(forms.BaseFormSet):
         if any(self.errors):
             return
         labels_names = {}
+        parameters_names = {}
         for form in self.forms:
             name = form.cleaned_data.get('name')
             if not name:
                 continue
-            if name in labels_names:
-                e = ValidationError('Duplicated name', code='invalid')
-                labels_names[name].add_error('name', e)
-                form.add_error('name', e)
-                raise e
-
-            labels_names[name] = form
+            if form.cleaned_data.get('is_parameter'):
+                if name in parameters_names:
+                    e = ValidationError('Duplicated name', code='invalid')
+                    parameters_names[name].add_error('name', e)
+                    form.add_error('name', e)
+                    raise e
+                parameters_names[name] = form
+            else:
+                if name in labels_names:
+                    e = ValidationError('Duplicated name', code='invalid')
+                    labels_names[name].add_error('name', e)
+                    form.add_error('name', e)
+                    raise e
+                labels_names[name] = form
 
 
 ExporterLabelInlineFormSet = forms.inlineformset_factory(

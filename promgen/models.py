@@ -382,7 +382,7 @@ class ExporterLabel(models.Model):
     exporter = models.ForeignKey(Exporter, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (("exporter_id", "name"),)
+        unique_together = (("exporter_id", "name", "is_parameter"),)
 
     def __str__(self):
         return "{}: {}".format(self.name, self.value)
