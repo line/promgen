@@ -10,8 +10,7 @@
       <th colspan="4">Actions</th>
     </tr>
   {% for exporter in project.exporter_set.all %}
-    <tr {% if not exporter.enabled %}class="promgen-disabled"{% endif %}
-        {% if exporter.exporterlabel_set.all %}title="Labels: {{ exporter.exporterlabel_set.all | join:', ' }}"{% endif %}>
+    <tr {% if not exporter.enabled %}class="promgen-disabled"{% endif %}>
 
       <td>{{ exporter.job }}</td>
       <td>{{ exporter.scheme }}:{{ exporter.port }}</td>
@@ -25,6 +24,38 @@
           data-csrfmiddlewaretoken="{{csrf_token}}"
           data-action="{% url 'exporter-toggle' exporter.id %}"
         />
+      </td>
+      <td>
+        <div class="dropdown">
+          <button class="btn btn-default btn-xs dropdown-toggle" type="button" id="exporter-{{ exporter.id }}-labels"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+            
+            {% trans "Labels" %}
+            <span class="caret"></span>
+          </button>
+          <div class="dropdown-menu" aria-labelledby="exporter-{{ exporter.id }}-labels">
+            <table class="table" style="margin-bottom: 0">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>Value</th>
+              <th title="{% trans "Used as URL query parameter" %}">Param</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for label in exporter.exporterlabel_set.all %}
+              <tr>
+                <td>{{ label.name }}</td>
+                <td>{{ label.value }}</td>
+                <td {% if label.is_parameter %}title="{% trans "Used as URL query parameter" %}"{% endif %}>
+                  {% if label.is_parameter %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+          </div>
+        </div>
       </td>
       <td>
         <form id="{{exporter.job}}_{{exporter.port}}">
