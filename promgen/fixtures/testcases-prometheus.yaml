@@ -1,0 +1,203 @@
+# Farm 1 Hosts
+- model: promgen.host
+  pk: 1
+  fields:
+    name: host1
+    farm: 1
+- model: promgen.host
+  pk: 2
+  fields:
+    name: host2
+    farm: 1
+
+# Project 1 Exporters and ExporterLabels
+- model: promgen.exporter
+  pk: 1
+  fields:
+    project: 1
+    job: exporter1
+    port: 1111
+    path: /path1
+    scheme: http
+    enabled: True
+- model: promgen.exporterlabel
+  pk: 1
+  fields:
+    exporter: 1
+    name: target
+    value: prometheus.io
+    is_parameter: True
+- model: promgen.exporterlabel
+  pk: 2
+  fields:
+    exporter: 1
+    name: target
+    value: prometheus.io
+    is_parameter: False
+
+- model: promgen.exporter
+  pk: 2
+  fields:
+    project: 1
+    job: exporter2
+    port: 2222
+    path: /path2
+    scheme: https
+    enabled: True
+- model: promgen.exporterlabel
+  pk: 3
+  fields:
+    exporter: 2
+    name: name2_1
+    value: value2_1
+    is_parameter: False
+- model: promgen.exporterlabel
+  pk: 4
+  fields:
+    exporter: 2
+    name: name2_2
+    value: value2_2
+    is_parameter: False
+
+- model: promgen.exporter # Disabled Exporter
+  pk: 3
+  fields:
+    project: 1
+    job: disabled exporter
+    port: 3333
+    path: /path3
+    scheme: https
+    enabled: False
+- model: promgen.exporterlabel
+  pk: 5
+  fields:
+    exporter: 3
+    name: name3_1
+    value: value3_1
+    is_parameter: False
+- model: promgen.exporterlabel
+  pk: 6
+  fields:
+    exporter: 3
+    name: name3_2
+    value: value3_2
+    is_parameter: False
+
+# Project 2 Exporters and ExporterLabels
+- model: promgen.exporter
+  pk: 4
+  fields:
+    project: 2
+    job: exporter4
+    port: 4444
+    path: /path4
+    scheme: http
+    enabled: True
+- model: promgen.exporterlabel
+  pk: 7
+  fields:
+    exporter: 4
+    name: name4_1
+    value: value4_1
+    is_parameter: False
+- model: promgen.exporterlabel
+  pk: 8
+  fields:
+    exporter: 4
+    name: name4_2
+    value: value4_2
+    is_parameter: False
+
+- model: promgen.exporter
+  pk: 5
+  fields:
+    project: 2
+    job: exporter5
+    port: 5555
+    scheme: https
+    enabled: True
+- model: promgen.exporterlabel
+  pk: 9
+  fields:
+    exporter: 5
+    name: name5_1
+    value: value5_1
+    is_parameter: False
+- model: promgen.exporterlabel
+  pk: 10
+  fields:
+    exporter: 5
+    name: name5_2
+    value: value5_2
+    is_parameter: False
+
+# Project 3 (without Farm)
+- model: promgen.project
+  pk: 3
+  fields:
+    name: project-without-farm
+    owner: 1
+    service: 1
+    shard: 1
+- model: promgen.exporter
+  pk: 6
+  fields:
+    project: 3
+    job: exporter6
+    port: 6666
+    path: /path6
+    scheme: https
+    enabled: True
+- model: promgen.exporterlabel
+  pk: 11
+  fields:
+    exporter: 6
+    name: name6_1
+    value: value6_1
+    is_parameter: False
+
+# Service 2 Project
+- model: promgen.project
+  pk: 4
+  fields:
+    name: yet-another-project
+    owner: 1
+    service: 2
+    shard: 1
+    farm: 1
+
+# Project 4 Exporters and ExporterLabels
+- model: promgen.exporter
+  pk: 7
+  fields:
+    project: 4
+    job: exporter7
+    port: 7777
+    path: /path7
+    scheme: http
+    enabled: True
+- model: promgen.exporterlabel
+  pk: 12
+  fields:
+    exporter: 7
+    name: name7_1
+    value: value7_1
+    is_parameter: False
+- model: promgen.exporterlabel
+  pk: 13
+  fields:
+    exporter: 7
+    name: name7_2
+    value: value7_2
+    is_parameter: False
+
+- model: promgen.exporter # Exporter without labels
+  pk: 8
+  fields:
+    project: 4
+    job: exporter8
+    port: 8888
+    path: /path8
+    scheme: https
+    enabled: True
+

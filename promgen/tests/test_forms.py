@@ -17,11 +17,10 @@ class ExporterFormTest(PromgenTest):
         "form-MIN_NUM_FORMS": "0",
         "form-MAX_NUM_FORMS": "8",
     }
-    fixtures = ['testcases.yaml']
 
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def setUp(self, mock_signal):
-        self.user = self.add_force_login(id=999, username="Tester")
+        self.user = self.force_login(username="demo")
         self.client = Client()
         self.client.force_login(self.user)
 
