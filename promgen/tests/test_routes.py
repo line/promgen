@@ -15,11 +15,8 @@ TEST_REPLACE = tests.Data('examples', 'replace.json').raw()
 
 
 class RouteTests(tests.PromgenTest):
-    longMessage = True
-
-    @mock.patch('django.dispatch.dispatcher.Signal.send')
-    def setUp(self, mock_signal):
-        self.user = self.add_force_login(id=999, username="Foo")
+    def setUp(self):
+        self.user = self.force_login(username="demo")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
@@ -32,8 +29,8 @@ class RouteTests(tests.PromgenTest):
         response = self.client.post(reverse("import"), {"config": TEST_IMPORT})
 
         self.assertRoute(response, views.Import, 302, "Redirect to imported object")
-        self.assertCount(models.Service, 1, "Import one service")
-        self.assertCount(models.Project, 2, "Import two projects")
+        self.assertCount(models.Service, 3, "Import one service (Fixture has two services)")
+        self.assertCount(models.Project, 4, "Import two projects")
         self.assertCount(models.Exporter, 2, "Import two exporters")
         self.assertCount(models.Host, 3, "Import three hosts")
 
@@ -52,10 +49,10 @@ class RouteTests(tests.PromgenTest):
         response = self.client.post(reverse("import"), {"config": TEST_REPLACE})
         self.assertRoute(response, views.Import, 302, "Redirect to imported object (2)")
 
-        self.assertCount(models.Service, 1, "Import one service")
-        self.assertCount(models.Project, 2, "Import two projects")
+        self.assertCount(models.Service, 3, "Import one service (Fixture has two services)")
+        self.assertCount(models.Project, 4, "Import two projects (Fixture has 2 projectsa)")
         self.assertCount(models.Exporter, 2, "Import two exporters")
-        self.assertCount(models.Farm, 3, "Original two farms and one new farm")
+        self.assertCount(models.Farm, 4, "Original two farms and one new farm (fixture has one farm)")
         self.assertCount(models.Host, 5, "Original 3 hosts and two new ones")
 
     def test_service(self):

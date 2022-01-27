@@ -28,11 +28,9 @@ TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
 
 
 class RuleTest(tests.PromgenTest):
-    fixtures = ["testcases.yaml"]
-
     @mock.patch('django.dispatch.dispatcher.Signal.send')
     def setUp(self, mock_signal):
-        self.user = self.add_force_login(id=999, username="Foo")
+        self.user = self.force_login(username="demo")
         self.site = models.Site.objects.get_current()
         self.shard = models.Shard.objects.create(name='Shard 1')
         self.service = models.Service.objects.create(id=999, name='Service 1')
