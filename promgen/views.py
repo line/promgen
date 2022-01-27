@@ -9,6 +9,7 @@ import logging
 import platform
 import time
 from itertools import chain
+from urllib import parse as url_parse
 
 import prometheus_client
 import requests
@@ -641,6 +642,16 @@ class ExporterScrape(LoginRequiredMixin, View):
         # So we have a mutable dictionary
         data = request.POST.dict()
 
+        # Collect exporter query parameters and build URL query
+        labels_formset = forms.ExporterLabelInlineFormSet(request.POST)
+        query_parameters = []
+        for label_form in labels_formset:
+            if label_form.is_valid():
+                label_name = label_form.cleaned_data.get('name')
+                if label_name and label_form.cleaned_data.get('is_parameter'):
+                    query_parameters.append((label_name, label_form.cleaned_data.get('value')))
+        data['query'] = url_parse.urlencode(query_parameters)
+
         # The default __metrics_path__ for Prometheus is /metrics so we need to
         # manually add it here in the case it's not set for our test
         if not data.setdefault("path", "/metrics"):
@@ -650,13 +661,15 @@ class ExporterScrape(LoginRequiredMixin, View):
             futures = []
             with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
                 for host in farm.host_set.all():
+                    url = url_parse.urlunsplit((
+                        data['scheme'],
+                        f"{host.name}:{data['port']}",
+                        data['path'],
+                        data['query'],
+                        '',  # Fragment
+                    ))
                     futures.append(
-                        executor.submit(
-                            util.scrape,
-                            "{scheme}://{host}:{port}{path}".format(
-                                host=host.name, **data
-                            ),
-                        )
+                        executor.submit(util.scrape, url)
                     )
                 for future in concurrent.futures.as_completed(futures):
                     try:
