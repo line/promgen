@@ -28,6 +28,9 @@ class Data:
 
 
 class PromgenTest(TestCase):
+    longMessage = True
+    fixtures = ["testcases.yaml"]
+
     def fireAlert(self, source="alertmanager.json", data=None):
         if data is None:
             data = Data("examples", source).raw()
@@ -43,8 +46,8 @@ class PromgenTest(TestCase):
     def assertCount(self, model, count, msg=None):
         self.assertEqual(model.objects.count(), count, msg)
 
-    def add_force_login(self, **kwargs):
-        user = User.objects.create_user(**kwargs)
+    def force_login(self, username, **kwargs):
+        user = User.objects.get(username=username, **kwargs)
         self.client.force_login(user, "django.contrib.auth.backends.ModelBackend")
         return user
 

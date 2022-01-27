@@ -20,3 +20,4 @@ class RestAPITest(tests.PromgenTest):
     def test_alert(self):
         response = self.fireAlert()
         self.assertEqual(response.status_code, 202)
+        self.assertCount(models.Alert, 1, "Alert Queued")

@@ -6,12 +6,17 @@
 - model: auth.user
   pk: 1
   fields:
-    password: pbkdf2_sha256$150000$cbHVeXSc2Cvi$wWmcA0OKp0wB/2OU1jyKFoanA3KDbbM3gRcpLqa5OU0=
-    is_superuser: true
     username: admin
+    password: admin
+    is_superuser: true
     is_staff: true
     is_active: true
-
+- model: auth.user
+  pk: 2
+  fields:
+    username: demo
+    password: demo
+    is_active: true
 - model: promgen.shard
   pk: 1
   fields:
