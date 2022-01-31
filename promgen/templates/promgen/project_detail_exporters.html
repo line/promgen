@@ -39,7 +39,6 @@
             <tr>
               <th>Name</th>
               <th>Value</th>
-              <th title="{% trans "Used as URL query parameter" %}">Param</th>
             </tr>
             </thead>
             <tbody>
@@ -47,9 +46,6 @@
               <tr>
                 <td>{{ label.name }}</td>
                 <td>{{ label.value }}</td>
-                <td {% if label.is_parameter %}title="{% trans "Used as URL query parameter" %}"{% endif %}>
-                  {% if label.is_parameter %}<span class="glyphicon glyphicon-ok"></span>{% endif %}
-                </td>
               </tr>
             {% endfor %}
             </tbody>

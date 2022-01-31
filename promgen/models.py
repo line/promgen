@@ -378,11 +378,10 @@ class ExporterLabel(models.Model):
     value = models.CharField(
         max_length=128,
     )
-    is_parameter = models.BooleanField(default=False)
     exporter = models.ForeignKey(Exporter, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = (("exporter_id", "name", "is_parameter"),)
+        unique_together = (("exporter_id", "name"),)
 
     def __str__(self):
         return "{}: {}".format(self.name, self.value)

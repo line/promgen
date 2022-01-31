@@ -648,8 +648,9 @@ class ExporterScrape(LoginRequiredMixin, View):
         for label_form in labels_formset:
             if label_form.is_valid():
                 label_name = label_form.cleaned_data.get('name')
-                if label_name and label_form.cleaned_data.get('is_parameter'):
-                    query_parameters.append((label_name, label_form.cleaned_data.get('value')))
+                if label_name and label_name.startswith('__param_'):
+                    param_name = label_name[8:]
+                    query_parameters.append((param_name, label_form.cleaned_data.get('value')))
         data['query'] = url_parse.urlencode(query_parameters)
 
         # The default __metrics_path__ for Prometheus is /metrics so we need to

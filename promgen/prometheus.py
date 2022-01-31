@@ -134,8 +134,7 @@ def create_config(service=None, project=None):
 
         for label in exporter.exporterlabel_set.all():
             if label.name not in labels:
-                label_name = '__param_{}'.format(label.name) if label.is_parameter else label.name
-                labels[label_name] = label.value
+                labels[label.name] = label.value
 
         hosts = []
         for host in exporter.project.farm.host_set.all():

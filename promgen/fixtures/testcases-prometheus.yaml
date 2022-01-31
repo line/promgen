@@ -24,16 +24,14 @@
   pk: 1
   fields:
     exporter: 1
-    name: target
+    name: __param_target
     value: prometheus.io
-    is_parameter: True
 - model: promgen.exporterlabel
   pk: 2
   fields:
     exporter: 1
     name: target
     value: prometheus.io
-    is_parameter: False
 
 - model: promgen.exporter
   pk: 2
@@ -50,14 +48,12 @@
     exporter: 2
     name: name2_1
     value: value2_1
-    is_parameter: False
 - model: promgen.exporterlabel
   pk: 4
   fields:
     exporter: 2
     name: name2_2
     value: value2_2
-    is_parameter: False
 
 - model: promgen.exporter # Disabled Exporter
   pk: 3
@@ -74,14 +70,12 @@
     exporter: 3
     name: name3_1
     value: value3_1
-    is_parameter: False
 - model: promgen.exporterlabel
   pk: 6
   fields:
     exporter: 3
     name: name3_2
     value: value3_2
-    is_parameter: False
 
 # Project 2 Exporters and ExporterLabels
 - model: promgen.exporter
@@ -99,14 +93,12 @@
     exporter: 4
     name: name4_1
     value: value4_1
-    is_parameter: False
 - model: promgen.exporterlabel
   pk: 8
   fields:
     exporter: 4
     name: name4_2
     value: value4_2
-    is_parameter: False
 
 - model: promgen.exporter
   pk: 5
@@ -122,14 +114,12 @@
     exporter: 5
     name: name5_1
     value: value5_1
-    is_parameter: False
 - model: promgen.exporterlabel
   pk: 10
   fields:
     exporter: 5
     name: name5_2
     value: value5_2
-    is_parameter: False
 
 # Project 3 (without Farm)
 - model: promgen.project
@@ -154,7 +144,6 @@
     exporter: 6
     name: name6_1
     value: value6_1
-    is_parameter: False
 
 # Service 2 Project
 - model: promgen.project
@@ -182,14 +171,12 @@
     exporter: 7
     name: name7_1
     value: value7_1
-    is_parameter: False
 - model: promgen.exporterlabel
   pk: 13
   fields:
     exporter: 7
     name: name7_2
     value: value7_2
-    is_parameter: False
 
 - model: promgen.exporter # Exporter without labels
   pk: 8
