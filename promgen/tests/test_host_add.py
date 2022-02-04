@@ -4,7 +4,7 @@
 
 from django.urls import reverse
 
-from promgen import forms, models
+from promgen import models, validators
 from promgen.tests import PromgenTest
 
 
@@ -15,6 +15,9 @@ class HostTests(PromgenTest):
     def setUp(self):
         self.add_force_login(id=999, username="Foo")
 
+    # For our first two tests, we just want to make sure that both newline
+    # separated and comma separated work, but are not necessarily testing
+    # valid/invalid hostnames
     def test_newline(self):
         self.client.post(
             reverse("hosts-add", args=[1]),
@@ -31,14 +34,25 @@ class HostTests(PromgenTest):
         )
         self.assertCount(models.Host, 3, "Expected 3 hosts")
 
-    def test_invalid(self):
-        form = forms.HostForm(
-            {
-                "hosts": """
-            foo/bar/baz
-            not-a-valid:host
-            """
-            }
-        )
-        self.assertFalse(form.is_valid(), "Form uses invalid hosts")
-        self.assertEquals(form.errors, {"__all__": ["Invalid hostname foo/bar/baz"]})
+    # Within our new host code, the hosts are split (by newline or comma) and then
+    # individually tested. Here we will test our validator on specific entries that
+    # should pass or fail
+    def test_validators(self):
+        # Hostname only should be valid
+        validators.hostname("bare-hostname")
+        # FQDN should be valid
+        validators.hostname("fqdn.example.com")
+        # UPPERCASE and trailing dot should also be fine
+        validators.hostname("FQDN.with.trailing.dot.example.com.")
+        # Hostname cannot contain underscore
+        with self.assertRaises(validators.ValidationError):
+            validators.hostname("underscore_in_hostname")
+        # Hostname should not include port
+        with self.assertRaises(validators.ValidationError):
+            validators.hostname("invalid:host")
+        # Hostname should not be a url (no scheme)
+        with self.assertRaises(validators.ValidationError):
+            validators.hostname("http://example.com")
+        # Hostnames should not contain a path component
+        with self.assertRaises(validators.ValidationError):
+            validators.hostname("example.com/path")
