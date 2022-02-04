@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.54.3 - 2022-02-04
+
+-[BUGFIX] Update validator to allow hostname only entries #386
+
 # v0.54.2 - 2022-01-31
 
 - [BUGFIX] Fix missing closing div tag which triggered VueJS error #385
