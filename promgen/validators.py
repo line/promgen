@@ -1,6 +1,8 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
+import re
+
 from dateutil import parser
 
 from django.core.exceptions import ValidationError
@@ -36,9 +38,13 @@ hostname = RegexValidator(
     + URLValidator.ipv6_re
     + "|"
     + URLValidator.host_re
+    + "|"
+    + URLValidator.hostname_re
     + ")$",
-    message="Invalid hostname %(value)s",
+    message="Invalid hostname: %(value)s",
+    flags=re.IGNORECASE,
 )
+
 
 def datetime(value):
     try:
