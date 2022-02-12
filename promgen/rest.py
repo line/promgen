@@ -1,14 +1,20 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+import concurrent.futures
+import requests
+import logging
 
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
 
-from promgen import filters, models, prometheus, renderers, serializers, tasks
+from promgen import filters, models, prometheus, renderers, serializers, tasks, util
+
+logger = logging.getLogger(__name__)
 
 
 class AlertReceiver(View):
@@ -104,3 +110,37 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
             content_type='application/json',
         )
 
+    @action(detail=True, methods=['post'])
+    def scrape(self, request, name):
+        serializer = serializers.ProjectScrapeSerializer(self.get_object(), data=request.data)
+
+        def query():
+            futures = []
+            urls = serializer.get_scrape_urls()
+            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+                for url in urls:
+                    futures.append(
+                        executor.submit(util.scrape, url)
+                    )
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        result = future.result()
+                        result.raise_for_status()
+                        yield result.url, result.status_code
+                    except requests.ConnectionError as ex:
+                        logger.warning("Error connecting to server")
+                        yield ex.request.url, "Error connecting to server"
+                    except requests.RequestException as ex:
+                        logger.warning("Error with response")
+                        yield ex.request.url, str(ex)
+                    except Exception as ex:
+                        logger.exception("Unknown Exception %s" % ex)
+                        yield "Unknown URL", "Unknown error"
+
+        try:
+            return JsonResponse(dict(query()))
+        except ValidationError as e:
+            return JsonResponse({'error': e.detail}, status=400)
+        except Exception as e:
+            logging.warning(e)
+            return JsonResponse({"error": "Error with query %s" % e}, status=400)

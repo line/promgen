@@ -247,15 +247,33 @@ const ExporterTest = Vue.component('exporter-test', {
     methods: {
         onTestSubmit: function (event) {
             // Find the parent form our button belongs to so that we can
-            // simulate a form submission
-            let form = new FormData(event.srcElement.closest('form'))
+            // iterate over it and collect necessary fields and labels
+            // to 'data' object
+            let form = new FormData(event.target.closest('form'))
+            let data = {'query': {}}
+            let labelNameFieldPattern = /^form-(\d+)-name$/
+            form.forEach((fieldValue, fieldName) => {
+                if (fieldName.startsWith('form-')) {
+                    let matches = fieldName.match(labelNameFieldPattern)
+                    if (matches) {
+                        if (fieldValue.startsWith('__param_')) {
+                            let labelName = fieldValue.substring(8) // Remove '__param_'
+                            data['query'][labelName] = form.get(`form-${matches[1]}-value`)
+                        }
+                    }
+                } else {
+                    data[fieldName] = fieldValue
+                }
+            })
+            delete data['csrfmiddlewaretoken'] // CSRF token will be passed via 'X-CSRFToken' header
             let tgt = document.querySelector(this.target);
-            fetch(this.href, { body: form, method: "post", })
+            let headers = {'Content-Type': 'application/json', 'X-CSRFToken': form.get('csrfmiddlewaretoken').toString()}
+            fetch(this.href, { headers: headers, body: JSON.stringify(data), method: "post", })
                 .then(result => result.json())
                 .then(result => {
                     // If we have a valid result, then create a new
                     // ExporterResult component that we can render
-                    var component = new ExporterResult().$mount(tgt);
+                    let component = new ExporterResult().$mount(tgt);
                     component.$el.id = tgt.id;
                     component.$props.results = result;
                 })

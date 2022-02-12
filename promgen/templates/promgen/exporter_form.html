@@ -71,7 +71,7 @@
         <div class="panel-footer">
           <div class="input-group-btn">
             <button class="btn btn-primary">Register Exporter</button>
-            <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}" target="#exporterresult">
+            <exporter-test class="btn btn-info" href="{% url 'api:project-scrape' name=project.name %}" target="#exporterresult">
               {% trans "Test" %}
             </exporter-test>
           </div>

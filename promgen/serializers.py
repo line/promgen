@@ -1,8 +1,8 @@
 import collections
 
 from rest_framework import serializers
-
-from django.db.models import prefetch_related_objects
+from urllib import parse as url_parse
+from django.db.models import prefetch_related_objects, ObjectDoesNotExist
 
 import promgen.templatetags.promgen as macro
 from promgen import models, shortcuts
@@ -46,6 +46,81 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = models.Project
         lookup_field = 'name'
         exclude = ("id", "farm")
+
+
+class ProjectScrapeSerializer(serializers.Serializer):
+    __DEFAULT_PATH = '/metrics'
+    exporter_id = serializers.IntegerField(required=False)
+    scheme = serializers.CharField(required=False)
+    port = serializers.IntegerField(required=False)
+    path = serializers.CharField(required=False, allow_blank=True, default=__DEFAULT_PATH)
+    query = serializers.DictField(required=False, default={})
+
+    def __init__(self, project, **kwargs):
+        self.__project = project
+        self.__exporter = None
+        super().__init__(**kwargs)
+
+    def validate_exporter_id(self, exporter_id):
+        try:
+            self.__exporter = self.__project.exporter_set.filter(pk=exporter_id).get()
+            return exporter_id
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError("Exporter with id '%d' is not found" % exporter_id)
+
+    @staticmethod
+    def validate_scheme(scheme):
+        if scheme not in ['http', 'https']:
+            raise serializers.ValidationError('Scheme should be http or https')
+        return scheme
+
+    @staticmethod
+    def validate_port(port):
+        if port < 1 or port > 65535:
+            raise serializers.ValidationError('Port should be greater than 0 and lower than 65536')
+        return port
+
+    def validate_path(self, path):
+        return self.__DEFAULT_PATH if not path else path
+
+    def validate(self, data):
+        if self.__exporter is None:
+            required_fields = ['scheme', 'port', 'path']
+            for field_name in required_fields:
+                if field_name not in data:
+                    raise serializers.ValidationError(
+                        'Either exporter_id either %s are required' % ', '.join(required_fields)
+                    )
+            return data
+        else:
+            query = {}
+            for label in self.__exporter.exporterlabel_set.all().filter(name__startswith='__param_'):
+                query[label.name[8:]] = label.value
+            return {
+                'scheme': self.__exporter.scheme,
+                'port': self.__exporter.port,
+                'path': self.__exporter.path,
+                'query': query,
+            }
+
+    def get_scrape_urls(self):
+        self.is_valid(raise_exception=True)
+        urls = []
+        for host in self.__project.farm.host_set.all():
+            urls.append(url_parse.urlunsplit((
+                self.data['scheme'],
+                f"{host.name}:{self.data['port']}",
+                self.data['path'],
+                url_parse.urlencode(self.data['query']),
+                '',  # Fragment
+            )))
+        return urls
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
 
 
 class SenderSerializer(serializers.ModelSerializer):
