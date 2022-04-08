@@ -56,18 +56,20 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
 # Application definition
 
 INSTALLED_APPS = apps_from_setuptools + [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.sites',
-    'django.contrib.staticfiles',
-    'social_django',
-    'promgen',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'django_filters',
+    "promgen",
+    # Third Party
+    "django_filters",
+    "rest_framework.authtoken",
+    "rest_framework",
+    "social_django",
+    # Django
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.sites",
+    "django.contrib.staticfiles",
 ]
 
 # We explicitly include debug_toolbar and whitenoise here, but selectively
