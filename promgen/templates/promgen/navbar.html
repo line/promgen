@@ -37,17 +37,9 @@
                         <li><a href="{% url 'config-targets' %}">Export Targets</a></li>
                         <li><a href="{% url 'api:all-rules' %}">Export Rules</a></li>
                         <li><a href="{% url 'config-urls' %}">Export URL</a></li>
-
-                        {% if EXTERNAL_LINKS %}
-                        <li role="separator" class="divider"></li>
-                        {% for title, link in EXTERNAL_LINKS.items %}
-                        <li><a rel="noopener noreferrer" href="{{ link }}">{{ title }}</a></li>
-                        {% endfor %}
-
-                        {% endif %}
                     </ul>
                 </li>
-                <li><a href="https://promgen.readthedocs.io/">Help</a></li>
+                {% include 'promgen/help_menu.inc.html' %}
             </ul>
             <form class="navbar-form navbar-left" action="{% url 'search' %}">
                 <div class="form-group">
@@ -80,8 +72,9 @@
                 </li>
             </ul>
             {% else %}
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav">
                 <li><a href="{% url 'login' %}">Login</a></li>
+                {% include 'promgen/help_menu.inc.html' %}
             </ul>
             {% endif %}
         </div><!-- /.navbar-collapse -->

@@ -7,7 +7,6 @@ from promgen.version import __version__
 
 def settings_in_view(request):
     return {
-        "EXTERNAL_LINKS": util.setting("links", {}),
         "TIMEZONE": util.setting("timezone", "UTC"),
         "VERSION": __version__,
         "DEFAULT_EXPORTERS": models.DefaultExporter.objects.order_by("job", "-port"),
