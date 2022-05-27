@@ -81,7 +81,7 @@
     </button>
   </form>
 {% else %}
-    <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "New Farm" %}</a>
+    <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "Register Farm" %}</a>
 {% for name, source in sources %}
     <a href="{% url 'farm-link' project.id name %}" class="btn btn-default">
       {% if source.remote %}

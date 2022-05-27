@@ -105,8 +105,8 @@ msgid "Sync Farm"
 msgstr "Farmを同期"
 
 #: templates/promgen/project_detail_hosts.html:58
-msgid "New Farm"
-msgstr "New Farm"
+msgid "Register Farm"
+msgstr "Register Farm"
 
 #: templates/promgen/project_detail_hosts.html:60
 msgid "Link Farm"
