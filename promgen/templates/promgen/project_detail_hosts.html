@@ -48,7 +48,7 @@
 {% if project.farm %}
   {% if project.farm.editable %}
     <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">
-      {% trans "Add new host" %}
+      {% trans "Register Hosts" %}
     </a>
     <a href="{% url 'farm-update' project.farm.id %}" class="btn btn-default">
       {% trans "Edit Farm" %}
