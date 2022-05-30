@@ -473,7 +473,9 @@ class Rule(models.Model):
             self.name = '{}_{}'.format(self.name, slugify(content_object.name)).replace('-', '_')
             self.content_type = content_type
             self.object_id = object_id
-            self.enabled = False
+            # Enable the copy by default since it's more likely the user prefers
+            # to have their own copy enabled rather than the original one.
+            self.enabled = True
             self.clause = self.clause.replace(macro.EXCLUSION_MACRO, '{}="{}",{}'.format(
                 content_type.model, content_object.name, macro.EXCLUSION_MACRO
             ))
