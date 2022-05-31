@@ -7,7 +7,7 @@ chardet==3.0.4
 defusedxml==0.6.0 ; python_version >= '3.0'
 django-environ==0.4.5
 django-filter==2.4.0
-Django==3.2.9
+Django==3.2.13
 djangorestframework==3.11.2
 envdir==1.0.1
 gunicorn==19.9.0
