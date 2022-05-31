@@ -187,7 +187,13 @@ if "SENTRY_DSN" in os.environ:
     from sentry_sdk.integrations.celery import CeleryIntegration
 
     os.environ.setdefault("SENTRY_RELEASE", __version__)
-    sentry_sdk.init(integrations=[DjangoIntegration(), CeleryIntegration()])
+    # By default we want to keep sentry's default of NOT sending user
+    # information, but in some environments, it's useful for debugging
+    # purposes so lets add a flag here that we can use.
+    sentry_sdk.init(
+        integrations=[DjangoIntegration(), CeleryIntegration()],
+        send_default_pii=env.bool("SENTRY_SEND_DEFAULT_PII", False),
+    )
 
 
 REST_FRAMEWORK = {
