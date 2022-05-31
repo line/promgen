@@ -692,7 +692,7 @@ class URLList(LoginRequiredMixin, ListView):
 
 
 class ProjectRegister(LoginRequiredMixin, CreateView):
-    button_label = _("Project Register")
+    button_label = _("Register Project")
     model = models.Project
     fields = ["name", "description", "owner", "shard"]
 

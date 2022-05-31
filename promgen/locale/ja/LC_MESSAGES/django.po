@@ -79,8 +79,8 @@ msgid "Delete this host?"
 msgstr "Hostを削除しますか？"
 
 #: templates/promgen/project_detail_hosts.html:36
-msgid "Add new host"
-msgstr "Hostを追加"
+msgid "Register Hosts"
+msgstr "Hostsを登録"
 
 #: templates/promgen/project_detail_hosts.html:37
 msgid "Edit Farm"
@@ -105,8 +105,8 @@ msgid "Sync Farm"
 msgstr "Farmを同期"
 
 #: templates/promgen/project_detail_hosts.html:58
-msgid "New Farm"
-msgstr "New Farm"
+msgid "Register Farm"
+msgstr "Farmを登録"
 
 #: templates/promgen/project_detail_hosts.html:60
 msgid "Link Farm"
