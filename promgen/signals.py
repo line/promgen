@@ -299,6 +299,7 @@ def add_default_service_subscription(instance, created, **kwargs):
             obj=instance,
             sender="promgen.notification.user",
             value=instance.owner.username,
+            defaults={"owner": instance.owner},
         )
 
 
@@ -309,4 +310,5 @@ def add_default_project_subscription(instance, created, **kwargs):
             obj=instance,
             sender="promgen.notification.user",
             value=instance.owner.username,
+            defaults={"owner": instance.owner},
         )

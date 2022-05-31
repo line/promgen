@@ -889,8 +889,12 @@ class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin)
     form_class = forms.SenderForm
 
     def form_valid(self, form):
-        project = get_object_or_404(models.Project, id=self.kwargs['pk'])
-        sender, created = models.Sender.objects.get_or_create(obj=project, owner=self.request.user, **form.clean())
+        project = get_object_or_404(models.Project, id=self.kwargs["pk"])
+        sender, created = models.Sender.objects.get_or_create(
+            obj=project,
+            **form.clean(),
+            defaults={"owner": self.request.user},
+        )
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(project.get_absolute_url())
 
@@ -901,8 +905,12 @@ class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin)
     form_class = forms.SenderForm
 
     def form_valid(self, form):
-        service = get_object_or_404(models.Service, id=self.kwargs['pk'])
-        sender, created = models.Sender.objects.get_or_create(obj=service, owner=self.request.user, **form.clean())
+        service = get_object_or_404(models.Service, id=self.kwargs["pk"])
+        sender, created = models.Sender.objects.get_or_create(
+            obj=service,
+            **form.clean(),
+            defaults={"owner": self.request.user},
+        )
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(service.get_absolute_url())
 
