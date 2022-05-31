@@ -1,5 +1,18 @@
 # Changelog
 
+# v0.55 - 2022-05-31
+
+- [BUGFIX] Fix for duplicate user subscribe #389
+- [BUGFIX] Fix missing closing div tag which triggered VueJS error #385
+- [BUGFIX] Hostname validator based off URLValidator #383
+- [BUGFIX] Update validator to allow hostname only entries #386
+- [CHANGE] Enable copied rules by default #391
+- [IMPROVEMENT] Add support for SENTRY_SEND_DEFAULT_PII flag #393
+- [IMPROVEMENT] Package updates #392
+- [IMPROVEMENT] Support help_menu.inc.html override #388
+- [IMPROVEMENT] Unify text on register buttons #390
+- [INTERNAL] Update tests to use common test fixtures for better consistency #384
+
 # v0.54 - 2022-01-24
 
 - [BUGFIX] envdir import fix #379
