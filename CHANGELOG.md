@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.55.1 - 2022-06-01
+
+- [BUGFIX] Fix missing `load i18n` tag #395
+
 # v0.55 - 2022-05-31
 
 - [BUGFIX] Fix for duplicate user subscribe #389
