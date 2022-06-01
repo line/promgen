@@ -34,7 +34,7 @@
     {{ form.description }}
     <p class="help-block">This description is not used by Prometheus. It is for Developer's to add additional context only</p>
   </div>
-  <div class="panel-heading">{{ form.clause.label_tag }}</div>
+  <div class="panel-heading">{{ form.clause.name|title }}</div>
   <div class="panel-body">
     <ul class="list-inline">
       <li>Prometheus:</li>
