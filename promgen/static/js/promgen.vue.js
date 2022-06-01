@@ -228,17 +228,47 @@ Vue.component("promql-query", {
     },
 });
 
+
 Vue.component('bootstrap-panel', {
     props: ['heading'],
     template: '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body"><slot /></div></div>'
 })
 
-const ExporterResult = Vue.component('exporter-result', {
-    props: ['results'],
-    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>'
+const PromgenResult = Vue.component('promgen-result', {
+    methods: {
+        replace: function (ele) {
+            this.$mount(ele);
+            this.$el.id = ele.id;
+            app.$children.push(this);
+            return this;
+        },
+    }
 })
 
-const ExporterTest = Vue.component('exporter-test', {
+
+const ExporterResult = Vue.component('exporter-result', {
+    extends: PromgenResult,
+    props: ['results'],
+    template: `
+    <bootstrap-panel class="panel-info" heading="Results">
+        <table class="table">
+            <tr v-for="(val, key, index) in results">
+                <td>{{key}}</td>
+                <td>{{val}}</td>
+            </tr>
+        </table>
+    </bootstrap-panel>`,
+    methods: {
+        query: function (href, data) {
+            fetch(href, { body: data, method: "post" })
+                .then(result => result.json())
+                .then(result => this.results = result)
+                .catch(error => alert(error))
+        }
+    }
+})
+
+Vue.component('exporter-test', {
     // Exporter Test button for Forms
     // Acts like a regular form submit button, but hijacks the button
     // click and submits it to an alternate URL for testing
@@ -250,16 +280,81 @@ const ExporterTest = Vue.component('exporter-test', {
             // simulate a form submission
             let form = new FormData(event.srcElement.closest('form'))
             let tgt = document.querySelector(this.target);
-            fetch(this.href, { body: form, method: "post", })
+            new ExporterResult().replace(tgt).query(this.href, form);
+        }
+    }
+})
+
+const RuleResult = Vue.component('rule-result', {
+    extends: PromgenResult,
+    data: function () {
+        return {
+            results: {}
+        }
+    },
+    template: `
+    <bootstrap-panel class="panel-info" heading="Results">
+        <div v-if="results.data === undefined" class="panel-body">Loading...</div>
+        <div class="panel-body">
+            <dl>
+                <dt>Query</dt>
+                <dd><code>{{results.query}}</code></dd>
+                <dt>Duration</dt>
+                <dd>{{results.duration}}</dd>
+                <dt>Status</dt>
+                <dd>{{results.status}}</dd>
+            </dl>
+        </divL
+        <table class="table" v-show="results.errors !== undefined" >
+            <tr v-for="(val, key, index) in results.errors">
+                <td>{{key}}</td>
+                <td>{{val}}</td>
+            </tr>
+        </table>
+    </bootstrap-panel>
+    `,
+    methods: {
+        query: function (href, data) {
+            var formData = new FormData()
+            for (var key in data) {
+                formData.append(key, data[key]);
+            }
+            fetch(href, { body: formData, method: "post" })
                 .then(result => result.json())
-                .then(result => {
-                    // If we have a valid result, then create a new
-                    // ExporterResult component that we can render
-                    var component = new ExporterResult().$mount(tgt);
-                    component.$el.id = tgt.id;
-                    component.$props.results = result;
-                })
-                .catch(error => alert(error))
+                .then(result => this.results = result)
+        }
+    }
+})
+
+Vue.component('rule-test', {
+    props: ['href', 'source', 'target'],
+    template: '<a @click.prevent="onClick"><slot></slot></a>',
+    methods: {
+        onClick: function (event) {
+            // Build our query
+            let src = document.querySelector(this.source);
+            var data = event.target.dataset;
+            data.query = src.innerText;
+
+            // Create result and call query
+            let tgt = document.querySelector(this.target);
+            new RuleResult().replace(tgt).query(this.href, data);
+        }
+    }
+})
+
+Vue.component('code-sample', {
+    props: ['href', 'target'],
+    template: '<code @click.prevent="onClick"><slot></slot></code>',
+    methods: {
+        onClick: function (event) {
+            // Build our query
+            var data = event.target.dataset;
+            data.query = event.target.innerText;
+
+            // Create result and call query
+            let tgt = document.querySelector(this.target);
+            new RuleResult().replace(tgt).query(this.href, data);
         }
     }
 })
