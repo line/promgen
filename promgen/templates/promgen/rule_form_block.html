@@ -27,7 +27,7 @@
       <code title="10 minutes" data-copyto="#id_duration">10m</code>
       <code title="1 hour" data-copyto="#id_duration">1h</code>
     </p>
-    <p class="help-block">Prometheus will wait a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
+    <p class="help-block" style="margin-bottom: 0">Prometheus will wait a certain duration between first encountering a new expression output vector element (like an instance with a high HTTP error rate) and counting an alert as firing for this element. Elements that are active, but not firing yet, are in pending state.</p>
     <br />
     {% include 'promgen/error_block.html' with warning=form.description.errors only %}
     {{ form.description.label_tag }}
