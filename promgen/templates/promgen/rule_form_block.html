@@ -89,11 +89,10 @@
       </dd>
 {% endif %}
     </dl>
-  </div>
-  <div class="panel-body">
-    {% include 'promgen/error_block.html' with errors=form.clause.errors only %}
-    {{ form.clause }}
-  </div>
+    <div>
+      {% include 'promgen/error_block.html' with errors=form.clause.errors only %}
+      {{ form.clause }}
+    </div>
 <!-- Disable pending refactoring
   <div class="panel-body">
       <select
@@ -106,15 +105,17 @@
       </select>
   </div>
 -->
-  <div class="panel-body">
-    <a
-      class="btn btn-primary btn-sm"
-      data-href="{% url 'rule-test' rule.id %}"
-      data-source="#id_clause"
-      data-target="#ajax-clause-check"
-      data-content_type="{{rule.content_type.name}}"
-      data-object_id="{{rule.object_id}}"
-      >Test Query</a>
+    <br>
+    <div>
+      <a
+        class="btn btn-primary btn-sm"
+        data-href="{% url 'rule-test' rule.id %}"
+        data-source="#id_clause"
+        data-target="#ajax-clause-check"
+        data-content_type="{{rule.content_type.name}}"
+        data-object_id="{{rule.object_id}}"
+        >Test Query</a>
+    </div>
   </div>
 </div>
 
