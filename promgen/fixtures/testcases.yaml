@@ -38,6 +38,7 @@
   pk: 1
   fields:
     name: test-farm
+    source: promgen
 - model: promgen.project
   pk: 1
   fields:
