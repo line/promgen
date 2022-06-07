@@ -91,6 +91,7 @@
     </dl>
     <div>
       {% include 'promgen/error_block.html' with errors=form.clause.errors only %}
+      {{ form.clause.label_tag }}
       {{ form.clause }}
     </div>
 <!-- Disable pending refactoring
