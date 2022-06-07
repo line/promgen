@@ -94,18 +94,6 @@
       {{ form.clause.label_tag }}
       {{ form.clause }}
     </div>
-<!-- Disable pending refactoring
-  <div class="panel-body">
-      <select
-        data-target="#id_clause"
-        data-ajax="{% url 'proxy-values' '__name__' %}"
-        data-append='{% templatetag openbrace %}{{rule.content_type.name}}="{{ rule.content_object.name }}"}'
-        class="form-control"
-        >
-        <option value="">- insert metric at cursor -</option>
-      </select>
-  </div>
--->
     <br>
     <div>
       <a
