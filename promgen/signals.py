@@ -66,12 +66,12 @@ def skip_raw(func):
     """
 
     @wraps(func)
-    def _wrapper(*args, raw, instance, **kwargs):
+    def _wrapper(*, raw=False, instance, **kwargs):
         if raw:
             logger.debug("Skipping %s:%s for raw %s", __name__, func.__name__, instance)
             return
         logger.debug("Running %s:%s for %s", __name__, func.__name__, instance)
-        return func(*args, raw=raw, instance=instance, **kwargs)
+        return func(raw=raw, instance=instance, **kwargs)
 
     return _wrapper
 
@@ -230,17 +230,19 @@ def delete_project(sender, instance, **kwargs):
 
 @receiver(post_save, sender=models.Service)
 @skip_raw
-def save_service(instance, **kwargs):
+def save_service(*, sender, instance, **kwargs):
     # We saving a service, we delegate the configuration reload triggering to
     # the child projects which have additional information about if we need to
     # write out our file or not. We call our save_project signal directly
     # (instead of through post_save.save) because we don't want to trigger other
     # attached signals
+    # We don't use sender here, but put it in our parameters so we don't pass
+    # two sender entries to save_project
     for project in instance.project_set.prefetch_related(
             'farm',
             'farm__host_set',
             'exporter_set'):
-        if save_project(sender=models.Project, instance=project):
+        if save_project(sender=models.Project, instance=project, **kwargs):
             # If any of our save_project returns True, then we do not need to
             # check any others
             return True
