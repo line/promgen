@@ -23,11 +23,9 @@ class Command(BaseCommand):
             defaults={'shard': shard}
         )
         if created:
-            self.stdout.write('Created {} on {}'.format(server, shard.name))
+            self.stdout.write(f'Created {server} on {shard.name}')
         else:
             old_shard = server.shard
             server.shard = shard
             server.save()
-            self.stdout.write('Moved {} from {} to {}'.format(
-                server, old_shard.name, shard.name
-            ))
+            self.stdout.write(f'Moved {server} from {old_shard.name} to {shard.name}')

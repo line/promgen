@@ -140,7 +140,7 @@ class RuleTest(tests.PromgenTest):
         rules['project']['model'] = models.Rule.objects.get(pk=project_rule.pk)
 
         for k, r in rules.items():
-            self.assertEquals(macro.rulemacro(r['model']), r['assert'], 'Expansion wrong for %s' % k)
+            self.assertEqual(macro.rulemacro(r['model']), r['assert'], 'Expansion wrong for %s' % k)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch('django.dispatch.dispatcher.Signal.send')

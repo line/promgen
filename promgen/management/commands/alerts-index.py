@@ -19,7 +19,7 @@ class Command(BaseCommand):
         for alert in models.Alert.objects.filter(alertlabel__isnull=True):
             if dryrun:
                 labels = alert.json.get("commonLabels")
-                self.stderr.write("alert_id: %s, labels: %s" % (alert.pk, labels))
+                self.stderr.write(f"alert_id: {alert.pk}, labels: {labels}")
                 continue
 
             tasks.index_alert.delay(alert.pk)

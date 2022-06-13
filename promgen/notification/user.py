@@ -12,13 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 def _choices():
-    for user in User.objects.filter(is_active=True).order_by('username'):
-        if user.first_name:
-            yield (user.username, '{user.username} ({user.first_name} {user.last_name})'.format(user=user))
-        elif user.email:
-            yield (user.username, '{user.username} ({user.email})'.format(user=user))
+    for u in User.objects.filter(is_active=True).order_by("username"):
+        if u.first_name:
+            yield (u.username, f"{u.username} ({u.first_name} {u.last_name})")
+        elif u.email:
+            yield (u.username, f"{u.username} ({u.email})")
         else:
-            yield (user.username, user.username)
+            yield (u.username, u.username)
 
 
 class FormUser(forms.Form):
@@ -42,8 +42,7 @@ class NotificationUser(NotificationBase):
         except User.DoesNotExist:
             logger.error("Missing user %s", address)
         else:
-            for sender in models.Sender.objects.filter(obj=user):
-                yield sender
+            yield from models.Sender.objects.filter(obj=user)
 
     def _send(self, address, data):
         user = User.objects.get(username=address)

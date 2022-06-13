@@ -134,7 +134,7 @@ def render_config(service=None, project=None):
 
         hosts = []
         for host in exporter.project.farm.host_set.all():
-            hosts.append("{}:{}".format(host.name, exporter.port))
+            hosts.append(f"{host.name}:{exporter.port}")
 
         data.append({"labels": labels, "targets": hosts})
     return json.dumps(data, indent=2, sort_keys=True)

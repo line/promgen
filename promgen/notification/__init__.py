@@ -24,7 +24,7 @@ class FormSenderBase(forms.Form):
     alias = forms.CharField(required=False)
 
 
-class NotificationBase(object):
+class NotificationBase:
     """
     Base Notification class
     """

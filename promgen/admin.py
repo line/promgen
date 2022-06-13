@@ -120,7 +120,7 @@ class RuleAdmin(admin.ModelAdmin):
     inlines = [RuleLabelInline, RuleAnnotationInline]
 
     def get_queryset(self, request):
-        qs = super(RuleAdmin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         return qs.prefetch_related('content_object',)
 
 

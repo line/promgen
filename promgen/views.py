@@ -141,7 +141,7 @@ class HostList(LoginRequiredMixin, ListView):
         )
 
     def get_context_data(self, **kwargs):
-        context = super(HostList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['host_groups'] = collections.defaultdict(list)
         for host in context['object_list']:
             context['host_groups'][host.name].append(host)
@@ -293,14 +293,14 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
         if 'filter.pk' in request.POST:
             f = models.Filter.objects.get(pk=request.POST['filter.pk'])
             f.delete()
-            messages.success(request, 'Removed filter {f.name} {f.value}'.format(f=f))
+            messages.success(request, f'Removed filter {f.name} {f.value}')
         if 'filter.name' in request.POST:
             obj = self.get_object()
             f, created = obj.filter_set.get_or_create(name=request.POST['filter.name'], value=request.POST['filter.value'])
             if created:
-                messages.success(request, 'Created filter {f.name} {f.value}'.format(f=f))
+                messages.success(request, f'Created filter {f.name} {f.value}')
             else:
-                messages.warning(request, 'Updated filter {f.name} {f.value}'.format(f=f))
+                messages.warning(request, f'Updated filter {f.name} {f.value}')
         if 'next' in request.POST:
             return redirect(request.POST['next'])
         return self.get(self, request, pk)
@@ -372,8 +372,8 @@ class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
         obj = self.object._meta
         tgt = self.object.content_object._meta
 
-        yield '{}.delete_{}'.format(obj.app_label, obj.model_name)
-        yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
+        yield f'{obj.app_label}.delete_{obj.model_name}'
+        yield f'{tgt.app_label}.change_{tgt.model_name}'
 
     def get_success_url(self):
         return self.object.content_object.get_absolute_url()
@@ -392,8 +392,8 @@ class RuleToggle(mixins.PromgenPermissionMixin, SingleObjectMixin, View):
         obj = self.object._meta
         tgt = self.object.content_object._meta
 
-        yield '{}.change_{}'.format(obj.app_label, obj.model_name)
-        yield '{}.change_{}'.format(tgt.app_label, tgt.model_name)
+        yield f'{obj.app_label}.change_{obj.model_name}'
+        yield f'{tgt.app_label}.change_{tgt.model_name}'
 
     def post(self, request, pk):
         self.object.enabled = not self.object.enabled
@@ -425,7 +425,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
     )
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['sources'] = models.Farm.driver_set()
         context['url_form'] = forms.URLForm()
         return context
@@ -451,7 +451,7 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
     form_class = forms.FarmForm
 
     def get_context_data(self, **kwargs):
-        context = super(FarmUpdate, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['project'] = self.object.project_set.first()
         context['service'] = context['project'].service
         return context
@@ -495,7 +495,7 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
     queryset = models.Rule.objects.prefetch_related("content_type", "content_object")
 
     def get_context_data(self, **kwargs):
-        context = super(RulesList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         site_rules = models.Rule.objects.filter(
             content_type__model="site", content_type__app_label="promgen"
@@ -722,7 +722,7 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
     fields = ["name", "description", "owner", "service", "shard"]
 
     def get_context_data(self, **kwargs):
-        context = super(ProjectUpdate, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["service"] = self.object.service
         context["shard_list"] = models.Shard.objects.all()
         return context
@@ -759,8 +759,8 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         obj = self.object._meta
         tgt = self.object.content_object._meta
 
-        yield "{}.change_{}".format(obj.app_label, obj.model_name)
-        yield "{}.change_{}".format(tgt.app_label, tgt.model_name)
+        yield f"{obj.app_label}.change_{obj.model_name}"
+        yield f"{tgt.app_label}.change_{tgt.model_name}"
 
     queryset = models.Rule.objects.prefetch_related(
         "content_object", "overrides", "overrides__content_object"
@@ -769,7 +769,7 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
     form_class = forms.AlertRuleForm
 
     def get_context_data(self, **kwargs):
-        context = super(RuleUpdate, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.setdefault("formset_labels", forms.LabelFormset(instance=self.object))
         context.setdefault("formset_annotations", forms.AnnotationFormset(instance=self.object))
         context["macro"] = macro.EXCLUSION_MACRO
@@ -814,11 +814,11 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
 
         # Save our labels
         for instance in form_labels.save():
-            messages.info(request, "Added {} to {}".format(instance.name, self.object))
+            messages.info(request, f"Added {instance.name} to {self.object}")
 
         # Save our annotations
         for instance in form_annotations.save():
-            messages.info(request, "Added {} to {}".format(instance.name, self.object))
+            messages.info(request, f"Added {instance.name} to {self.object}")
 
         return self.form_valid(form)
 
@@ -932,7 +932,7 @@ class Profile(LoginRequiredMixin, FormView):
     template_name = "promgen/profile.html"
 
     def get_context_data(self, **kwargs):
-        context = super(Profile, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['discovery_plugins'] = [entry for entry in plugins.discovery()]
         context['notifier_plugins'] = [entry for entry in plugins.notifications()]
         context['notifiers'] = {'notifiers': models.Sender.objects.filter(obj=self.request.user)}
@@ -951,7 +951,7 @@ class HostRegister(LoginRequiredMixin, FormView):
     form_class = forms.HostForm
 
     def get_context_data(self, **kwargs):
-        context = super(HostRegister, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["farm"] = get_object_or_404(models.Farm, pk=self.kwargs["pk"])
         context["project"] = context["farm"].project_set.first()
         return context

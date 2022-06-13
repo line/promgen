@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 _user = local()
 
 
-class PromgenMiddleware(object):
+class PromgenMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 

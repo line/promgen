@@ -15,7 +15,7 @@ from promgen.version import __version__
 # https://github.com/requests/requests/blob/master/requests/api.py
 
 
-USER_AGENT = "promgen/{}".format(__version__)
+USER_AGENT = f"promgen/{__version__}"
 ACCEPT_HEADER = "application/openmetrics-text; version=0.0.1,text/plain;version=0.0.4;q=0.5,*/*;q=0.1"
 
 
