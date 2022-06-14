@@ -39,9 +39,8 @@ class SilenceTest(tests.PromgenTest):
                 },
                 content_type="application/json",
             )
-        mock_post.assert_called_with(
-            'http://alertmanager:9093/api/v1/silences',
-            json=TEST_DURATION
+        self.assertMockCalls(
+            mock_post, "http://alertmanager:9093/api/v1/silences", json=TEST_DURATION
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
@@ -60,7 +59,7 @@ class SilenceTest(tests.PromgenTest):
                 },
                 content_type="application/json",
             )
-        mock_post.assert_called_with(
-            'http://alertmanager:9093/api/v1/silences',
-            json=TEST_RANGE
+
+        self.assertMockCalls(
+            mock_post, "http://alertmanager:9093/api/v1/silences", json=TEST_RANGE
         )
