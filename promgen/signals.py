@@ -42,7 +42,7 @@ def run_once(signal):
     def _decorator(func):
         @wraps(func)
         def _wrapper(*args, **kwargs):
-            key = '{}.{}'.format(func.__module__, func.__name__)
+            key = f'{func.__module__}.{func.__name__}'
             if 'force' in kwargs:
                 logger.debug('Checking %s for %s', key, kwargs['sender'])
                 kwargs.pop('force')
@@ -83,7 +83,7 @@ def _trigger_write_config(signal, **kwargs):
         logger.info('Queueing write_config on %s', target)
         tasks.write_config.apply_async(queue=target)
     if 'request' in kwargs:
-        messages.info(kwargs['request'], 'Updating config on {}'.format(targets))
+        messages.info(kwargs['request'], f'Updating config on {targets}')
     return True
 
 
@@ -94,7 +94,7 @@ def _trigger_write_rules(signal, **kwargs):
         logger.info('Queueing write_rules on %s', target)
         tasks.write_rules.apply_async(queue=target)
     if 'request' in kwargs:
-        messages.info(kwargs['request'], 'Updating rules on {}'.format(targets))
+        messages.info(kwargs['request'], f'Updating rules on {targets}')
     return True
 
 
@@ -105,7 +105,7 @@ def _trigger_write_urls(signal, **kwargs):
         logger.info('Queueing write_urls on %s', target)
         tasks.write_urls.apply_async(queue=target)
     if 'request' in kwargs:
-        messages.info(kwargs['request'], 'Updating urls on {}'.format(targets))
+        messages.info(kwargs['request'], f'Updating urls on {targets}')
     return True
 
 
@@ -117,7 +117,7 @@ def update_log(sender, instance, **kwargs):
     # changes
     if instance.pk:
         old = sender.objects.get(pk=instance.pk)
-        models.Audit.log('Updated %s %s' % (sender.__name__, instance), instance, old)
+        models.Audit.log(f'Updated {sender.__name__} {instance}', instance, old)
 pre_save.connect(update_log, sender=models.Exporter)
 pre_save.connect(update_log, sender=models.Farm)
 pre_save.connect(update_log, sender=models.Host)
@@ -133,7 +133,7 @@ def create_log(sender, instance, created, **kwargs):
     # primary key set so that we can link back to it using the ContentType
     # system.
     if created:
-        models.Audit.log('Created %s %s' % (sender.__name__, instance), instance)
+        models.Audit.log(f'Created {sender.__name__} {instance}', instance)
 post_save.connect(create_log, sender=models.Exporter)
 post_save.connect(create_log, sender=models.Farm)
 post_save.connect(create_log, sender=models.Host)
@@ -144,7 +144,7 @@ post_save.connect(create_log, sender=models.URL)
 
 
 def delete_log(sender, instance, **kwargs):
-    models.Audit.log('Deleted %s %s' % (sender.__name__, instance), instance)
+    models.Audit.log(f'Deleted {sender.__name__} {instance}', instance)
 post_delete.connect(delete_log, sender=models.Exporter)
 post_delete.connect(delete_log, sender=models.Farm)
 post_delete.connect(delete_log, sender=models.Host)

@@ -26,7 +26,7 @@ class SignalTest(tests.PromgenTest):
         )
 
         # Should be called once for each created exporter
-        self.assertEquals(write_mock.call_count, 2, "Two write calls")
+        self.assertEqual(write_mock.call_count, 2, "Two write calls")
         write_mock.assert_has_calls([mock.call(e1), mock.call(e2)])
 
     @mock.patch('promgen.models.Audit.log')

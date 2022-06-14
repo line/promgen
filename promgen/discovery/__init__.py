@@ -5,7 +5,7 @@
 FARM_DEFAULT = 'promgen'
 
 
-class DiscoveryBase(object):
+class DiscoveryBase:
     remote = True
 
     '''

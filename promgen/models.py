@@ -91,7 +91,7 @@ class Sender(models.Model):
     show_value.short_description = 'Value'
 
     def __str__(self):
-        return '{}:{}'.format(self.sender, self.show_value())
+        return f'{self.sender}:{self.show_value()}'
 
     @classmethod
     def driver_set(cls):
@@ -254,7 +254,7 @@ class Project(models.Model):
         return reverse('project-detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return '{} » {}'.format(self.service, self.name)
+        return f'{self.service} » {self.name}'
 
 
 class Farm(models.Model):
@@ -270,7 +270,7 @@ class Farm(models.Model):
 
     def refresh(self):
         target = set()
-        current = set(host.name for host in self.host_set.all())
+        current = {host.name for host in self.host_set.all()}
         for entry in plugins.discovery():
             if self.source == entry.name:
                 target.update(entry.load()().fetch(self.name))
@@ -279,13 +279,13 @@ class Farm(models.Model):
         add = target - current
 
         if add:
-            Audit.log('Adding {} to {}'.format(add, self), self)
+            Audit.log(f'Adding {add} to {self}', self)
             Host.objects.bulk_create([
                 Host(name=name, farm_id=self.id) for name in add
             ])
 
         if remove:
-            Audit.log('Removing {} from {}'.format(add, self), self)
+            Audit.log(f'Removing {add} from {self}', self)
             Host.objects.filter(farm=self, name__in=remove).delete()
 
         return add, remove
@@ -294,8 +294,7 @@ class Farm(models.Model):
     def fetch(cls, source):
         for entry in plugins.discovery():
             if entry.name == source:
-                for farm in entry.load()().farms():
-                    yield farm
+                yield from entry.load()().farms()
 
     @cached_property
     def driver(self):
@@ -315,7 +314,7 @@ class Farm(models.Model):
             yield entry.name, entry.load()()
 
     def __str__(self):
-        return '{} ({})'.format(self.name, self.source)
+        return f'{self.name} ({self.source})'
 
 
 class Host(models.Model):
@@ -330,7 +329,7 @@ class Host(models.Model):
         return reverse('host-detail', kwargs={'slug': self.name})
 
     def __str__(self):
-        return '{} [{}]'.format(self.name, self.farm.name)
+        return f'{self.name} [{self.farm.name}]'
 
 
 class BaseExporter(models.Model):
@@ -375,7 +374,7 @@ class Probe(models.Model):
     description = models.TextField(blank=True)
 
     def __str__(self):
-        return "{} » {}".format(self.module, self.description)
+        return f"{self.module} » {self.description}"
 
 
 class URL(models.Model):
@@ -387,7 +386,7 @@ class URL(models.Model):
         ordering = ["project__service", "project", "url"]
 
     def __str__(self):
-        return "{} [{}]".format(self.project, self.url)
+        return f"{self.project} [{self.url}]"
 
 
 class Rule(models.Model):
@@ -438,7 +437,7 @@ class Rule(models.Model):
         return _annotations
 
     def __str__(self):
-        return '{} [{}]'.format(self.name, self.content_object.name)
+        return f'{self.name} [{self.content_object.name}]'
 
     def get_absolute_url(self):
         return reverse('rule-detail', kwargs={'pk': self.pk})
@@ -470,15 +469,16 @@ class Rule(models.Model):
             orig_pk = self.pk
             self.pk = None
             self.parent_id = orig_pk
-            self.name = '{}_{}'.format(self.name, slugify(content_object.name)).replace('-', '_')
+            self.name = f'{self.name}_{slugify(content_object.name)}'.replace('-', '_')
             self.content_type = content_type
             self.object_id = object_id
             # Enable the copy by default since it's more likely the user prefers
             # to have their own copy enabled rather than the original one.
             self.enabled = True
-            self.clause = self.clause.replace(macro.EXCLUSION_MACRO, '{}="{}",{}'.format(
-                content_type.model, content_object.name, macro.EXCLUSION_MACRO
-            ))
+            self.clause = self.clause.replace(
+                macro.EXCLUSION_MACRO,
+                f'{content_type.model}="{content_object.name}",{macro.EXCLUSION_MACRO}',
+            )
             self.save()
 
             # Add a label to our new rule by default, to help ensure notifications
@@ -617,7 +617,7 @@ class Prometheus(models.Model):
     port = models.IntegerField()
 
     def __str__(self):
-        return '{}:{}'.format(self.host, self.port)
+        return f'{self.host}:{self.port}'
 
     class Meta:
         ordering = ['shard', 'host']

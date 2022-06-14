@@ -14,7 +14,7 @@ def directories(**kwargs):
             path = pathlib.Path(util.setting(key)).parent
         except TypeError:
             yield checks.Warning(
-                "Missing setting for %s in %s " % (key, settings.PROMGEN_CONFIG_FILE),
+                f"Missing setting for {key} in {settings.PROMGEN_CONFIG_FILE} ",
                 id="promgen.W001",
             )
         else:
@@ -29,7 +29,7 @@ def promtool(**kwargs):
         path = pathlib.Path(util.setting(key))
     except TypeError:
         yield checks.Warning(
-            "Missing setting for %s in %s " % (key, settings.PROMGEN_CONFIG_FILE),
+            f"Missing setting for {key} in {settings.PROMGEN_CONFIG_FILE} ",
             id="promgen.W001",
         )
     else:

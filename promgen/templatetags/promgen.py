@@ -70,7 +70,7 @@ def rulemacro(rule, clause=None):
         k: '|'.join(labels[k]) for k in sorted(labels)
     }
     macro = ','.join(
-        sorted('{}!~"{}"'.format(k, v) for k, v in filters.items())
+        sorted(f'{k}!~"{v}"' for k, v in filters.items())
     )
     return clause.replace(EXCLUSION_MACRO, macro)
 

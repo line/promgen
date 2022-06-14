@@ -13,7 +13,7 @@ from django.core.exceptions import ValidationError
 
 class ImportConfigForm(forms.Form):
     def _choices():
-        return [('', '<Default>')] + sorted([(shard.name, 'Import into: ' + shard.name) for shard in models.Shard.objects.all()])
+        return [('', '<Default>')] + sorted((shard.name, 'Import into: ' + shard.name) for shard in models.Shard.objects.all())
 
     config = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
@@ -177,7 +177,7 @@ class HostForm(forms.Form):
         # once we split on that, we want to make sure there are no invalid
         # hostnames
         hosts = set()
-        for hostname in re.split("[,\s]+", self.cleaned_data["hosts"]):
+        for hostname in re.split(r"[,\s]+", self.cleaned_data["hosts"]):
             if hostname == "":
                 continue
             validators.hostname(hostname)

@@ -24,11 +24,11 @@ class Command(BaseCommand):
 
         if imported:
             counters = {key: len(imported[key]) for key in imported}
-            self.stdout.write('Imported {}'.format(counters))
+            self.stdout.write(f'Imported {counters}')
 
         if skipped:
             counters = {key: len(skipped[key]) for key in skipped}
-            self.stdout.write('Skipped {}'.format(counters))
+            self.stdout.write(f'Skipped {counters}')
 
         trigger_write_config.send(self, force=True)
         trigger_write_rules.send(self, force=True)

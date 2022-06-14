@@ -23,7 +23,7 @@ class Command(BaseCommand):
             job=job, port=port, path=path
         )
         if created:
-            self.stdout.write('Created {}'.format(exporter))
+            self.stdout.write(f'Created {exporter}')
         else:
-            self.stdout.write('Already exists {}'.format(exporter))
+            self.stdout.write(f'Already exists {exporter}')
 
