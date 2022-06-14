@@ -155,6 +155,7 @@ post_delete.connect(delete_log, sender=models.URL)
 
 
 @receiver(post_save, sender=models.Rule)
+@skip_raw
 def save_rule(sender, instance, **kwargs):
     prometheus.check_rules([instance])
     trigger_write_rules.send(instance)
@@ -166,6 +167,7 @@ def delete_rule(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=models.URL)
+@skip_raw
 def save_url(sender, instance, **kwargs):
     trigger_write_urls.send(instance)
 
@@ -176,6 +178,7 @@ def delete_url(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=models.Host)
+@skip_raw
 def save_host(sender, instance, **kwargs):
     '''Only trigger write if parent project also has exporters'''
     for project in instance.farm.project_set.all():
@@ -199,6 +202,7 @@ def delete_farm(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=models.Exporter)
+@skip_raw
 def save_exporter(sender, instance, **kwargs):
     '''Only trigger write if parent project also has hosts'''
     if instance.project.farm:
