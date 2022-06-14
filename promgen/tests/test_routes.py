@@ -86,6 +86,7 @@ class RouteTests(tests.PromgenTest):
         for url, body in exporters.items():
             response = requests.Response()
             response.url = url
+            response.status_code = 200
             mock_get.return_value = response
 
             # For each POST body, check to see that we generate and attempt to
