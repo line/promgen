@@ -179,8 +179,6 @@ else:
 
 SITE_ID = 1
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
 if "SENTRY_DSN" in os.environ:
     import sentry_sdk
     from sentry_sdk.integrations.django import DjangoIntegration

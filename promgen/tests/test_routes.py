@@ -55,26 +55,6 @@ class RouteTests(tests.PromgenTest):
         self.assertCount(models.Farm, 4, "Original two farms and one new farm (fixture has one farm)")
         self.assertCount(models.Host, 5, "Original 3 hosts and two new ones")
 
-    def test_service(self):
-        response = self.client.get(reverse("service-list"))
-        self.assertRoute(response, views.ServiceList, 200)
-
-    def test_project(self):
-        shard = models.Shard.objects.create(name='Shard Test')
-        service = models.Service.objects.create(name='Service Test')
-        project = models.Project.objects.create(name='Project Test', service=service, shard=shard)
-
-        response = self.client.get(reverse("project-detail", kwargs={"pk": project.pk}))
-        self.assertRoute(response, views.ProjectDetail, 200)
-
-    def test_farms(self):
-        response = self.client.get(reverse("farm-list"))
-        self.assertRoute(response, views.FarmList, 200)
-
-    def test_hosts(self):
-        response = self.client.get(reverse("host-list"))
-        self.assertRoute(response, views.HostList, 200)
-
     @mock.patch("requests.get")
     def test_scrape(self, mock_get):
         shard = models.Shard.objects.create(name="test_scrape_shard")
@@ -106,6 +86,7 @@ class RouteTests(tests.PromgenTest):
         for url, body in exporters.items():
             response = requests.Response()
             response.url = url
+            response.status_code = 200
             mock_get.return_value = response
 
             # For each POST body, check to see that we generate and attempt to

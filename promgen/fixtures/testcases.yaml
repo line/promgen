@@ -8,6 +8,7 @@
   fields:
     username: admin
     password: admin
+    email: admin@example.com
     is_superuser: true
     is_staff: true
     is_active: true
@@ -16,6 +17,7 @@
   fields:
     username: demo
     password: demo
+    email: demo@example.com
     is_active: true
 - model: promgen.shard
   pk: 1
@@ -38,6 +40,7 @@
   pk: 1
   fields:
     name: test-farm
+    source: promgen
 - model: promgen.project
   pk: 1
   fields:

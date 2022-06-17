@@ -1,5 +1,5 @@
 {
-  "createdBy": "Promgen",
+  "createdBy": "demo@example.com",
   "matchers": [{
     "value": "example.com:[0-9]*",
     "isRegex": true,
