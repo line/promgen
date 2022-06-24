@@ -6,12 +6,17 @@
 {% include "promgen/service_header.html" %}
 {% include "promgen/service_block.html" %}
 {% empty %}
-<h3>No Subscriptions Found</h3>
-<p>
-  Try Subscribing to some notifications from the
-  <a href="{% url 'service-list' %}">Service</a> or
-  <a href="{% url 'datasource-list' %}">Datasource</a> menu
-  </p>
+<div class="page-header">
+  <h1>It seems you don't have any subscriptions yet!</h1>
+</div>
+<p class="lead">
+  Get started by subscribing to notifications from an existing
+  <a href="{% url 'service-list' %}">service</a> or check out the list of
+  <a href="{% url 'datasource-list' %}">data sources</a>.
+</p>
+<p class="lead">
+  Or, if you want, <a href="{% url 'service-new' %}">register</a> a new service.
+</p>
 {% endfor %}
 
 {% endblock %}
