@@ -1,5 +1,14 @@
 # Changelog
 
+# v0.56.0 - 2022-07-29
+
+- [BUGFIX] Fix handling of kwargs in skip_raw decorator #396
+- [BUGFIX] Fix missing `load i18n` tag #395
+- [IMPROVEMENT] Improve styling in new rule form #394
+- [IMPROVEMENT] More descriptive home page when no subscribed services #399
+- [INTERNAL] Regroup and improve web test cases #398
+- [INTERNAL] Run pyupgrade on code in prep for more lint cleanup #397
+
 # v0.55 - 2022-05-31
 
 - [BUGFIX] Fix for duplicate user subscribe #389
