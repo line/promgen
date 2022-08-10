@@ -73,12 +73,13 @@ docker run --rm -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ line/promgen
 # Run Promgen celery worker. Make sure to run it on the same machine as your Prometheus server to manage the config settings
 docker run --rm -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus line/promgen worker
 
-# Or if using docker-compose you can spin up a complete test environment
+# If you are using docker compose, you can spin up a demo environment
 docker-compose up -d
-# Database Migration
-docker-compose run web migrate
-# Create initial user
+# Database migration to populate with initial data
+docker-compose run web docker-compose-bootstrap
+# If you want to create a different admin user
 docker-compose run web createsuperuser
+# Now you should be able to open the demo environment in your browser
 ```
 
 ## The MIT License
