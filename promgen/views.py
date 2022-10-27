@@ -62,7 +62,7 @@ class DatasourceList(LoginRequiredMixin, ListView):
         "project_set__notifiers",
         "project_set__notifiers__owner",
         "prometheus_set",
-    )
+    ).annotate(num_projects=Count("project"))
 
 
 class DatasourceDetail(LoginRequiredMixin, DetailView):
