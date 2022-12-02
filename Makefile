@@ -39,23 +39,40 @@ help:
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
-$(PIP_BIN):
-	$(SYSTEM_PYTHON) -m venv .venv
-	$(PIP_BIN) install --upgrade pip setuptools wheel
+###############################################################################
+### Pip Tasks
+###############################################################################
 
 $(APP_BIN): $(PIP_BIN)
 	$(PIP_BIN) install -e .[dev,mysql] -r docker/requirements.txt
 
-.PHONY: pip
-## Pip: Reinstall dependencies
-pip: $(PIP_BIN)
-	$(PIP_BIN) install --upgrade pip setuptools wheel
-	$(PIP_BIN) install -e .[dev,mysql] -r docker/requirements.txt
+$(PIP_BIN):
+	$(SYSTEM_PYTHON) -m venv $(ENV_DIR)
+	$(PIP_BIN) install --upgrade pip wheel
 
 .PHONY: list
-## Pip: Check installed versions
 list: $(PIP_BIN)
-	$(PIP_BIN) list -o
+	$(PIP_BIN) list --outdated
+
+$(PIP_COMPILE): $(PIP_BIN)
+	$(PIP_BIN) install pip-tools
+
+docker/requirements.txt: $(PIP_COMPILE) setup.py setup.cfg docker/requirements.in
+	$(PIP_COMPILE) --output-file docker/requirements.txt setup.py docker/requirements.in --no-emit-index-url
+
+.PHONY: pip
+## Reinstall with pip
+pip: docker/requirements.txt
+	$(PIP_BIN) install --upgrade pip wheel
+	$(PIP_BIN) install -e .[dev,mysql] -r docker/requirements.txt
+
+.PHONY: compile
+## Pip: Compile requirements
+compile: docker/requirements.txt
+
+###############################################################################
+### Other Tasks
+###############################################################################
 
 .PHONY: build
 ## Docker: Build container
