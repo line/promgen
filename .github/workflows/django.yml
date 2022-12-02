@@ -11,7 +11,7 @@ on:
 jobs:
   docs:
     name: Run tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -31,11 +31,11 @@ jobs:
           --health-retries=3
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ hashFiles('setup.cfg') }}-${{ hashFiles('docker/requirements.txt') }}
