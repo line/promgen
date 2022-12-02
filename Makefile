@@ -20,7 +20,7 @@ TARGET_MAX_CHAR_NUM=20
 help:
 	@echo ''
 	@echo 'Usage:'
-	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
+	@echo '  $(YELLOW)make$(RESET) $(GREEN)<target>$(RESET)'
 	@echo ''
 	@echo 'Targets:'
 	@awk '/^[\%a-zA-Z\-\_0-9]+:/ { \
@@ -28,33 +28,33 @@ help:
 		if (helpMessage) { \
 			helpCommand = substr($$1, 0, index($$1, ":")-1); \
 			helpMessage = substr(lastLine, RSTART + 3, RLENGTH); \
-			printf "  ${YELLOW}%-$(TARGET_MAX_CHAR_NUM)s${RESET} ${GREEN}%s${RESET}\n", helpCommand, helpMessage; \
+			printf "  $(YELLOW)%-$(TARGET_MAX_CHAR_NUM)s$(RESET) $(GREEN)%s$(RESET)\n", helpCommand, helpMessage; \
 		} \
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
-${PIP_BIN}:
+$(PIP_BIN):
 	python3 -m venv .venv
-	${PIP_BIN} install --upgrade pip setuptools wheel
+	$(PIP_BIN) install --upgrade pip setuptools wheel
 
-${APP_BIN}: ${PIP_BIN}
-	${PIP_BIN} install -e .[dev,mysql] -r docker/requirements.txt
+$(APP_BIN): $(PIP_BIN)
+	$(PIP_BIN) install -e .[dev,mysql] -r docker/requirements.txt
 
 .PHONY: pip
 ## Pip: Reinstall dependencies
-pip: ${PIP_BIN}
-	${PIP_BIN} install --upgrade pip setuptools wheel
-	${PIP_BIN} install -e .[dev,mysql] -r docker/requirements.txt
+pip: $(PIP_BIN)
+	$(PIP_BIN) install --upgrade pip setuptools wheel
+	$(PIP_BIN) install -e .[dev,mysql] -r docker/requirements.txt
 
 .PHONY: list
 ## Pip: Check installed versions
-list: ${PIP_BIN}
-	${PIP_BIN} list -o
+list: $(PIP_BIN)
+	$(PIP_BIN) list -o
 
 .PHONY: build
 ## Docker: Build container
 build:
-	docker build . --tag ${DOCKER_TAG}
+	docker build . --tag $(DOCKER_TAG)
 
 .PHONY: demo
 ## Docker: Run a demo via docker-compose
@@ -64,54 +64,54 @@ demo:
 #### Django Commands
 
 .PHONY: test
-test: ${APP_BIN}
+test: $(APP_BIN)
 ## Django: Run tests
-	${APP_BIN} collectstatic --noinput
-	${APP_BIN} test -v 2
+	$(APP_BIN) collectstatic --noinput
+	$(APP_BIN) test -v 2
 
 .PHONY: bootstrap
 ## Django: Bootstrap install
-bootstrap: ${APP_BIN}
-	${APP_BIN} bootstrap
-	${APP_BIN} migrate
-	${APP_BIN} check
+bootstrap: $(APP_BIN)
+	$(APP_BIN) bootstrap
+	$(APP_BIN) migrate
+	$(APP_BIN) check
 
 .PHONY: check
 ## Django: Run Django checks
-check: ${APP_BIN}
-	${APP_BIN} check
+check: $(APP_BIN)
+	$(APP_BIN) check
 
 .PHONY: migrate
 ## Django: Run migrations
-migrate: ${APP_BIN}
-	${APP_BIN} migrate
+migrate: $(APP_BIN)
+	$(APP_BIN) migrate
 
 .PHONY:	run
 ## Django: Run development server
 run: migrate
-	${APP_BIN} runserver
+	$(APP_BIN) runserver
 
 .PHONY: shell
 ## Django: Development shell
-shell: ${APP_BIN}
+shell: $(APP_BIN)
 	@echo opening promgen shell
-	@${APP_BIN} shell
+	@$(APP_BIN) shell
 
-dump: ${APP_BIN}
-	${APP_BIN} dumpdata promgen.DefaultExporter  --indent=2 --output promgen/fixtures/exporters.yaml --format=yaml
+dump: $(APP_BIN)
+	$(APP_BIN) dumpdata promgen.DefaultExporter  --indent=2 --output promgen/fixtures/exporters.yaml --format=yaml
 .PHONY: load
-load: ${APP_BIN}
-	${APP_BIN} loaddata exporters
+load: $(APP_BIN)
+	$(APP_BIN) loaddata exporters
 
 #### Documentation
 
-${SPHINX}: ${PIP_BIN}
-	${PIP_BIN} install -e .[dev,docs]
+$(SPHINX): $(PIP_BIN)
+	$(PIP_BIN) install -e .[dev,docs]
 
 .PHONY: docs
 ## Sphinx: Build documentation
-docs: ${SPHINX}
-	${SPHINX} -avb html docs dist/html
+docs: $(SPHINX)
+	$(SPHINX) -avb html docs dist/html
 
 
 #### Other assorted commands
@@ -126,4 +126,4 @@ clean:
 
 .PHONY: changelog
 changelog:
-	git log --color=always --first-parent --pretty='format:%s|%Cgreen%d%Creset' | column -ts '|' | less "$(lessopts)" 
+	git log --color=always --first-parent --pretty='format:%s|%Cgreen%d%Creset' | column -ts '|' | less "$(lessopts)"
