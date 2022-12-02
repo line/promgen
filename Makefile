@@ -1,9 +1,15 @@
 lessopts="--tabs=4 --quit-if-one-screen --RAW-CONTROL-CHARS --no-init"
 
-APP_BIN := .venv/bin/promgen
-PIP_BIN := .venv/bin/pip
-SPHINX  := .venv/bin/sphinx-build
+ENV_DIR := .venv
+PIP_BIN := $(ENV_DIR)/bin/pip
+PIP_COMPILE := $(ENV_DIR)/bin/pip-compile
+
+APP_BIN := $(ENV_DIR)/bin/promgen
+CELERY_BIN := $(ENV_DIR)/bin/celery
+SPHINX  := $(ENV_DIR)/bin/sphinx-build
+
 DOCKER_TAG := promgen:local
+SYSTEM_PYTHON ?= python3.6
 
 # Help 'function' taken from
 # https://gist.github.com/prwhite/8168133#gistcomment-2278355
@@ -34,7 +40,7 @@ help:
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
 
 $(PIP_BIN):
-	python3 -m venv .venv
+	$(SYSTEM_PYTHON) -m venv .venv
 	$(PIP_BIN) install --upgrade pip setuptools wheel
 
 $(APP_BIN): $(PIP_BIN)
