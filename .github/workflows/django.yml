@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.6", "3.7", "3.8"]
 
@@ -50,5 +51,6 @@ jobs:
       - name: Run Unittests
         run: make test
         env:
+          SYSTEM_PYTHON: python${{ matrix.python-version }}
           SECRET_KEY: abcd
           DATABASE_URL: mysql://root:password@127.0.0.1/promgen?charset=utf8mb4
