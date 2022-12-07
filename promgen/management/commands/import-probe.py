@@ -7,10 +7,10 @@ import sys
 
 import yaml
 
-from promgen import models
-
 from django.core import exceptions
 from django.core.management.base import BaseCommand
+
+from promgen import models
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)

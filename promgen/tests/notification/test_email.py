@@ -31,12 +31,8 @@ class EmailTest(tests.PromgenTest):
 
         mock_email.assert_has_calls(
             [
-                mock.call(
-                    _SUBJECT, _MESSAGE, "promgen@example.com", ["example@example.com"]
-                ),
-                mock.call(
-                    _SUBJECT, _MESSAGE, "promgen@example.com", ["foo@example.com"]
-                ),
+                mock.call(_SUBJECT, _MESSAGE, "promgen@example.com", ["example@example.com"]),
+                mock.call(_SUBJECT, _MESSAGE, "promgen@example.com", ["foo@example.com"]),
             ],
             any_order=True,
         )

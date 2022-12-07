@@ -13,28 +13,28 @@ from django.core.exceptions import ValidationError
 
 class ImportConfigForm(forms.Form):
     def _choices():
-        return [('', '<Default>')] + sorted((shard.name, 'Import into: ' + shard.name) for shard in models.Shard.objects.all())
+        return [("", "<Default>")] + sorted(
+            (shard.name, "Import into: " + shard.name) for shard in models.Shard.objects.all()
+        )
 
     config = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-        required=False)
-    url = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
-        required=False)
+        widget=forms.Textarea(attrs={"rows": 5, "class": "form-control"}), required=False
+    )
+    url = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}), required=False)
     file_field = forms.FileField(
-        widget=forms.FileInput(attrs={'class': 'form-control'}),
-        required=False)
+        widget=forms.FileInput(attrs={"class": "form-control"}), required=False
+    )
 
     shard = forms.ChoiceField(choices=_choices, required=False)
 
 
 class ImportRuleForm(forms.Form):
     rules = forms.CharField(
-        widget=forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-        required=False)
+        widget=forms.Textarea(attrs={"rows": 5, "class": "form-control"}), required=False
+    )
     file_field = forms.FileField(
-        widget=forms.FileInput(attrs={'class': 'form-control'}),
-        required=False)
+        widget=forms.FileInput(attrs={"class": "form-control"}), required=False
+    )
 
     def clean(self):
         if any(self.cleaned_data.values()):
@@ -51,28 +51,28 @@ class SilenceForm(forms.Form):
     createdBy = forms.CharField(required=False)
 
     def clean_comment(self):
-        if self.cleaned_data['comment']:
-            return self.cleaned_data['comment']
+        if self.cleaned_data["comment"]:
+            return self.cleaned_data["comment"]
         return "Silenced from Promgen"
 
     def clean_createdBy(self):
-        if self.cleaned_data['createdBy']:
-            return self.cleaned_data['createdBy']
+        if self.cleaned_data["createdBy"]:
+            return self.cleaned_data["createdBy"]
         return "Promgen"
 
     def clean(self):
-        duration = self.data.get('duration')
-        start = self.data.get('startsAt')
-        stop = self.data.get('endsAt')
+        duration = self.data.get("duration")
+        start = self.data.get("startsAt")
+        stop = self.data.get("endsAt")
 
         if duration:
             # No further validation is required if only duration is set
             return
 
         if not all([start, stop]):
-            raise forms.ValidationError('Both start and end are required')
+            raise forms.ValidationError("Both start and end are required")
         elif parser.parse(start) > parser.parse(stop):
-            raise forms.ValidationError('Start time and end time is mismatch')
+            raise forms.ValidationError("Start time and end time is mismatch")
 
 
 class SilenceExpireForm(forms.Form):
@@ -97,7 +97,7 @@ class ServiceRegister(forms.ModelForm):
     class Meta:
         model = models.Service
         # shard is determined by the pk in the service register url
-        exclude = ['shard']
+        exclude = ["shard"]
 
 
 class ServiceUpdate(forms.ModelForm):
@@ -119,20 +119,20 @@ class URLForm(forms.ModelForm):
 class AlertRuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule
-        exclude = ['parent', 'content_type', 'object_id']
+        exclude = ["parent", "content_type", "object_id"]
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'duration': forms.TextInput(attrs={'class': 'form-control'}),
-            'clause': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
-            'enabled': forms.CheckboxInput(attrs={'data-toggle': 'toggle', 'data-size': 'mini'}),
-            'description': forms.Textarea(attrs={'rows': 5, 'class': 'form-control'}),
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "duration": forms.TextInput(attrs={"class": "form-control"}),
+            "clause": forms.Textarea(attrs={"rows": 5, "class": "form-control"}),
+            "enabled": forms.CheckboxInput(attrs={"data-toggle": "toggle", "data-size": "mini"}),
+            "description": forms.Textarea(attrs={"rows": 5, "class": "form-control"}),
         }
 
     def clean(self):
         # Check our cleaned data then let Prometheus check our rule
         super().clean()
         rule = models.Rule(**self.cleaned_data)
-        
+
         # Make sure we pull in our labels and annotations for
         # testing if needed
         # See django docs on cached_property
@@ -143,30 +143,30 @@ class AlertRuleForm(forms.ModelForm):
 
 
 class RuleCopyForm(forms.Form):
-    content_type = forms.ChoiceField(choices=[(x, x) for x in ['service', 'project']])
+    content_type = forms.ChoiceField(choices=[(x, x) for x in ["service", "project"]])
     object_id = forms.IntegerField()
 
 
 class FarmForm(forms.ModelForm):
     class Meta:
         model = models.Farm
-        exclude = ['source']
+        exclude = ["source"]
 
 
 class SenderForm(forms.ModelForm):
-    sender = forms.ChoiceField(choices=[
-        (entry.module_name, entry.module_name) for entry in plugins.notifications()
-    ])
+    sender = forms.ChoiceField(
+        choices=[(entry.module_name, entry.module_name) for entry in plugins.notifications()]
+    )
 
     class Meta:
         model = models.Sender
-        exclude = ['content_type', 'object_id', 'owner', 'enabled']
+        exclude = ["content_type", "object_id", "owner", "enabled"]
 
 
 class NotifierUpdate(forms.ModelForm):
     class Meta:
         model = models.Sender
-        exclude = ['value']
+        exclude = ["value"]
 
 
 class HostForm(forms.Form):

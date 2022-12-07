@@ -40,4 +40,3 @@ if "SECRET_KEY" not in os.environ:
         )
     except ImportError:
         pass
-

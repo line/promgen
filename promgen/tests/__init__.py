@@ -35,9 +35,7 @@ class PromgenTest(TestCase):
         if data is None:
             data = Data("examples", source).raw()
 
-        return self.client.post(
-            reverse("alert"), data=data, content_type="application/json"
-        )
+        return self.client.post(reverse("alert"), data=data, content_type="application/json")
 
     def assertRoute(self, response, view, status=200, msg=None):
         self.assertEqual(response.status_code, status, msg)

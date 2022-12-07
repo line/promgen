@@ -224,9 +224,7 @@ class ProxySilences(View):
 
 class ProxyDeleteSilence(View):
     def delete(self, request, silence_id):
-        url = urljoin(
-            util.setting("alertmanager:url"), "/api/v1/silence/%s" % silence_id
-        )
+        url = urljoin(util.setting("alertmanager:url"), "/api/v1/silence/%s" % silence_id)
         response = util.delete(url)
         return HttpResponse(
             response.text, status=response.status_code, content_type="application/json"

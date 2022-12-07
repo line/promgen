@@ -8,8 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group, User
 from django.core.cache import cache
-from django.db.models.signals import (post_delete, post_save, pre_delete,
-                                      pre_save)
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
 from promgen import models, prometheus, tasks
 
@@ -26,11 +25,12 @@ def multi_receiver(signal, senders, **kwargs):
         for sender in senders:
             signal.connect(func, sender=sender, **kwargs)
         return func
+
     return _decorator
 
 
 def run_once(signal):
-    '''
+    """
     Run a signal only once
 
     Certain actions we want to run only once, at the end of
@@ -38,23 +38,26 @@ def run_once(signal):
     that uses Django's caching system to set whether we
     want to run it or not, and trigger the actual run with
     a force keyword at the end of the request when we run to run it
-    '''
+    """
+
     def _decorator(func):
         @wraps(func)
         def _wrapper(*args, **kwargs):
-            key = f'{func.__module__}.{func.__name__}'
-            if 'force' in kwargs:
-                logger.debug('Checking %s for %s', key, kwargs['sender'])
-                kwargs.pop('force')
+            key = f"{func.__module__}.{func.__name__}"
+            if "force" in kwargs:
+                logger.debug("Checking %s for %s", key, kwargs["sender"])
+                kwargs.pop("force")
                 if cache.get(key):
                     cache.delete(key)
-                    logger.debug('Running %s for %s', key, kwargs['sender'])
+                    logger.debug("Running %s for %s", key, kwargs["sender"])
                     return func(*args, **kwargs)
             else:
-                logger.debug('Queueing %s for %s', key, kwargs['sender'])
+                logger.debug("Queueing %s for %s", key, kwargs["sender"])
                 cache.set(key, 1)
+
         signal.connect(_wrapper)
         return _wrapper
+
     return _decorator
 
 
@@ -80,10 +83,10 @@ def skip_raw(func):
 def _trigger_write_config(signal, **kwargs):
     targets = [server.host for server in models.Prometheus.objects.all()]
     for target in targets:
-        logger.info('Queueing write_config on %s', target)
+        logger.info("Queueing write_config on %s", target)
         tasks.write_config.apply_async(queue=target)
-    if 'request' in kwargs:
-        messages.info(kwargs['request'], f'Updating config on {targets}')
+    if "request" in kwargs:
+        messages.info(kwargs["request"], f"Updating config on {targets}")
     return True
 
 
@@ -91,10 +94,10 @@ def _trigger_write_config(signal, **kwargs):
 def _trigger_write_rules(signal, **kwargs):
     targets = [server.host for server in models.Prometheus.objects.all()]
     for target in targets:
-        logger.info('Queueing write_rules on %s', target)
+        logger.info("Queueing write_rules on %s", target)
         tasks.write_rules.apply_async(queue=target)
-    if 'request' in kwargs:
-        messages.info(kwargs['request'], f'Updating rules on {targets}')
+    if "request" in kwargs:
+        messages.info(kwargs["request"], f"Updating rules on {targets}")
     return True
 
 
@@ -102,10 +105,10 @@ def _trigger_write_rules(signal, **kwargs):
 def _trigger_write_urls(signal, **kwargs):
     targets = [server.host for server in models.Prometheus.objects.all()]
     for target in targets:
-        logger.info('Queueing write_urls on %s', target)
+        logger.info("Queueing write_urls on %s", target)
         tasks.write_urls.apply_async(queue=target)
-    if 'request' in kwargs:
-        messages.info(kwargs['request'], f'Updating urls on {targets}')
+    if "request" in kwargs:
+        messages.info(kwargs["request"], f"Updating urls on {targets}")
     return True
 
 
@@ -117,7 +120,9 @@ def update_log(sender, instance, **kwargs):
     # changes
     if instance.pk:
         old = sender.objects.get(pk=instance.pk)
-        models.Audit.log(f'Updated {sender.__name__} {instance}', instance, old)
+        models.Audit.log(f"Updated {sender.__name__} {instance}", instance, old)
+
+
 pre_save.connect(update_log, sender=models.Exporter)
 pre_save.connect(update_log, sender=models.Farm)
 pre_save.connect(update_log, sender=models.Host)
@@ -133,7 +138,9 @@ def create_log(sender, instance, created, **kwargs):
     # primary key set so that we can link back to it using the ContentType
     # system.
     if created:
-        models.Audit.log(f'Created {sender.__name__} {instance}', instance)
+        models.Audit.log(f"Created {sender.__name__} {instance}", instance)
+
+
 post_save.connect(create_log, sender=models.Exporter)
 post_save.connect(create_log, sender=models.Farm)
 post_save.connect(create_log, sender=models.Host)
@@ -144,7 +151,9 @@ post_save.connect(create_log, sender=models.URL)
 
 
 def delete_log(sender, instance, **kwargs):
-    models.Audit.log(f'Deleted {sender.__name__} {instance}', instance)
+    models.Audit.log(f"Deleted {sender.__name__} {instance}", instance)
+
+
 post_delete.connect(delete_log, sender=models.Exporter)
 post_delete.connect(delete_log, sender=models.Farm)
 post_delete.connect(delete_log, sender=models.Host)
@@ -180,7 +189,7 @@ def delete_url(sender, instance, **kwargs):
 @receiver(post_save, sender=models.Host)
 @skip_raw
 def save_host(sender, instance, **kwargs):
-    '''Only trigger write if parent project also has exporters'''
+    """Only trigger write if parent project also has exporters"""
     for project in instance.farm.project_set.all():
         if project.exporter_set:
             trigger_write_config.send(instance)
@@ -188,7 +197,7 @@ def save_host(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=models.Host)
 def delete_host(sender, instance, **kwargs):
-    '''Only trigger write if parent project also has exporters'''
+    """Only trigger write if parent project also has exporters"""
     for project in instance.farm.project_set.all():
         if project.exporter_set.exists():
             trigger_write_config.send(instance)
@@ -196,7 +205,7 @@ def delete_host(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=models.Farm)
 def delete_farm(sender, instance, **kwargs):
-    '''Only trigger write if parent project also has exporters'''
+    """Only trigger write if parent project also has exporters"""
     for project in instance.project_set.all():
         trigger_write_config.send(instance)
 
@@ -204,7 +213,7 @@ def delete_farm(sender, instance, **kwargs):
 @receiver(post_save, sender=models.Exporter)
 @skip_raw
 def save_exporter(sender, instance, **kwargs):
-    '''Only trigger write if parent project also has hosts'''
+    """Only trigger write if parent project also has hosts"""
     if instance.project.farm:
         if instance.project.farm.host_set.exists():
             trigger_write_config.send(instance)
@@ -212,7 +221,7 @@ def save_exporter(sender, instance, **kwargs):
 
 @receiver(pre_delete, sender=models.Exporter)
 def delete_exporter(sender, instance, **kwargs):
-    '''Only trigger write if parent project also has hosts'''
+    """Only trigger write if parent project also has hosts"""
     if instance.project.farm:
         if instance.project.farm.host_set.exists():
             trigger_write_config.send(instance)
@@ -242,10 +251,7 @@ def save_service(*, sender, instance, **kwargs):
     # attached signals
     # We don't use sender here, but put it in our parameters so we don't pass
     # two sender entries to save_project
-    for project in instance.project_set.prefetch_related(
-            'farm',
-            'farm__host_set',
-            'exporter_set'):
+    for project in instance.project_set.prefetch_related("farm", "farm__host_set", "exporter_set"):
         if save_project(sender=models.Project, instance=project, **kwargs):
             # If any of our save_project returns True, then we do not need to
             # check any others
@@ -270,9 +276,12 @@ def add_user_to_default_group(instance, created, **kwargs):
 @skip_raw
 def add_email_sender(instance, created, **kwargs):
     if instance.email:
-        models.Sender.objects.get_or_create(obj=instance, sender='promgen.notification.email', value=instance.email)
+        models.Sender.objects.get_or_create(
+            obj=instance, sender="promgen.notification.email", value=instance.email
+        )
     else:
-        logger.warning('No email for user %s', instance)
+        logger.warning("No email for user %s", instance)
+
 
 # Not a 'real' signal but we match most of the interface for post_save
 def check_user_subscription(sender, instance, created, request):

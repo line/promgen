@@ -9,9 +9,7 @@ from django.core.management.base import BaseCommand
 
 from promgen import PROMGEN_CONFIG_DIR, PROMGEN_CONFIG_FILE
 
-PROMGEN_CONFIG_DEFAULT = (
-    settings.BASE_DIR / "promgen" / "tests" / "examples" / "promgen.yml"
-)
+PROMGEN_CONFIG_DEFAULT = settings.BASE_DIR / "promgen" / "tests" / "examples" / "promgen.yml"
 
 
 class Command(BaseCommand):

@@ -13,9 +13,7 @@ from promgen import models
 
 class ContentTypeMixin:
     def set_object(self, content_type, object_id):
-        self.content_type = ContentType.objects.get(
-            model=content_type, app_label="promgen"
-        )
+        self.content_type = ContentType.objects.get(model=content_type, app_label="promgen")
         self.object_id = object_id
 
 
@@ -34,9 +32,7 @@ class RuleFormMixin:
 
         importer = self.get_form(self.form_import_class)
         if importer.is_valid():
-            ct = ContentType.objects.get_by_natural_key(
-                "promgen", content_type
-            ).model_class()
+            ct = ContentType.objects.get_by_natural_key("promgen", content_type).model_class()
             content_object = ct.objects.get(pk=object_id)
 
             return self.form_import(importer, content_object)

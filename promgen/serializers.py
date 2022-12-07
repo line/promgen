@@ -21,8 +21,8 @@ class ShardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Shard
-        exclude = ('id',)
-        lookup_field = 'name'
+        exclude = ("id",)
+        lookup_field = "name"
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -32,8 +32,8 @@ class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Service
-        exclude = ('id',)
-        lookup_field = 'name'
+        exclude = ("id",)
+        lookup_field = "name"
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -44,13 +44,13 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Project
-        lookup_field = 'name'
+        lookup_field = "name"
         exclude = ("id", "farm")
 
 
 class SenderSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    label = serializers.ReadOnlyField(source='show_value')
+    owner = serializers.ReadOnlyField(source="owner.username")
+    label = serializers.ReadOnlyField(source="show_value")
 
     class Meta:
         model = models.Sender
