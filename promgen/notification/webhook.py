@@ -26,7 +26,7 @@ class FormWebhook(forms.Form):
 
 class NotificationWebhook(NotificationBase):
     """
-    Post notifications to a specific web endpoint
+    Post notifications to a specific web endpoint.
     """
 
     form = FormWebhook
