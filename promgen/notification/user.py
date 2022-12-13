@@ -31,7 +31,7 @@ class FormUser(forms.Form):
 
 class NotificationUser(NotificationBase):
     """
-    Send notification to specific user
+    Send a notification to a specific user.
     """
 
     form = FormUser
