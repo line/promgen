@@ -38,6 +38,16 @@ const silenceStore = {
     }
 };
 
+const notifierPreTestResultStore = {
+    state: {
+        result: null,
+        msg: null,
+        show: false,
+    },
+    show() { this.state.show = true },
+    set(key, val) { this.state[key] = val },
+};
+
 const app = new Vue({
     el: '#vue',
     delimiters: ['[[', ']]'],
@@ -263,3 +273,46 @@ const ExporterTest = Vue.component('exporter-test', {
         }
     }
 })
+
+const NotifierPreTestResult = Vue.component("notifier-pre-test-result", {
+    data: () => ({
+        state: notifierPreTestResultStore.state,
+    }),
+    template: `
+        <bootstrap-panel
+            :class="{
+                'panel-info': state.result === 'success',
+                'panel-danger': state.result === 'error'}
+            "
+            heading="Notifier test result"
+            v-if="state.show"
+        >
+            {{ state.msg }}
+        </bootstrap-panel>`,
+});
+
+const NotifierPreTest = Vue.component("notifier-pre-test", {
+    // Notifier Pre Test button for Forms.
+    // Acts like a regular form submit button, but hijacks the button click and
+    // submits it to an alternate URL for testing.
+    props: ["href"],
+    template: `
+        <button @click.prevent="onTestSubmit">
+            <slot />
+        </button>`,
+    methods: {
+        onTestSubmit(event) {
+            // Find the parent form our button belongs to so that we can
+            // simulate a form submission.
+            const form = new FormData(event.srcElement.closest("form"));
+            fetch(this.href, { body: form, method: "post" })
+                .then(resp => resp.json())
+                .then(resp => {
+                    notifierPreTestResultStore.set("result", resp.result);
+                    notifierPreTestResultStore.set("msg", resp.msg);
+                    notifierPreTestResultStore.show();
+                })
+                .catch((error) => alert(error));
+        },
+    },
+});

@@ -321,6 +321,28 @@ class NotifierDelete(LoginRequiredMixin, DeleteView):
         return reverse("profile")
 
 
+class NotifierPreTest(LoginRequiredMixin, View):
+    def post(self, request):
+        data = request.POST.dict()
+        sender = models.Sender(
+            sender=data.get("sender"),
+            value=data.get("value"),
+            alias=data.get("alias"),
+        )
+
+        try:
+            sender.test()
+        except Exception as e:
+            return JsonResponse({
+                "result": "error",
+                "msg": f"Error sending test message with {sender.sender}"
+            })
+        else:
+            return JsonResponse({
+                "result": "success",
+                "msg": f"Sent test message with {sender.sender}",
+            })
+
 class NotifierTest(LoginRequiredMixin, View):
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
