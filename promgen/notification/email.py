@@ -18,13 +18,13 @@ class FormEmail(forms.Form):
     )
     alias = forms.CharField(
         required=False,
-        help_text="Use to hide email from being displayed",
+        help_text="Use to hide email from being displayed.",
     )
 
 
 class NotificationEmail(NotificationBase):
     """
-    Simple plaintext Email notification
+    Simple plain text email notification.
     """
 
     form = FormEmail
