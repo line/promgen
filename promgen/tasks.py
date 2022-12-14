@@ -125,9 +125,7 @@ def reload_prometheus():
 
 @shared_task
 def clear_tombstones():
-    target = urljoin(
-        util.setting("prometheus:url"), "/api/v1/admin/tsdb/clean_tombstones"
-    )
+    target = urljoin(util.setting("prometheus:url"), "/api/v1/admin/tsdb/clean_tombstones")
     response = util.post(target)
     response.raise_for_status()
 

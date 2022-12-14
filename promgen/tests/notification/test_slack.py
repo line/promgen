@@ -10,12 +10,8 @@ from promgen.notification.slack import NotificationSlack
 
 
 class SlackTest(tests.PromgenTest):
-    TestHook1 = (
-        "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
-    )
-    TestHook2 = (
-        "https://hooks.slack.com/services/YYYYYYYYY/YYYYYYYYY/YYYYYYYYYYYYYYYYYYYYYYYY"
-    )
+    TestHook1 = "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+    TestHook2 = "https://hooks.slack.com/services/YYYYYYYYY/YYYYYYYYY/YYYYYYYYYYYYYYYYYYYYYYYY"
 
     def setUp(self):
         one = models.Project.objects.get(pk=1)

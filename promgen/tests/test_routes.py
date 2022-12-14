@@ -7,11 +7,11 @@ import requests
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import models, views, tests
+from promgen import models, tests, views
 
-TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
-TEST_IMPORT = tests.Data('examples', 'import.json').raw()
-TEST_REPLACE = tests.Data('examples', 'replace.json').raw()
+TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
+TEST_IMPORT = tests.Data("examples", "import.json").raw()
+TEST_REPLACE = tests.Data("examples", "replace.json").raw()
 
 
 class RouteTests(tests.PromgenTest):
@@ -20,8 +20,8 @@ class RouteTests(tests.PromgenTest):
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
-    @mock.patch('promgen.signals._trigger_write_config')
-    @mock.patch('promgen.tasks.reload_prometheus')
+    @mock.patch("promgen.signals._trigger_write_config")
+    @mock.patch("promgen.tasks.reload_prometheus")
     def test_import(self, mock_write, mock_reload):
         self.add_user_permissions(
             "promgen.change_rule", "promgen.change_site", "promgen.change_exporter"
@@ -52,7 +52,9 @@ class RouteTests(tests.PromgenTest):
         self.assertCount(models.Service, 3, "Import one service (Fixture has two services)")
         self.assertCount(models.Project, 4, "Import two projects (Fixture has 2 projectsa)")
         self.assertCount(models.Exporter, 2, "Import two exporters")
-        self.assertCount(models.Farm, 4, "Original two farms and one new farm (fixture has one farm)")
+        self.assertCount(
+            models.Farm, 4, "Original two farms and one new farm (fixture has one farm)"
+        )
         self.assertCount(models.Host, 5, "Original 3 hosts and two new ones")
 
     @mock.patch("requests.get")
@@ -91,9 +93,7 @@ class RouteTests(tests.PromgenTest):
 
             # For each POST body, check to see that we generate and attempt to
             # scrape the correct URL
-            response = self.client.post(
-                reverse("exporter-scrape", kwargs={"pk": project.pk}), body
-            )
+            response = self.client.post(reverse("exporter-scrape", kwargs={"pk": project.pk}), body)
             self.assertRoute(response, views.ExporterScrape, 200)
             self.assertEqual(mock_get.call_args[0][0], url)
 

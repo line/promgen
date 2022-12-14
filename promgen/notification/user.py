@@ -24,15 +24,15 @@ def _choices():
 class FormUser(forms.Form):
     value = forms.ChoiceField(
         required=True,
-        label='Username',
-        choices=_choices
+        label="Username",
+        choices=_choices,
     )
 
 
 class NotificationUser(NotificationBase):
-    '''
+    """
     Send notification to specific user
-    '''
+    """
 
     form = FormUser
 
@@ -50,5 +50,5 @@ class NotificationUser(NotificationBase):
             try:
                 sender.driver._send(sender.value, data)
             except:
-                logger.exception('Error sending with %s', sender)
+                logger.exception("Error sending with %s", sender)
         return True

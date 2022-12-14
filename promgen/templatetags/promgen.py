@@ -20,7 +20,7 @@ from promgen import util
 
 register = template.Library()
 
-EXCLUSION_MACRO = '<exclude>'
+EXCLUSION_MACRO = "<exclude>"
 
 
 @register.filter()
@@ -41,7 +41,7 @@ def rule_dict(rule):
 
 @register.filter()
 def rulemacro(rule, clause=None):
-    '''
+    """
     Macro rule expansion
 
     Assuming a list of rules with children and parents, expand our macro to exclude child rules
@@ -57,7 +57,7 @@ def rulemacro(rule, clause=None):
         foo{project~="A|B"} / bar{project~="A|B"} > 5
         foo{project="A", } / bar{project="A"} > 3
         foo{project="B"} / bar{project="B"} > 4
-    '''
+    """
 
     if not clause:
         clause = rule.clause
@@ -66,12 +66,8 @@ def rulemacro(rule, clause=None):
     for r in rule.overrides.all():
         labels[r.content_type.model].append(r.content_object.name)
 
-    filters = {
-        k: '|'.join(labels[k]) for k in sorted(labels)
-    }
-    macro = ','.join(
-        sorted(f'{k}!~"{v}"' for k, v in filters.items())
-    )
+    filters = {k: "|".join(labels[k]) for k in sorted(labels)}
+    macro = ",".join(sorted(f'{k}!~"{v}"' for k, v in filters.items()))
     return clause.replace(EXCLUSION_MACRO, macro)
 
 
@@ -83,10 +79,10 @@ def diff_json(a, b):
         b = json.loads(b)
     a = json.dumps(a, indent=4, sort_keys=True).splitlines(keepends=True)
     b = json.dumps(b, indent=4, sort_keys=True).splitlines(keepends=True)
-    diff = ''.join(difflib.unified_diff(a, b))
+    diff = "".join(difflib.unified_diff(a, b))
     if diff:
         return diff
-    return 'No Changes'
+    return "No Changes"
 
 
 @register.filter()

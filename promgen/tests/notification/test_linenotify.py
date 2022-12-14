@@ -5,7 +5,7 @@ from unittest import mock
 
 from django.test import override_settings
 
-from promgen import models, tests, rest
+from promgen import models, rest, tests
 from promgen.notification.linenotify import NotificationLineNotify
 
 

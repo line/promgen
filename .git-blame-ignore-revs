@@ -1,2 +1,4 @@
 # pyupgrade --py36-plus promgen/**/*.py
 4d53038426aedf2abf337a2876d0d6ceccefc09b
+# black
+a81731039c118543398c90869e608dde0acaf32c

@@ -9,12 +9,12 @@ from django.urls import reverse
 
 from promgen import tests
 
-TEST_SETTINGS = tests.Data('examples', 'promgen.yml').yaml()
-TEST_DURATION = tests.Data('examples', 'silence.duration.json').json()
-TEST_RANGE = tests.Data('examples', 'silence.range.json').json()
+TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
+TEST_DURATION = tests.Data("examples", "silence.duration.json").json()
+TEST_RANGE = tests.Data("examples", "silence.range.json").json()
 
 # Explicitly set a timezone for our test to try to catch conversion errors
-TEST_SETTINGS['timezone'] = 'Asia/Tokyo'
+TEST_SETTINGS["timezone"] = "Asia/Tokyo"
 
 
 class SilenceTest(tests.PromgenTest):
@@ -22,19 +22,19 @@ class SilenceTest(tests.PromgenTest):
         self.user = self.force_login(username="demo")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
-    @mock.patch('promgen.util.post')
+    @mock.patch("promgen.util.post")
     def test_duration(self, mock_post):
         mock_post.return_value.status_code = 200
 
-        with mock.patch('django.utils.timezone.now') as mock_now:
+        with mock.patch("django.utils.timezone.now") as mock_now:
             mock_now.return_value = datetime.datetime(2017, 12, 14, tzinfo=datetime.timezone.utc)
             # I would prefer to be able to test with multiple labels, but since
             # it's difficult to test a list of dictionaries (the order is non-
             # deterministic) we just test with a single label for now
             self.client.post(
-                reverse('proxy-silence'),
+                reverse("proxy-silence"),
                 data={
-                    'duration': '1m',
+                    "duration": "1m",
                     "labels": {"instance": "example.com:[0-9]*"},
                 },
                 content_type="application/json",
@@ -44,22 +44,20 @@ class SilenceTest(tests.PromgenTest):
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
-    @mock.patch('promgen.util.post')
+    @mock.patch("promgen.util.post")
     def test_range(self, mock_post):
         mock_post.return_value.status_code = 200
 
-        with mock.patch('django.utils.timezone.now') as mock_now:
+        with mock.patch("django.utils.timezone.now") as mock_now:
             mock_now.return_value = datetime.datetime(2017, 12, 14, tzinfo=datetime.timezone.utc)
             self.client.post(
-                reverse('proxy-silence'),
+                reverse("proxy-silence"),
                 data={
-                    'startsAt': '2017-12-14 00:01',
-                    'endsAt': '2017-12-14 00:05',
+                    "startsAt": "2017-12-14 00:01",
+                    "endsAt": "2017-12-14 00:05",
                     "labels": {"instance": "example.com:[0-9]*"},
                 },
                 content_type="application/json",
             )
 
-        self.assertMockCalls(
-            mock_post, "http://alertmanager:9093/api/v1/silences", json=TEST_RANGE
-        )
+        self.assertMockCalls(mock_post, "http://alertmanager:9093/api/v1/silences", json=TEST_RANGE)

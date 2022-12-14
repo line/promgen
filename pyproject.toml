@@ -1,0 +1,17 @@
+[tool.black]
+line-length = 100
+target-version = ['py36']
+extend-exclude = '''
+(
+promgen/migrations
+|promgen/urls.py
+)
+'''
+
+[tool.isort]
+forced_separate = "django,promgen"
+known_django = "django"
+known_first_party = "promgen"
+sections = "FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
+profile = "black"
+float_to_top = true

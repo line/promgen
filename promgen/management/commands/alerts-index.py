@@ -1,9 +1,11 @@
 # Copyright (c) 2020 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-from django.core.management.base import BaseCommand
-from promgen import models, tasks
 import time
+
+from django.core.management.base import BaseCommand
+
+from promgen import models, tasks
 
 
 class Command(BaseCommand):

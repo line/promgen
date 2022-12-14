@@ -75,55 +75,53 @@ INSTALLED_APPS = apps_from_setuptools + [
 # We explicitly include debug_toolbar and whitenoise here, but selectively
 # remove it below, so that we can more easily control the import order
 MIDDLEWARE = [
-    'debug_toolbar.middleware.DebugToolbarMiddleware',  # Only enabled for debug
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Used primarily for docker
-    'django.middleware.locale.LocaleMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'promgen.middleware.PromgenMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",  # Only enabled for debug
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Used primarily for docker
+    "django.middleware.locale.LocaleMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "promgen.middleware.PromgenMiddleware",
 ]
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
-LOGIN_URL = reverse_lazy('login')
-LOGIN_REDIRECT_URL = reverse_lazy('home')
-LOGOUT_REDIRECT_URL = reverse_lazy('home')
+LOGIN_URL = reverse_lazy("login")
+LOGIN_REDIRECT_URL = reverse_lazy("home")
+LOGOUT_REDIRECT_URL = reverse_lazy("home")
 
-ROOT_URLCONF = 'promgen.urls'
+ROOT_URLCONF = "promgen.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'promgen.context_processors.settings_in_view',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "promgen.context_processors.settings_in_view",
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'promgen.wsgi.application'
+WSGI_APPLICATION = "promgen.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(
-        "DATABASE_URL", default="sqlite:///" + str(BASE_DIR / "db.sqlite3")
-    )
+    "default": env.db("DATABASE_URL", default="sqlite:///" + str(BASE_DIR / "db.sqlite3")),
 }
 
 
@@ -131,27 +129,19 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -195,16 +185,14 @@ if "SENTRY_DSN" in os.environ:
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly',
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
     ),
-    'DEFAULT_FILTER_BACKENDS': (
-        'django_filters.rest_framework.DjangoFilterBackend',
-    )
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 # If CELERY_BROKER_URL is set in our environment, then we configure celery as
@@ -220,14 +208,15 @@ except Exception:
 try:
     # If debug_toolbar is not available, we will remove it from our middleware
     import debug_toolbar  # NOQA
-    INSTALLED_APPS += ['debug_toolbar']
-    INTERNAL_IPS = ['127.0.0.1']
+
+    INSTALLED_APPS += ["debug_toolbar"]
+    INTERNAL_IPS = ["127.0.0.1"]
 except ImportError:
-    MIDDLEWARE.remove('debug_toolbar.middleware.DebugToolbarMiddleware')
+    MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 
 # Load overrides from PROMGEN to replace Django settings
-for k, v in PROMGEN.pop('django', {}).items():
+for k, v in PROMGEN.pop("django", {}).items():
     globals()[k] = v
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
