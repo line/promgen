@@ -18,13 +18,13 @@ class FormLineNotify(forms.Form):
     )
     alias = forms.CharField(
         required=True,
-        help_text="Use to hide token from being displayed",
+        help_text="Use to hide token from being displayed.",
     )
 
 
 class NotificationLineNotify(NotificationBase):
     """
-    Send messages to line notify
+    Send messages to LINE Notify.
 
     https://notify-bot.line.me/en/
     """
