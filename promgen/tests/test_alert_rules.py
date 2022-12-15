@@ -14,14 +14,14 @@ _RULE_V2 = """
 groups:
 - name: promgen.example.com
   rules:
-  - alert: RuleName
+  - alert: example-rule
     annotations:
-      rule: https://promgen.example.com/rule/%d
-      summary: Test case
-    expr: up==0
+      rule: https://promgen.example.com/rule/1
+      summary: Example rule summary
+    expr: up==1
     for: 1s
     labels:
-      severity: severe
+      severity: high
 """.lstrip().encode(
     "utf-8"
 )
@@ -30,39 +30,18 @@ TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
 
 
 class RuleTest(tests.PromgenTest):
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
-    def setUp(self, mock_signal):
-        self.user = self.force_login(username="demo")
-        self.site = models.Site.objects.get_current()
-        self.shard = models.Shard.objects.create(name="Shard 1")
-        self.service = models.Service.objects.create(id=999, name="Service 1")
-        self.rule = models.Rule.objects.create(
-            name="RuleName",
-            clause="up==0",
-            duration="1s",
-            obj=self.site,
-        )
-        models.RuleLabel.objects.create(
-            name="severity",
-            value="severe",
-            rule=self.rule,
-        )
-        models.RuleAnnotation.objects.create(
-            name="summary",
-            value="Test case",
-            rule=self.rule,
-        )
+    fixtures = ["testcases.yaml", "extras.yaml"]
 
     @override_settings(PROMGEN_SCHEME="https")
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_write_new(self, mock_post):
         result = prometheus.render_rules()
-        self.assertEqual(result, _RULE_V2 % self.rule.id)
+        self.assertEqual(result, _RULE_V2)
 
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_copy(self, mock_post):
-        service = models.Service.objects.create(name="Service 2")
-        copy = self.rule.copy_to(content_type="service", object_id=service.id)
+        rule = models.Rule.objects.get(pk=1)
+        copy = rule.copy_to(content_type="service", object_id=2)
         # Test that our copy has the same labels and annotations
         self.assertIn("severity", copy.labels)
         self.assertIn("summary", copy.annotations)
@@ -77,6 +56,7 @@ class RuleTest(tests.PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_import_v2(self, mock_post):
+        self.user = self.force_login(username="demo")
         self.add_user_permissions("promgen.change_rule", "promgen.change_site")
         response = self.client.post(
             reverse("rule-import"),
@@ -93,12 +73,11 @@ class RuleTest(tests.PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_import_project_rule(self, mock_post):
+        self.user = self.force_login(username="demo")
         self.add_user_permissions("promgen.add_rule", "promgen.change_project")
-        project = models.Project.objects.create(
-            name="Project 1", service=self.service, shard=self.shard
-        )
+
         response = self.client.post(
-            reverse("rule-new", kwargs={"content_type": "project", "object_id": project.id}),
+            reverse("rule-new", kwargs={"content_type": "project", "object_id": 1}),
             {"rules": tests.Data("examples", "import.rule.yml").raw()},
             follow=True,
         )
@@ -110,11 +89,12 @@ class RuleTest(tests.PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_import_service_rule(self, mock_post):
+        self.user = self.force_login(username="demo")
         self.add_user_permissions("promgen.add_rule", "promgen.change_service")
         response = self.client.post(
             reverse(
                 "rule-new",
-                kwargs={"content_type": "service", "object_id": self.service.id},
+                kwargs={"content_type": "service", "object_id": 1},
             ),
             {"rules": tests.Data("examples", "import.rule.yml").raw()},
             follow=True,
@@ -136,15 +116,16 @@ class RuleTest(tests.PromgenTest):
 
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_macro(self, mock_post):
-        self.project = models.Project.objects.create(
-            name="Project 1", service=self.service, shard=self.shard
-        )
+        self.site = models.Site.objects.get(pk=1)
+        self.service = models.Service.objects.get(pk=1)
+        self.project = models.Project.objects.get(pk=1)
+
         clause = "up{%s}" % macro.EXCLUSION_MACRO
 
         rules = {
-            "common": {"assert": 'up{service!~"Service 1"}'},
-            "service": {"assert": 'up{service="Service 1",project!~"Project 1"}'},
-            "project": {"assert": 'up{service="Service 1",project="Project 1",}'},
+            "common": {"assert": 'up{service!~"test-service"}'},
+            "service": {"assert": 'up{service="test-service",project!~"test-project"}'},
+            "project": {"assert": 'up{service="test-service",project="test-project",}'},
         }
 
         common_rule = models.Rule.objects.create(
@@ -162,7 +143,8 @@ class RuleTest(tests.PromgenTest):
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_invalid_annotation(self, mock_post):
+        rule = models.Rule.objects.get(pk=1)
         # $label.foo is invalid (should be $labels) so make sure we raise an exception
-        models.RuleAnnotation.objects.create(name="summary", value="{{$label.foo}}", rule=self.rule)
+        models.RuleAnnotation.objects.create(name="summary", value="{{$label.foo}}", rule=rule)
         with self.assertRaises(ValidationError):
-            prometheus.check_rules([self.rule])
+            prometheus.check_rules([rule])
