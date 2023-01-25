@@ -282,8 +282,8 @@ const NotifierPreTestResult = Vue.component("notifier-pre-test-result", {
         <bootstrap-panel
             :class="{
                 'panel-info': state.result === 'success',
-                'panel-danger': state.result === 'error'}
-            "
+                'panel-danger': state.result === 'error',
+	    }"
             heading="Notifier test result"
             v-if="state.show"
         >
