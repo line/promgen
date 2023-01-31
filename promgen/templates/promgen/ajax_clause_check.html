@@ -13,7 +13,7 @@
 </div>
 {% if data.result %}
     <table id="prometheus-query-results" class="table table-condensed table-scroll {% if collapse %}collapse{% endif %}">
-      <tr class="{{ status }}">
+      <tr class="{{ severity }}">
         <th>Timestamp</th>
         <th>Value</th>
         <th>Metric</th>
@@ -30,14 +30,14 @@
 
 {% if errors %}
     <table class="table table-condensed">
-      <tr class="{{ status }}">
+      <tr class="{{ severity }}">
         <th>Error</th>
         <th>Message</th>
       </tr>
 {% for error, message in errors.items %}
       <tr>
         <td>{{ error }}</td>
-        <td>{{ message }}</td>
+        <td>{{ message|linebreaks }}</td>
       </tr>
 {% endfor %}
   </table>
