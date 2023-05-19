@@ -7,6 +7,8 @@ PIP_COMPILE := $(ENV_DIR)/bin/pip-compile
 APP_BIN := $(ENV_DIR)/bin/promgen
 CELERY_BIN := $(ENV_DIR)/bin/celery
 SPHINX  := $(ENV_DIR)/bin/sphinx-build
+RUFF_BIN := $(ENV_DIR)/bin/ruff
+BLACK_BIN := $(ENV_DIR)/bin/black
 
 DOCKER_TAG := promgen:local
 SYSTEM_PYTHON ?= python3.9
@@ -135,6 +137,17 @@ $(SPHINX): $(PIP_BIN)
 ## Sphinx: Build documentation
 docs: $(SPHINX)
 	$(SPHINX) -avb html docs dist/html
+
+$(RUFF_BIN): $(PIP_BIN)
+	$(PIP_BIN) install ruff
+
+$(BLACK_BIN): $(PIP_BIN)
+	$(PIP_BIN) install black
+
+.PHONY: format
+format: $(RUFF_BIN) $(BLACK_BIN)
+	$(RUFF_BIN) check promgen --fix
+	$(BLACK_BIN) promgen
 
 
 #### Other assorted commands

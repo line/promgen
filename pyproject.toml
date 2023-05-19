@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 100
-target-version = ['py36']
+target-version = ['py39']
 extend-exclude = '''
 (
 promgen/migrations
@@ -8,13 +8,15 @@ promgen/migrations
 )
 '''
 
-[tool.isort]
-forced_separate = "django,promgen"
-known_django = "django"
-known_first_party = "promgen"
-sections = "FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
-profile = "black"
-float_to_top = true
-
 [tool.ruff]
-ignore = ['E501']
+ignore = [
+    'E741', # Ambiguous variable name
+    'E501', # Let black handle line-length
+]
+
+[tool.ruff.isort]
+known-first-party = ["promgen"]
+forced-separate = ["django"]
+
+[tool.codespell]
+skip = '*.min.js,*.min.css,*.css.map,.venv,dist,.git'
