@@ -1284,6 +1284,25 @@ class RuleTest(LoginRequiredMixin, View):
         else:
             rule = get_object_or_404(models.Rule, id=pk)
 
+        # Given our current rule, we want to see what service/project it will affect, so that we can
+        # check our test query output for labels outside our expected match
+        if rule.content_type.model == "service":
+            # for a service rule, we expect the current service and all child projects as expected
+            expected_labels = {
+                "service": set([rule.content_object.name]),
+                "project": set([project.name for project in rule.content_object.project_set.all()]),
+            }
+        if rule.content_type.model == "project":
+            # for a project rule we expect only the current project and the parent service
+            expected_labels = {
+                "service": set([rule.content_object.service.name]),
+                "project": set([rule.content_object.name]),
+            }
+        unexpected_labels = {
+            "service": set(),
+            "project": set(),
+        }
+
         query = macro.rulemacro(rule, request.POST["query"])
         # Since our rules affect all servers we use Promgen's proxy-query to test our rule
         # against all the servers at once
@@ -1292,33 +1311,47 @@ class RuleTest(LoginRequiredMixin, View):
         logger.debug("Querying %s with %s", url, query)
         start = time.time()
         result = util.get(url, {"query": query}).json()
-        duration = datetime.timedelta(seconds=(time.time() - start))
+        result["duration"] = datetime.timedelta(seconds=(time.time() - start))
+        result["query"] = query
 
-        context = {"status": result["status"], "duration": duration, "query": query}
-        context["data"] = result.get("data", {})
+        # TODO: This could be more robust, but for now this ensures failed queries
+        # without a 'data' field get processed
+        metrics = result.get("data", {}).setdefault("result", [])
+        result["collapse"] = len(metrics) > 5
+        errors = result.setdefault("errors", {})
 
-        context["errors"] = {}
+        if len(metrics) == 0:
+            errors["no_results"] = (
+                "No results. "
+                "You may need to temporarily remove conditional checks (> < ==) to verify."
+            )
 
-        metrics = context["data"].get("result", [])
-        if metrics:
-            context["collapse"] = len(metrics) > 5
-            for row in metrics:
-                if "service" not in row["metric"] and "project" not in row["metric"]:
-                    context["errors"][
-                        "routing"
-                    ] = "Some metrics are missing service and project labels so Promgen will be unable to route message"
-                    context["status"] = "warning"
-        else:
-            context["status"] = "info"
-            context["errors"][
-                "no_results"
-            ] = "No results. You may need to remove conditional checks (> < ==) to verify"
+        for row in metrics:
+            if "service" not in row["metric"] and "project" not in row["metric"]:
+                errors["routing"] = (
+                    "Some metrics are missing service and project labels. "
+                    "Promgen will be unable to route message."
+                )
+
+            for label in ["service", "project"]:
+                if label in row["metric"]:
+                    if row["metric"][label] not in expected_labels[label]:
+                        unexpected_labels[label].add(row["metric"][label])
+
+        for label in unexpected_labels:
+            if unexpected_labels[label]:
+                result["severity"] = "danger"
+                errors[f"unrelated_{label}"] = (
+                    f"Unrelated {label} labels found\n"
+                    f"Expected: {expected_labels[label]}\n"
+                    f"Found: {unexpected_labels[label]}"
+                )
 
         # Place this at the bottom to have a query error show up as danger
         if result["status"] != "success":
-            context["status"] = "danger"
-            context["errors"]["Query"] = result["error"]
+            result["severity"] = "danger"
+            errors["Query"] = result["error"]
 
         return JsonResponse(
-            {request.POST["target"]: render_to_string("promgen/ajax_clause_check.html", context)}
+            {request.POST["target"]: render_to_string("promgen/ajax_clause_check.html", result)}
         )
