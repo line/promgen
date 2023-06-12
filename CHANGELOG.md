@@ -1,5 +1,16 @@
 # Changelog
 
+# v0.57.0 - 2023-06-12
+
+- [BUGFIX] Fix DatasourceList view #405
+- [IMPROVEMENT] Improve notifiers description #417
+- [IMPROVEMENT] Rule Test should check for unrelated labels #424
+- [IMPROVEMENT] Show rule description in rule page #403
+- [INTERNAL] Migrate more tests to use fixtures #418
+- [INTERNAL] Update docker-compose demo environment #402
+- [INTERNAL] Upgrade to use pip-compile #406
+- [INTERNAL] Use Black to format #416
+
 # v0.56.0 - 2022-07-29
 
 - [BUGFIX] Fix handling of kwargs in skip_raw decorator #396
