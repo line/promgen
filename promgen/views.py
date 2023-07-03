@@ -1284,24 +1284,26 @@ class RuleTest(LoginRequiredMixin, View):
         else:
             rule = get_object_or_404(models.Rule, id=pk)
 
+        # Default values in case we do not have a more specific content_type to test against
+        expected_labels = {
+            "service": set(),
+            "project": set(),
+        }
+        unexpected_labels = collections.defaultdict(set)
+
         # Given our current rule, we want to see what service/project it will affect, so that we can
         # check our test query output for labels outside our expected match
         if rule.content_type.model == "service":
             # for a service rule, we expect the current service and all child projects as expected
-            expected_labels = {
-                "service": set([rule.content_object.name]),
-                "project": set([project.name for project in rule.content_object.project_set.all()]),
-            }
+            expected_labels["service"] = set([rule.content_object.name])
+            expected_labels["project"] = set(
+                [project.name for project in rule.content_object.project_set.all()]
+            )
+
         if rule.content_type.model == "project":
             # for a project rule we expect only the current project and the parent service
-            expected_labels = {
-                "service": set([rule.content_object.service.name]),
-                "project": set([rule.content_object.name]),
-            }
-        unexpected_labels = {
-            "service": set(),
-            "project": set(),
-        }
+            expected_labels["service"] = set([rule.content_object.service.name])
+            expected_labels["project"] = set([rule.content_object.name])
 
         query = macro.rulemacro(rule, request.POST["query"])
         # Since our rules affect all servers we use Promgen's proxy-query to test our rule
@@ -1333,11 +1335,13 @@ class RuleTest(LoginRequiredMixin, View):
                     "Promgen will be unable to route message."
                 )
 
-            for label in ["service", "project"]:
+            for label in expected_labels:
                 if label in row["metric"]:
                     if row["metric"][label] not in expected_labels[label]:
                         unexpected_labels[label].add(row["metric"][label])
 
+        # For each key in our unexpected_labels, we want to go through the returned
+        # values and check to see if it is an expected one or not.
         for label in unexpected_labels:
             if unexpected_labels[label]:
                 result["severity"] = "danger"
