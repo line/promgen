@@ -2,7 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import re
-
+from functools import partial
 from dateutil import parser
 
 from promgen import models, plugins, prometheus, validators
@@ -119,7 +119,6 @@ class URLForm(forms.ModelForm):
 class AlertRuleForm(forms.ModelForm):
     class Meta:
         model = models.Rule
-        exclude = ["parent", "content_type", "object_id"]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "duration": forms.TextInput(attrs={"class": "form-control"}),
@@ -127,6 +126,9 @@ class AlertRuleForm(forms.ModelForm):
             "enabled": forms.CheckboxInput(attrs={"data-toggle": "toggle", "data-size": "mini"}),
             "description": forms.Textarea(attrs={"rows": 5, "class": "form-control"}),
         }
+        # We define a custom widget for each of our fields, so we just take the
+        # keys here to avoid manually updating a list of fields.
+        fields = widgets.keys()
 
     def clean(self):
         # Check our cleaned data then let Prometheus check our rule
@@ -140,6 +142,45 @@ class AlertRuleForm(forms.ModelForm):
         rule.annotations = self.instance.annotations
 
         prometheus.check_rules([rule])
+
+
+class _KeyValueForm(forms.Form):
+    key = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
+    value = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
+
+# We need a custom KeyValueSet because we need to be able to convert between the single dictionary
+# form saved to our models, and the list of models used by
+class _KeyValueSet(forms.BaseFormSet):
+    def __init__(self, initial=None, **kwargs):
+        if initial:
+            kwargs["initial"] = [{"key": key, "value": initial[key]} for key in initial]
+        super().__init__(**kwargs, form_kwargs={"empty_permitted": True})
+
+    def to_dict(self):
+        return {x["key"]: x["value"] for x in self.cleaned_data if x and not x["DELETE"]}
+
+# For both LabelFormSet and AnnotationFormSet we always want to have a prefix assigned, but it's
+# awkward if we need to specify it in multiple places. We use a partial here, so that it is the same
+# as always passing prefix as part of our __init__ call.
+LabelFormSet = partial(
+    forms.formset_factory(
+        form=_KeyValueForm,
+        formset=_KeyValueSet,
+        can_delete=True,
+        extra=1,
+    ),
+    prefix="labels",
+)
+
+AnnotationFormSet = partial(
+    forms.formset_factory(
+        form=_KeyValueForm,
+        formset=_KeyValueSet,
+        can_delete=True,
+        extra=1,
+    ),
+    prefix="annotations",
+)
 
 
 class RuleCopyForm(forms.Form):
@@ -185,25 +226,3 @@ class HostForm(forms.Form):
         if not hosts:
             raise ValidationError("No valid hosts")
         self.cleaned_data["hosts"] = list(hosts)
-
-
-LabelFormset = forms.inlineformset_factory(
-    models.Rule,
-    models.RuleLabel,
-    fields=("name", "value"),
-    widgets={
-        "name": forms.TextInput(attrs={"class": "form-control"}),
-        "value": forms.TextInput(attrs={"rows": 5, "class": "form-control"}),
-    },
-)
-
-
-AnnotationFormset = forms.inlineformset_factory(
-    models.Rule,
-    models.RuleAnnotation,
-    fields=("name", "value"),
-    widgets={
-        "name": forms.TextInput(attrs={"class": "form-control"}),
-        "value": forms.Textarea(attrs={"rows": 2, "class": "form-control"}),
-    },
-)

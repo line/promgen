@@ -45,13 +45,6 @@ class RuleTest(tests.PromgenTest):
         # Test that our copy has the same labels and annotations
         self.assertIn("severity", copy.labels)
         self.assertIn("summary", copy.annotations)
-        # and test that we actually duplicated them and not moved them
-        self.assertCount(
-            models.RuleLabel,
-            3,
-            "Copied rule has exiting labels + service label",
-        )
-        self.assertCount(models.RuleAnnotation, 2)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
@@ -67,8 +60,6 @@ class RuleTest(tests.PromgenTest):
         # Includes count of our setUp rule + imported rules
         self.assertRoute(response, views.RuleImport, status=200)
         self.assertCount(models.Rule, 3, "Missing Rule")
-        self.assertCount(models.RuleLabel, 4, "Missing labels")
-        self.assertCount(models.RuleAnnotation, 9, "Missing annotations")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
@@ -83,8 +74,6 @@ class RuleTest(tests.PromgenTest):
         )
         self.assertRoute(response, views.ProjectDetail, status=200)
         self.assertCount(models.Rule, 3, "Missing Rule")
-        self.assertCount(models.RuleLabel, 4, "Missing labels")
-        self.assertCount(models.RuleAnnotation, 9, "Missing annotations")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
@@ -101,8 +90,6 @@ class RuleTest(tests.PromgenTest):
         )
         self.assertRoute(response, views.ServiceDetail, status=200)
         self.assertCount(models.Rule, 3, "Missing Rule")
-        self.assertCount(models.RuleLabel, 4, "Missing labels")
-        self.assertCount(models.RuleAnnotation, 9, "Missing annotations")
 
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_missing_permission(self, mock_post):
@@ -145,6 +132,6 @@ class RuleTest(tests.PromgenTest):
     def test_invalid_annotation(self, mock_post):
         rule = models.Rule.objects.get(pk=1)
         # $label.foo is invalid (should be $labels) so make sure we raise an exception
-        models.RuleAnnotation.objects.create(name="summary", value="{{$label.foo}}", rule=rule)
+        rule.annotations["summary"] = "{{$label.foo}}"
         with self.assertRaises(ValidationError):
             prometheus.check_rules([rule])

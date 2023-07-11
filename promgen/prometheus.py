@@ -160,33 +160,29 @@ def import_rules_v2(config, content_object=None):
     counters = collections.defaultdict(int)
     for group in config["groups"]:
         for r in group["rules"]:
-            labels = r.get("labels", {})
-            annotations = r.get("annotations", {})
 
             defaults = {
                 "clause": r["expr"],
                 "duration": r["for"],
+                "labels": r.get("labels", {}),
+                "annotations": r.get("annotations", {}),
             }
 
             # Check our labels to see if we have a project or service
             # label set and if not, default it to a global rule
             if content_object:
                 defaults["obj"] = content_object
-            elif "project" in labels:
-                defaults["obj"] = models.Project.objects.get(name=labels["project"])
-            elif "service" in labels:
-                defaults["obj"] = models.Service.objects.get(name=labels["service"])
+            elif "project" in defaults["labels"]:
+                defaults["obj"] = models.Project.objects.get(name=defaults["labels"]["project"])
+            elif "service" in defaults["labels"]:
+                defaults["obj"] = models.Service.objects.get(name=defaults["labels"]["service"])
             else:
                 defaults["obj"] = models.Site.objects.get_current()
 
-            rule, created = models.Rule.objects.get_or_create(name=r["alert"], defaults=defaults)
+            _, created = models.Rule.objects.get_or_create(name=r["alert"], defaults=defaults)
 
             if created:
                 counters["Rules"] += 1
-            for k, v in labels.items():
-                rule.add_label(k, v)
-            for k, v in annotations.items():
-                rule.add_annotation(k, v)
 
     return dict(counters)
 

@@ -27,8 +27,7 @@ Promgen / Rule / {{ rule.name }}
 
 <form action="{% url 'rule-edit' rule.pk %}" method="post">{% csrf_token %}
   <div class="row">
-
-    {% if form.non_field_errors  %}
+    {% if form.non_field_errors %}
     <div class="panel panel-danger">
       <div class="panel-heading">Errors</div>
       {% for error in form.non_field_errors %}
@@ -46,7 +45,7 @@ Promgen / Rule / {{ rule.name }}
     <div class="col-md-6">
       <div class="panel panel-primary">
         <div class="panel-heading">Labels - Control routing through AlertManager and Promgen</div>
-        {% include 'promgen/rule_formset_table.html' with formset=formset_labels only %}
+        {% include 'promgen/rule_formset_table.html' with formset=label_form only %}
         <ul class="list-group">
           <li class="list-group-item">Examples</li>
           <li class="list-group-item">
@@ -57,7 +56,7 @@ Promgen / Rule / {{ rule.name }}
 
       <div class="panel panel-primary">
         <div class="panel-heading">Annotations - Provide extra details for notifications</div>
-        {% include 'promgen/rule_formset_table.html' with formset=formset_annotations only %}
+        {% include 'promgen/rule_formset_table.html' with formset=annotation_form only %}
         <ul class="list-group">
           <li class="list-group-item">Examples</li>
           <li class="list-group-item">
@@ -101,7 +100,7 @@ Promgen / Rule / {{ rule.name }}
 
 <div class="panel panel-danger">
   <div class="panel-body">
-    <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans "Delete this Rule?" %}')" style="display: inline">
+    <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans " Delete this Rule?" %}')" style="display: inline">
       {% csrf_token %}
       <button class="btn btn-danger">{% trans "Delete Rule" %}</button>
     </form>

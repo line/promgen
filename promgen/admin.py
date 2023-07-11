@@ -104,20 +104,11 @@ class URLAdmin(admin.ModelAdmin):
     readonly_fields = ("project",)
 
 
-class RuleLabelInline(admin.TabularInline):
-    model = models.RuleLabel
-
-
-class RuleAnnotationInline(admin.TabularInline):
-    model = models.RuleAnnotation
-
-
 @admin.register(models.Rule)
 class RuleAdmin(admin.ModelAdmin):
     list_display = ("name", "clause", "duration", "content_object")
     list_filter = ("duration",)
     list_select_related = ("content_type",)
-    inlines = [RuleLabelInline, RuleAnnotationInline]
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
