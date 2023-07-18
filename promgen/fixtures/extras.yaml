@@ -9,18 +9,10 @@
     duration: 1s
     content_type: ["promgen", "site"]
     object_id: 1
-- model: promgen.ruleannotation
-  pk: 1
-  fields:
-    name: summary
-    value: Example rule summary
-    rule_id: 1
-- model: promgen.rulelabel
-  pk: 1
-  fields:
-    name: severity
-    value: high
-    rule_id: 1
+    labels:
+      severity: "high"
+    annotations:
+      summary: "Example rule summary"
 - model: promgen.alert
   pk: 1
   fields:

@@ -415,26 +415,11 @@ class Rule(models.Model):
     content_object = GenericForeignKey("content_type", "object_id", for_concrete_model=False)
     description = models.TextField(blank=True)
 
+    labels = models.JSONField(default=dict)
+    annotations = models.JSONField(default=dict)
+
     class Meta:
         ordering = ["content_type", "object_id", "name"]
-
-    @cached_property
-    def labels(self):
-        return {obj.name: obj.value for obj in self.rulelabel_set.all()}
-
-    def add_label(self, name, value):
-        return RuleLabel.objects.get_or_create(rule=self, name=name, value=value)
-
-    def add_annotation(self, name, value):
-        return RuleAnnotation.objects.get_or_create(rule=self, name=name, value=value)
-
-    @cached_property
-    def annotations(self):
-        _annotations = {obj.name: obj.value for obj in self.ruleannotation_set.all()}
-        # Skip when pk is not set, such as when test rendering a rule
-        if self.pk and "rule" not in _annotations:
-            _annotations["rule"] = resolve_domain("rule-detail", pk=self.pk)
-        return _annotations
 
     def __str__(self):
         return f"{self.name} [{self.content_object.name}]"
@@ -481,41 +466,14 @@ class Rule(models.Model):
                 macro.EXCLUSION_MACRO,
                 f'{content_type.model}="{content_object.name}",{macro.EXCLUSION_MACRO}',
             )
-            self.save()
 
             # Add a label to our new rule by default, to help ensure notifications
             # get routed to the notifier we expect
-            self.add_label(content_type.model, content_object.name)
+            self.labels[content_type.model] = content_object.name
 
-            for label in RuleLabel.objects.filter(rule_id=orig_pk):
-                # Skip service labels from our previous rule
-                if label.name in ["service", "project"]:
-                    logger.debug("Skipping %s: %s", label.name, label.value)
-                    continue
-                logger.debug("Copying %s to %s", label, self)
-                label.pk = None
-                label.rule = self
-                label.save()
-
-            for annotation in RuleAnnotation.objects.filter(rule_id=orig_pk):
-                logger.debug("Copying %s to %s", annotation, self)
-                annotation.pk = None
-                annotation.rule = self
-                annotation.save()
+            self.save()
 
         return self
-
-
-class RuleLabel(models.Model):
-    name = models.CharField(max_length=128)
-    value = models.CharField(max_length=128)
-    rule = models.ForeignKey("Rule", on_delete=models.CASCADE)
-
-
-class RuleAnnotation(models.Model):
-    name = models.CharField(max_length=128)
-    value = models.TextField()
-    rule = models.ForeignKey("Rule", on_delete=models.CASCADE)
 
 
 class AlertLabel(models.Model):

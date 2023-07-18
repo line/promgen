@@ -6,6 +6,7 @@ from django.db.models import prefetch_related_objects
 
 import promgen.templatetags.promgen as macro
 from promgen import models, shortcuts
+from promgen.shortcuts import resolve_domain
 
 
 class WebLinkField(serializers.Field):
@@ -88,16 +89,17 @@ class AlertRuleSerializer(serializers.ModelSerializer):
             "content_type",
             "overrides__content_object",
             "overrides__content_type",
-            "ruleannotation_set",
-            "rulelabel_set",
         )
         return AlertRuleList(queryset, *args, **kwargs)
 
     def to_representation(self, obj):
+        annotations = obj.annotations
+        annotations["rule"] = resolve_domain("rule-detail", pk=obj.pk if obj.pk else 0)
+
         return {
             "alert": obj.name,
             "expr": macro.rulemacro(obj),
             "for": obj.duration,
             "labels": obj.labels,
-            "annotations": obj.annotations,
+            "annotations": annotations,
         }

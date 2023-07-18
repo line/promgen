@@ -15,3 +15,6 @@ known_first_party = "promgen"
 sections = "FUTURE,STDLIB,DJANGO,THIRDPARTY,FIRSTPARTY,LOCALFOLDER"
 profile = "black"
 float_to_top = true
+
+[tool.ruff]
+ignore = ['E501']

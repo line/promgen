@@ -500,19 +500,13 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
 
         site_rules = models.Rule.objects.filter(
             content_type__model="site", content_type__app_label="promgen"
-        ).prefetch_related(
-            "content_object",
-            "rulelabel_set",
-            "ruleannotation_set",
-        )
+        ).prefetch_related("content_object")
 
         service_rules = models.Rule.objects.filter(
             content_type__model="service", content_type__app_label="promgen"
         ).prefetch_related(
             "content_object",
             "content_object",
-            "rulelabel_set",
-            "ruleannotation_set",
             "parent",
         )
 
@@ -522,8 +516,6 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
             "content_object",
             "content_object__service",
             "content_object__service",
-            "rulelabel_set",
-            "ruleannotation_set",
             "parent",
         )
 
@@ -738,11 +730,7 @@ class RuleDetail(LoginRequiredMixin, DetailView):
     queryset = models.Rule.objects.prefetch_related(
         "content_object",
         "content_type",
-        "ruleannotation_set",
-        "rulelabel_set",
         "overrides",
-        "overrides__ruleannotation_set",
-        "overrides__rulelabel_set",
         "overrides__content_object",
         "overrides__content_type",
     )
@@ -770,10 +758,12 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.setdefault("formset_labels", forms.LabelFormset(instance=self.object))
-        context.setdefault("formset_annotations", forms.AnnotationFormset(instance=self.object))
         context["macro"] = macro.EXCLUSION_MACRO
         context["rules"] = [self.object.parent] if self.object.parent else [self.object]
+        # We use setdefault here, because we may have received existing forms in the case of a POST
+        # that has errors to be corrected
+        context.setdefault("label_form", forms.LabelFormSet(initial=self.object.labels))
+        context.setdefault("annotation_form", forms.AnnotationFormSet(initial=self.object.annotations))
         return context
 
     def form_invalid(self, **kwargs):
@@ -786,41 +776,27 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         # Save a copy of our forms into a context var that we can use
         # to re-render our form properly in case of errors
         context = {}
-        context["form"] = form = self.get_form()
-        context["formset_labels"] = form_labels = forms.LabelFormset(
-            request.POST, request.FILES, instance=self.object
-        )
-        context["formset_annotations"] = form_annotations = forms.AnnotationFormset(
-            request.POST, request.FILES, instance=self.object
-        )
-
-        # Check validity of our labels and annotations in Django before we try to render
-        if not all([form_labels.is_valid(), form_annotations.is_valid()]):
-            return self.form_invalid(**context)
-
-        # Populate our cached_properties so we can render a test
-        # populate only rows with a 'value' so that we skip fields we're deleting
-        # see Django docs on cached_property and promgen.forms.RuleForm.clean()
-        form.instance.labels = {
-            l["name"]: l["value"] for l in form_labels.cleaned_data if "value" in l
-        }
-        form.instance.annotations = {
-            a["name"]: a["value"] for a in form_annotations.cleaned_data if "value" in a
-        }
+        context["form"] = self.get_form()
+        context["label_form"] = forms.LabelFormSet(data=request.POST)
+        context["annotation_form"] = forms.AnnotationFormSet(data=request.POST)
 
         # With our labels+annotations manually cached we can test
-        if not form.is_valid():
+        if not all(
+            [
+                context["form"].is_valid(),
+                context["label_form"].is_valid(),
+                context["annotation_form"].is_valid(),
+            ]
+        ):
             return self.form_invalid(**context)
 
-        # Save our labels
-        for instance in form_labels.save():
-            messages.info(request, f"Added {instance.name} to {self.object}")
+        # After we validate that our forms are valid, we can just copy over the
+        # cleaned data into our instance so that it can be saved in the call to
+        # form_valid.
+        context["form"].instance.labels = context["label_form"].to_dict()
+        context["form"].instance.annotations = context["annotation_form"].to_dict()
 
-        # Save our annotations
-        for instance in form_annotations.save():
-            messages.info(request, f"Added {instance.name} to {self.object}")
-
-        return self.form_valid(form)
+        return self.form_valid(context["form"])
 
 
 class AlertRuleRegister(mixins.PromgenPermissionMixin, mixins.RuleFormMixin, FormView):
@@ -918,7 +894,7 @@ class SiteDetail(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context["rule_list"] = models.Rule.objects.filter(
             content_type__model="site", content_type__app_label="promgen"
-        ).prefetch_related("content_object", "rulelabel_set", "ruleannotation_set")
+        ).prefetch_related("content_object")
         return context
 
 
@@ -1152,7 +1128,7 @@ class Search(LoginRequiredMixin, View):
             "rule_list": {
                 "field": ("name__icontains", "clause__icontains"),
                 "model": models.Rule,
-                "prefetch": ("content_object", "ruleannotation_set", "rulelabel_set"),
+                "prefetch": ("content_object"),
                 "query": ("search",),
             },
             "service_list": {
