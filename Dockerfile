@@ -1,4 +1,4 @@
-FROM python:3.6.9-alpine
+FROM python:3.9-alpine
 LABEL maintainer=paul.traylor@linecorp.com
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -9,14 +9,14 @@ ENV PROMGEN_CONFIG_DIR=/etc/promgen
 RUN adduser -D -u 1000 promgen promgen
 
 # Upgrade Pip
-RUN pip install --no-cache-dir -U pip==20.0.2
+RUN pip install --no-cache-dir -U pip~=23.2
 
 # Install MySQL Support
 RUN set -ex \
     && apk add --no-cache mariadb-dev \
     && apk add --no-cache --virtual build-deps build-base \
     && pip --no-cache-dir install mysqlclient \
-    && apk del build-deps 
+    && apk del build-deps
 
 # Install Postgres Support
 RUN set -ex \
@@ -35,7 +35,10 @@ COPY --from=prom/prometheus:v2.26.0 /bin/promtool /usr/local/bin/promtool
 
 COPY docker/requirements.txt /tmp/requirements.txt
 
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN set -ex \
+    && apk add --no-cache --virtual build-deps build-base libffi-dev \
+    && pip install --no-cache-dir -r /tmp/requirements.txt \
+    && apk del build-deps
 
 COPY docker/docker-entrypoint.sh /
 COPY setup.py /usr/src/app/setup.py

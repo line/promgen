@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.6"]
+        python-version: ["3.9"]
 
     steps:
       - uses: actions/checkout@v3
@@ -28,6 +28,8 @@ jobs:
 
       - name: Build Docs
         run: make docs
+        env:
+          SYSTEM_PYTHON: python${{ matrix.python-version }}
 
       - name: Deploy to GitHub Pages
         if: ${{ github.ref == 'refs/heads/main' }}

@@ -9,7 +9,7 @@ CELERY_BIN := $(ENV_DIR)/bin/celery
 SPHINX  := $(ENV_DIR)/bin/sphinx-build
 
 DOCKER_TAG := promgen:local
-SYSTEM_PYTHON ?= python3.6
+SYSTEM_PYTHON ?= python3.9
 
 # Help 'function' taken from
 # https://gist.github.com/prwhite/8168133#gistcomment-2278355
