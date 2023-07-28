@@ -36,10 +36,6 @@ web)
   shift
   set -- gunicorn "promgen.wsgi:application" "$@"
   ;;
-*)
-  # Shortcuts for some commonly used django commands
-  set -- promgen "$@"
-  ;;
 esac
 
 # Finally exec our command
