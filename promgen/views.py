@@ -1015,7 +1015,12 @@ class AlertList(LoginRequiredMixin, ListView):
         for key, value in self.request.GET.items():
             if key in ["page", "search"]:
                 continue
-            qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
+            elif key == "noSent":
+                qs = qs.filter(sent_count=0)
+            elif key == "sentError":
+                qs = qs.exclude(error_count=0)
+            else:
+                qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
         return qs
 
 
