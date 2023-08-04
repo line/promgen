@@ -3,12 +3,12 @@
 
 import re
 from functools import partial
+
 from dateutil import parser
-
-from promgen import models, plugins, prometheus, validators
-
 from django import forms
 from django.core.exceptions import ValidationError
+
+from promgen import models, plugins, prometheus, validators, errors
 
 
 class ImportConfigForm(forms.Form):
@@ -43,7 +43,6 @@ class ImportRuleForm(forms.Form):
 
 
 class SilenceForm(forms.Form):
-
     duration = forms.CharField(required=False, validators=[validators.duration])
     startsAt = forms.CharField(required=False, validators=[validators.datetime])
     endsAt = forms.CharField(required=False, validators=[validators.datetime])
@@ -61,18 +60,37 @@ class SilenceForm(forms.Form):
         return "Promgen"
 
     def clean(self):
-        duration = self.data.get("duration")
-        start = self.data.get("startsAt")
-        stop = self.data.get("endsAt")
+        data = super().clean()
 
-        if duration:
+        # Validation for labels
+        if "labels" not in self.data or not self.data["labels"]:
+            raise errors.SilenceError.NOLABEL.error()
+
+        # Users should not be able to accidentally silence a global rule without
+        # setting some other labels as well.
+        if "alertname" in self.data["labels"]:
+            if "service" not in self.data["labels"] and "project" not in self.data["labels"]:
+                rule = models.Rule.objects.get(name=self.data["labels"]["alertname"])
+                if rule.content_type.model == "site":
+                    raise errors.SilenceError.GLOBALSILENCE.error()
+
+        # Once labels have been validated, we want to add them to our cleaned data so
+        # they can be submitted.
+        self.cleaned_data["labels"] = self.data["labels"]
+
+        if data.get("duration"):
             # No further validation is required if only duration is set
             return
 
+        # Validate our start/end times
+        start = data.get("startsAt")
+        stop = data.get("endsAt")
+
         if not all([start, stop]):
-            raise forms.ValidationError("Both start and end are required")
+            raise errors.SilenceError.STARTENDTIME.error()
+
         elif parser.parse(start) > parser.parse(stop):
-            raise forms.ValidationError("Start time and end time is mismatch")
+            raise errors.SilenceError.STARTENDMISMATCH.error()
 
 
 class SilenceExpireForm(forms.Form):
@@ -148,6 +166,7 @@ class _KeyValueForm(forms.Form):
     key = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
     value = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
 
+
 # We need a custom KeyValueSet because we need to be able to convert between the single dictionary
 # form saved to our models, and the list of models used by
 class _KeyValueSet(forms.BaseFormSet):
@@ -158,6 +177,7 @@ class _KeyValueSet(forms.BaseFormSet):
 
     def to_dict(self):
         return {x["key"]: x["value"] for x in self.cleaned_data if x and not x["DELETE"]}
+
 
 # For both LabelFormSet and AnnotationFormSet we always want to have a prefix assigned, but it's
 # awkward if we need to specify it in multiple places. We use a partial here, so that it is the same
