@@ -261,11 +261,12 @@ def import_config(config, replace_shard=None):
     return counters, skipped
 
 
-def silence(labels, duration=None, **kwargs):
+def silence(*, labels, duration=None, **kwargs):
     """
     Post a silence message to Alert Manager
     Duration should be sent in a format like 1m 2h 1d etc
     """
+
     if duration:
         start = timezone.now()
         if duration.endswith("m"):

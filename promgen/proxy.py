@@ -210,7 +210,7 @@ class ProxySilences(View):
             )
 
         try:
-            response = prometheus.silence(body.pop("labels"), **form.cleaned_data)
+            response = prometheus.silence(**form.cleaned_data)
         except Exception as e:
             return JsonResponse(
                 {"messages": [{"class": "alert alert-danger", "message": str(e)}]},

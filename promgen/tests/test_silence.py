@@ -7,7 +7,7 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import tests
+from promgen import forms, tests
 
 TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
 TEST_DURATION = tests.Data("examples", "silence.duration.json").json()
@@ -18,6 +18,8 @@ TEST_SETTINGS["timezone"] = "Asia/Tokyo"
 
 
 class SilenceTest(tests.PromgenTest):
+    fixtures = ["testcases.yaml", "extras.yaml"]
+
     def setUp(self):
         self.user = self.force_login(username="demo")
 
@@ -61,3 +63,44 @@ class SilenceTest(tests.PromgenTest):
             )
 
         self.assertMockCalls(mock_post, "http://alertmanager:9093/api/v1/silences", json=TEST_RANGE)
+
+    @override_settings(PROMGEN=TEST_SETTINGS)
+    def test_site_silence_errors(self):
+        form = forms.SilenceForm(data={"labels": {}, "duration": "1m"})
+        self.assertEqual(
+            form.errors,
+            {"__all__": ["Unable to silence without labels"]},
+            "Silence requires labels.",
+        )
+
+        form = forms.SilenceForm(data={"labels": {"alertname": "example-rule"}, "duration": "1m"})
+        self.assertEqual(
+            form.errors,
+            {"__all__": ["Unable to silence global rules with alertname alone."]},
+            "Unable to silence global rule without more specific labels.",
+        )
+
+        form = forms.SilenceForm(
+            data={"labels": {"alertname": "example-rule", "foo": "bar"}, "duration": "1m"}
+        )
+        self.assertEqual(
+            form.errors,
+            {"__all__": ["Unable to silence global rules with alertname alone."]},
+            "Unable to silence global rule without service/project label",
+        )
+
+        form = forms.SilenceForm(
+            data={"labels": {"alertname": "example-rule", "service": "foo"}, "duration": "1m"}
+        )
+        self.assertEqual(form.errors, {}, "Expected no errors")
+        self.assertEqual(
+            form.cleaned_data,
+            {
+                "comment": "Silenced from Promgen",
+                "createdBy": "Promgen",
+                "duration": "1m",
+                "endsAt": "",
+                "labels": {"alertname": "example-rule", "service": "foo"},
+                "startsAt": "",
+            },
+        )
