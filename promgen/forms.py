@@ -8,7 +8,7 @@ from dateutil import parser
 from django import forms
 from django.core.exceptions import ValidationError
 
-from promgen import models, plugins, prometheus, validators
+from promgen import models, plugins, prometheus, validators, errors
 
 
 class ImportConfigForm(forms.Form):
@@ -64,7 +64,7 @@ class SilenceForm(forms.Form):
 
         # Validation for labels
         if "labels" not in self.data or not self.data["labels"]:
-            raise forms.ValidationError("Unable to silence without labels")
+            raise errors.SilenceError.NOLABEL.error()
 
         # Users should not be able to accidentally silence a global rule without
         # setting some other labels as well.
@@ -72,9 +72,8 @@ class SilenceForm(forms.Form):
             if "service" not in self.data["labels"] and "project" not in self.data["labels"]:
                 rule = models.Rule.objects.get(name=self.data["labels"]["alertname"])
                 if rule.content_type.model == "site":
-                    raise forms.ValidationError(
-                        "Unable to silence global rules with alertname alone."
-                    )
+                    raise errors.SilenceError.GLOBALSILENCE.error()
+
         # Once labels have been validated, we want to add them to our cleaned data so
         # they can be submitted.
         self.cleaned_data["labels"] = self.data["labels"]
@@ -88,9 +87,10 @@ class SilenceForm(forms.Form):
         stop = data.get("endsAt")
 
         if not all([start, stop]):
-            raise forms.ValidationError("Both start and end are required")
+            raise errors.SilenceError.STARTENDTIME.error()
+
         elif parser.parse(start) > parser.parse(stop):
-            raise forms.ValidationError("Start time and end time is mismatch")
+            raise errors.SilenceError.STARTENDMISMATCH.error()
 
 
 class SilenceExpireForm(forms.Form):

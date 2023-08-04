@@ -7,7 +7,7 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import forms, tests
+from promgen import forms, tests, errors
 
 TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
 TEST_DURATION = tests.Data("examples", "silence.duration.json").json()
@@ -68,25 +68,22 @@ class SilenceTest(tests.PromgenTest):
     def test_site_silence_errors(self):
         form = forms.SilenceForm(data={"labels": {}, "duration": "1m"})
         self.assertEqual(
-            form.errors,
-            {"__all__": ["Unable to silence without labels"]},
-            "Silence requires labels.",
+            form.errors.as_data(),
+            {"__all__": [errors.SilenceError.NOLABEL.error()]},
         )
 
         form = forms.SilenceForm(data={"labels": {"alertname": "example-rule"}, "duration": "1m"})
         self.assertEqual(
-            form.errors,
-            {"__all__": ["Unable to silence global rules with alertname alone."]},
-            "Unable to silence global rule without more specific labels.",
+            form.errors.as_data(),
+            {"__all__": [errors.SilenceError.GLOBALSILENCE.error()]},
         )
 
         form = forms.SilenceForm(
             data={"labels": {"alertname": "example-rule", "foo": "bar"}, "duration": "1m"}
         )
         self.assertEqual(
-            form.errors,
-            {"__all__": ["Unable to silence global rules with alertname alone."]},
-            "Unable to silence global rule without service/project label",
+            form.errors.as_data(),
+            {"__all__": [errors.SilenceError.GLOBALSILENCE.error()]},
         )
 
         form = forms.SilenceForm(
