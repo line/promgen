@@ -160,7 +160,6 @@ def import_rules_v2(config, content_object=None):
     counters = collections.defaultdict(int)
     for group in config["groups"]:
         for r in group["rules"]:
-
             defaults = {
                 "clause": r["expr"],
                 "duration": r["for"],
