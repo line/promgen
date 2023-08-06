@@ -14,6 +14,21 @@ import prometheus_client
 import requests
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 
+import promgen.templatetags.promgen as macro
+from promgen import (
+    discovery,
+    forms,
+    mixins,
+    models,
+    plugins,
+    prometheus,
+    signals,
+    tasks,
+    util,
+    version,
+)
+from promgen.shortcuts import resolve_domain
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
@@ -28,22 +43,6 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
-
-import promgen.templatetags.promgen as macro
-from promgen import (
-    celery,
-    discovery,
-    forms,
-    mixins,
-    models,
-    plugins,
-    prometheus,
-    signals,
-    tasks,
-    util,
-    version,
-)
-from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 
@@ -763,7 +762,9 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         # We use setdefault here, because we may have received existing forms in the case of a POST
         # that has errors to be corrected
         context.setdefault("label_form", forms.LabelFormSet(initial=self.object.labels))
-        context.setdefault("annotation_form", forms.AnnotationFormSet(initial=self.object.annotations))
+        context.setdefault(
+            "annotation_form", forms.AnnotationFormSet(initial=self.object.annotations)
+        )
         return context
 
     def form_invalid(self, **kwargs):
@@ -1197,7 +1198,7 @@ class RuleImport(mixins.PromgenPermissionMixin, FormView):
             counters = prometheus.import_rules_v2(rules)
             messages.info(self.request, "Imported %s" % counters)
             return redirect("rule-import")
-        except:
+        except Exception:
             messages.error(self.request, "Error importing rules")
             return self.form_invalid(form)
 
@@ -1276,15 +1277,15 @@ class RuleTest(LoginRequiredMixin, View):
         # check our test query output for labels outside our expected match
         if rule.content_type.model == "service":
             # for a service rule, we expect the current service and all child projects as expected
-            expected_labels["service"] = set([rule.content_object.name])
-            expected_labels["project"] = set(
-                [project.name for project in rule.content_object.project_set.all()]
-            )
+            expected_labels["service"] = {rule.content_object.name}
+            expected_labels["project"] = {
+                project.name for project in rule.content_object.project_set.all()
+            }
 
         if rule.content_type.model == "project":
             # for a project rule we expect only the current project and the parent service
-            expected_labels["service"] = set([rule.content_object.service.name])
-            expected_labels["project"] = set([rule.content_object.name])
+            expected_labels["service"] = {rule.content_object.service.name}
+            expected_labels["project"] = {rule.content_object.name}
 
         query = macro.rulemacro(rule, request.POST["query"])
         # Since our rules affect all servers we use Promgen's proxy-query to test our rule

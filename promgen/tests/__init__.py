@@ -57,7 +57,7 @@ class PromgenTest(TestCase):
         # We split them here, instead of passing to assertEquals, so that we have
         # the arguments directly and not a call() object
         call_args, call_kwargs = mock_func.call_args
-        self.assertEquals((call_args, call_kwargs), (args, kwargs))
+        self.assertEqual((call_args, call_kwargs), (args, kwargs))
 
     def add_user_permissions(self, *args, user=None):
         codenames = [p.split(".")[1] for p in args]

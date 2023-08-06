@@ -2,10 +2,10 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import logging
+import warnings
 
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
-import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,7 @@ class PromgenConfig(AppConfig):
     default_auto_field = "django.db.models.AutoField"
 
     def ready(self):
-        from promgen import checks, signals  # NOQA
+        from promgen import celery, checks, signals  # NOQA
 
         post_migrate.connect(default_shard, sender=self)
         post_migrate.connect(default_admin, sender=self)

@@ -7,10 +7,7 @@ import logging
 from urllib.parse import urljoin
 
 import requests
-from dateutil import parser
-from django.conf import settings
 from django.http import HttpResponse, JsonResponse
-from django.template import defaultfilters
 from django.views.generic import View
 from django.views.generic.base import TemplateView
 from promgen import forms, models, prometheus, util

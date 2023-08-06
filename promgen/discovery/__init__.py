@@ -18,10 +18,10 @@ class DiscoveryBase:
         """
         Return list of hosts for farm
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def farms(self):
         """
         Return a list of farm names
         """
-        raise NotImplemented()
+        raise NotImplementedError()
