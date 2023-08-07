@@ -1134,7 +1134,7 @@ class Search(LoginRequiredMixin, View):
             "rule_list": {
                 "field": ("name__icontains", "clause__icontains"),
                 "model": models.Rule,
-                "prefetch": ("content_object"),
+                "prefetch": ("content_object",),
                 "query": ("search",),
             },
             "service_list": {
