@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.58.1 - 2023-08-07
+
+- [BUGFIX] Fix for rule prefetch on /search #435
+
 # v0.58.0 - 2023-08-07
 
 This release is primarily focused on upgrading Python version and assorted package versions.
