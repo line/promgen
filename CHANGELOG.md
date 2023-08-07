@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.58.2 - 2023-08-07
+
+- [BUGFIX] Fix instance of Rule.add_label #436
+
 # v0.58.1 - 2023-08-07
 
 - [BUGFIX] Fix for rule prefetch on /search #435
