@@ -1,5 +1,18 @@
 # Changelog
 
+# v0.58.0 - 2023-08-07
+
+This release is primarily focused on upgrading Python version and assorted package versions.
+
+- [BUGFIX] Fix testing site rules with expected_labels #425
+- [BUGFIX] Stricter checks about silencing global rules #433
+- [IMPROVEMENT] Add debug warning to top of page #426
+- [IMPROVEMENT] Additional alert filters #432
+- [INTERNAL] Convert Rule label/annotation storage to JsonField #427
+- [INTERNAL] Update requirements #431
+- [INTERNAL] Upgrade to Python3.9 #429
+- [INTERNAL] Use ruff for formatting #434
+
 # v0.57.0 - 2023-06-12
 
 - [BUGFIX] Fix DatasourceList view #405
