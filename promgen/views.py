@@ -781,6 +781,11 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         context["label_form"] = forms.LabelFormSet(data=request.POST)
         context["annotation_form"] = forms.AnnotationFormSet(data=request.POST)
 
+        # Before we validate the form, we also want to move our labels and annotations
+        # into our rule instance, so that they can be validated in the call to promtool
+        context["form"].instance.labels = context["label_form"].to_dict()
+        context["form"].instance.annotations = context["annotation_form"].to_dict()
+
         # With our labels+annotations manually cached we can test
         if not all(
             [
@@ -790,12 +795,6 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
             ]
         ):
             return self.form_invalid(**context)
-
-        # After we validate that our forms are valid, we can just copy over the
-        # cleaned data into our instance so that it can be saved in the call to
-        # form_valid.
-        context["form"].instance.labels = context["label_form"].to_dict()
-        context["form"].instance.annotations = context["annotation_form"].to_dict()
 
         return self.form_valid(context["form"])
 
