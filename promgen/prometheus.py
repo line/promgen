@@ -42,9 +42,9 @@ def check_rules(rules):
         cmd = [util.setting("prometheus:promtool"), "check", "rules", fp.name]
 
         try:
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding="utf8")
         except subprocess.CalledProcessError as e:
-            raise ValidationError(rendered.decode("utf8") + e.output.decode("utf8"))
+            raise ValidationError(message=e.output + rendered.decode("utf8"))
 
 
 def render_rules(rules=None):

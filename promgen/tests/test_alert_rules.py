@@ -129,9 +129,18 @@ class RuleTest(tests.PromgenTest):
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("django.dispatch.dispatcher.Signal.send")
-    def test_invalid_annotation(self, mock_post):
+    def test_invalid_annotation_value(self, mock_post):
         rule = models.Rule.objects.get(pk=1)
         # $label.foo is invalid (should be $labels) so make sure we raise an exception
         rule.annotations["summary"] = "{{$label.foo}}"
+        with self.assertRaises(ValidationError):
+            prometheus.check_rules([rule])
+
+    @override_settings(PROMGEN=TEST_SETTINGS)
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    def test_invalid_annotation_name(self, mock_post):
+        rule = models.Rule.objects.get(pk=1)
+        # $label.foo is invalid (should be $labels) so make sure we raise an exception
+        rule.annotations["has a space"] = "value"
         with self.assertRaises(ValidationError):
             prometheus.check_rules([rule])
