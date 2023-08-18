@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.58.3 - 2023-08-18
+
+- [BUGFIX] Fix check for invalid annotation name #437
+
 # v0.58.2 - 2023-08-07
 
 - [BUGFIX] Fix instance of Rule.add_label #436
