@@ -61,9 +61,3 @@ class Command(BaseCommand):
             shutil.copy(PROMGEN_CONFIG_DEFAULT, PROMGEN_CONFIG_FILE)
         else:
             self.success("Config {} Exists", PROMGEN_CONFIG_FILE)
-
-        self.write("Checking environment settings", color=self.style.MIGRATE_HEADING)
-        self.setting("SECRET_KEY", default=settings.SECRET_KEY)
-        self.setting("DATABASE_URL")
-        self.setting("CELERY_BROKER_URL")
-        self.stdout.write("")
