@@ -30,6 +30,7 @@ jobs:
         run: make docs
         env:
           SYSTEM_PYTHON: python${{ matrix.python-version }}
+          SECRET_KEY: github-actions
 
       - name: Deploy to GitHub Pages
         if: ${{ github.ref == 'refs/heads/main' }}
