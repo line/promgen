@@ -44,8 +44,6 @@ django-filter==23.2
     # via promgen (setup.py)
 djangorestframework==3.14.0
     # via promgen (setup.py)
-envdir==1.0.1
-    # via promgen (setup.py)
 gunicorn==21.2.0
     # via -r docker/requirements.in
 idna==3.4
