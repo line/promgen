@@ -52,7 +52,7 @@ RUN pip install --no-cache-dir -e .
 USER promgen
 EXPOSE 8000
 
-RUN promgen collectstatic --noinput
+RUN SECRET_KEY=1 promgen collectstatic --noinput
 
 VOLUME ["/etc/promgen", "/etc/prometheus"]
 ENTRYPOINT ["/docker-entrypoint.sh"]

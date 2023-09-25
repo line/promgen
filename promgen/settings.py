@@ -32,7 +32,7 @@ DOT_ENV = BASE_DIR / ".env"
 # Load our environment
 env = environ.Env()
 if DOT_ENV.exists():
-    env.read_env(".env")
+    env.read_env(DOT_ENV)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str("SECRET_KEY")
