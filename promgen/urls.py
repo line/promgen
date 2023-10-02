@@ -80,6 +80,7 @@ urlpatterns = [
     path("notifier/<int:pk>/test", views.NotifierTest.as_view(), name="notifier-test"),
     path("notifier/<int:pk>", views.NotifierUpdate.as_view(), name="notifier-edit"),
     path("notifier/<int:pk>/toggle", views.NotifierToggle.as_view(), name="notifier-toggle"),
+    path("notifier/pre-test", views.NotifierPreTest.as_view(), name="notifier-pre-test"),
     # Rules
     path("rule", views.RulesList.as_view(), name="rules-list"),
     path("rule/<int:pk>", views.RuleDetail.as_view(), name="rule-detail"),

@@ -78,6 +78,12 @@
             </table>
             <div class="panel-footer">
               <button class="btn btn-primary">Register Notifier</button>
+              <notifier-pre-test
+                class="btn btn-info"
+                href="{% url 'notifier-pre-test' %}"
+              >
+                {% trans "Test" %}
+              </notifier-pre-test>
             </div>
           </form>
         </div>
@@ -86,6 +92,10 @@
       </div>
     </div>
   </div>
+</div>
+
+<div>
+  <notifier-pre-test-result></notifier-pre-test-result>
 </div>
 
 {% if user.is_staff %}
