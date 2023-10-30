@@ -36,8 +36,20 @@
   <script src="{% static 'js/linkify.min.js' %}"></script>
   <script src="{% static 'js/linkify-string.min.js' %}"></script>
   <script src="{% static 'js/vue.min.js' %}"></script>
+  <script type="text/x-template" id="bootstrap-panel-template">
+    {% include 'promgen/vue/bootstrap_panel.html' %}
+  </script>
+  <script type="text/x-template" id="exporter-result-template">
+    {% include 'promgen/vue/exporter_result.html' %}
+  </script>
+  <script type="text/x-template" id="exporter-test-template">
+    {% include 'promgen/vue/exporter_test.html' %}
+  </script>
+  <script type="text/x-template" id="promql-query-template">
+    {% include 'promgen/vue/promql_query.html' %}
+  </script>
   <script type="text/x-template" id="silence-form-template">
-    {% include 'promgen/silence_form.html' %}
+    {% include 'promgen/vue/silence_form.html' %}
   </script>
   <script src="{% static 'js/promgen.js' %}"></script>
   <script src="{% static 'js/promgen.vue.js' %}"></script>

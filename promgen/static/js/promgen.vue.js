@@ -188,6 +188,7 @@ Vue.filter("time", function (value, fmtstr = "yyyy-MM-dd HH:mm:ss") {
 });
 
 Vue.component("promql-query", {
+    delimiters: ['[[', ']]'],
     props: ["href", "query", "max"],
     data: function () {
         return {
@@ -206,11 +207,7 @@ Vue.component("promql-query", {
             return "label label-success";
         },
     },
-    template: `
-    <span style="display:none" :title="load|percent" :class="classes">
-        {{count|localize}} <slot></slot>
-    </span>
-    `,
+    template: '#promql-query-template',
     mounted() {
         var this_ = this;
         var url = new URL(this.href);
@@ -229,21 +226,24 @@ Vue.component("promql-query", {
 });
 
 Vue.component('bootstrap-panel', {
+    delimiters: ['[[', ']]'],
     props: ['heading'],
-    template: '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body"><slot /></div></div>'
-})
+    template: '#bootstrap-panel-template',
+});
 
 const ExporterResult = Vue.component('exporter-result', {
+    delimiters: ['[[', ']]'],
     props: ['results'],
-    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>'
-})
+    template: '#exporter-result-template',
+});
 
 const ExporterTest = Vue.component('exporter-test', {
     // Exporter Test button for Forms
     // Acts like a regular form submit button, but hijacks the button
     // click and submits it to an alternate URL for testing
+    delimiters: ['[[', ']]'],
     props: ['href', 'target'],
-    template: '<button @click.prevent="onTestSubmit"><slot /></button>',
+    template: '#exporter-test-template',
     methods: {
         onTestSubmit: function (event) {
             // Find the parent form our button belongs to so that we can
@@ -262,4 +262,4 @@ const ExporterTest = Vue.component('exporter-test', {
                 .catch(error => alert(error))
         }
     }
-})
+});
