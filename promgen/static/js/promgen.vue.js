@@ -229,6 +229,7 @@ Vue.component("promql-query", {
 });
 
 Vue.component('bootstrap-panel', {
+    delimiters: ['[[', ']]'],
     props: ['heading'],
     template: '#bootstrap-panel-template',
 });
