@@ -11,5 +11,8 @@ var mixins = {
     percent(number) {
       return (number * 100).toLocaleString() + "%";
     },
+    urlize(value) {
+      return linkifyStr(value);
+    },
   },
 };

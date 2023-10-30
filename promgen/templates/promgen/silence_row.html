@@ -10,7 +10,7 @@
         </li>
     </ul>
 </td>
-<td class="col-xs-3" :inner-html.prop="silence.comment|urlize"></td>
+<td class="col-xs-3" v-html="urlize(silence.comment)"></td>
 <td class="col-xs-3">[[silence.createdBy]]</td>
 
 <td style="col-xs-1">

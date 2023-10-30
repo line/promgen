@@ -42,6 +42,7 @@ const app = new Vue({
     el: '#vue',
     delimiters: ['[[', ']]'],
     data: dataStore,
+    mixins: [mixins],
     methods: {
         toggleComponent: function (component) {
             let state = Boolean(this.components[component]);
@@ -169,10 +170,6 @@ Vue.component('silence-form', {
                 });
         },
     }
-});
-
-Vue.filter("urlize", function (value) {
-    return linkifyStr(value);
 });
 
 Vue.filter("time", function (value, fmtstr = "yyyy-MM-dd HH:mm:ss") {

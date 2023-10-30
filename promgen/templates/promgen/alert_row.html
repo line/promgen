@@ -15,7 +15,7 @@
         </dd>
         <template v-for="(value, annotation) in alert.annotations" class="dl-horizontal">
             <dt>[[annotation]]</dt>
-            <dd :inner-html.prop="value|urlize"></dd>
+            <dd v-html="urlize(value)"></dd>
         </template>
     </dl>
 </td>
