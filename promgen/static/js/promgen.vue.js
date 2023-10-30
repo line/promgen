@@ -236,7 +236,7 @@ Vue.component('bootstrap-panel', {
 
 const ExporterResult = Vue.component('exporter-result', {
     props: ['results'],
-    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>'
+    template: '#exporter-result-template',
 })
 
 const ExporterTest = Vue.component('exporter-test', {
