@@ -264,4 +264,4 @@ const ExporterTest = Vue.component('exporter-test', {
                 .catch(error => alert(error))
         }
     }
-})
+});
