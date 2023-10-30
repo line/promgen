@@ -206,11 +206,7 @@ Vue.component("promql-query", {
             return "label label-success";
         },
     },
-    template: `
-    <span style="display:none" :title="load|percent" :class="classes">
-        {{count|localize}} <slot></slot>
-    </span>
-    `,
+    template: '#promql-query-template',
     mounted() {
         var this_ = this;
         var url = new URL(this.href);
