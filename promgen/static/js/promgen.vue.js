@@ -188,6 +188,7 @@ Vue.filter("time", function (value, fmtstr = "yyyy-MM-dd HH:mm:ss") {
 });
 
 Vue.component("promql-query", {
+    delimiters: ['[[', ']]'],
     props: ["href", "query", "max"],
     data: function () {
         return {
