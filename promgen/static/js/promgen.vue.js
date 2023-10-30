@@ -235,6 +235,7 @@ Vue.component('bootstrap-panel', {
 });
 
 const ExporterResult = Vue.component('exporter-result', {
+    delimiters: ['[[', ']]'],
     props: ['results'],
     template: '#exporter-result-template',
 });
