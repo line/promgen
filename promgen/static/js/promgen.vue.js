@@ -172,10 +172,6 @@ Vue.component('silence-form', {
     }
 });
 
-Vue.filter("time", function (value, fmtstr = "yyyy-MM-dd HH:mm:ss") {
-    return luxon.DateTime.fromISO(value).toFormat(fmtstr);
-});
-
 Vue.component("promql-query", {
     delimiters: ['[[', ']]'],
     props: ["href", "query", "max"],

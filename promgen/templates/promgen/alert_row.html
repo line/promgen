@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <td class="col-xs-1">
-    <a :href="alert.generatorURL">[[alert.startsAt|time]]</a>
+    <a :href="alert.generatorURL">[[time(alert.startsAt)]]</a>
 </td>
 <td>
     <dl class="dl-horizontal">

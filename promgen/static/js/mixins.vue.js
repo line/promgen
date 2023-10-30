@@ -14,5 +14,8 @@ var mixins = {
     urlize(value) {
       return linkifyStr(value);
     },
+    time(value, fmtstr = "yyyy-MM-dd HH:mm:ss") {
+      return luxon.DateTime.fromISO(value).toFormat(fmtstr);
+    },
   },
 };

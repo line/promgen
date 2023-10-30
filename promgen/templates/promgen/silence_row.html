@@ -1,6 +1,6 @@
 {% load i18n %}
-<td class="col-xs-1">[[silence.startsAt|time]]</td>
-<td class="col-xs-1">[[silence.endsAt|time]]</td>
+<td class="col-xs-1">[[time(silence.startsAt)]]</td>
+<td class="col-xs-1">[[time(silence.endsAt)]]</td>
 <td class="col-xs-3 text-wrap">
     <ul class="list-inline">
         <li v-for="match in silence.matchers">
