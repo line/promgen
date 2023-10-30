@@ -42,6 +42,7 @@ const app = new Vue({
     el: '#vue',
     delimiters: ['[[', ']]'],
     data: dataStore,
+    mixins: [mixins],
     methods: {
         toggleComponent: function (component) {
             let state = Boolean(this.components[component]);
@@ -171,22 +172,6 @@ Vue.component('silence-form', {
     }
 });
 
-Vue.filter("localize", function (number) {
-    return number.toLocaleString();
-});
-
-Vue.filter("percent", function (number) {
-    return (number * 100).toLocaleString() + "%"
-});
-
-Vue.filter("urlize", function (value) {
-    return linkifyStr(value);
-});
-
-Vue.filter("time", function (value, fmtstr = "yyyy-MM-dd HH:mm:ss") {
-    return luxon.DateTime.fromISO(value).toFormat(fmtstr);
-});
-
 Vue.component("promql-query", {
     delimiters: ['[[', ']]'],
     props: ["href", "query", "max"],
@@ -195,6 +180,7 @@ Vue.component("promql-query", {
             count: 0,
         };
     },
+    mixins: [mixins],
     computed: {
         load: function () {
             return this.count / Number.parseInt(this.max);
