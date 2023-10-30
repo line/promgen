@@ -171,10 +171,6 @@ Vue.component('silence-form', {
     }
 });
 
-Vue.filter("percent", function (number) {
-    return (number * 100).toLocaleString() + "%"
-});
-
 Vue.filter("urlize", function (value) {
     return linkifyStr(value);
 });

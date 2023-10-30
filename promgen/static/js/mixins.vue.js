@@ -8,5 +8,8 @@ var mixins = {
     localize(number) {
       return number.toLocaleString();
     },
+    percent(number) {
+      return (number * 100).toLocaleString() + "%";
+    },
   },
 };
