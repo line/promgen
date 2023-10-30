@@ -244,6 +244,7 @@ const ExporterTest = Vue.component('exporter-test', {
     // Exporter Test button for Forms
     // Acts like a regular form submit button, but hijacks the button
     // click and submits it to an alternate URL for testing
+    delimiters: ['[[', ']]'],
     props: ['href', 'target'],
     template: '#exporter-test-template',
     methods: {
