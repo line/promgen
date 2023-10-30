@@ -171,10 +171,6 @@ Vue.component('silence-form', {
     }
 });
 
-Vue.filter("localize", function (number) {
-    return number.toLocaleString();
-});
-
 Vue.filter("percent", function (number) {
     return (number * 100).toLocaleString() + "%"
 });
@@ -195,6 +191,7 @@ Vue.component("promql-query", {
             count: 0,
         };
     },
+    mixins: [mixins],
     computed: {
         load: function () {
             return this.count / Number.parseInt(this.max);
