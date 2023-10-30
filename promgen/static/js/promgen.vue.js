@@ -237,7 +237,7 @@ Vue.component('bootstrap-panel', {
 const ExporterResult = Vue.component('exporter-result', {
     props: ['results'],
     template: '#exporter-result-template',
-})
+});
 
 const ExporterTest = Vue.component('exporter-test', {
     // Exporter Test button for Forms
