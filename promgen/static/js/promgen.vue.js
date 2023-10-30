@@ -231,7 +231,7 @@ Vue.component("promql-query", {
 Vue.component('bootstrap-panel', {
     props: ['heading'],
     template: '#bootstrap-panel-template',
-})
+});
 
 const ExporterResult = Vue.component('exporter-result', {
     props: ['results'],
