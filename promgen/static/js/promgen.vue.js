@@ -245,7 +245,7 @@ const ExporterTest = Vue.component('exporter-test', {
     // Acts like a regular form submit button, but hijacks the button
     // click and submits it to an alternate URL for testing
     props: ['href', 'target'],
-    template: '<button @click.prevent="onTestSubmit"><slot /></button>',
+    template: '#exporter-test-template',
     methods: {
         onTestSubmit: function (event) {
             // Find the parent form our button belongs to so that we can
