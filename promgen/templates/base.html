@@ -35,7 +35,11 @@
   <script src="{% static 'js/luxon.min.js' %}"></script>
   <script src="{% static 'js/linkify.min.js' %}"></script>
   <script src="{% static 'js/linkify-string.min.js' %}"></script>
-  <script src="{% static 'js/vue.min.js' %}"></script>
+  {% if debug %}
+  <script src="{% static 'js/vue-3.3.7/vue.global.js' %}"></script>
+  {% else %}
+  <script src="{% static 'js/vue-3.3.7/vue.global.prod.js' %}"></script>
+  {% endif %}
   <script type="text/x-template" id="bootstrap-panel-template">
     {% include 'promgen/vue/bootstrap_panel.html' %}
   </script>
@@ -72,6 +76,8 @@
     <option>minor</option>
     <option>debug</option>
   </datalist>
+
+  <script>app.mount("#vue")</script>
 </body>
 
 </html>
