@@ -44,7 +44,7 @@ jobs:
 
   deploy:
     needs: build
-    if: ${{ github.ref == 'refs/heads/master' }}
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
 
     permissions:
       pages: write
