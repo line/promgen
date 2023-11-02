@@ -40,6 +40,9 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
+if DEBUG:
+    INTERNAL_IPS = ["127.0.0.1"]
+
 # Settings for Prometheus paths and such
 if PROMGEN_CONFIG_FILE.exists():
     with PROMGEN_CONFIG_FILE.open() as fp:
@@ -210,7 +213,6 @@ try:
     import debug_toolbar  # NOQA
 
     INSTALLED_APPS += ["debug_toolbar"]
-    INTERNAL_IPS = ["127.0.0.1"]
 except ImportError:
     MIDDLEWARE.remove("debug_toolbar.middleware.DebugToolbarMiddleware")
 
