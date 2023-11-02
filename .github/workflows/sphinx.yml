@@ -7,8 +7,13 @@ on:
     branches:
       - master
 
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
-  docs:
+  build:
     name: Build Sphinx Documentation
     runs-on: ubuntu-20.04
 
@@ -32,10 +37,25 @@ jobs:
           SYSTEM_PYTHON: python${{ matrix.python-version }}
           SECRET_KEY: github-actions
 
-      - name: Deploy to GitHub Pages
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: dist/html
+          path: 'dist/html'
+
+  deploy:
+    needs: build
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: production
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
