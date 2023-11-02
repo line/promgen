@@ -3,26 +3,24 @@
  * These sources are released under the terms of the MIT license: see LICENSE
  */
 
-Vue.config.devtools = true
-
-const globalStore = {
+const globalStore = Vue.reactive({
     state: {
         messages: []
     },
     setMessages(messages) {
         this.state.messages = [...messages];
     }
-};
+});
 
-const dataStore = {
+const dataStore = Vue.reactive({
     global: globalStore.state,
     components: {},
     selectedHosts: [],
     globalSilences: [],
     globalAlerts: []
-};
+});
 
-const silenceStore = {
+const silenceStore = Vue.reactive({
     state: {
         show: false,
         labels: {}
@@ -31,22 +29,33 @@ const silenceStore = {
         this.state.show = true;
     },
     setLabels(labels) {
-        Vue.set(this.state, 'labels', { ...labels });
+        this.state.labels = { ...labels };
     },
     addLabel(label, value) {
-        Vue.set(this.state.labels, label, value);
+        this.state.labels[label] = value;
     }
-};
+});
 
-const app = new Vue({
-    el: '#vue',
+const exporterTestResultStore = Vue.reactive({
+    results: {},
+    addResult(url, statusCode) {
+        this.results[url] = statusCode;
+    },
+    setResults(results) {
+        this.results = { ...results };
+    },
+});
+
+const app = Vue.createApp({
     delimiters: ['[[', ']]'],
-    data: dataStore,
+    data() {
+        return dataStore;
+    },
     mixins: [mixins],
     methods: {
         toggleComponent: function (component) {
             let state = Boolean(this.components[component]);
-            this.$set(this.components, component, !state);
+            this.components[component] = !state;
         },
         toggleCollapse: function (target) {
             let tgt = document.getElementById(target);
@@ -138,7 +147,9 @@ const app = new Vue({
     },
 });
 
-Vue.component('silence-form', {
+app.config.compilerOptions.whitespace = "preserve";
+
+app.component('silence-form', {
     template: '#silence-form-template',
     delimiters: ['[[', ']]'],
     data: () => ({
@@ -172,7 +183,7 @@ Vue.component('silence-form', {
     }
 });
 
-Vue.component("promql-query", {
+app.component("promql-query", {
     delimiters: ['[[', ']]'],
     props: ["href", "query", "max"],
     data: function () {
@@ -211,40 +222,41 @@ Vue.component("promql-query", {
     },
 });
 
-Vue.component('bootstrap-panel', {
+app.component('bootstrap-panel', {
     delimiters: ['[[', ']]'],
     props: ['heading'],
     template: '#bootstrap-panel-template',
 });
 
-const ExporterResult = Vue.component('exporter-result', {
+app.component('exporter-result', {
     delimiters: ['[[', ']]'],
     props: ['results'],
     template: '#exporter-result-template',
+    data: () => ({
+        store: exporterTestResultStore,
+    }),
+    computed: {
+        show() {
+            return Object.keys(this.store.results).length > 0;
+        },
+    },
 });
 
-const ExporterTest = Vue.component('exporter-test', {
+app.component('exporter-test', {
     // Exporter Test button for Forms
     // Acts like a regular form submit button, but hijacks the button
     // click and submits it to an alternate URL for testing
     delimiters: ['[[', ']]'],
-    props: ['href', 'target'],
+    props: ['href'],
     template: '#exporter-test-template',
     methods: {
         onTestSubmit: function (event) {
             // Find the parent form our button belongs to so that we can
             // simulate a form submission
             let form = new FormData(event.srcElement.closest('form'))
-            let tgt = document.querySelector(this.target);
             fetch(this.href, { body: form, method: "post", })
                 .then(result => result.json())
-                .then(result => {
-                    // If we have a valid result, then create a new
-                    // ExporterResult component that we can render
-                    var component = new ExporterResult().$mount(tgt);
-                    component.$el.id = tgt.id;
-                    component.$props.results = result;
-                })
+                .then(result => exporterTestResultStore.setResults(result))
                 .catch(error => alert(error))
         }
     }

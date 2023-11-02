@@ -1,6 +1,6 @@
-<bootstrap-panel class="panel-info" heading="Results">
+<bootstrap-panel v-if="show" class="panel-info" heading="Results">
   <table class="table">
-    <tr v-for="(val, key, index) in results">
+    <tr v-for="(val, key, index) in store.results">
       <td>[[ key ]]</td>
       <td>[[ val ]]</td>
     </tr>
