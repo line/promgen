@@ -30,6 +30,9 @@ jobs:
             setup.cfg
             docker/requirements.txt
 
+      - name: Install graphviz
+        run: sudo apt-get install -y graphviz
+
       - name: Build Docs
         run: make docs
         env:
