@@ -36,8 +36,8 @@ jobs:
           --health-retries=3
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4.0.0
+      - uses: actions/setup-python@v4.0.0
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
