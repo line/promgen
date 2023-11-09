@@ -21,8 +21,8 @@ jobs:
         python-version: ["3.9"]
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/checkout@v4.1.1
+      - uses: actions/setup-python@v4.7.1
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -40,7 +40,7 @@ jobs:
           SECRET_KEY: github-actions
 
       - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v2.0.0
         with:
           path: 'dist/html'
 
@@ -59,4 +59,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v2.0.4
