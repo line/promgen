@@ -1,6 +1,7 @@
 // https://esbuild.github.io/plugins/#using-plugins
 
 const esbuild = require("esbuild");
+const vue3Plugin = require("esbuild-plugin-vue3");
 
 const myPlugin = {
   name: "my-plugin",
@@ -24,7 +25,7 @@ const myPlugin = {
     loader: {
       ".woff2": "dataurl",
     },
-    plugins: [myPlugin],
+    plugins: [myPlugin, vue3Plugin()],
     minify: true,
   });
 })();

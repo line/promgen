@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "esbuild": "0.19.5",
+    "esbuild-plugin-vue3": "0.3.2",
     "eslint": "8.54.0",
     "eslint-config-prettier": "9.0.0",
     "eslint-plugin-vue": "9.18.1",
