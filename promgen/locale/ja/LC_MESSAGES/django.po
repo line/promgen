@@ -62,7 +62,6 @@ msgstr "Projectを削除"
 #: templates/promgen/project_detail_hosts.html:21
 #: templates/promgen/service_block.html:20
 #: templates/promgen/service_block.html:105
-#: templates/promgen/vue/silence_form.html:28
 msgid "Silence"
 msgstr "Silence"
 

@@ -11,6 +11,8 @@ import { useSilenceStore } from "./stores/silence.js";
 import PrimeVue from "primevue/config";
 import "primevue/resources/themes/bootstrap4-light-blue/theme.css";
 
+import SilenceForm from "./components/SilenceForm.vue";
+
 const i18n = createI18n({
   locale: matchBrowserLocale(["en", "ja"]),
   fallbackLocale: "en",
@@ -28,6 +30,8 @@ window.createPrimeVueApp = function (opt) {
   app.use(i18n);
   app.use(createPinia());
   app.use(PrimeVue);
+
+  app.component("SilenceForm", SilenceForm);
 
   return app;
 };

@@ -135,37 +135,6 @@ const app = createPrimeVueApp({
 
 app.config.compilerOptions.whitespace = "preserve";
 
-app.component('silence-form', {
-    template: '#silence-form-template',
-    delimiters: ['[[', ']]'],
-    data: () => ({
-        state: useSilenceStore(),
-        form: {}
-    }),
-    methods: {
-        submit() {
-            const body = JSON.stringify({
-                labels: this.state.labels,
-                ...this.form
-            });
-
-            fetch('/proxy/v1/silences', { method: 'POST', body })
-                .then(response => {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        return response.json();
-                    }
-                })
-                .then(result => {
-                    if (result) {
-                        globalStore.setMessages(result.messages);
-                    }
-                });
-        },
-    }
-});
-
 app.component("promql-query", {
     delimiters: ['[[', ']]'],
     props: ["href", "query", "max"],

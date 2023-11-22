@@ -1,1 +1,4 @@
-export const ja = {};
+export const ja = {
+  // src/components/SilenceForm.vue
+  silence: "サイレンス",
+};
