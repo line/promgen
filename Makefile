@@ -170,5 +170,5 @@ primevue: primevue-gen/node_modules promgen/static/primevue/main.css promgen/sta
 primevue-gen/node_modules: primevue-gen/package.json
 	cd primevue-gen && npm i --no-package-lock
 
-promgen/static/primevue/main.css promgen/static/primevue/main.js: primevue-gen/build.js primevue-gen/src/main.js
+promgen/static/primevue/main.css promgen/static/primevue/main.js: primevue-gen/build.js $(shell find primevue-gen/src)
 	cd primevue-gen && npm run build

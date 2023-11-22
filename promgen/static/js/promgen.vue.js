@@ -20,22 +20,6 @@ const dataStore = Vue.reactive({
     globalAlerts: []
 });
 
-const silenceStore = Vue.reactive({
-    state: {
-        show: false,
-        labels: {}
-    },
-    showForm() {
-        this.state.show = true;
-    },
-    setLabels(labels) {
-        this.state.labels = { ...labels };
-    },
-    addLabel(label, value) {
-        this.state.labels[label] = value;
-    }
-});
-
 const exporterTestResultStore = Vue.reactive({
     results: {},
     addResult(url, statusCode) {
@@ -66,6 +50,7 @@ const app = createPrimeVueApp({
                 .then(() => location.reload());
         },
         setSilenceLabels(labels) {
+            const silenceStore = useSilenceStore();
             silenceStore.setLabels(labels);
             silenceStore.showForm();
             scroll(0, 0);
@@ -74,6 +59,7 @@ const app = createPrimeVueApp({
             this.setSilenceLabels(event.target.dataset);
         },
         addSilenceLabel(label, value) {
+            const silenceStore = useSilenceStore();
             silenceStore.addLabel(label, value);
             silenceStore.showForm();
             scroll(0, 0);
@@ -153,13 +139,10 @@ app.component('silence-form', {
     template: '#silence-form-template',
     delimiters: ['[[', ']]'],
     data: () => ({
-        state: silenceStore.state,
+        state: useSilenceStore(),
         form: {}
     }),
     methods: {
-        removeLabel(label) {
-            this.$delete(this.state.labels, label);
-        },
         submit() {
             const body = JSON.stringify({
                 labels: this.state.labels,

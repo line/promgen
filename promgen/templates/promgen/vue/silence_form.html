@@ -1,16 +1,16 @@
 {% load i18n %}
 
-<form v-cloak v-if="state.show" @submit.prevent="submit()">
+<form v-cloak v-if="state.formVisible" @submit.prevent="submit()">
   <div class="panel panel-warning">
     <div class="panel-heading">
       Silence
-      <a @click="state.show = false" type="button" class="close">&times;</a>
+      <a @click="state.hideForm()" type="button" class="close">&times;</a>
     </div>
 
     <div class="labels panel-body">
       <ul class="list-inline">
         <li v-for="(value, label) in state.labels">
-          <a @click="removeLabel(label)" class="label label-warning">
+          <a @click="state.removeLabel(label)" class="label label-warning">
             [[label]]: [[value]]
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
           </a>
