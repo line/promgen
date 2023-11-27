@@ -19,6 +19,7 @@
     "eslint-config-prettier": "9.0.0",
     "eslint-plugin-vue": "9.18.1",
     "prettier": "3.1.0",
-    "@vue/eslint-config-prettier": "8.0.0"
+    "@vue/eslint-config-prettier": "8.0.0",
+    "vue-i18n": "9.7.1"
   }
 }
