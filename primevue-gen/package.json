@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "format": "prettier --write src/",
+    "lint": "eslint src/ --ext .js,.vue --fix --ignore-path ../.gitignore && prettier --check src/"
   },
   "keywords": [],
   "author": "",
@@ -11,6 +13,11 @@
     "primevue": "3.40.1"
   },
   "devDependencies": {
-    "esbuild": "0.19.5"
+    "esbuild": "0.19.5",
+    "eslint": "8.54.0",
+    "eslint-config-prettier": "9.0.0",
+    "eslint-plugin-vue": "9.18.1",
+    "prettier": "3.1.0",
+    "@vue/eslint-config-prettier": "8.0.0"
   }
 }
