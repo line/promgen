@@ -35,7 +35,7 @@ chmod 777 ~/.config/promgen
 # using the standard DSN syntax.
 # Database example: mysql://username:password@hostname/databasename
 # Broker example: redis://localhost:6379/0
-docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen bootstrap
+docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen docker-compose-bootstrap
 
 # Apply database updates
 docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen migrate
