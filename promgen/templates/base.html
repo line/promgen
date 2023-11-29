@@ -11,6 +11,13 @@
   <link rel="stylesheet" href="{% static 'css/bootstrap-switch.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/promgen.css' %}">
   <link rel="icon" href="{% static 'images/promgen_logo_color.png' %}">
+  {% if debug %}
+  <script src="{% static 'js/vue-3.3.7/vue.global.js' %}"></script>
+  {% else %}
+  <script src="{% static 'js/vue-3.3.7/vue.global.prod.js' %}"></script>
+  {% endif %}
+  <script src="{% static 'primevue/main.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'primevue/main.css' %}" />
 </head>
 
 <body>
@@ -35,11 +42,6 @@
   <script src="{% static 'js/luxon.min.js' %}"></script>
   <script src="{% static 'js/linkify.min.js' %}"></script>
   <script src="{% static 'js/linkify-string.min.js' %}"></script>
-  {% if debug %}
-  <script src="{% static 'js/vue-3.3.7/vue.global.js' %}"></script>
-  {% else %}
-  <script src="{% static 'js/vue-3.3.7/vue.global.prod.js' %}"></script>
-  {% endif %}
   <script type="text/x-template" id="bootstrap-panel-template">
     {% include 'promgen/vue/bootstrap_panel.html' %}
   </script>

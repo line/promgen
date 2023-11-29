@@ -1,3 +1,13 @@
+# Build frontend
+FROM node:20.10.0-alpine as frontend-builder
+WORKDIR /build
+COPY primevue-gen ./primevue-gen
+RUN mkdir -p promgen/static
+RUN set -ex \
+    && cd primevue-gen \
+    && npm install \
+    && npm run build
+
 FROM python:3.9-alpine
 LABEL maintainer=paul.traylor@linecorp.com
 
@@ -44,6 +54,7 @@ COPY docker/docker-entrypoint.sh /
 COPY setup.py /usr/src/app/setup.py
 COPY setup.cfg /usr/src/app/setup.cfg
 COPY promgen /usr/src/app/promgen
+COPY --from=frontend-builder /build/promgen/static/primevue /usr/src/app/promgen/static/primevue
 COPY promgen/tests/examples/promgen.yml /etc/promgen/promgen.yml
 
 WORKDIR /usr/src/app
