@@ -114,6 +114,9 @@ migrate: $(APP_BIN)
 .PHONY:	run
 ## Django: Run development server
 run: migrate
+ifneq ($(DEBUG),1)
+	$(APP_BIN) collectstatic --noinput
+endif
 	$(APP_BIN) runserver
 
 .PHONY: shell
