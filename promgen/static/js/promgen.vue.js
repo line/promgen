@@ -174,12 +174,6 @@ app.component("promql-query", {
     },
 });
 
-app.component('bootstrap-panel', {
-    delimiters: ['[[', ']]'],
-    props: ['heading'],
-    template: '#bootstrap-panel-template',
-});
-
 app.component('exporter-result', {
     delimiters: ['[[', ']]'],
     props: ['results'],

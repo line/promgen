@@ -11,6 +11,7 @@ import { useSilenceStore } from "./stores/silence.js";
 import PrimeVue from "primevue/config";
 import "primevue/resources/themes/bootstrap4-light-blue/theme.css";
 
+import BootstrapPanel from "./components/BootstrapPanel.vue";
 import SilenceForm from "./components/SilenceForm.vue";
 
 const i18n = createI18n({
@@ -31,6 +32,7 @@ window.createPrimeVueApp = function (opt) {
   app.use(createPinia());
   app.use(PrimeVue);
 
+  app.component("BootstrapPanel", BootstrapPanel);
   app.component("SilenceForm", SilenceForm);
 
   return app;
