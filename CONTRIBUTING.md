@@ -14,10 +14,12 @@ You can see some of the commands by running `make help`
 If you are using an external database, you will want to create a `promgen` and `test_promgen`
 database before running bootstrap or `make migrate` and `make test` will fail.
 
+The back end is written in Python. The front end has some parts that require a build step, and for that Node.js is required.
+
 ```bash
-# If you need to install Python first, try using your system's package manager
+# If you need to install Python or Node.js, try using your system's package manager
 # Examples
-# yum install python3 python3-pip
+# yum install python3 python3-pip nodejs
 # homebrew install python3
 # If using OSX with Homebrew, you may need to export some flags
 # to get mysql client to install
@@ -32,6 +34,8 @@ echo 1 > ~/.config/promgen/DEBUG
 make migrate
 # Run tests
 make test
+# Build front end
+make primevue
 # Run development server
 make run
 ```
