@@ -19,8 +19,8 @@ The back end is written in Python. The front end has some parts that require a b
 ```bash
 # If you need to install Python or Node.js, try using your system's package manager
 # Examples
-# yum install python3 python3-pip nodejs
-# homebrew install python3
+# yum install python3 python3-pip nodejs # On RedHat
+# homebrew install python3 node # On MacOS
 # If using OSX with Homebrew, you may need to export some flags
 # to get mysql client to install
 # export LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"
