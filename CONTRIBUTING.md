@@ -17,7 +17,7 @@ database before running bootstrap or `make migrate` and `make test` will fail.
 Promgen's backend is written in Python with parts of it's frontend written in Vuejs. Both Python and Node.js are required for development.
 
 ```bash
-# If you need to install Python or Node.js, try using your system's package manager
+# Python and Node.js can be installed with your system's package manager.
 # Examples
 # yum install python3 python3-pip nodejs # On RedHat
 # homebrew install python3 node # On MacOS
