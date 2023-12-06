@@ -14,7 +14,7 @@ You can see some of the commands by running `make help`
 If you are using an external database, you will want to create a `promgen` and `test_promgen`
 database before running bootstrap or `make migrate` and `make test` will fail.
 
-The back end is written in Python. The front end has some parts that require a build step, and for that Node.js is required.
+Promgen's backend is written in Python with parts of it's frontend written in Vuejs. Both Python and Node.js are required for development.
 
 ```bash
 # If you need to install Python or Node.js, try using your system's package manager
