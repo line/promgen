@@ -15,6 +15,7 @@ import "primevue/resources/themes/bootstrap4-light-blue/theme.css";
 import BootstrapPanel from "./components/BootstrapPanel.vue";
 import ExporterTestButton from "./components/ExporterTestButton.vue";
 import ExporterTestResult from "./components/ExporterTestResult.vue";
+import PromqlQuery from "./components/PromqlQuery.vue";
 import SilenceForm from "./components/SilenceForm.vue";
 
 const i18n = createI18n({
@@ -39,6 +40,7 @@ window.createPrimeVueApp = function (opt) {
   app.component("BootstrapPanel", BootstrapPanel);
   app.component("ExporterTestButton", ExporterTestButton);
   app.component("ExporterTestResult", ExporterTestResult);
+  app.component("PromqlQuery", PromqlQuery);
   app.component("SilenceForm", SilenceForm);
 
   return app;

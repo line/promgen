@@ -5,12 +5,6 @@
 
 var mixins = {
   methods: {
-    localize(number) {
-      return number.toLocaleString();
-    },
-    percent(number) {
-      return (number * 100).toLocaleString() + "%";
-    },
     urlize(value) {
       return linkifyStr(value);
     },
