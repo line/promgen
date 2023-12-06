@@ -164,20 +164,6 @@ app.component("promql-query", {
     },
 });
 
-app.component('exporter-result', {
-    delimiters: ['[[', ']]'],
-    props: ['results'],
-    template: '#exporter-result-template',
-    data: () => ({
-        store: useExporterTestStore(),
-    }),
-    computed: {
-        show() {
-            return Object.keys(this.store.results).length > 0;
-        },
-    },
-});
-
 app.component('exporter-test', {
     // Exporter Test button for Forms
     // Acts like a regular form submit button, but hijacks the button

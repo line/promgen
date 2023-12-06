@@ -13,6 +13,7 @@ import PrimeVue from "primevue/config";
 import "primevue/resources/themes/bootstrap4-light-blue/theme.css";
 
 import BootstrapPanel from "./components/BootstrapPanel.vue";
+import ExporterTestResult from "./components/ExporterTestResult.vue";
 import SilenceForm from "./components/SilenceForm.vue";
 
 const i18n = createI18n({
@@ -35,6 +36,7 @@ window.createPrimeVueApp = function (opt) {
   app.use(PrimeVue);
 
   app.component("BootstrapPanel", BootstrapPanel);
+  app.component("ExporterTestResult", ExporterTestResult);
   app.component("SilenceForm", SilenceForm);
 
   return app;
