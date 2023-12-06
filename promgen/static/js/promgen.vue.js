@@ -163,26 +163,3 @@ app.component("promql-query", {
             });
     },
 });
-
-app.component('exporter-test', {
-    // Exporter Test button for Forms
-    // Acts like a regular form submit button, but hijacks the button
-    // click and submits it to an alternate URL for testing
-    delimiters: ['[[', ']]'],
-    props: ['href'],
-    template: '#exporter-test-template',
-    methods: {
-        onTestSubmit: function (event) {
-            // Find the parent form our button belongs to so that we can
-            // simulate a form submission
-            let form = new FormData(event.srcElement.closest('form'))
-            fetch(this.href, { body: form, method: "post", })
-                .then(result => result.json())
-                .then(result => {
-                    const ExporterTestStore = useExporterTestStore();
-                    ExporterTestStore.setResults(result);
-                })
-                .catch(error => alert(error))
-        }
-    }
-});

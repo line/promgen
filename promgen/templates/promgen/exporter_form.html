@@ -37,9 +37,9 @@
         <div class="panel-footer">
           <div class="input-group-btn">
             <button class="btn btn-primary">Register Exporter</button>
-            <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}">
+            <exporter-test-button class="btn btn-info" href="{% url 'exporter-scrape' project.id %}">
               {% trans "Test" %}
-            </exporter-test>
+            </exporter-test-button>
           </div>
         </div>
       </div>
@@ -60,9 +60,9 @@
           <input type="hidden" name="enabled" value="1" />
           <div class="input-group-btn">
             <button style="width:80%" class="btn btn-primary">Register {{ default.job }} :{{ default.port }}{{ default.path }}</button>
-            <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}">
+            <exporter-test-button class="btn btn-info" href="{% url 'exporter-scrape' project.id %}">
               {% trans "Test" %}
-            </exporter-test>
+            </exporter-test-button>
           </div>
         </form>
         {% endfor %}
