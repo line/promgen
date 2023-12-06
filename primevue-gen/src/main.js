@@ -6,6 +6,7 @@ import { ja } from "./locales/ja.js";
 import { matchBrowserLocale } from "./utils/matchBrowserLocale.js";
 
 import { createPinia } from "pinia";
+import { useExporterTestStore } from "./stores/exporterTest.js";
 import { useSilenceStore } from "./stores/silence.js";
 
 import PrimeVue from "primevue/config";
@@ -23,6 +24,7 @@ const i18n = createI18n({
   },
 });
 
+window.useExporterTestStore = useExporterTestStore;
 window.useSilenceStore = useSilenceStore;
 
 window.createPrimeVueApp = function (opt) {

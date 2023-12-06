@@ -20,16 +20,6 @@ const dataStore = Vue.reactive({
     globalAlerts: []
 });
 
-const exporterTestResultStore = Vue.reactive({
-    results: {},
-    addResult(url, statusCode) {
-        this.results[url] = statusCode;
-    },
-    setResults(results) {
-        this.results = { ...results };
-    },
-});
-
 const app = createPrimeVueApp({
     delimiters: ['[[', ']]'],
     data() {
@@ -179,7 +169,7 @@ app.component('exporter-result', {
     props: ['results'],
     template: '#exporter-result-template',
     data: () => ({
-        store: exporterTestResultStore,
+        store: useExporterTestStore(),
     }),
     computed: {
         show() {
@@ -202,7 +192,10 @@ app.component('exporter-test', {
             let form = new FormData(event.srcElement.closest('form'))
             fetch(this.href, { body: form, method: "post", })
                 .then(result => result.json())
-                .then(result => exporterTestResultStore.setResults(result))
+                .then(result => {
+                    const ExporterTestStore = useExporterTestStore();
+                    ExporterTestStore.setResults(result);
+                })
                 .catch(error => alert(error))
         }
     }
