@@ -22,6 +22,10 @@ class FormWebhook(forms.Form):
         required=True,
         label="URL",
     )
+    alias = forms.CharField(
+        required=False,
+        help_text="Optional description to be displayed instead of the URL.",
+    )
 
 
 class NotificationWebhook(NotificationBase):
