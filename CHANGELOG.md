@@ -1,5 +1,18 @@
 # Changelog
 
+# V0.59.0 - 2023-12-11
+
+- [IMPROVEMENT] notification/webhook: Add alias field #462
+- [DOCUMENTATION] Fix Promgen init documentation #459
+- [DOCUMENTATION] Update terms in documentation #448
+- [IMPROVEMENT] Migrate to Vue 3 #442
+- [INTERNAL] Convert Vue filters into methods #441
+- [INTERNAL] Reorganize Vue templates #440
+- [INTERNAL] Remove envdir #439
+- [BUGFIX] Fix check for invalid annotation name #437
+- [BUGFIX] Fix instance of Rule.add_label #436
+- [BUGFIX] Fix for rule prefetch on /search #435
+
 # v0.58.0 - 2023-08-07
 
 This release is primarily focused on upgrading Python version and assorted package versions.
