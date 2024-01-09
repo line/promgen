@@ -422,7 +422,11 @@ class Rule(models.Model):
         ordering = ["content_type", "object_id", "name"]
 
     def __str__(self):
-        return f"{self.name} [{self.content_object.name}]"
+        return (
+            f"{self.name}"
+            if self.content_object is None
+            else f"{self.name} [{self.content_object.name}]"
+        )
 
     def get_absolute_url(self):
         return reverse("rule-detail", kwargs={"pk": self.pk})
