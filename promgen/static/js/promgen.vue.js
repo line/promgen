@@ -158,7 +158,7 @@ app.component('silence-form', {
     }),
     methods: {
         removeLabel(label) {
-            this.$delete(this.state.labels, label);
+            delete this.state.labels[label];
         },
         submit() {
             const body = JSON.stringify({
