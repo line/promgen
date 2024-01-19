@@ -230,6 +230,12 @@ class AuditList(LoginRequiredMixin, ListView):
                         content_type_id=ContentType.objects.get_for_model(models.Rule).id,
                         object_id__in=obj.rule_set.values_list("id", flat=True),
                     )
+                if key == "service":
+                    # Only services may have projects
+                    qset |= Q(
+                        content_type_id=ContentType.objects.get_for_model(models.Project).id,
+                        object_id__in=obj.project_set.values_list("id", flat=True),
+                    )
                 if key == "project":
                     # Only projects may have exporters
                     qset |= Q(
