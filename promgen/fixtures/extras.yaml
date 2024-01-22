@@ -1,0 +1,25 @@
+# Eventually we want to move these fixtures into the existing testcases fixture
+# but we'll do that in a future PR so that we can keep this one focued on JUST
+# the new testcases
+- model: promgen.rule
+  pk: 1
+  fields:
+    name: example-rule
+    clause: up==1
+    duration: 1s
+    content_type: ["promgen", "site"]
+    object_id: 1
+    labels:
+      severity: "high"
+    annotations:
+      summary: "Example rule summary"
+- model: promgen.alert
+  pk: 1
+  fields:
+    created: 2022-06-06
+    body: "{}"
+- model: promgen.host
+  pk: 1
+  fields:
+    name: example.com
+    farm: 1

@@ -71,25 +71,26 @@
 
   {# Color red and collapse by default for existing projects #}
   <div class="panel{% if project.pk %} panel-danger collapse{% else %} panel-primary{% endif %}" id="shard-selector">
+    {% include 'promgen/shard_help.inc.html' %}
     <table class="table">
       <tr>
-        <th>Shard</th>
-        <th>&nbsp;</th>
+        <th colspan="3">Datasource</th>
         <th>Samples</th>
         <th>Exporters</th>
       </tr>
       {% for shard in shard_list|dictsort:'name' %}
-      <tr {% if shard.enabled is False %}class="text-muted" title="Shard disabled for new registrations" {% endif %}>
+      <tr {% if shard.enabled is False %}class="text-muted" title="Datasource disabled for new registrations" {% endif %}>
         <th>{{shard.name}}</th>
+        <th>{{shard.url|urlize}}</th>
         <td>
           <input type="radio" name="shard" value="{{shard.id}}" {% if shard.id == form.shard.value %}checked{% elif shard.enabled is False %}disabled{% endif %}>
         </td>
         {% if shard.proxy %}
         <td>
-            <promql-query class="label" href='{{shard.url}}/api/v1/query' query='sum(scrape_samples_scraped)'>Samples: </promql-query>
+          <promql-query class="label" href='{{shard.url}}/api/v1/query' query='sum(scrape_samples_scraped)' max="{{shard.samples}}">Samples: </promql-query>
         </td>
         <td>
-            <promql-query class="label" href='{{shard.url}}/api/v1/query' query='count(up)'>Exporters: </promql-query>
+          <promql-query class="label" href='{{shard.url}}/api/v1/query' query='count(up)' max="{{shard.targets}}">Exporters: </promql-query>
         </td>
         {% else %}
         <td>&nbsp;</td>

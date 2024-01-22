@@ -7,10 +7,7 @@ import logging
 from urllib.parse import urljoin
 
 import requests
-from dateutil import parser
-from django.conf import settings
 from django.http import HttpResponse, JsonResponse
-from django.template import defaultfilters
 from django.views.generic import View
 from django.views.generic.base import TemplateView
 from promgen import forms, models, prometheus, util
@@ -62,15 +59,14 @@ class PrometheusProxy(View):
                         headers=self.headers,
                     )
                 )
-            for future in concurrent.futures.as_completed(futures):
-                yield future
+            yield from concurrent.futures.as_completed(futures)
 
 
 class ProxyGraph(TemplateView):
     template_name = "promgen/graph.html"
 
     def get_context_data(self, **kwargs):
-        context = super(ProxyGraph, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["shard_list"] = models.Shard.objects.filter(proxy=True)
         for k, v in self.request.GET.items():
             _, k = k.split(".")
@@ -211,7 +207,7 @@ class ProxySilences(View):
             )
 
         try:
-            response = prometheus.silence(body.pop("labels"), **form.cleaned_data)
+            response = prometheus.silence(**form.cleaned_data)
         except Exception as e:
             return JsonResponse(
                 {"messages": [{"class": "alert alert-danger", "message": str(e)}]},
@@ -225,9 +221,7 @@ class ProxySilences(View):
 
 class ProxyDeleteSilence(View):
     def delete(self, request, silence_id):
-        url = urljoin(
-            util.setting("alertmanager:url"), "/api/v1/silence/%s" % silence_id
-        )
+        url = urljoin(util.setting("alertmanager:url"), "/api/v1/silence/%s" % silence_id)
         response = util.delete(url)
         return HttpResponse(
             response.text, status=response.status_code, content_type="application/json"

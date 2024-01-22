@@ -1,0 +1,22 @@
+[tool.black]
+line-length = 100
+target-version = ['py39']
+extend-exclude = '''
+(
+promgen/migrations
+|promgen/urls.py
+)
+'''
+
+[tool.ruff]
+ignore = [
+    'E741', # Ambiguous variable name
+    'E501', # Let black handle line-length
+]
+
+[tool.ruff.isort]
+known-first-party = ["promgen"]
+forced-separate = ["django"]
+
+[tool.codespell]
+skip = '*.min.js,*.min.css,*.css.map,.venv,dist,.git'

@@ -2,8 +2,9 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import argparse
+from urllib.parse import urlsplit
 
-import requests.sessions
+import requests
 
 from django.conf import settings
 from django.db.models import F
@@ -14,22 +15,49 @@ from promgen.version import __version__
 # https://github.com/requests/requests/blob/master/requests/api.py
 
 
+USER_AGENT = f"promgen/{__version__}"
+ACCEPT_HEADER = (
+    "application/openmetrics-text; version=0.0.1,text/plain;version=0.0.4;q=0.5,*/*;q=0.1"
+)
+
+
 def post(url, data=None, json=None, **kwargs):
-    with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
-        return session.post(url, data=data, json=json, **kwargs)
+    headers = kwargs.setdefault("headers", {})
+    headers["User-Agent"] = USER_AGENT
+    return requests.post(url, data=data, json=json, **kwargs)
 
 
 def get(url, params=None, **kwargs):
-    with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
-        return session.get(url, params=params, **kwargs)
+    headers = kwargs.setdefault("headers", {})
+    headers["User-Agent"] = USER_AGENT
+    return requests.get(url, params=params, **kwargs)
 
 
 def delete(url, **kwargs):
-    with requests.sessions.Session() as session:
-        session.headers['User-Agent'] = 'promgen/{}'.format(__version__)
-        return session.delete(url, **kwargs)
+    headers = kwargs.setdefault("headers", {})
+    headers["User-Agent"] = USER_AGENT
+    return requests.delete(url, **kwargs)
+
+
+def scrape(url, params=None, **kwargs):
+    """
+    Scrape Prometheus target
+
+    Light wrapper around requests.get so that we add required
+    Accept headers that a target might expect
+    """
+    headers = kwargs.setdefault("headers", {})
+    headers["Accept"] = ACCEPT_HEADER
+    headers["User-Agent"] = USER_AGENT
+    headers["X-Prometheus-Scrape-Timeout-Seconds"] = "10.0"
+    # According to the spec, having the host with a port is optional, though
+    # so by default, many clients/servers drop the port if it's known (http/https)
+    # in the case of Prometheus it always forces the port in the Host header which
+    # then sometimes fail for servers that do not expect it. Here we force the port
+    # in the Host header to make it match how Prometheus scrapes
+    # https://github.com/prometheus/prometheus/blob/2b55017379786873dc00315ffe65e22ad7026abb/scrape/target.go#L375-L387
+    headers["Host"] = urlsplit(url).netloc
+    return requests.get(url, params=params, **kwargs)
 
 
 def setting(key, default=None, domain=None):
@@ -38,32 +66,25 @@ def setting(key, default=None, domain=None):
 
     Allows a simple way to query settings from YAML
     using the style `path:to:key` to represent
-    
+
     path:
       to:
         key: value
     """
     rtn = settings.PROMGEN
+    lookup = key.split(":")
+
     if domain:
-        rtn = rtn[domain]
-    for index in key.split(":"):
+        lookup.insert(0, domain)
+
+    for index in lookup:
         try:
             rtn = rtn[index]
         except KeyError:
-            return default
+            if default != KeyError:
+                return default
+            raise KeyError(f"Missing required setting: {key}")
     return rtn
-
-
-class HelpFor:
-    # Wrap a model's lower level api so that we can easily
-    # grab help_text for a specific field
-    # help_text = HelpFor(DjangoModel)
-    # help_test.field_name
-    def __init__(self, model):
-        self.model = model
-
-    def __getattr__(self, name):
-        return self.model._meta.get_field(name).help_text
 
 
 def inc_for_pk(model, pk, **kwargs):
@@ -101,3 +122,9 @@ def help_text(klass):
         return klass._meta.get_field(field).help_text
 
     return wrapped
+
+
+# Comment wrappers to get the docstrings from the upstream functions
+get.__doc__ = requests.get.__doc__
+post.__doc__ = requests.post.__doc__
+delete.__doc__ = requests.delete.__doc__

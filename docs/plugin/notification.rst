@@ -13,7 +13,7 @@ Email or LINE Notify. Sender plugins are registered using setuptools entry_point
     }
 
 
-Plugins should inherit from SenderBase, and at a minimum impelement a *_send()*
+Plugins should inherit from SenderBase, and at a minimum implement a *_send()*
 method
 
 .. code-block:: python
@@ -52,7 +52,7 @@ instance of the class
             print(target)
             print(alert)
             return True
-    # Set an instance we can retrive from within our _send method
+    # Set an instance we can retrieve from within our _send method
     SenderCeleryExample._send.__klass__ = SenderCeleryExample
 
 

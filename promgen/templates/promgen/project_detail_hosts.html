@@ -16,12 +16,11 @@
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       <td>
         <a
-          @click.prevent="silenceSetLabels"
+          @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
           data-instance="{{host.name}}:[0-9]*"
           data-project="{{project.name}}"
           data-service="{{project.service.name}}"
-          href="#"
           style="display: inline-block;"
         >{% trans "Silence" %}</a>
       </td>
@@ -39,18 +38,17 @@
 
   <div class="panel-footer">
     <a
-      @click.prevent="silenceSelectedHosts"
+      @click="silenceSelectedHosts"
       class="btn btn-warning"
       data-project="{{project.name}}"
       data-service="{{project.service.name}}"
-      href="#"
       style="display: inline-block;"
       v-if="selectedHosts.length"
     >{% trans "Silence selected hosts" %}</a>
 {% if project.farm %}
   {% if project.farm.editable %}
     <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">
-      {% trans "Add new host" %}
+      {% trans "Register Hosts" %}
     </a>
     <a href="{% url 'farm-update' project.farm.id %}" class="btn btn-default">
       {% trans "Edit Farm" %}
@@ -83,7 +81,7 @@
     </button>
   </form>
 {% else %}
-    <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "New Farm" %}</a>
+    <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "Register Farm" %}</a>
 {% for name, source in sources %}
     <a href="{% url 'farm-link' project.id name %}" class="btn btn-default">
       {% if source.remote %}

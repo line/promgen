@@ -1,22 +1,23 @@
 {% load i18n %}
+{% load promgen %}
 <div class="well">
-  <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-show="alertLabelsService.has('{{service.name}}')">
+  <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-if="activeServiceAlerts.has('{{service.name}}')">
     <div class="panel-heading">
-      <a @click.prevent="toggleTarget('alerts-service-{{service.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
+      <a @click="toggleComponent('alerts-service-{{service.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
     </div>
-    <table id="alerts-service-{{service.name|slugify}}" class="table table-bordered table-condensed collapse">
-      <tr v-for="(alert, index) in globalAlerts" v-if="alert.labels.service == '{{service.name}}'">
+    <table v-if="components['alerts-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
+      <tr v-for="alert in activeServiceAlerts.get('{{service.name}}')">
         {% include 'promgen/alert_row.html' %}
       </tr>
     </table>
   </div>
 
-  <div id="silence-service-{{ service.name|slugify }}" class="panel panel-warning" v-cloak v-show="silenceLabelsService.has('{{service.name}}')">
+  <div id="silence-service-{{ service.name|slugify }}" class="panel panel-warning" v-cloak v-if="activeServiceSilences.has('{{service.name}}')">
     <div class="panel-heading">
-      <a @click.prevent="toggleTarget('silences-service-{{service.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
+      <a @click="toggleComponent('silences-service-{{service.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
     </div>
-    <table id="silences-service-{{service.name|slugify}}" class="table table-bordered table-condensed collapse">
-      <tr v-for="(silence, index) in filterActiveSilences" v-if="silence.labels.service == '{{service.name}}'">
+    <table v-if="components['silences-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
+      <tr v-for="silence in activeServiceSilences.get('{{service.name}}')">
         {% include 'promgen/silence_row.html' %}
       </tr>
     </table>
@@ -49,10 +50,18 @@
         <button class="btn btn-primary btn-sm">{% trans "Subscribe to Notifications" %}</button>
       </form>
 
-      <a href="{% url 'audit-list'  %}?service={{service.id}}" class="btn btn-info btn-sm">{% trans "Service History" %}</a>
+      <div class="btn-group btn-group-sm" role="group" aria-label="...">
+        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {% trans "Change History" %} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+          <li role="presentation"><a href="{% urlqs 'audit-list' service=service.id %}">{% trans "Edit History" %}</a></li>
+          <li role="presentation"><a href="{% urlqs 'alert-list' service=service.name %}">{% trans "Alert History" %}</a></li>
+        </ul>
+      </div>
 
       <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
-      <a @click.prevent="silenceSetLabels" data-service="{{service.name}}" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
+      <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

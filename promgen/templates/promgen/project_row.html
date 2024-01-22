@@ -5,7 +5,7 @@
     <td>
         <table style="width: 100%">
             {% for exporter in project.exporter_set.all %}
-            <tr {% if not exporter.enabled %}class="bg-disabled text-muted" {% endif %}>
+            <tr {% if not exporter.enabled %}class="promgen-disabled" {% endif %}>
                 <td>{{ exporter.job }}</td>
                 <td>{{ exporter.port }}</td>
                 <td>{{ exporter.path }}</td>
@@ -38,6 +38,6 @@
     </td>
 
     <td>
-        <a @click.prevent="silenceSetLabels" class="btn btn-warning btn-xs" data-project="{{project.name}}" data-service="{{service.name}}" href="#">{% trans "Silence" %}</a>
+        <a @click="setSilenceDataset" class="btn btn-warning btn-xs" data-project="{{project.name}}" data-service="{{service.name}}">{% trans "Silence" %}</a>
     </td>
 </tr>

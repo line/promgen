@@ -1,8 +1,8 @@
-[firing] test.alert test.project test.service major
+[firing] test-alert test-project test-service major
 
-Grafana: http://grafana.example/dashboard/db/overview?var-service=test.service&var-project=test.project
-Project: http://example.com/project/{project.id}
-Service: http://example.com/service/{service.id}
+Grafana: http://grafana.example.com/dashboard/db/overview?var-service=test-service&var-project=test-project
+Project: http://promgen.example.com/project/1
+Service: http://promgen.example.com/service/1
 
 Labels: a.example 
 Summary: Error on a.example

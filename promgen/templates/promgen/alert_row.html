@@ -1,26 +1,24 @@
 {% load i18n %}
 
-{% verbatim %}
 <td class="col-xs-1">
-    <a :href="alert.generatorURL">{{alert.startsAt|time}}</a>
+    <a :href="alert.generatorURL">[[time(alert.startsAt)]]</a>
 </td>
 <td>
     <dl class="dl-horizontal">
         <dt>Labels</dt>
         <dd>
             <ul class="list-inline">
-                <li v-for="(value, label, index) in alert.labels">
-                    <a @click.prevent="silenceAppendLabel" class="label label-danger" :data-label="label" :data-value="value">{{label}}:{{value}}</a>
+                <li v-for="(value, label) in alert.labels">
+                    <a @click="addSilenceLabel(label, value)" class="label label-danger">[[label]]:[[value]]</a>
                 </li>
             </ul>
         </dd>
-        <template v-for="(value, annotation, index) in alert.annotations" class="dl-horizontal">
-            <dt>{{annotation}}</dt>
-            <dd :inner-html.prop="value|urlize"></dd>
+        <template v-for="(value, annotation) in alert.annotations" class="dl-horizontal">
+            <dt>[[annotation]]</dt>
+            <dd v-html="urlize(value)"></dd>
         </template>
     </dl>
 </td>
-{% endverbatim %}
 <td>
-    <a @click.prevent="silenceAlert(alert)" class="btn btn-warning btn-xs">{% trans "Silence" %}</a>
+    <a @click="setSilenceLabels(alert.labels)" class="btn btn-warning btn-xs">{% trans "Silence" %}</a>
 </td>

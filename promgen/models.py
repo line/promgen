@@ -6,8 +6,7 @@ import logging
 
 import django.contrib.sites.models
 from django.conf import settings
-from django.contrib.contenttypes.fields import (GenericForeignKey,
-                                                GenericRelation)
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.forms.models import model_to_dict
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 class Site(django.contrib.sites.models.Site):
     # Proxy model for sites so that we can easily
     # query our related Rules
-    rule_set = GenericRelation('promgen.Rule', for_concrete_model=False)
+    rule_set = GenericRelation("promgen.Rule", for_concrete_model=False)
 
     def get_absolute_url(self):
         return reverse("site-detail")
@@ -37,17 +36,17 @@ class Site(django.contrib.sites.models.Site):
 
 class ObjectFilterManager(models.Manager):
     def create(self, *args, **kwargs):
-        if 'obj' in kwargs:
-            obj = kwargs.pop('obj')
-            kwargs['object_id'] = obj.id
-            kwargs['content_type_id'] = ContentType.objects.get_for_model(obj).id
+        if "obj" in kwargs:
+            obj = kwargs.pop("obj")
+            kwargs["object_id"] = obj.id
+            kwargs["content_type_id"] = ContentType.objects.get_for_model(obj).id
         return self.get_queryset().create(*args, **kwargs)
 
     def filter(self, *args, **kwargs):
-        if 'obj' in kwargs:
-            obj = kwargs.pop('obj')
-            kwargs['object_id'] = obj.id
-            kwargs['content_type_id'] = ContentType.objects.get_for_model(obj).id
+        if "obj" in kwargs:
+            obj = kwargs.pop("obj")
+            kwargs["object_id"] = obj.id
+            kwargs["content_type_id"] = ContentType.objects.get_for_model(obj).id
         return self.get_queryset().filter(*args, **kwargs)
 
     def get_or_create(self, *args, **kwargs):
@@ -58,9 +57,7 @@ class ObjectFilterManager(models.Manager):
         if "defaults" in kwargs and "obj" in kwargs["defaults"]:
             obj = kwargs["defaults"].pop("obj")
             kwargs["defaults"]["object_id"] = obj.id
-            kwargs["defaults"]["content_type_id"] = ContentType.objects.get_for_model(
-                obj
-            ).id
+            kwargs["defaults"]["content_type_id"] = ContentType.objects.get_for_model(obj).id
 
         return self.get_queryset().get_or_create(*args, **kwargs)
 
@@ -72,12 +69,17 @@ class Sender(models.Model):
     value = models.CharField(max_length=128)
     alias = models.CharField(max_length=128, blank=True)
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=(
-        models.Q(app_label='auth', model='user') |
-        models.Q(app_label='promgen', model='project') | models.Q(app_label='promgen', model='service'))
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=(
+            models.Q(app_label="auth", model="user")
+            | models.Q(app_label="promgen", model="project")
+            | models.Q(app_label="promgen", model="service")
+        ),
     )
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
@@ -88,25 +90,25 @@ class Sender(models.Model):
             return self.alias
         return self.value
 
-    show_value.short_description = 'Value'
+    show_value.short_description = "Value"
 
     def __str__(self):
-        return '{}:{}'.format(self.sender, self.show_value())
+        return f"{self.sender}:{self.show_value()}"
 
     @classmethod
     def driver_set(cls):
-        '''Return the list of drivers for Sender model'''
+        """Return the list of drivers for Sender model"""
         for entry in plugins.notifications():
             try:
                 yield entry.module_name, entry.load()
             except ImportError:
-                logger.warning('Error importing %s', entry.module_name)
+                logger.warning("Error importing %s", entry.module_name)
 
     __driver = {}
 
     @property
     def driver(self):
-        '''Return configured driver for Sender model instance'''
+        """Return configured driver for Sender model instance"""
         if self.sender in self.__driver:
             return self.__driver[self.sender]
 
@@ -114,23 +116,24 @@ class Sender(models.Model):
             try:
                 self.__driver[entry.module_name] = entry.load()()
             except ImportError:
-                logger.warning('Error importing %s', entry.module_name)
+                logger.warning("Error importing %s", entry.module_name)
         return self.__driver[self.sender]
 
     def test(self):
-        '''
+        """
         Test sender plugin
 
         Uses the same test json from our unittests but subs in the currently
         tested object as part of the test data
-        '''
+        """
         data = tests.Data("examples", "alertmanager.json").json()
-        if hasattr(self.content_object, 'name'):
-            data['commonLabels'][self.content_type.name] = self.content_object.name
-            for alert in data.get('alerts', []):
-                alert['labels'][self.content_type.name] = self.content_object.name
+        if hasattr(self.content_object, "name"):
+            data["commonLabels"][self.content_type.name] = self.content_object.name
+            for alert in data.get("alerts", []):
+                alert["labels"][self.content_type.name] = self.content_object.name
 
         from promgen import tasks
+
         tasks.send_alert(self.sender, self.value, data)
 
     def filtered(self, alert):
@@ -169,77 +172,89 @@ class Filter(models.Model):
 class Shard(models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     url = models.URLField(max_length=256)
-    proxy = models.BooleanField(default=False,
-        help_text='Queries can be proxied to these shards')
-    enabled = models.BooleanField(default=True,
-        help_text='Able to register new Services and Projects')
+    proxy = models.BooleanField(
+        default=False,
+        help_text="Queries can be proxied to these shards",
+    )
+    enabled = models.BooleanField(
+        default=True,
+        help_text="Able to register new Services and Projects",
+    )
+
+    samples = models.PositiveBigIntegerField(
+        default=5000000,
+        help_text="Estimated Sample Count",
+    )
+    targets = models.PositiveBigIntegerField(
+        default=10000,
+        help_text="Estimated Target Count",
+    )
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def get_absolute_url(self):
-        return reverse('shard-detail', kwargs={'pk': self.pk})
+        return reverse("datasource-detail", kwargs={"pk": self.pk})
 
     def __str__(self):
         if self.enabled:
             return self.name
-        return self.name + ' (disabled)'
+        return self.name + " (disabled)"
 
 
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
+    )
 
     notifiers = GenericRelation(Sender)
-    rule_set = GenericRelation('Rule')
+    rule_set = GenericRelation("Rule")
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def get_absolute_url(self):
-        return reverse('service-detail', kwargs={'pk': self.pk})
+        return reverse("service-detail", kwargs={"pk": self.pk})
 
     def __str__(self):
         return self.name
 
     @classmethod
-    def default(cls, service_name='Default', shard_name='Default'):
-        shard, created = Shard.objects.get_or_create(
-            name=shard_name
-        )
+    def default(cls, service_name="Default", shard_name="Default"):
+        shard, created = Shard.objects.get_or_create(name=shard_name)
         if created:
-            logger.info('Created default shard')
+            logger.info("Created default shard")
 
-        service, created = cls.objects.get_or_create(
-            name=service_name,
-            defaults={'shard': shard}
-        )
+        service, created = cls.objects.get_or_create(name=service_name, defaults={"shard": shard})
         if created:
-            logger.info('Created default service')
+            logger.info("Created default service")
         return service
 
 
 class Project(models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
+    )
 
-    service = models.ForeignKey('Service', on_delete=models.CASCADE)
-    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
-    farm = models.ForeignKey('Farm', blank=True, null=True, on_delete=models.SET_NULL)
+    service = models.ForeignKey("promgen.Service", on_delete=models.CASCADE)
+    shard = models.ForeignKey("promgen.Shard", on_delete=models.CASCADE)
+    farm = models.ForeignKey("promgen.Farm", blank=True, null=True, on_delete=models.SET_NULL)
 
     notifiers = GenericRelation(Sender)
-    rule_set = GenericRelation('Rule')
+    rule_set = GenericRelation("Rule")
 
     class Meta:
-        ordering = ['name']
+        ordering = ["name"]
 
     def get_absolute_url(self):
-        return reverse('project-detail', kwargs={'pk': self.pk})
+        return reverse("project-detail", kwargs={"pk": self.pk})
 
     def __str__(self):
-        return '{} » {}'.format(self.service, self.name)
+        return f"{self.service} » {self.name}"
 
 
 class Farm(models.Model):
@@ -247,15 +262,15 @@ class Farm(models.Model):
     source = models.CharField(max_length=128)
 
     class Meta:
-        ordering = ['name']
-        unique_together = (('name', 'source',),)
+        ordering = ["name"]
+        unique_together = (("name", "source"),)
 
     def get_absolute_url(self):
-        return reverse('farm-detail', kwargs={'pk': self.pk})
+        return reverse("farm-detail", kwargs={"pk": self.pk})
 
     def refresh(self):
         target = set()
-        current = set(host.name for host in self.host_set.all())
+        current = {host.name for host in self.host_set.all()}
         for entry in plugins.discovery():
             if self.source == entry.name:
                 target.update(entry.load()().fetch(self.name))
@@ -264,13 +279,11 @@ class Farm(models.Model):
         add = target - current
 
         if add:
-            Audit.log('Adding {} to {}'.format(add, self), self)
-            Host.objects.bulk_create([
-                Host(name=name, farm_id=self.id) for name in add
-            ])
+            Audit.log(f"Adding {add} to {self}", self)
+            Host.objects.bulk_create([Host(name=name, farm_id=self.id) for name in add])
 
         if remove:
-            Audit.log('Removing {} from {}'.format(add, self), self)
+            Audit.log(f"Removing {add} from {self}", self)
             Host.objects.filter(farm=self, name__in=remove).delete()
 
         return add, remove
@@ -279,12 +292,11 @@ class Farm(models.Model):
     def fetch(cls, source):
         for entry in plugins.discovery():
             if entry.name == source:
-                for farm in entry.load()().farms():
-                    yield farm
+                yield from entry.load()().farms()
 
     @cached_property
     def driver(self):
-        '''Return configured driver for Farm model instance'''
+        """Return configured driver for Farm model instance"""
         for entry in plugins.discovery():
             if entry.name == self.source:
                 return entry.load()()
@@ -295,33 +307,31 @@ class Farm(models.Model):
 
     @classmethod
     def driver_set(cls):
-        '''Return the list of drivers for Farm model'''
+        """Return the list of drivers for Farm model"""
         for entry in plugins.discovery():
             yield entry.name, entry.load()()
 
     def __str__(self):
-        return '{} ({})'.format(self.name, self.source)
+        return f"{self.name} ({self.source})"
 
 
 class Host(models.Model):
     name = models.CharField(max_length=128)
-    farm = models.ForeignKey('Farm', on_delete=models.CASCADE)
+    farm = models.ForeignKey("Farm", on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['name']
-        unique_together = (('name', 'farm',),)
+        ordering = ["name"]
+        unique_together = (("name", "farm"),)
 
     def get_absolute_url(self):
-        return reverse('host-detail', kwargs={'slug': self.name})
+        return reverse("host-detail", kwargs={"slug": self.name})
 
     def __str__(self):
-        return '{} [{}]'.format(self.name, self.farm.name)
+        return f"{self.name} [{self.farm.name}]"
 
 
 class BaseExporter(models.Model):
-    job = models.CharField(
-        max_length=128, help_text="Exporter name. Example node, jmx, app"
-    )
+    job = models.CharField(max_length=128, help_text="Exporter name. Example node, jmx, app")
     port = models.IntegerField(help_text="Port Exporter is running on")
     path = models.CharField(
         max_length=128, blank=True, help_text="Exporter path. Defaults to /metrics"
@@ -356,11 +366,13 @@ class Exporter(BaseExporter):
 
 
 class Probe(models.Model):
-    module = models.CharField(help_text='Probe Module from blackbox_exporter config', max_length=128, unique=True)
+    module = models.CharField(
+        help_text="Probe Module from blackbox_exporter config", max_length=128, unique=True
+    )
     description = models.TextField(blank=True)
 
     def __str__(self):
-        return "{} » {}".format(self.module, self.description)
+        return f"{self.module} » {self.description}"
 
 
 class URL(models.Model):
@@ -372,82 +384,75 @@ class URL(models.Model):
         ordering = ["project__service", "project", "url"]
 
     def __str__(self):
-        return "{} [{}]".format(self.project, self.url)
+        return f"{self.project} [{self.url}]"
 
 
 class Rule(models.Model):
     objects = ObjectFilterManager()
 
     name = models.CharField(max_length=128, unique=True, validators=[validators.metricname])
-    clause = models.TextField(help_text='Prometheus query')
+    clause = models.TextField(help_text="Prometheus query")
     duration = models.CharField(
-        max_length=128, validators=[validators.duration],
-        help_text="Duration field with postfix. Example 30s, 5m, 1d"
-        )
+        max_length=128,
+        validators=[validators.duration],
+        help_text="Duration field with postfix. Example 30s, 5m, 1d",
+    )
     enabled = models.BooleanField(default=True)
     parent = models.ForeignKey(
-        'Rule',
-        null=True,
-        related_name='overrides',
-        on_delete=models.SET_NULL
+        "Rule", null=True, related_name="overrides", on_delete=models.SET_NULL
     )
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, limit_choices_to=(
-        models.Q(app_label='promgen', model='site') |
-        models.Q(app_label='promgen', model='project') |
-        models.Q(app_label='promgen', model='service'))
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=(
+            models.Q(app_label="promgen", model="site")
+            | models.Q(app_label="promgen", model="project")
+            | models.Q(app_label="promgen", model="service")
+        ),
     )
     object_id = models.PositiveIntegerField()
-    content_object = GenericForeignKey('content_type', 'object_id', for_concrete_model=False)
+    content_object = GenericForeignKey("content_type", "object_id", for_concrete_model=False)
     description = models.TextField(blank=True)
 
+    labels = models.JSONField(default=dict)
+    annotations = models.JSONField(default=dict)
+
     class Meta:
-        ordering = ['content_type', 'object_id', 'name']
-
-    @cached_property
-    def labels(self):
-        return {obj.name: obj.value for obj in self.rulelabel_set.all()}
-
-    def add_label(self, name, value):
-        return RuleLabel.objects.get_or_create(rule=self, name=name, value=value)
-
-    def add_annotation(self, name, value):
-        return RuleAnnotation.objects.get_or_create(rule=self, name=name, value=value)
-
-    @cached_property
-    def annotations(self):
-        _annotations = {obj.name: obj.value for obj in self.ruleannotation_set.all()}
-        # Skip when pk is not set, such as when test rendering a rule
-        if self.pk and 'rule' not in _annotations:
-            _annotations['rule'] = resolve_domain('rule-detail', pk=self.pk)
-        return _annotations
+        ordering = ["content_type", "object_id", "name"]
 
     def __str__(self):
-        return '{} [{}]'.format(self.name, self.content_object.name)
+        return (
+            f"{self.name}"
+            if self.content_object is None
+            else f"{self.name} [{self.content_object.name}]"
+        )
 
     def get_absolute_url(self):
-        return reverse('rule-detail', kwargs={'pk': self.pk})
+        return reverse("rule-detail", kwargs={"pk": self.pk})
 
     def set_object(self, content_type, object_id):
         self.content_type = ContentType.objects.get(
             model=content_type,
-            app_label='promgen'
-            )
+            app_label="promgen",
+        )
         self.object_id = object_id
 
     def copy_to(self, content_type, object_id):
-        '''
+        """
         Make a copy under a new service
 
         It's important that we set pk to None so a new object is created, but we
         also need to ensure the new name is unique by appending some unique data
         to the end of the name
-        '''
+        """
         with transaction.atomic():
-            content_type = ContentType.objects.get(model=content_type, app_label='promgen')
+            content_type = ContentType.objects.get(model=content_type, app_label="promgen")
 
             # First check to see if this rule is already overwritten
-            for rule in Rule.objects.filter(parent_id=self.pk, content_type=content_type, object_id=object_id):
+            for rule in Rule.objects.filter(
+                parent_id=self.pk, content_type=content_type, object_id=object_id
+            ):
                 return rule
 
             content_object = content_type.get_object_for_this_type(pk=object_id)
@@ -455,53 +460,31 @@ class Rule(models.Model):
             orig_pk = self.pk
             self.pk = None
             self.parent_id = orig_pk
-            self.name = '{}_{}'.format(self.name, slugify(content_object.name)).replace('-', '_')
+            self.name = f"{self.name}_{slugify(content_object.name)}".replace("-", "_")
             self.content_type = content_type
             self.object_id = object_id
-            self.enabled = False
-            self.clause = self.clause.replace(macro.EXCLUSION_MACRO, '{}="{}",{}'.format(
-                content_type.model, content_object.name, macro.EXCLUSION_MACRO
-            ))
-            self.save()
+            # Enable the copy by default since it's more likely the user prefers
+            # to have their own copy enabled rather than the original one.
+            self.enabled = True
+            self.clause = self.clause.replace(
+                macro.EXCLUSION_MACRO,
+                f'{content_type.model}="{content_object.name}",{macro.EXCLUSION_MACRO}',
+            )
 
             # Add a label to our new rule by default, to help ensure notifications
             # get routed to the notifier we expect
-            self.add_label(content_type.model, content_object.name)
+            self.labels[content_type.model] = content_object.name
 
-            for label in RuleLabel.objects.filter(rule_id=orig_pk):
-                # Skip service labels from our previous rule
-                if label.name in ['service', 'project']:
-                    logger.debug('Skipping %s: %s', label.name, label.value)
-                    continue
-                logger.debug('Copying %s to %s', label, self)
-                label.pk = None
-                label.rule = self
-                label.save()
-
-            for annotation in RuleAnnotation.objects.filter(rule_id=orig_pk):
-                logger.debug('Copying %s to %s', annotation, self)
-                annotation.pk = None
-                annotation.rule = self
-                annotation.save()
+            self.save()
 
         return self
 
 
-class RuleLabel(models.Model):
-    name = models.CharField(max_length=128)
-    value = models.CharField(max_length=128)
-    rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
-
-
-class RuleAnnotation(models.Model):
-    name = models.CharField(max_length=128)
-    value = models.TextField()
-    rule = models.ForeignKey('Rule', on_delete=models.CASCADE)
-
 class AlertLabel(models.Model):
-    alert = models.ForeignKey('Alert', on_delete=models.CASCADE)
+    alert = models.ForeignKey("Alert", on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     value = models.TextField()
+
 
 class Alert(models.Model):
     created = models.DateTimeField(default=timezone.now)
@@ -515,28 +498,31 @@ class Alert(models.Model):
     def expand(self):
         # Map of Prometheus labels to Promgen objects
         LABEL_MAPPING = [
-            ('project', Project),
-            ('service', Service),
+            ("project", Project),
+            ("service", Service),
         ]
         routable = {}
         data = json.loads(self.body)
 
-        data.setdefault('commonLabels', {})
-        data.setdefault('commonAnnotations', {})
+        data.setdefault("commonLabels", {})
+        data.setdefault("commonAnnotations", {})
+        # Set our link back to Promgen for processed notifications
+        # The original externalURL can still be visible from the alerts page
+        data["externalURL"] = resolve_domain(self.get_absolute_url())
 
         # Look through our labels and find the object from Promgen's DB
         # If we find an object in Promgen, add an annotation with a direct link
         for label, klass in LABEL_MAPPING:
-            if label not in data['commonLabels']:
-                logger.debug('Missing label %s', label)
+            if label not in data["commonLabels"]:
+                logger.debug("Missing label %s", label)
                 continue
 
             # Should only find a single value, but I think filter is a little
             # bit more forgiving than get in terms of throwing errors
-            for obj in klass.objects.filter(name=data['commonLabels'][label]):
-                logger.debug('Found %s %s', label, obj)
+            for obj in klass.objects.filter(name=data["commonLabels"][label]):
+                logger.debug("Found %s %s", label, obj)
                 routable[label] = obj
-                data['commonAnnotations'][label] = resolve_domain(obj)
+                data["commonAnnotations"][label] = resolve_domain(obj)
 
         return routable, data
 
@@ -559,47 +545,49 @@ class Audit(models.Model):
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
     object_id = models.PositiveIntegerField(default=0)
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
+    )
 
     @property
-    def hilight(self):
-        if self.body.startswith('Created'):
-            return 'success'
-        if self.body.startswith('Updated'):
-            return 'warning'
-        if self.body.startswith('Deleted'):
-            return 'danger'
-        return ''
+    def highlight(self):
+        if self.body.startswith("Created"):
+            return "success"
+        if self.body.startswith("Updated"):
+            return "warning"
+        if self.body.startswith("Deleted"):
+            return "danger"
+        return ""
 
     @classmethod
     def log(cls, body, instance=None, old=None, **kwargs):
         from promgen.middleware import get_current_user
 
-        kwargs['body'] = body
-        kwargs['created'] = timezone.now()
-        kwargs['user'] = get_current_user()
+        kwargs["body"] = body
+        kwargs["created"] = timezone.now()
+        kwargs["user"] = get_current_user()
 
         if instance:
-            kwargs['content_type'] = ContentType.objects.get_for_model(instance)
-            kwargs['object_id'] = instance.id
-            kwargs['data'] = json.dumps(model_to_dict(instance), sort_keys=True)
+            kwargs["content_type"] = ContentType.objects.get_for_model(instance)
+            kwargs["object_id"] = instance.id
+            kwargs["data"] = json.dumps(model_to_dict(instance), sort_keys=True)
         if old:
-            kwargs['old'] = json.dumps(model_to_dict(old), sort_keys=True)
+            kwargs["old"] = json.dumps(model_to_dict(old), sort_keys=True)
 
         return cls.objects.create(**kwargs)
 
 
 class Prometheus(models.Model):
-    shard = models.ForeignKey('Shard', on_delete=models.CASCADE)
+    shard = models.ForeignKey("promgen.Shard", on_delete=models.CASCADE)
     host = models.CharField(max_length=128)
     port = models.IntegerField()
 
     def __str__(self):
-        return '{}:{}'.format(self.host, self.port)
+        return f"{self.host}:{self.port}"
 
     class Meta:
-        ordering = ['shard', 'host']
-        unique_together = (('host', 'port',),)
-        verbose_name_plural = 'prometheis'
+        ordering = ["shard", "host"]
+        unique_together = (("host", "port"),)
+        verbose_name_plural = "prometheis"

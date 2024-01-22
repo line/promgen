@@ -7,9 +7,6 @@ Notification Modules
 .. automodule:: promgen.notification.email
     :members:
 
-.. automodule:: promgen.notification.ikasan
-    :members:
-
 .. automodule:: promgen.notification.linenotify
     :members:
 

@@ -13,37 +13,46 @@ logger = logging.getLogger(__name__)
 class FormSlack(forms.Form):
     value = forms.URLField(
         required=True,
-        label='Slack webhook URL'
+        label="Slack Incoming Webhook URL",
     )
     alias = forms.CharField(
         required=False,
-        help_text='Optional description to be displayed instead of the URL.'
+        help_text="Optional description to be displayed instead of the URL.",
     )
 
-class NotificationSlack(NotificationBase):
-    '''
-    Send messages to slack via webhook.
 
-    A webhook has to be configured for your workspace; you
+class NotificationSlack(NotificationBase):
+    """
+    Send messages to Slack via Incoming Webhook.
+
+    An Incoming Webhook has to be configured for your workspace; you
     can set one up here:
 
     https://my.slack.com/services/new/incoming-webhook/
 
-    A fitting prometheus icon can be selected from here:
+    A fitting Prometheus icon can be selected from here:
 
     https://github.com/quintessence/slack-icons
-    '''
+    """
 
     form = FormSlack
 
     def _send(self, url, data):
-        if data['status'] == 'resolved':
-            message = self.render('promgen/sender/slack.resolved.txt', data)
+        kwargs = {}
+        proxy = self.config("proxies", default=None)
+        if proxy:
+            kwargs["proxies"] = {
+                "http": proxy,
+                "https": proxy,
+            }
+
+        if data["status"] == "resolved":
+            message = self.render("promgen/sender/slack.resolved.txt", data)
         else:
-            message = self.render('promgen/sender/slack.body.txt', data)
+            message = self.render("promgen/sender/slack.body.txt", data)
 
         json = {
-            'text': message,
+            "text": message,
         }
 
-        util.post(url, json=json).raise_for_status()
+        util.post(url, json=json, **kwargs).raise_for_status()

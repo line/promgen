@@ -19,10 +19,9 @@
 <div class="panel panel-primary">
   <div class="panel-body">
     <a
-    @click.prevent="silenceSetLabels"
+    @click="setSilenceDataset"
     class="btn btn-warning"
     data-instance="{{slug}}:[0-9]*"
-    href="#"
     style="display: inline-block;"
   >{% trans "Silence" %}</a>
   </div>

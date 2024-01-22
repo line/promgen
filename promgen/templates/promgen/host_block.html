@@ -42,7 +42,7 @@
 {% for rule in project.service.rule_set.all %}
         <tr>
           <td><a href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a></td>
-          <td>{{ rule.clause }}</td>
+          <td class="promgen-clause">{{ rule.clause }}</td>
         </tr>
 {% endfor %}
       </table>

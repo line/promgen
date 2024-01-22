@@ -42,7 +42,7 @@ be more specific with certain services
        / node_filesystem_size{service="B"} < 0.15
 
 
-Visuallizing it as a hiarchy it would look like this
+Visuallizing it as a hierarchy it would look like this
 
 .. code-block:: yaml
 

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load tz %}
 {% block content %}
 {% breadcrumb alert %}
 
@@ -13,5 +14,72 @@
     {% endfor %}
 </ul>
 
-<pre>{{alert.json|pretty_json}}</pre>
+<h2>Routing</h2>
+<dl class="dl-horizontal">
+    {% for label, value in groupLabels.items %}
+    <dt>{{label}}</dt>
+    <dd>
+        <a class="label label-warning" href="{% url 'alert-list' %}?{{label}}={{value}}">{{value}}</a>
+        {% if label in redirects %}
+        <a href="{% url 'search' %}?var-{{label}}={{value}}">Search</a>
+        {% endif %}
+    </dd>
+    {% endfor %}
+    <dt>Notifications Sent</dt>
+    <dd>{{alert.sent_count}}</dd>
+    <dt>Notification Errors</dt>
+    <dd>{{alert.error_count}}</dd>
+</dl>
+
+<h2>Additional Common Labels</h2>
+<dl class="dl-horizontal">
+    {% for label, value in otherLabels.items %}
+    <dt>{{label}}</dt>
+    <dd>
+        <a class="label label-warning" href="{% url 'alert-list' %}?{{label}}={{value}}">{{value}}</a>
+        {% if label in redirects %}
+        <a href="{% url 'search' %}?var-{{label}}={{value}}">Search</a>
+        {% endif %}
+    </dd>
+    {% endfor %}
+</dl>
+
+<h2>Common Annotations</h2>
+<dl class="dl-horizontal">
+    {% for label, value in data.commonAnnotations.items %}
+    <dt>{{label}}</dt>
+    <dd>{{value|urlize}}</dd>
+    {% endfor %}
+    {% if data.externalURL %}
+    <dt>External URL</dt>
+    <dd>{{data.externalURL|urlizetrunc:100}}</dd>
+    {% endif %}
+</dl>
+
+<h2>Alerts</h2>
+<table class="table table-condensed">
+    <tr>
+        <th>Start Time</th>
+        <th>Labels</th>
+        <th>Link</th>
+    </tr>
+    {% for alert in data.alerts %}
+    <tr>
+        <td>{{alert.startsAt}}</td>
+        <td>
+            <ul>
+                {% for k,v in alert.labels.items|dictsort:0 %}
+                <a class="label label-warning" href="{% url 'alert-list' %}?{{k}}={{v}}">{{k}}:{{v}}</a>
+                {% endfor %}
+            </ul>
+        </td>
+        <td>{{alert.generatorURL|urlizetrunc:100}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<details>
+    <summary>Raw Data</summary>
+    <pre>{{alert.json|pretty_json}}</pre>
+</details>
 {% endblock %}

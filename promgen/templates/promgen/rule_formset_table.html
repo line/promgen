@@ -5,16 +5,16 @@
         <th>Value</th>
         <th>Delete?</th>
     </tr>
-    {% for row in formset %}
+    {% for form in formset %}
     <tr>
-        <td>{{ row.id }} {{ row.name }}</td>
-        <td>{{ row.value }}</td>
-        <td>{{ row.DELETE }}</td>
+        <td>{{ form.id }} {{ form.key }}</td>
+        <td>{{ form.value }}</td>
+        <td>{{ form.DELETE }}</td>
     </tr>
-    {% for k,v in row.errors.items %}
+    {% if form.errors %}
     <tr>
-        <td colspan="3">{{v}}</td>
+        <td colspan="3">{{form.errors}}</td>
     </tr>
-    {% endfor %}
+    {% endif %}
     {% endfor %}
 </table>

@@ -12,40 +12,43 @@ logger = logging.getLogger(__name__)
 
 
 def _choices():
-    for user in User.objects.filter(is_active=True).order_by('username'):
-        if user.first_name:
-            yield (user.username, '{user.username} ({user.first_name} {user.last_name})'.format(user=user))
-        elif user.email:
-            yield (user.username, '{user.username} ({user.email})'.format(user=user))
+    for u in User.objects.filter(is_active=True).order_by("username"):
+        if u.first_name:
+            yield (u.username, f"{u.username} ({u.first_name} {u.last_name})")
+        elif u.email:
+            yield (u.username, f"{u.username} ({u.email})")
         else:
-            yield (user.username, user.username)
+            yield (u.username, u.username)
 
 
 class FormUser(forms.Form):
     value = forms.ChoiceField(
         required=True,
-        label='Username',
-        choices=_choices
+        label="Username",
+        choices=_choices,
     )
 
 
 class NotificationUser(NotificationBase):
-    '''
-    Send notification to specific user
-    '''
+    """
+    Send a notification to a specific user.
+    """
 
     form = FormUser
 
     def splay(self, address):
-        user = User.objects.get(username=address)
-        for sender in models.Sender.objects.filter(obj=user):
-            yield sender
+        try:
+            user = User.objects.get(username=address)
+        except User.DoesNotExist:
+            logger.error("Missing user %s", address)
+        else:
+            yield from models.Sender.objects.filter(obj=user)
 
     def _send(self, address, data):
         user = User.objects.get(username=address)
-        for sender in models.Sender.objects.filter(obj=user):
+        for sender in models.Sender.objects.filter(obj=user, enabled=True):
             try:
                 sender.driver._send(sender.value, data)
-            except:
-                logger.exception('Error sending with %s', sender)
+            except Exception:
+                logger.exception("Error sending with %s", sender)
         return True

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load tz %}
 {% block content %}
 
 {% breadcrumb label="Alerts" %}
@@ -11,7 +12,7 @@
     </div>
 </form>
 
-<table class="table">
+<table class="table table-sm">
     <tr>
         <th>Created</th>
         <th>Alertname</th>
@@ -19,13 +20,18 @@
         <th>Service</th>
         <th>Project</th>
         <th>Job</th>
-        <th>Sent</th>
-        <th>Error</th>
+        <th><a href="?noSent=1">Sent</a></th>
+        <th><a href="?sentError=1">Error</a></th>
     </tr>
     {% for alert in alert_list %}
+    {% ifchanged alert.created|date %}
+    <tr class="table-secondary">
+        <th colspan="8">{{ alert.created|date }}</th>
+    </tr>
+    {% endifchanged %}
     <tr>
-        <td><a href="{{alert.get_absolute_url}}">{{alert.created}}</a></td>
-        <td>{{alert.json.commonLabels.alertname}}</td>
+        <td><a href="{{alert.get_absolute_url}}">{{ alert.created|timezone:TIMEZONE }}</a></td>
+        <td><a href="?alertname={{alert.json.commonLabels.alertname}}">{{alert.json.commonLabels.alertname}}</a></td>
         <td>{{alert.json.commonLabels.datasource}}</td>
         <td><a href="?service={{alert.json.commonLabels.service}}">{{alert.json.commonLabels.service}}</a></td>
         <td><a href="?project={{alert.json.commonLabels.project}}">{{alert.json.commonLabels.project}}</a></td>

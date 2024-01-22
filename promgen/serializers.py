@@ -6,6 +6,7 @@ from django.db.models import prefetch_related_objects
 
 import promgen.templatetags.promgen as macro
 from promgen import models, shortcuts
+from promgen.shortcuts import resolve_domain
 
 
 class WebLinkField(serializers.Field):
@@ -21,8 +22,8 @@ class ShardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Shard
-        exclude = ('id',)
-        lookup_field = 'name'
+        exclude = ("id",)
+        lookup_field = "name"
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -32,8 +33,8 @@ class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Service
-        exclude = ('id',)
-        lookup_field = 'name'
+        exclude = ("id",)
+        lookup_field = "name"
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -44,13 +45,13 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Project
-        lookup_field = 'name'
+        lookup_field = "name"
         exclude = ("id", "farm")
 
 
 class SenderSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
-    label = serializers.ReadOnlyField(source='show_value')
+    owner = serializers.ReadOnlyField(source="owner.username")
+    label = serializers.ReadOnlyField(source="show_value")
 
     class Meta:
         model = models.Sender
@@ -88,16 +89,17 @@ class AlertRuleSerializer(serializers.ModelSerializer):
             "content_type",
             "overrides__content_object",
             "overrides__content_type",
-            "ruleannotation_set",
-            "rulelabel_set",
         )
         return AlertRuleList(queryset, *args, **kwargs)
 
     def to_representation(self, obj):
+        annotations = obj.annotations
+        annotations["rule"] = resolve_domain("rule-detail", pk=obj.pk if obj.pk else 0)
+
         return {
             "alert": obj.name,
             "expr": macro.rulemacro(obj),
             "for": obj.duration,
             "labels": obj.labels,
-            "annotations": obj.annotations,
+            "annotations": annotations,
         }

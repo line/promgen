@@ -1,112 +1,110 @@
 /*
-# Copyright (c) 2019 LINE Corporation
-# These sources are released under the terms of the MIT license: see LICENSE
-*/
+ * Copyright (c) 2021 LINE Corporation
+ * These sources are released under the terms of the MIT license: see LICENSE
+ */
 
-Vue.config.devtools = true
+const globalStore = Vue.reactive({
+    state: {
+        messages: []
+    },
+    setMessages(messages) {
+        this.state.messages = [...messages];
+    }
+});
 
-var dataStore = {
+const dataStore = Vue.reactive({
+    global: globalStore.state,
+    components: {},
     selectedHosts: [],
-    newSilence: { 'labels': {} },
     globalSilences: [],
-    globalAlerts: [],
-    globalMessages: []
-};
+    globalAlerts: []
+});
 
-var app = new Vue({
-    el: '#vue',
-    data: dataStore,
+const silenceStore = Vue.reactive({
+    state: {
+        show: false,
+        labels: {}
+    },
+    showForm() {
+        this.state.show = true;
+    },
+    setLabels(labels) {
+        this.state.labels = { ...labels };
+    },
+    addLabel(label, value) {
+        this.state.labels[label] = value;
+    }
+});
+
+const exporterTestResultStore = Vue.reactive({
+    results: {},
+    addResult(url, statusCode) {
+        this.results[url] = statusCode;
+    },
+    setResults(results) {
+        this.results = { ...results };
+    },
+});
+
+const app = Vue.createApp({
+    delimiters: ['[[', ']]'],
+    data() {
+        return dataStore;
+    },
+    mixins: [mixins],
     methods: {
-        toggleTarget: function (target) {
+        toggleComponent: function (component) {
+            let state = Boolean(this.components[component]);
+            this.components[component] = !state;
+        },
+        toggleCollapse: function (target) {
             let tgt = document.getElementById(target);
             tgt.classList.toggle('collapse');
         },
-        silenceExpire: function (id) {
-            fetch('/proxy/v1/silences/' + id, { method: 'DELETE' }).then(function (response) {
-                location.reload();
-            })
+        expireSilence(id) {
+            fetch(`/proxy/v1/silences/${id}`, { method: 'DELETE' })
+                .then(() => location.reload());
         },
-        silenceChangeEvent: function (event) {
-            this.newSilence[event.target.name] = event.target.value;
-        },
-        silenceSubmit: function (event) {
-            let this_ = this;
-            fetch('/proxy/v1/silences', { method: 'POST', body: JSON.stringify(this.newSilence) })
-                .then(function (response) {
-                    if (response.ok) {
-                        location.reload();
-                    } else {
-                        return response.json()
-                    }
-                })
-                .then(function (result) {
-                    this_.globalMessages = [];
-                    for (key in result.messages) {
-                        this_.$set(this_.globalMessages, key, result.messages[key]);
-                    }
-                })
-        },
-        silenceRemoveLabel: function (label) {
-            console.debug('silenceRemoveLabel', label)
-            this.$delete(this.newSilence.labels, label)
-        },
-        showSilenceForm: function (event) {
-            document.getElementById('silence-form').classList.remove('collapse');
+        setSilenceLabels(labels) {
+            silenceStore.setLabels(labels);
+            silenceStore.showForm();
             scroll(0, 0);
         },
-        silenceAppendLabel: function (event) {
-            console.debug('silenceAppendLabel', event.target.dataset);
-            this.$set(this.newSilence.labels, event.target.dataset.label, event.target.dataset.value);
-            this.showSilenceForm(event);
+        setSilenceDataset(event) {
+            this.setSilenceLabels(event.target.dataset);
         },
-        silenceSelectedHosts: function (event) {
-            this.$set(this.newSilence, 'labels', {});
-            this.$set(this.newSilence.labels, "instance", this.selectedHosts.join("|"));
-            for (key in event.target.dataset) {
-                this.$set(this.newSilence.labels, key, event.target.dataset[key]);
-            }
-            this.showSilenceForm(event);
+        addSilenceLabel(label, value) {
+            silenceStore.addLabel(label, value);
+            silenceStore.showForm();
+            scroll(0, 0);
         },
-        silenceSetLabels: function (event) {
-            console.debug('silenceSetLabels', event.target.dataset);
-            this.$set(this.newSilence, 'labels', {});
-            for (key in event.target.dataset) {
-                this.$set(this.newSilence.labels, key, event.target.dataset[key]);
-            }
-            this.showSilenceForm(event);
-        },
-        silenceAlert: function (alert) {
-            this.$set(this.newSilence, 'labels', {});
-            for (key in alert.labels) {
-                this.$set(this.newSilence.labels, key, alert.labels[key]);
-            }
-            this.showSilenceForm(event);
+        silenceSelectedHosts(event) {
+            this.setSilenceLabels(event.target.dataset);
+            this.addSilenceLabel('instance', this.selectedHosts.join('|'));
         },
         fetchSilences: function () {
-            let this_ = this;
             fetch('/proxy/v1/silences')
                 .then(response => response.json())
-                .then(function (silences) {
-                    this_.globalSilences = silences.data.sort(silence => silence.startsAt);
+                .then(response => {
+                    let silences = response.data.sort(silence => silence.startsAt);
 
                     // Pull out the matchers and do a simpler label map
-                    // To make other code easier
-                    for (var i in this_.globalSilences) {
-                        var silence = this_.globalSilences[i];
-                        silence.labels = {}
-                        for (var m in silence.matchers) {
-                            let matcher = silence.matchers[m]
-                            silence.labels[matcher.name] = matcher.value
+                    // to make other code easier
+                    for (let silence of silences) {
+                        silence.labels = {};
+                        for (let matcher of silence.matchers) {
+                            silence.labels[matcher.name] = matcher.value;
                         }
                     }
+
+                    this.globalSilences = silences;
                 });
         },
         fetchAlerts: function () {
-            let this_ = this;
             fetch('/proxy/v1/alerts')
                 .then(response => response.json())
-                .then(function (alerts) {
-                    this_.globalAlerts = alerts.data.sort(alert => alert.startsAt);
+                .then(response => {
+                    this.globalAlerts = response.data.sort(alert => alert.startsAt);
                 });
 
         },
@@ -121,126 +119,145 @@ var app = new Vue({
         }
     },
     computed: {
-        alertLabelsService: function () {
-            return new Set(this.globalAlerts
-                .filter(x => x.status.state == 'active')
-                .filter(x => x.labels.service)
-                .map(x => x.labels.service)
-                .sort()
-            );
+        activeServiceAlerts: function () {
+            return groupByLabel(this.activeAlerts, 'service');
         },
-        alertLabelsProject: function () {
-            return new Set(this.globalAlerts
-                .filter(x => x.status.state == 'active')
-                .filter(x => x.labels.project)
-                .map(x => x.labels.project)
-                .sort()
-            );
+        activeProjectAlerts: function () {
+            return groupByLabel(this.activeAlerts, 'project');
         },
-        alertLabelsRule: function () {
-            return new Set(this.globalAlerts
-                .filter(x => x.status.state == 'active')
-                .filter(x => x.labels.alertname)
-                .map(x => x.labels.alertname)
-                .sort()
-            );
+        activeRuleAlerts: function () {
+            return groupByLabel(this.activeAlerts, 'alertname');
         },
-        silenceLabelsService: function () {
-            return new Set(this.globalSilences
-                .filter(x => x.status.state == 'active')
-                .filter(x => x.labels.service)
-                .map(x => x.labels.service)
-                .sort()
-            );
+        activeServiceSilences: function () {
+            return groupByLabel(this.activeSilences, 'service');
         },
-        silenceLabelsProject: function () {
-            return new Set(this.globalSilences
-                .filter(x => x.status.state == 'active')
-                .filter(x => x.labels.project)
-                .map(x => x.labels.project)
-                .sort()
-            );
+        activeProjectSilences: function () {
+            return groupByLabel(this.activeSilences, 'project');
         },
-        filterActiveAlerts: function () {
-            return this.globalAlerts.filter(alert => alert.status.state == 'active');
+        activeAlerts: function () {
+            return this.globalAlerts.filter(alert => alert.status.state === 'active');
         },
-        filterActiveSilences: function () {
-            return this.globalSilences.filter(silence => silence.status.state != 'expired');
+        activeSilences: function () {
+            return this.globalSilences.filter(silence => silence.status.state !== 'expired');
         }
     },
     mounted: function () {
         this.fetchAlerts();
         this.fetchSilences();
     },
-    filters: {
-        urlize: function (value) {
-            return linkifyStr(value);
+});
+
+app.config.compilerOptions.whitespace = "preserve";
+
+app.component('silence-form', {
+    template: '#silence-form-template',
+    delimiters: ['[[', ']]'],
+    data: () => ({
+        state: silenceStore.state,
+        form: {}
+    }),
+    methods: {
+        removeLabel(label) {
+            delete this.state.labels[label];
         },
-        time: function (value, fmtstr = 'YYYY-MM-DD HH:mm:ss') {
-            return moment(value).format(fmtstr);
-        }
+        submit() {
+            const body = JSON.stringify({
+                labels: this.state.labels,
+                ...this.form
+            });
+
+            fetch('/proxy/v1/silences', { method: 'POST', body })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(result => {
+                    if (result) {
+                        globalStore.setMessages(result.messages);
+                    }
+                });
+        },
     }
-})
+});
 
-
-Vue.component('promql-query', {
-    props: ['href', 'query'],
+app.component("promql-query", {
+    delimiters: ['[[', ']]'],
+    props: ["href", "query", "max"],
     data: function () {
         return {
-            count: 0
-        }
+            count: 0,
+        };
     },
-    template: '<span style="display:none"><slot></slot>{{count}}</span>',
+    mixins: [mixins],
+    computed: {
+        load: function () {
+            return this.count / Number.parseInt(this.max);
+        },
+        classes: function () {
+            if (this.load > 0.9) return "label label-danger";
+            if (this.load > 0.7) return "label label-warning";
+            if (this.load > 0.5) return "label label-info";
+            if (this.count == 0) return "label label-default";
+            return "label label-success";
+        },
+    },
+    template: '#promql-query-template',
     mounted() {
         var this_ = this;
-        var url = new URL(this.href)
-        url.search = new URLSearchParams({ query: this.query })
+        var url = new URL(this.href);
+        url.search = new URLSearchParams({ query: this.query });
         fetch(url)
             .then(response => response.json())
+            .then(result => Number.parseInt(result.data.result[0].value[1]))
             .then(result => {
-                this_.count = Number.parseInt(result.data.result[0].value[1]).toLocaleString();
-                this_.$el.classList.add('label-info')
+                this_.count = result;
                 this_.$el.style.display = "inline";
             })
             .catch(error => {
-                this_.$el.classList.add('label-warning')
                 this_.$el.style.display = "inline";
-            })
-    }
-})
+            });
+    },
+});
 
-Vue.component('bootstrap-panel', {
+app.component('bootstrap-panel', {
+    delimiters: ['[[', ']]'],
     props: ['heading'],
-    template: '<div class="panel"><div class="panel-heading">{{heading}}</div><div class="panel-body"><slot /></div></div>'
-})
+    template: '#bootstrap-panel-template',
+});
 
-const ExporterResult = Vue.component('exporter-result', {
+app.component('exporter-result', {
+    delimiters: ['[[', ']]'],
     props: ['results'],
-    template: '<bootstrap-panel class="panel-info" heading="Results"><table class="table"><tr v-for="(val, key, index) in results"><td>{{key}}</td><td>{{val}}</td></tr></table></bootstrap-panel>'
-})
+    template: '#exporter-result-template',
+    data: () => ({
+        store: exporterTestResultStore,
+    }),
+    computed: {
+        show() {
+            return Object.keys(this.store.results).length > 0;
+        },
+    },
+});
 
-const ExporterTest = Vue.component('exporter-test', {
+app.component('exporter-test', {
     // Exporter Test button for Forms
     // Acts like a regular form submit button, but hijacks the button
     // click and submits it to an alternate URL for testing
-    props: ['href', 'target'],
-    template: '<button @click.prevent="onTestSubmit"><slot /></button>',
+    delimiters: ['[[', ']]'],
+    props: ['href'],
+    template: '#exporter-test-template',
     methods: {
         onTestSubmit: function (event) {
             // Find the parent form our button belongs to so that we can
             // simulate a form submission
             let form = new FormData(event.srcElement.closest('form'))
-            let tgt = document.querySelector(this.target);
             fetch(this.href, { body: form, method: "post", })
                 .then(result => result.json())
-                .then(result => {
-                    // If we have a valid result, then create a new
-                    // ExporterResult component that we can render
-                    var component = new ExporterResult().$mount(tgt);
-                    component.$el.id = tgt.id;
-                    component.$props.results = result;
-                })
+                .then(result => exporterTestResultStore.setResults(result))
                 .catch(error => alert(error))
         }
     }
-})
+});

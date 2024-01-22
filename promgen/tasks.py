@@ -7,10 +7,12 @@ from urllib.parse import urljoin
 
 from atomicwrites import atomic_write
 from celery import shared_task
+from requests.exceptions import RequestException
 
 from promgen import models, prometheus, util, notification
 
 logger = logging.getLogger(__name__)
+
 
 @shared_task
 def index_alert(alert_pk):
@@ -18,6 +20,7 @@ def index_alert(alert_pk):
     labels = alert.json.get("commonLabels")
     for name, value in labels.items():
         models.AlertLabel.objects.create(alert=alert, name=name, value=value)
+
 
 @shared_task
 def process_alert(alert_pk):
@@ -27,7 +30,7 @@ def process_alert(alert_pk):
     We load our Alert from the database and expand it to determine which labels are routable
 
     Next we loop through all senders configured and de-duplicate sender:target pairs before
-    queing the notification to actually be sent
+    queueing the notification to actually be sent
     """
     alert = models.Alert.objects.get(pk=alert_pk)
     routable, data = alert.expand()
@@ -64,37 +67,50 @@ def process_alert(alert_pk):
 
     for driver in senders:
         for target in senders[driver]:
-            send_alert.delay(driver, target, data, alert.pk)
+            send_notification.delay(driver, target, data, alert_pk=alert.pk)
 
 
 @shared_task
-def send_alert(sender, target, data, alert_pk=None):
+def send_alert(sender, target, data):
     """
     Send alert to specific target
 
-    alert_pk is used when quering our alert normally and is missing
+    alert_pk is used when querying our alert normally and is missing
     when we send a test message. In the case we send a test message
     we want to raise any exceptions so that the test function can
     handle it
     """
     logger.debug("Sending %s %s", sender, target)
+
     try:
         notifier = notification.load(sender)
         notifier._send(target, data)
     except ImportError:
         logging.exception("Error loading plugin %s", sender)
-        if alert_pk is None:
-            raise
+        raise
+    except RequestException:
+        logging.exception("Error sending notification %s", sender)
+        raise
+    except Exception:
+        logging.exception("Unknown Error")
+        raise
+
+
+@shared_task
+def send_notification(*args, alert_pk, **kwargs):
+    """
+    Send notification to target
+
+    This wraps send_alert, but wraps it so that we can keep track
+    of the number of sent and error counts
+    """
+    try:
+        send_alert(*args, **kwargs)
     except Exception as e:
-        logging.exception("Error sending notification")
-        if alert_pk:
-            util.inc_for_pk(models.Alert, pk=alert_pk, error_count=1)
-            models.AlertError.objects.create(alert_id=alert_pk, message=str(e))
-        else:
-            raise
+        util.inc_for_pk(models.Alert, pk=alert_pk, error_count=1)
+        models.AlertError.objects.create(alert_id=alert_pk, message=str(e))
     else:
-        if alert_pk:
-            util.inc_for_pk(models.Alert, pk=alert_pk, sent_count=1)
+        util.inc_for_pk(models.Alert, pk=alert_pk, sent_count=1)
 
 
 @shared_task
@@ -103,7 +119,15 @@ def reload_prometheus():
 
     target = urljoin(util.setting("prometheus:url"), "/-/reload")
     response = util.post(target)
+    response.raise_for_status()
     signals.post_reload.send(response)
+
+
+@shared_task
+def clear_tombstones():
+    target = urljoin(util.setting("prometheus:url"), "/api/v1/admin/tsdb/clean_tombstones")
+    response = util.post(target)
+    response.raise_for_status()
 
 
 @shared_task

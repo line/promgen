@@ -1,19 +1,18 @@
-<div class="panel panel-warning collapse" id="globalSilences">
+<div v-cloak v-if="components['global-silences']" class="panel panel-warning">
     <div class="panel-heading">
         Silences
-        <a @click.prevent="toggleTarget('globalSilences')" class="close" role="button" href="#">
-            &times;
-        </a>
+        <a @click="toggleComponent('global-silences')" class="close" role="button">&times;</a>
     </div>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-bordered table-condensed table-responsive">
         <tr>
+            <th>Starts</th>
             <th>Ends</th>
             <th>Matchers</th>
             <th>Comment</th>
-            <th>CreatedBy</th>
+            <th>Created by</th>
             <th>&nbsp;</th>
         </tr>
-        <tr v-for="(silence, index) in filterActiveSilences">
+        <tr v-for="silence in activeSilences">
             {% include 'promgen/silence_row.html' %}
         </tr>
     </table>

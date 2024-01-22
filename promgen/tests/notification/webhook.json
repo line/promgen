@@ -1,0 +1,57 @@
+{
+  "alerts": [
+    {
+      "annotations": {
+        "grafana": "http://grafana.example.com/dashboard/db/overview?var-service=test-service&var-project=test-project",
+        "summary": "Error on a.example"
+      },
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.example",
+      "labels": {
+        "alertname": "test-alert",
+        "instance": "a.example",
+        "project": "test-project",
+        "service": "test-service",
+        "severity": "major"
+      },
+      "startsAt": "2017-10-06T16:21:28.214665326+09:00",
+      "fingerprint": "77219b85044057b4",
+      "status": "firing"
+    },
+    {
+      "annotations": {
+        "grafana": "http://grafana.example.com/dashboard/db/overview?var-service=test-service&var-project=test-project",
+        "summary": "Error on b.example"
+      },
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://prometheus.example",
+      "labels": {
+        "alertname": "test-alert",
+        "instance": "b.example",
+        "project": "test-project",
+        "service": "test-service",
+        "severity": "major"
+      },
+      "startsAt": "2017-10-06T16:21:28.214665326+09:00",
+      "fingerprint": "77219b85044057b3",
+      "status": "firing"
+    }
+  ],
+  "commonAnnotations": {
+    "grafana": "http://grafana.example.com/dashboard/db/overview?var-service=test-service&var-project=test-project",
+    "project": "http://promgen.example.com/project/1",
+    "service": "http://promgen.example.com/service/1"
+  },
+  "commonLabels": {
+    "alertname": "test-alert",
+    "project": "test-project",
+    "service": "test-service",
+    "severity": "major"
+  },
+  "externalURL": "http://promgen.example.com/alert/15",
+  "groupKey": "{}:{project=\"test-project\", service=\"test-service\"}",
+  "groupLabels": { "project": "test-project", "service": "test-service" },
+  "receiver": "default",
+  "status": "firing",
+  "version": "4"
+}

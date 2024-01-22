@@ -1,9 +1,11 @@
 # Copyright (c) 2020 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-from django.core.management.base import BaseCommand
-from promgen import models, tasks
 import time
+
+from django.core.management.base import BaseCommand
+
+from promgen import models, tasks
 
 
 class Command(BaseCommand):
@@ -19,7 +21,7 @@ class Command(BaseCommand):
         for alert in models.Alert.objects.filter(alertlabel__isnull=True):
             if dryrun:
                 labels = alert.json.get("commonLabels")
-                self.stderr.write("alert_id: %s, labels: %s" % (alert.pk, labels))
+                self.stderr.write(f"alert_id: {alert.pk}, labels: {labels}")
                 continue
 
             tasks.index_alert.delay(alert.pk)

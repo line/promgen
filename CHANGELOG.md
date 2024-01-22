@@ -1,5 +1,126 @@
 # Changelog
 
+# V0.59.0 - 2023-12-11
+
+- [IMPROVEMENT] notification/webhook: Add alias field #462
+- [DOCUMENTATION] Fix Promgen init documentation #459
+- [DOCUMENTATION] Update terms in documentation #448
+- [IMPROVEMENT] Migrate to Vue 3 #442
+- [INTERNAL] Convert Vue filters into methods #441
+- [INTERNAL] Reorganize Vue templates #440
+- [INTERNAL] Remove envdir #439
+- [BUGFIX] Fix check for invalid annotation name #437
+- [BUGFIX] Fix instance of Rule.add_label #436
+- [BUGFIX] Fix for rule prefetch on /search #435
+
+# v0.58.0 - 2023-08-07
+
+This release is primarily focused on upgrading Python version and assorted package versions.
+
+- [BUGFIX] Fix testing site rules with expected_labels #425
+- [BUGFIX] Stricter checks about silencing global rules #433
+- [IMPROVEMENT] Add debug warning to top of page #426
+- [IMPROVEMENT] Additional alert filters #432
+- [INTERNAL] Convert Rule label/annotation storage to JsonField #427
+- [INTERNAL] Update requirements #431
+- [INTERNAL] Upgrade to Python3.9 #429
+- [INTERNAL] Use ruff for formatting #434
+
+# v0.57.0 - 2023-06-12
+
+- [BUGFIX] Fix DatasourceList view #405
+- [IMPROVEMENT] Improve notifiers description #417
+- [IMPROVEMENT] Rule Test should check for unrelated labels #424
+- [IMPROVEMENT] Show rule description in rule page #403
+- [INTERNAL] Migrate more tests to use fixtures #418
+- [INTERNAL] Update docker-compose demo environment #402
+- [INTERNAL] Upgrade to use pip-compile #406
+- [INTERNAL] Use Black to format #416
+
+# v0.56.0 - 2022-07-29
+
+- [BUGFIX] Fix handling of kwargs in skip_raw decorator #396
+- [BUGFIX] Fix missing `load i18n` tag #395
+- [IMPROVEMENT] Improve styling in new rule form #394
+- [IMPROVEMENT] More descriptive home page when no subscribed services #399
+- [INTERNAL] Regroup and improve web test cases #398
+- [INTERNAL] Run pyupgrade on code in prep for more lint cleanup #397
+
+# v0.55 - 2022-05-31
+
+- [BUGFIX] Fix for duplicate user subscribe #389
+- [BUGFIX] Fix missing closing div tag which triggered VueJS error #385
+- [BUGFIX] Hostname validator based off URLValidator #383
+- [BUGFIX] Update validator to allow hostname only entries #386
+- [CHANGE] Enable copied rules by default #391
+- [IMPROVEMENT] Add support for SENTRY_SEND_DEFAULT_PII flag #393
+- [IMPROVEMENT] Package updates #392
+- [IMPROVEMENT] Support help_menu.inc.html override #388
+- [IMPROVEMENT] Unify text on register buttons #390
+- [INTERNAL] Update tests to use common test fixtures for better consistency #384
+
+# v0.54 - 2022-01-24
+
+- [BUGFIX] envdir import fix #379
+- [BUGFIX] Missing CSRF token on API page #374
+- [BUGFIX] Use RegexValidator for validating hostnames #380
+- [CLEANUP] Remove unused JS dependencies #378
+- [IMPROVEMENT] Improve list rendering in Vue #373
+- [IMPROVEMENT] Improve performance of rendering alerts and silences #372
+- [IMPROVEMENT] Move silence form to a separate component #377
+- [IMPROVEMENT] Replace Moment with Luxon #375
+
+# v0.53 - 2021-11-10
+
+- [BUGFIX] Fix rest_framework/js reference #365
+- [CHANGE] Stricter scrape test to better match Prometheus #366
+- [IMPROVEMENT] Make RuleDetail page a bit more readable #368
+- [IMPROVEMENT] Use v-model.lazy to reduce input lag #370
+- [INTERNAL] Django version update #371
+- [INTERNAL] Fix quotes to avoid confusing the html linter #369
+
+# v0.52 - 2021-08-23
+
+- [CHANGES] Notification handling improvements #348
+- [CHANGES] Use ManifestStaticFilesStorage for cache busting #356
+- [DOCUMENTATION] add databse migration command in README.md #358
+- [IMPROVEMENT] Change history dropdown #364
+- [IMPROVEMENT] Fix Codespell errors #362
+- [IMPROVEMENT] Show datasource load with colors #359
+- [IMPROVEMENT] Update scrape to mimic Prometheus headers #357
+
+# v0.51 - 2021-05-21
+
+- [BUGFIX] Ensure that our splay query cannot fail on DoesNotExist #340
+- [BUGFIX] User notifier should only return enabled senders #345
+- [CHANGE] Remove ikasan notifier #331
+- [CHANGE] Stubs for including extra help information #333
+- [CHANGE] Rename "Shard" to "Datasource" #309
+- [DOCUMENTATION] Use Github pages for canonical documentation #332
+- [IMPROVEMENT] Allow custom proxy for Slack notifier #336
+- [INTERNAL] Upgrade to Django 3.2 #338
+
+# v0.50 - 2021-03-03
+
+- [IMPROVEMENT] Improved Alert detail view #313
+- [BUGFIX] Move checks that require database, to post_migrate #314
+
+# v0.49 - 2021-02-02
+
+- [BUGFIX] Fix some timezone display bugs for alerts page and silence menus #306
+- [BUGFIX] Fix typo in 'No results' message #292
+- [BUGFIX] Split bootstrap checks to avoid check errors #303
+- [DOCUMENTATION] Add note about reporting vulnerability #298
+- [DOCUMENTATION] Update install docs to mention Makefile #299
+- [IMPROVEMENT] Link back to Promgen in processed alert #307
+
+# v0.48 - 2020-07-21
+
+- [BUGFIX] Fix checks that rely on database connection #280
+- [BUGFIX] Fix overflow formatting for notifiers #290
+- [BUGFIX] Use alternate Vue delimiters to fix double rendering bugs #288
+- [INTERNAL] Bump django from 2.2.10 to 2.2.13 #284
+
 # v0.47 - 2020-05-14
 
 - [BUGFIX] Fix our check warning messages #277
@@ -212,7 +333,7 @@ This first version implements permissions primarily for common, shared rules to 
 ## v0.26 - 2018-03-12
 
 - [BUGFIX] Allow STATIC_ROOT to be configured via Environment
-- [BUGFIX] Fix bytes/string mismatch with outputing rules
+- [BUGFIX] Fix bytes/string mismatch with outputting rules
 - [BUGFIX] Fix error message when registering a duplicate Service
 - [BUGFIX] Fix missing list of exporters on host detail page
 - [BUGFIX] Fix typo in view names
@@ -273,7 +394,7 @@ prometheus:
 ## v0.22
 
 - [IMPROVEMENT] Add test button to test exporters from Promgen
-- [IMPROVEMENT] Further simplify notifications by dedeuplicating labels/annotations
+- [IMPROVEMENT] Further simplify notifications by deduplicating labels/annotations
 - [BUGFIX] Ensure we properly raise Exceptions if a sender fails
 - [IMPROVEMENT] Urlize comments in Silence list (for linking to bug tracker)
 - [IMPROVEMENT] Add description field to rules so developers can add additional context

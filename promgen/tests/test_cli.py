@@ -11,46 +11,41 @@ from promgen.tests import PromgenTest
 
 
 class CLITests(PromgenTest):
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    fixtures = ["testcases.yaml", "extras.yaml"]
+
+    @mock.patch("promgen.signals._trigger_write_config")
     def test_register_job(self, mock_signal):
         # Assert when project doesn't exist
         with self.assertRaises(CommandError):
             management.call_command("register-job", "missing-project", "example", 1234)
 
-        # Create a Service and Project and then try adding our job
-        shard = models.Shard.objects.create(name="TestShard")
-        service = models.Service.objects.create(name="TestService")
-        _ = models.Project.objects.create(name="TestProject", service=service, shard=shard)
-        management.call_command("register-job", "TestProject", "example", 1234)
+        management.call_command("register-job", "test-project", "example", 1234)
 
         # Ensure the jobs we expect exist
         self.assertCount(models.Exporter, 1)
 
         # Registering the same job again shouldn't change our count
-        management.call_command("register-job", "TestProject", "example", 1234)
+        management.call_command("register-job", "test-project", "example", 1234)
         self.assertCount(models.Exporter, 1)
 
         # But registering a new one will
-        management.call_command("register-job", "TestProject", "example", 4321)
+        management.call_command("register-job", "test-project", "example", 4321)
         self.assertCount(models.Exporter, 2)
 
-    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    @mock.patch("promgen.signals._trigger_write_config")
     def test_register_host(self, mock_signal):
         # Assert when project doesn't exist
         with self.assertRaises(CommandError):
-            management.call_command("register-host", "missing-project", "example.com")
+            management.call_command("register-host", "missing-project", "cli.example.com")
 
-        # Create a Service and Project and then try adding our job
-        shard = models.Shard.objects.create(name="TestShard")
-        service = models.Service.objects.create(name="TestService")
-        project = models.Project.objects.create(name="TestProject", service=service, shard=shard)
+        project = models.Project.objects.create(name="cli-project", service_id=1, shard_id=1)
 
         # Still assert an error if there is no Farm
         with self.assertRaises(CommandError):
-            management.call_command("register-host", "TestProject", "example.com")
+            management.call_command("register-host", "cli-project", "cli.example.com")
 
         # Register farm and finally register host
-        project.farm = models.Farm.objects.create(name="TestFarm")
+        project.farm = models.Farm.objects.create(name="cli-farm")
         project.save()
-        management.call_command("register-host", "TestProject", "example.com")
-        self.assertCount(models.Host, 1, "Should be a single host registered")
+        management.call_command("register-host", "cli-project", "cli.example.com")
+        self.assertCount(models.Host, 2, "Should be a new host registered (1 host from fixture)")

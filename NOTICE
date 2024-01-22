@@ -20,12 +20,11 @@ contributors:
   * License: licenses/LICENSE.jquery.mit.txt (MIT License)
   * Homepage: https://jquery.org/
 
-
-This product contains Moment.js, distributed by JS Foundation and other
+This product contains Luxon, distributed by JS Foundation and other
 contributors:
 
-  * License: licenses/LICENSE.moment.mit.txt (MIT License)
-  * Homepage: http://momentjs.com/
+  * License: licenses/LICENSE.luxon.mit.txt (MIT License)
+  * Homepage: https://moment.github.io/luxon/
 
 This product contains Vue.js, distributed by Yuxi (Evan) You and other
 contributors:

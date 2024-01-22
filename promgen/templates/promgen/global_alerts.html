@@ -1,11 +1,11 @@
-<div class="panel panel-danger collapse" id="globalAlerts">
+<div v-cloak v-if="components['global-alerts']" class="panel panel-danger">
     <div class="panel-heading">
         Alerts
-        <a @click.prevent="toggleTarget('globalAlerts')" class="close" role="button">&times;</a>
+        <a @click="toggleComponent('global-alerts')" class="close" role="button">&times;</a>
     </div>
 
     <table class="table table-bordered table-condensed">
-        <tr v-for="(alert, index) in filterActiveAlerts">
+        <tr v-for="alert in activeAlerts">
             {% include 'promgen/alert_row.html' %}
         </tr>
     </table>

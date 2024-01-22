@@ -5,15 +5,15 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Shards</h1>
+  <h1>Datasource</h1>
 </div>
 
-{% breadcrumb label="Shards" %}
+{% breadcrumb label="Datasource" %}
 
 <div class="service-grid">
-  {% for shard in shard_list|dictsortreversed:"project_set.count" %}
+  {% for shard in shard_list|dictsortreversed:"num_projects" %}
   <div>
-    <h2><a href="{% url 'shard-detail' shard.id %}">{{ shard.name }}</a></h2>
+    <h2><a href="{% url 'datasource-detail' shard.id %}">{{ shard.name }}</a></h2>
     <a href="{{shard.url}}">{{shard.url}}</a>
     <hr>
 

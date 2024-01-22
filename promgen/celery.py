@@ -1,7 +1,6 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-from __future__ import absolute_import, unicode_literals
 
 import logging
 import socket
@@ -28,7 +27,7 @@ app.autodiscover_tasks()
 
 @app.task(bind=True)
 def debug_task(self):
-    print("Request: {0!r}".format(self.request))
+    print(f"Request: {self.request!r}")
 
 
 @celeryd_after_setup.connect

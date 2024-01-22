@@ -1,31 +1,34 @@
 # Reference for exteranl_links and bridge containers
 # https://blog.virtualzone.de/2016/09/docker-compose-link-containers-outside-compose-file-using-external_links.html
 
-version: '2'
-services:
-  base:
-    build: .
-    image: promgen
-    command: docker-compose-bootstrap
-    environment:
-      CELERY_BROKER_URL: redis://redis:6379/0
-      DATABASE_URL: mysql://promgen:promgen@mysql:3306/promgen
-      SECRET_KEY: asdf
+x-promgen-env: &x-promgen-env
+  CELERY_BROKER_URL: redis://redis:6379/0
+  DATABASE_URL: mysql://promgen:promgen@mysql:3306/promgen
+  SECRET_KEY: docker-compose-demo
+  DEBUG: 1
 
+version: "2"
+services:
   web:
-    extends: base
+    build: .
+    image: line/promgen
     command: web -b 0.0.0.0:8000
+    environment:
+      <<: *x-promgen-env
     ports:
       - "8080:8000"
     links:
       - mysql
       - redis
-    environment:
-      DEBUG: 1
 
   worker:
-    extends: base
-    command: worker -l info --queues localhost,celery
+    image: line/promgen
+    # For our demo, we'll have the worker listen both on the
+    # default celery queue (for notification processing) and
+    # on the prometheus queue (for deploying targets/etc)
+    command: worker -l debug --queues prometheus,celery
+    environment:
+      <<: *x-promgen-env
     links:
       - prometheus
       - mysql
@@ -40,6 +43,15 @@ services:
       - blackbox
     ports:
       - "9090:9090"
+    # We need to repeat some of the default options and also add lifecycle
+    # so that we can call to reload Prometheus
+    command: >
+      --config.file=/etc/prometheus/prometheus.yml
+      --log.level=info
+      --storage.tsdb.path=/prometheus
+      --web.console.libraries=/usr/share/prometheus/console_libraries
+      --web.console.templates=/usr/share/prometheus/consoles
+      --web.enable-lifecycle
     volumes:
       - ./docker:/etc/prometheus
       - ./docker/prom_data:/prometheus
@@ -52,16 +64,19 @@ services:
 
   alertmanager:
     image: prom/alertmanager
-    command: --config.file=/etc/prometheus/alertmanager.yml
     links:
       - web
     ports:
       - "9093:9093"
+    command: >
+      --config.file=/etc/alertmanager/alertmanager.yml
+      --log.level=info
     volumes:
       - ./docker:/etc/prometheus
 
   mysql:
-    image: mysql:5.7
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: example
       MYSQL_DATABASE: promgen

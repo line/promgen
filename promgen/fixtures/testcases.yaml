@@ -1,0 +1,59 @@
+- model: sites.site
+  pk: 1
+  fields:
+    domain: promgen.example.com
+    name: CI Test
+- model: auth.user
+  pk: 1
+  fields:
+    username: admin
+    password: admin
+    email: admin@example.com
+    is_superuser: true
+    is_staff: true
+    is_active: true
+- model: auth.user
+  pk: 2
+  fields:
+    username: demo
+    password: demo
+    email: demo@example.com
+    is_active: true
+- model: promgen.shard
+  pk: 1
+  fields:
+    name: test-shard
+    url: http://prometheus.example.com
+    proxy: true
+    enabled: true
+- model: promgen.service
+  pk: 1
+  fields:
+    name: test-service
+    owner: 1
+- model: promgen.service
+  pk: 2
+  fields:
+    name: other-service
+    owner: 1
+- model: promgen.farm
+  pk: 1
+  fields:
+    name: test-farm
+    source: promgen
+- model: promgen.project
+  pk: 1
+  fields:
+    name: test-project
+    owner: 1
+    service: 1
+    shard: 1
+    farm: 1
+- model: promgen.project
+  pk: 2
+  fields:
+    name: another-project
+    owner: 1
+    service: 1
+    shard: 1
+    farm: 1
