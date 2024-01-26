@@ -1,6 +1,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import logging
+from http import HTTPStatus
 
 from django import forms
 
@@ -55,4 +56,13 @@ class NotificationSlack(NotificationBase):
             "text": message,
         }
 
-        util.post(url, json=json, **kwargs).raise_for_status()
+        util.post_with_retry(
+            url,
+            json=json,
+            retry_codes=(
+                HTTPStatus.GATEWAY_TIMEOUT,
+                HTTPStatus.TOO_MANY_REQUESTS,
+                HTTPStatus.SERVICE_UNAVAILABLE,
+            ),
+            **kwargs,
+        ).raise_for_status()
