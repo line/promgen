@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import logging
+from http import HTTPStatus
 
 from django import forms
 
@@ -45,4 +46,13 @@ class NotificationLineNotify(NotificationBase):
 
         headers = {"Authorization": "Bearer %s" % token}
 
-        util.post(url, data=params, headers=headers).raise_for_status()
+        util.post_with_retry(
+            url,
+            data=params,
+            headers=headers,
+            retry_codes=(
+                HTTPStatus.GATEWAY_TIMEOUT,
+                HTTPStatus.TOO_MANY_REQUESTS,
+                HTTPStatus.SERVICE_UNAVAILABLE,
+            ),
+        ).raise_for_status()
