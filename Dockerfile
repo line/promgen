@@ -41,8 +41,7 @@ RUN set -ex \
     && apk del build-deps
 
 COPY docker/docker-entrypoint.sh /
-COPY setup.py /usr/src/app/setup.py
-COPY setup.cfg /usr/src/app/setup.cfg
+COPY pyproject.toml /usr/src/app/pyproject.toml
 COPY promgen /usr/src/app/promgen
 COPY promgen/tests/examples/promgen.yml /etc/promgen/promgen.yml
 

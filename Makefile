@@ -59,8 +59,8 @@ list: $(PIP_BIN)
 $(PIP_COMPILE): $(PIP_BIN)
 	$(PIP_BIN) install pip-tools
 
-docker/requirements.txt: $(PIP_COMPILE) setup.py setup.cfg docker/requirements.in
-	$(PIP_COMPILE) --output-file docker/requirements.txt setup.py docker/requirements.in --no-emit-index-url
+docker/requirements.txt: $(PIP_COMPILE) pyproject.toml docker/requirements.in
+	$(PIP_COMPILE) --output-file docker/requirements.txt pyproject.toml docker/requirements.in --no-emit-index-url
 
 .PHONY: pip
 ## Reinstall with pip
