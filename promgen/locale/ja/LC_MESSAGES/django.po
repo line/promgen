@@ -25,6 +25,10 @@ msgstr "Expire"
 msgid "Test"
 msgstr "テスト"
 
+#: templates/promgen/sender_row.html:45
+msgid "Testing"
+msgstr "テスト中"
+
 #: templates/promgen/notifier_block.html:19
 msgid "Delete notification?"
 msgstr "Notificiationを削除しますか？"

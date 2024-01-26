@@ -40,7 +40,12 @@
         <form method="post" action="{% url 'notifier-test' notifier.id %}" style="display: inline">
             {% csrf_token %}
             <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-            <button class="btn btn-info btn-xs">{% trans "Test" %}</button>
+            <button
+                class="btn btn-info btn-xs"
+                onclick="this.disabled=true; this.innerHTML='{% trans "Testing" %}...';"
+            >
+                {% trans "Test" %}
+            </button>
         </form>
         <form method="post" action="{% url 'notifier-delete' notifier.id %}" onsubmit="return confirm('{% trans "Delete notification?" %}')" style="display: inline">
             {% csrf_token %}
