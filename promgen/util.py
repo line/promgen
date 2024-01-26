@@ -2,6 +2,8 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import argparse
+import time
+from http import HTTPStatus
 from urllib.parse import urlsplit
 
 import requests
@@ -25,6 +27,33 @@ def post(url, data=None, json=None, **kwargs):
     headers = kwargs.setdefault("headers", {})
     headers["User-Agent"] = USER_AGENT
     return requests.post(url, data=data, json=json, **kwargs)
+
+
+def post_with_retry(
+    url,
+    data=None,
+    json=None,
+    retries: int = 3,
+    retry_codes: tuple = (HTTPStatus.TOO_MANY_REQUESTS,),
+    wait_secs: int = 3,
+    **kwargs
+):
+    """POST request with retry capability.
+
+    Thin wrapper for our util::post function that implements a retry mechanism for certain status
+    codes.
+
+    :param retries: Number of retries
+    :param retry_codes: Response status codes that will cause a retry
+    :param wait_secs: Number of seconds to wait between each retry
+    """
+    for n in range(retries):
+        resp = post(url, data=data, json=json, **kwargs)
+
+        if (resp.status_code in retry_codes) and (n < retries - 1):
+            time.sleep(wait_secs)
+        else:
+            return resp
 
 
 def get(url, params=None, **kwargs):
