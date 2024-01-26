@@ -1,5 +1,12 @@
 # Changelog
 
+# V0.60.0 - 2024-01-26
+
+- [IMPROVEMENT] Add notifiers to audit logs #473
+- [IMPROVEMENT] Audit logs: Show projects for services #472
+- [BUGFIX] Fix silence form's delete label #468
+- [BUGFIX] Rule: Check content_object before accessing it #470
+
 # V0.59.0 - 2023-12-11
 
 - [IMPROVEMENT] notification/webhook: Add alias field #462
