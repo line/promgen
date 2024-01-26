@@ -8,6 +8,7 @@ configured webhook destinations
 """
 
 import logging
+from http import HTTPStatus
 
 from django import forms
 
@@ -36,4 +37,12 @@ class NotificationWebhook(NotificationBase):
     form = FormWebhook
 
     def _send(self, url, data):
-        util.post(url, json=data).raise_for_status()
+        util.post_with_retry(
+            url,
+            json=data,
+            retry_codes=(
+                HTTPStatus.GATEWAY_TIMEOUT,
+                HTTPStatus.TOO_MANY_REQUESTS,
+                HTTPStatus.SERVICE_UNAVAILABLE,
+            ),
+        ).raise_for_status()
