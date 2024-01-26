@@ -572,7 +572,10 @@ class Audit(models.Model):
         if instance:
             kwargs["content_type"] = ContentType.objects.get_for_model(instance)
             kwargs["object_id"] = instance.id
-            kwargs["data"] = json.dumps(model_to_dict(instance), sort_keys=True)
+            data_dict = model_to_dict(instance)
+            if isinstance(instance, Sender) and data_dict["alias"]:
+                data_dict["value"] = "********"
+            kwargs["data"] = json.dumps(data_dict, sort_keys=True)
         if old:
             kwargs["old"] = json.dumps(model_to_dict(old), sort_keys=True)
 
