@@ -4,7 +4,7 @@
 
 from django.core.exceptions import ValidationError
 
-from promgen import models
+from promgen import models, validators
 from promgen.tests import PromgenTest
 
 
@@ -23,3 +23,14 @@ class ModelTest(PromgenTest):
             # Fail a name with \
             models.Service(name=r"foo/bar", owner=self.user).full_clean()
             models.Service(name=r"foo\bar", owner=self.user).full_clean()
+
+    def test_validators(self):
+        with self.assertRaises(ValidationError, msg="Javascript injection"):
+            validators.metricname(
+                "asdasd[[1-1]]')) || (this.$el.ownerDocument.defaultView.alert('1337",
+            )
+
+        with self.assertRaises(ValidationError, msg="Vue.js injection"):
+            validators.metricname(
+                "[[this.$el.ownerDocument.defaultView.alert(1337)]]",
+            )

@@ -19,14 +19,18 @@ duration = RegexValidator(
 # Label Value Definition
 # https://prometheus.io/docs/concepts/data_model/#metric-names-and-labels
 metricname = RegexValidator(
-    r"[a-zA-Z_:][a-zA-Z0-9_:]*", "Only alphanumeric characters are allowed."
+    r"^[a-zA-Z_:][a-zA-Z0-9_:]*$",
+    "Only alphanumeric characters are allowed.",
 )
-labelname = RegexValidator(r"[a-zA-Z_][a-zA-Z0-9_]*", "Only alphanumeric characters are allowed.")
+labelname = RegexValidator(
+    r"^[a-zA-Z_][a-zA-Z0-9_]*$",
+    "Only alphanumeric characters are allowed.",
+)
 
 # While Prometheus accepts label values of any unicode character, our values sometimes
 # make it into URLs, so we want to make sure we do not have stray / characters
 labelvalue = RegexValidator(
-    r"^[\w][- \w]+\Z", "Unicode letters, numbers, underscores, or hyphens or spaces"
+    r"^[\w][- \w]+$", "Unicode letters, numbers, underscores, or hyphens or spaces"
 )
 
 hostname = RegexValidator(
