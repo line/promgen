@@ -1,3 +1,66 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "promgen"
+version = "0.61.0.dev"
+authors = [{ name = "LINE Corporation", email = "dl_oss_dev@linecorp.com" }]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Internet :: WWW/HTTP",
+]
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.9"
+dependencies = [
+    "Django~=3.2",
+    "atomicwrites",
+    "celery==4.3.0",
+    "django-environ",
+    "django-filter",
+    "djangorestframework",
+    "kombu",
+    "prometheus-client",
+    "python-dateutil",
+    "pyyaml",
+    "requests",
+    "social-auth-app-django>=2.0.0",
+]
+
+[tool.setuptools.packages]
+find = {}
+
+[project.urls]
+Source = "https://github.com/line/promgen"
+Tracker = "https://github.com/line/promgen/issues"
+Documentation = "https://line.github.io/promgen/"
+
+[project.optional-dependencies]
+dev = ["black", "codecov", "flake8", "unittest-xml-reporting"]
+docs = ["Sphinx", "sphinxcontrib-httpdomain"]
+mysql = ["mysqlclient"]
+
+[project.scripts]
+promgen = "promgen.manage:main"
+
+[project.entry-points]
+[project.entry-points."promgen.discovery"]
+promgen = "promgen.discovery.default:DiscoveryPromgen"
+
+[project.entry-points."promgen.notification"]
+email = "promgen.notification.email:NotificationEmail"
+linenotify = "promgen.notification.linenotify:NotificationLineNotify"
+slack = "promgen.notification.slack:NotificationSlack"
+user = "promgen.notification.user:NotificationUser"
+webhook = "promgen.notification.webhook:NotificationWebhook"
+
 [tool.black]
 line-length = 100
 target-version = ['py39']

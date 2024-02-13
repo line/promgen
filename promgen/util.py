@@ -9,13 +9,12 @@ import requests
 from django.conf import settings
 from django.db.models import F
 
-from promgen.version import __version__
 
 # Wrappers around request api to ensure we always attach our user agent
 # https://github.com/requests/requests/blob/master/requests/api.py
 
 
-USER_AGENT = f"promgen/{__version__}"
+USER_AGENT = f"promgen/{settings.PROMGEN_VERSION}"
 ACCEPT_HEADER = (
     "application/openmetrics-text; version=0.0.1,text/plain;version=0.0.4;q=0.5,*/*;q=0.1"
 )

@@ -24,7 +24,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:5.7
+        image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: password
         ports:
@@ -42,7 +42,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: |
-            setup.cfg
+            pyproject.toml
             docker/requirements.txt
 
       - name: Fetch Promtool

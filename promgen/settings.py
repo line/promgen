@@ -13,6 +13,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+import importlib.metadata
 import os
 import pathlib
 
@@ -23,11 +24,11 @@ from django.urls import reverse_lazy
 
 from promgen import PROMGEN_CONFIG_FILE
 from promgen.plugins import apps_from_setuptools
-from promgen.version import __version__
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = pathlib.Path(__file__).parent.parent
 DOT_ENV = BASE_DIR / ".env"
+PROMGEN_VERSION = importlib.metadata.version("promgen")
 
 # Load our environment
 env = environ.Env()
@@ -177,7 +178,7 @@ if "SENTRY_DSN" in os.environ:
     from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.celery import CeleryIntegration
 
-    os.environ.setdefault("SENTRY_RELEASE", __version__)
+    os.environ.setdefault("SENTRY_RELEASE", PROMGEN_VERSION)
     # By default we want to keep sentry's default of NOT sending user
     # information, but in some environments, it's useful for debugging
     # purposes so lets add a flag here that we can use.

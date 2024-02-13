@@ -25,10 +25,10 @@ from promgen import (
     signals,
     tasks,
     util,
-    version,
 )
 from promgen.shortcuts import resolve_domain
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
@@ -1064,7 +1064,7 @@ class Metrics(View):
         v = GaugeMetricFamily(
             "promgen_build_info", "Promgen Information", labels=["version", "python"]
         )
-        v.add_metric([version.__version__, platform.python_version()], 1)
+        v.add_metric([settings.PROMGEN_VERSION, platform.python_version()], 1)
         yield v
 
         try:
