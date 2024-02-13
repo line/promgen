@@ -26,13 +26,13 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==3.2.0
     # via requests
-cryptography==41.0.2
+cryptography==42.0.2
     # via social-auth-core
 defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.20
+django==3.2.24
     # via
     #   django-filter
     #   djangorestframework
@@ -96,7 +96,7 @@ sqlparse==0.4.4
     # via django
 typing-extensions==4.7.1
     # via asgiref
-urllib3==2.0.4
+urllib3==2.2.0
     # via
     #   requests
     #   sentry-sdk
