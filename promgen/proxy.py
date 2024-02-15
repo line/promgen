@@ -4,6 +4,7 @@
 import concurrent.futures
 import json
 import logging
+from http import HTTPStatus
 from urllib.parse import urljoin
 
 import requests
@@ -168,11 +169,11 @@ class ProxyQuery(PrometheusProxy):
 class ProxyAlerts(View):
     def get(self, request):
         try:
-            url = urljoin(util.setting("alertmanager:url"), "/api/v1/alerts")
+            url = urljoin(util.setting("alertmanager:url"), "/api/v2/alerts")
             response = util.get(url)
         except requests.exceptions.ConnectionError:
             logger.error("Error connecting to %s", url)
-            return JsonResponse({})
+            return JsonResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
             return HttpResponse(response.content, content_type="application/json")
 
@@ -180,11 +181,11 @@ class ProxyAlerts(View):
 class ProxySilences(View):
     def get(self, request):
         try:
-            url = urljoin(util.setting("alertmanager:url"), "/api/v1/silences")
+            url = urljoin(util.setting("alertmanager:url"), "/api/v2/silences")
             response = util.get(url, params={"silenced": False})
         except requests.exceptions.ConnectionError:
             logger.error("Error connecting to %s", url)
-            return JsonResponse({})
+            return JsonResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
             return HttpResponse(response.content, content_type="application/json")
 
@@ -203,15 +204,24 @@ class ProxySilences(View):
                         for m in form.errors[k]
                     ]
                 },
-                status=422,
+                status=HTTPStatus.UNPROCESSABLE_ENTITY,
             )
 
         try:
             response = prometheus.silence(**form.cleaned_data)
+        except requests.HTTPError as e:
+            return JsonResponse(
+                {
+                    "messages": [
+                        {"class": "alert alert-danger", "message": e.response.text}
+                    ]
+                },
+                status=e.response.status_code,
+            )
         except Exception as e:
             return JsonResponse(
                 {"messages": [{"class": "alert alert-danger", "message": str(e)}]},
-                status=400,
+                status=HTTPStatus.UNPROCESSABLE_ENTITY,
             )
 
         return HttpResponse(
@@ -221,7 +231,7 @@ class ProxySilences(View):
 
 class ProxyDeleteSilence(View):
     def delete(self, request, silence_id):
-        url = urljoin(util.setting("alertmanager:url"), "/api/v1/silence/%s" % silence_id)
+        url = urljoin(util.setting("alertmanager:url"), f"/api/v2/silence/{silence_id}")
         response = util.delete(url)
         return HttpResponse(
             response.text, status=response.status_code, content_type="application/json"

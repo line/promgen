@@ -3,8 +3,10 @@
     "matchers": [{
         "value": "example.com:[0-9]*",
         "isRegex": true,
+        "isEqual": true,
         "name": "instance"
     }],
     "comment": "Silenced from Promgen",
+    "startsAt": "2017-12-14T00:00:00+00:00",
     "endsAt": "2017-12-14T00:01:00+00:00"
 }

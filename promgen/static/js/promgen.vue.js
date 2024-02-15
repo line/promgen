@@ -86,7 +86,7 @@ const app = Vue.createApp({
             fetch('/proxy/v1/silences')
                 .then(response => response.json())
                 .then(response => {
-                    let silences = response.data.sort(silence => silence.startsAt);
+                    let silences = response.sort(silence => silence.startsAt);
 
                     // Pull out the matchers and do a simpler label map
                     // to make other code easier
@@ -104,7 +104,7 @@ const app = Vue.createApp({
             fetch('/proxy/v1/alerts')
                 .then(response => response.json())
                 .then(response => {
-                    this.globalAlerts = response.data.sort(alert => alert.startsAt);
+                    this.globalAlerts = response.sort(alert => alert.startsAt);
                 });
 
         },

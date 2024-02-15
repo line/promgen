@@ -41,8 +41,8 @@ class SilenceTest(tests.PromgenTest):
                 },
                 content_type="application/json",
             )
-        self.assertMockCalls(
-            mock_post, "http://alertmanager:9093/api/v1/silences", json=TEST_DURATION
+        mock_post.assert_called_with(
+            "http://alertmanager:9093/api/v2/silences", json=TEST_DURATION
         )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
@@ -62,7 +62,9 @@ class SilenceTest(tests.PromgenTest):
                 content_type="application/json",
             )
 
-        self.assertMockCalls(mock_post, "http://alertmanager:9093/api/v1/silences", json=TEST_RANGE)
+        mock_post.assert_called_with(
+            "http://alertmanager:9093/api/v2/silences", json=TEST_RANGE
+        )
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     def test_site_silence_errors(self):
