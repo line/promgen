@@ -31,6 +31,17 @@ function update_page(data) {
   }
 }
 
+// https://blog.bitsrc.io/debounce-understand-and-learn-how-to-use-this-essential-javascript-skill-9db0c9afbfc1
+function debounce(func, delay = 250) {
+  let timerId;
+  return (...args) => {
+    clearTimeout(timerId);
+    timerId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
+
 // Wait until DOM is loaded to add our extra listeners
 document.addEventListener("DOMContentLoaded", function () {
   /*
@@ -44,6 +55,27 @@ document.addEventListener("DOMContentLoaded", function () {
       const dstElement = document.querySelector(srcElement.dataset.copyto);
       dstElement.value = srcElement.innerText;
     });
+  });
+
+  /*
+  Filter Element
+
+  Example: <input data-filter="div.auto-grid div">
+  */
+  document.querySelectorAll("[data-filter]").forEach(srcElement => {
+    const filterTarget = document.querySelectorAll(srcElement.dataset.filter);
+
+    srcElement.addEventListener(
+      "input",
+      debounce(e => {
+        const search = srcElement.value.toUpperCase();
+        console.debug("Searching for", search);
+        for (const child of filterTarget) {
+          const txt = child.innerText.toUpperCase();
+          child.style.display = txt.indexOf(search) > -1 ? "block" : "none";
+        }
+      })
+    );
   });
 });
 
@@ -75,13 +107,5 @@ $(document).ready(function() {
       // use the third parameter to skip re-firing the change event
       $(this).bootstrapSwitch('state', !state, true);
     }
-  });
-
-  $('[data-filter]').change(function(){
-    var search = this.value.toUpperCase();
-    $(this.dataset.filter).each(function(i, ele){
-      var txt = $(this).text().toUpperCase();
-      ele.style.display = txt.indexOf(search) > -1 ? "" : "none"
-    })
   });
 });
