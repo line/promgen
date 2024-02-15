@@ -29,6 +29,7 @@ class Data:
 
 class PromgenTest(TestCase):
     longMessage = True
+    maxDiff = None
     fixtures = ["testcases.yaml"]
 
     def fireAlert(self, source="alertmanager.json", data=None):

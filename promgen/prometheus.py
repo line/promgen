@@ -276,20 +276,25 @@ def silence(*, labels, duration=None, **kwargs):
             end = start + datetime.timedelta(days=int(duration[:-1]))
         else:
             raise ValidationError("Unknown time modifier")
+        kwargs["startsAt"] = start.isoformat()
         kwargs["endsAt"] = end.isoformat()
-        kwargs.pop("startsAt", False)
     else:
         local_timezone = pytz.timezone(util.setting("timezone", "UTC"))
         for key in ["startsAt", "endsAt"]:
             kwargs[key] = local_timezone.localize(parser.parse(kwargs[key])).isoformat()
 
     kwargs["matchers"] = [
-        {"name": name, "value": value, "isRegex": True if value.endswith("*") else False}
+        {
+            "name": name,
+            "value": value,
+            "isEqual": True,  # Right now we only support =~
+            "isRegex": True if value.endswith("*") else False,
+        }
         for name, value in labels.items()
     ]
 
     logger.debug("Sending silence for %s", kwargs)
-    url = urljoin(util.setting("alertmanager:url"), "/api/v1/silences")
+    url = urljoin(util.setting("alertmanager:url"), "/api/v2/silences")
     response = util.post(url, json=kwargs)
     response.raise_for_status()
     return response
