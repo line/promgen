@@ -31,6 +31,22 @@ function update_page(data) {
   }
 }
 
+// Wait until DOM is loaded to add our extra listeners
+document.addEventListener("DOMContentLoaded", function () {
+  /*
+    Copy to shortcut
+
+    Example: <code data-copyto="#id_duration">30s</code>
+  */
+  document.querySelectorAll("[data-copyto]").forEach(srcElement => {
+    srcElement.style.cursor = "pointer";
+    srcElement.addEventListener("click", e => {
+      const dstElement = document.querySelector(srcElement.dataset.copyto);
+      dstElement.value = srcElement.innerText;
+    });
+  });
+});
+
 $(document).ready(function() {
   $('[data-toggle="popover"]').popover();
   $('[data-toggle="tooltip"]').tooltip();
@@ -43,11 +59,6 @@ $(document).ready(function() {
     btn.data('query', query);
     console.log("Testing Query: %s", query);
     $.post(btn.data('href'), btn.data()).done(update_page);
-  }).css('cursor', 'pointer');
-
-  $('[data-copyto]').click(function(){
-    var ele = $(this);
-    $(ele.data('copyto')).val(ele.text())
   }).css('cursor', 'pointer');
 
   $('[data-toggle="toggle"]').bootstrapSwitch();
