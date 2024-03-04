@@ -43,7 +43,7 @@ Tracker = "https://github.com/line/promgen/issues"
 Documentation = "https://line.github.io/promgen/"
 
 [project.optional-dependencies]
-dev = ["black", "codecov", "flake8", "unittest-xml-reporting"]
+dev = ["codecov", "flake8", "unittest-xml-reporting"]
 docs = ["Sphinx", "sphinxcontrib-httpdomain"]
 mysql = ["mysqlclient"]
 
@@ -61,25 +61,25 @@ slack = "promgen.notification.slack:NotificationSlack"
 user = "promgen.notification.user:NotificationUser"
 webhook = "promgen.notification.webhook:NotificationWebhook"
 
-[tool.black]
-line-length = 100
-target-version = ['py39']
-extend-exclude = '''
-(
-promgen/migrations
-|promgen/urls.py
-)
-'''
-
 [tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
 ignore = [
     'E741', # Ambiguous variable name
-    'E501', # Let black handle line-length
+    'E501', # We let the formatter fix line length but don't want to be warned
 ]
 
-[tool.ruff.isort]
+select = ["E", "F", 'I']
+
+[tool.ruff.format]
+exclude = [
+    "promgen/migrations/*",
+    "promgen/urls.py",
+]
+
+[tool.ruff.lint.isort]
 known-first-party = ["promgen"]
-forced-separate = ["django"]
 
 [tool.codespell]
 skip = '*.min.js,*.min.css,*.css.map,.venv,dist,.git'
