@@ -1,13 +1,21 @@
 # Changelog
 
-# V0.60.0 - 2024-01-26
+# v0.61.0 - 2024-03-04
+
+- [BUGFIX] Stricter validation for object names #476
+- [IMPROVEMENT] Rewrite copyto attribute in plain javascript #482
+- [IMPROVEMENT] Update to Alertmanager v2 API #481
+- [INTERNAL] Adopt pyproject.toml #479
+- [INTERNAL] Update various packages #480
+
+# v0.60.0 - 2024-01-26
 
 - [IMPROVEMENT] Add notifiers to audit logs #473
 - [IMPROVEMENT] Audit logs: Show projects for services #472
 - [BUGFIX] Fix silence form's delete label #468
 - [BUGFIX] Rule: Check content_object before accessing it #470
 
-# V0.59.0 - 2023-12-11
+# v0.59.0 - 2023-12-11
 
 - [IMPROVEMENT] notification/webhook: Add alias field #462
 - [DOCUMENTATION] Fix Promgen init documentation #459
