@@ -12,22 +12,6 @@ from itertools import chain
 
 import prometheus_client
 import requests
-from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
-
-import promgen.templatetags.promgen as macro
-from promgen import (
-    discovery,
-    forms,
-    mixins,
-    models,
-    plugins,
-    prometheus,
-    signals,
-    tasks,
-    util,
-)
-from promgen.shortcuts import resolve_domain
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -43,6 +27,21 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
+from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
+
+import promgen.templatetags.promgen as macro
+from promgen import (
+    discovery,
+    forms,
+    mixins,
+    models,
+    plugins,
+    prometheus,
+    signals,
+    tasks,
+    util,
+)
+from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 

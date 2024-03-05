@@ -6,3 +6,5 @@ a81731039c118543398c90869e608dde0acaf32c
 af2c352786f952d819e69b928bf6c99dcde5954b
 # Compile requirements to update comments
 5821434b42203b1080dcdc480d1ffcf07fe53a90
+# Format with Ruff
+e72aba6d7e5891ac777f533eef6f7520410c9e0b

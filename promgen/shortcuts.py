@@ -5,6 +5,7 @@ from urllib.parse import urlunsplit
 
 from django.conf import settings
 from django.shortcuts import resolve_url
+
 from promgen import models
 
 

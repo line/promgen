@@ -19,7 +19,6 @@ import pathlib
 
 import environ
 import yaml
-
 from django.urls import reverse_lazy
 
 from promgen import PROMGEN_CONFIG_FILE
@@ -175,8 +174,8 @@ SITE_ID = 1
 
 if "SENTRY_DSN" in os.environ:
     import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
     from sentry_sdk.integrations.celery import CeleryIntegration
+    from sentry_sdk.integrations.django import DjangoIntegration
 
     os.environ.setdefault("SENTRY_RELEASE", PROMGEN_VERSION)
     # By default we want to keep sentry's default of NOT sending user

@@ -1,8 +1,7 @@
 import collections
 
-from rest_framework import serializers
-
 from django.db.models import prefetch_related_objects
+from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
 from promgen import models, shortcuts

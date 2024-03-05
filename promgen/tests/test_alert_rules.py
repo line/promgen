@@ -22,9 +22,7 @@ groups:
     for: 1s
     labels:
       severity: high
-""".lstrip().encode(
-    "utf-8"
-)
+""".lstrip().encode("utf-8")
 
 TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
 

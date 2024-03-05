@@ -2,12 +2,12 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import json
-from django.urls import reverse
-import yaml
 
+import yaml
+from django.conf import settings
 from django.contrib.auth.models import Permission, User
 from django.test import TestCase
-from django.conf import settings
+from django.urls import reverse
 
 
 class Data:

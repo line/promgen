@@ -1,6 +1,7 @@
 from enum import Enum
-from django.utils.translation import gettext as _
+
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 
 class ValidationErrorEnum(Enum):
