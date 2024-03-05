@@ -7,7 +7,7 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
-from promgen import forms, tests, errors
+from promgen import errors, forms, tests
 
 TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
 TEST_DURATION = tests.Data("examples", "silence.duration.json").json()
@@ -41,9 +41,7 @@ class SilenceTest(tests.PromgenTest):
                 },
                 content_type="application/json",
             )
-        mock_post.assert_called_with(
-            "http://alertmanager:9093/api/v2/silences", json=TEST_DURATION
-        )
+        mock_post.assert_called_with("http://alertmanager:9093/api/v2/silences", json=TEST_DURATION)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("promgen.util.post")
@@ -62,9 +60,7 @@ class SilenceTest(tests.PromgenTest):
                 content_type="application/json",
             )
 
-        mock_post.assert_called_with(
-            "http://alertmanager:9093/api/v2/silences", json=TEST_RANGE
-        )
+        mock_post.assert_called_with("http://alertmanager:9093/api/v2/silences", json=TEST_RANGE)
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     def test_site_silence_errors(self):

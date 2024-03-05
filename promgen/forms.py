@@ -8,7 +8,7 @@ from dateutil import parser
 from django import forms
 from django.core.exceptions import ValidationError
 
-from promgen import models, plugins, prometheus, validators, errors
+from promgen import errors, models, plugins, prometheus, validators
 
 
 class ImportConfigForm(forms.Form):

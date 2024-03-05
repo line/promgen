@@ -3,9 +3,8 @@
 
 from unittest import mock
 
-from requests.exceptions import RequestException
-
 from django.test import override_settings
+from requests.exceptions import RequestException
 
 from promgen import models, rest, tests
 from promgen.notification.webhook import NotificationWebhook

@@ -9,7 +9,7 @@ from atomicwrites import atomic_write
 from celery import shared_task
 from requests.exceptions import RequestException
 
-from promgen import models, prometheus, util, notification
+from promgen import models, notification, prometheus, util
 
 logger = logging.getLogger(__name__)
 

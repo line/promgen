@@ -11,8 +11,9 @@ import requests
 from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
 from django.views.generic.base import TemplateView
-from promgen import forms, models, prometheus, util
 from requests.exceptions import HTTPError
+
+from promgen import forms, models, prometheus, util
 
 logger = logging.getLogger(__name__)
 
@@ -213,7 +214,7 @@ class ProxySilences(View):
             return JsonResponse(
                 {
                     "messages": [
-                        {"class": "alert alert-danger", "message": e.response.text}
+                        {"class": "alert alert-danger", "message": e.response.text},
                     ]
                 },
                 status=e.response.status_code,

@@ -5,10 +5,8 @@ import argparse
 from urllib.parse import urlsplit
 
 import requests
-
 from django.conf import settings
 from django.db.models import F
-
 
 # Wrappers around request api to ensure we always attach our user agent
 # https://github.com/requests/requests/blob/master/requests/api.py

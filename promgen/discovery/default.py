@@ -5,8 +5,7 @@ import logging
 
 from django.shortcuts import get_object_or_404
 
-from promgen import models
-from promgen import discovery
+from promgen import discovery, models
 
 logger = logging.getLogger(__name__)
 

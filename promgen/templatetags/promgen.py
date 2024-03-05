@@ -8,13 +8,12 @@ from datetime import datetime
 from urllib.parse import urlencode
 
 import yaml
-from pytz import timezone
-
 from django import template
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+from pytz import timezone
 
 from promgen import util
 

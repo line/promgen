@@ -6,9 +6,7 @@ import logging
 import socket
 
 import celery
-
 from celery.signals import celeryd_after_setup
-
 
 logger = logging.getLogger(__name__)
 

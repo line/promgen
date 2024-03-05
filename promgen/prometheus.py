@@ -11,7 +11,6 @@ from urllib.parse import urljoin
 import pytz
 import yaml
 from dateutil import parser
-
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 

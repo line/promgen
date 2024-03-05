@@ -6,7 +6,6 @@ import logging
 import sys
 
 import yaml
-
 from django.core import exceptions
 from django.core.management.base import BaseCommand
 
