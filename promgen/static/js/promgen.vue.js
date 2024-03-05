@@ -46,7 +46,7 @@ const exporterTestResultStore = Vue.reactive({
     },
 });
 
-const app = Vue.createApp({
+const app = createPrimeVueApp({
     delimiters: ['[[', ']]'],
     data() {
         return dataStore;

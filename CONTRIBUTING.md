@@ -14,11 +14,13 @@ You can see some of the commands by running `make help`
 If you are using an external database, you will want to create a `promgen` and `test_promgen`
 database before running bootstrap or `make migrate` and `make test` will fail.
 
+Promgen's backend is written in Python with parts of it's frontend written in Vuejs. Both Python and Node.js are required for development.
+
 ```bash
-# If you need to install Python first, try using your system's package manager
+# Python and Node.js can be installed with your system's package manager.
 # Examples
-# yum install python3 python3-pip
-# homebrew install python3
+# yum install python3 python3-pip nodejs # On RedHat
+# homebrew install python3 node # On MacOS
 # If using OSX with Homebrew, you may need to export some flags
 # to get mysql client to install
 # export LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"
@@ -32,6 +34,8 @@ echo 1 > ~/.config/promgen/DEBUG
 make migrate
 # Run tests
 make test
+# Build front end
+make primevue
 # Run development server
 make run
 ```

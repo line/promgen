@@ -1,0 +1,16 @@
+{
+  "name": "primvue-gen",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "keywords": [],
+  "author": "",
+  "dependencies": {
+    "primevue": "3.40.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.19.5"
+  }
+}
