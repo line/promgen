@@ -22,7 +22,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin

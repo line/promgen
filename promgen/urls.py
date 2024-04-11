@@ -16,7 +16,7 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.urls import path
 from django.contrib import admin
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
@@ -101,8 +101,8 @@ urlpatterns = [
     path("alert", views.AlertList.as_view(), name="alert-list"),
     path("alert/<int:pk>", views.AlertDetail.as_view(), name="alert-detail"),
     # Third Party / Auth
-    url("", include("django.contrib.auth.urls")),
-    url("", include("social_django.urls", namespace="social")),
+    path("", include("django.contrib.auth.urls")),
+    path("", include("social_django.urls", namespace="social")),
     # Legacy API
     path("api/v1/config", csrf_exempt(views.ApiConfig.as_view())),
     path("api/", include((router.urls, "api"), namespace="old-api")),
