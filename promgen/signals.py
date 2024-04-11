@@ -312,6 +312,7 @@ def check_user_subscription(sender, instance, created, request):
 
 
 @receiver(post_save, sender=models.Service)
+@skip_raw
 def add_default_service_subscription(instance, created, **kwargs):
     if created and instance.owner:
         sender, new_notifier = models.Sender.objects.get_or_create(
@@ -323,6 +324,7 @@ def add_default_service_subscription(instance, created, **kwargs):
 
 
 @receiver(post_save, sender=models.Project)
+@skip_raw
 def add_default_project_subscription(instance, created, **kwargs):
     if created and instance.owner:
         sender, new_notifier = models.Sender.objects.get_or_create(

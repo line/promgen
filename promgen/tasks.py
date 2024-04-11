@@ -60,7 +60,7 @@ def process_alert(alert_pk):
                 logger.debug("Filtered out sender %s", sender)
                 continue
             if hasattr(sender.driver, "splay"):
-                for splay in sender.driver.splay(sender.value):
+                for splay in sender.driver.splay(sender.value, enabled=True):
                     senders[splay.sender].add(splay.value)
             else:
                 senders[sender.sender].add(sender.value)

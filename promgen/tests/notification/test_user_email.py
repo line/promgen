@@ -50,3 +50,23 @@ class UserSplayTest(tests.PromgenTest):
         self.assertCount(models.AlertError, 0, "No failed alerts")
 
         self.assertEqual(mock_email.call_count, 1, "Still called email")
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    @mock.patch("promgen.notification.email.send_mail")
+    def test_enabled(self, mock_email):
+        one = models.Service.objects.get(pk=1)
+
+        # This notification is direct and disabled
+        NotificationEmail.create(obj=one, value="disabled.example@example.com", enabled=False)
+        # Our parent notification is enabled
+        NotificationUser.create(obj=one, value=one.owner.username)
+        # But the child notifier is disabled and shouldn't fire
+        NotificationEmail.create(obj=one.owner, value="enabled.example@example.com", enabled=False)
+
+        response = self.fireAlert()
+        self.assertRoute(response, rest.AlertReceiver, 202)
+        self.assertCount(models.Alert, 1, "Alert Queued")
+        self.assertCount(models.AlertError, 0, "No failed alerts")
+
+        self.assertEqual(mock_email.call_count, 0, "Should not call email")
