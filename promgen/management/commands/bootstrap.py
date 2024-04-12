@@ -14,7 +14,7 @@ PROMGEN_CONFIG_DEFAULT = settings.BASE_DIR / "promgen" / "tests" / "examples" / 
 
 class Command(BaseCommand):
     # We manually run the system checks at the end
-    requires_system_checks = False
+    requires_system_checks = []
 
     def prompt(self, prompt, *args, **kwargs):
         return input(prompt.format(*args, **kwargs))

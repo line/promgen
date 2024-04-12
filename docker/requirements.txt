@@ -32,7 +32,7 @@ defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
-django==3.2.24
+django==4.2.11
     # via
     #   django-filter
     #   djangorestframework
@@ -71,7 +71,6 @@ python3-openid==3.2.0
 pytz==2023.3
     # via
     #   celery
-    #   django
     #   djangorestframework
 pyyaml==6.0.1
     # via promgen (pyproject.toml)
