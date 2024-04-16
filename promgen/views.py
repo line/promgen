@@ -773,12 +773,13 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         return context
 
     def form_invalid(self, **kwargs):
-        """If the form is invalid, render the invalid form."""
+        # Typically self.form will get a copy of self.object stored as self.form.instance, but if
+        # we have an invalid form, we want to ensure a clean copy of self.object when rendering the
+        # page (and we can leave the dirty copy as part of self.form.instance).
+        self.object = self.get_object()
         return self.render_to_response(self.get_context_data(**kwargs))
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-
         # Save a copy of our forms into a context var that we can use
         # to re-render our form properly in case of errors
         context = {}
