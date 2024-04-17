@@ -423,9 +423,9 @@ class Rule(models.Model):
 
     def __str__(self):
         return (
-            f"{self.name}"
+            f"{self.pk}:{self.name}"
             if self.content_object is None
-            else f"{self.name} [{self.content_object.name}]"
+            else f"{self.pk}:{self.name} [{self.content_object.name}]"
         )
 
     def get_absolute_url(self):
