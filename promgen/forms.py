@@ -153,6 +153,14 @@ class AlertRuleForm(forms.ModelForm):
         super().clean()
         rule = models.Rule(**self.cleaned_data)
 
+        # In Django https://code.djangoproject.com/ticket/19580, some of the
+        # foreign key checks got stricter. We sets pk to 0 here so that it passes
+        # django's m2m/foreign key checks, but marks for us that it's a temporary
+        # rule that doesn't actually exist.
+        # We'll likely want to rework this assumption when we move to a different
+        # promql check
+        rule.pk = 0
+
         # Make sure we pull in our labels and annotations for
         # testing if needed
         # See django docs on cached_property
