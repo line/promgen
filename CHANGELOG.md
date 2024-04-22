@@ -1,5 +1,15 @@
 # Changelog
 
+# v0.62.0 - 2024-04-22
+
+- [BUGFIX] Use additional v-pre tags to avoid issues with user input. #498
+- [BUGFIX] Fix for foreign key check regarding m2m #497
+- [BUGFIX] Reset self.object on form_invalid #496
+- [BUGFIX] Fix notification splay #494
+- [INTERNAL] Upgrade to Django 4.2 #495
+- [INTERNAL] Migrate Black to Ruff for code formatting #487
+- [IMPROVEMENT] Rewrite filter from jQuery to regular JavaScript #486
+
 # v0.61.0 - 2024-03-04
 
 - [BUGFIX] Stricter validation for object names #476
