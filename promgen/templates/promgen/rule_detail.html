@@ -31,7 +31,7 @@ Promgen / Rule / {{ rule.name }}
 {% if rule.description %}
         <div>
             <label>Description:</label>
-            <p>{{rule.description}}</p>
+            <p v-pre>{{rule.description}}</p>
         </div>
 {% endif %}
         <pre v-pre>{{rule|rule_dict|pretty_yaml}}</pre>

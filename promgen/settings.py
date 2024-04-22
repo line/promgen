@@ -66,6 +66,7 @@ INSTALLED_APPS = apps_from_setuptools + [
     "rest_framework",
     "social_django",
     # Django
+    "django.forms",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -116,6 +117,7 @@ TEMPLATES = [
         },
     },
 ]
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "promgen.wsgi.application"
 
