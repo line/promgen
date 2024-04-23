@@ -26,7 +26,7 @@ cffi==1.15.1
     # via cryptography
 charset-normalizer==3.2.0
     # via requests
-cryptography==42.0.2
+cryptography==42.0.5
     # via social-auth-core
 defusedxml==0.7.1
     # via
@@ -44,9 +44,9 @@ django-filter==23.2
     # via promgen (pyproject.toml)
 djangorestframework==3.14.0
     # via promgen (pyproject.toml)
-gunicorn==21.2.0
+gunicorn==22.0.0
     # via -r docker/requirements.in
-idna==3.4
+idna==3.7
     # via requests
 kombu==4.6.11
     # via
@@ -91,7 +91,7 @@ social-auth-app-django==5.2.0
     # via promgen (pyproject.toml)
 social-auth-core==4.4.2
     # via social-auth-app-django
-sqlparse==0.4.4
+sqlparse==0.5.0
     # via django
 typing-extensions==4.7.1
     # via asgiref
