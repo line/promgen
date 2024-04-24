@@ -13,8 +13,8 @@
 <div class="service-grid">
   {% for shard in shard_list|dictsortreversed:"num_projects" %}
   <div>
-    <h2><a href="{% url 'datasource-detail' shard.id %}">{{ shard.name }}</a></h2>
-    <a href="{{shard.url}}">{{shard.url}}</a>
+    <h2><a href="{% url 'datasource-detail' shard.id %}" v-pre>{{ shard.name }}</a></h2>
+    <a href="{{shard.url}}" v-pre>{{shard.url}}</a>
     <hr>
 
     {% include 'promgen/shard_header.html' %}
@@ -24,7 +24,7 @@
       {% for service, project_list in service_list|dictsort:"grouper.name" %}
       <tr>
         <td>
-          <a href="{{service.get_absolute_url}}">{{ service.name }}</a>
+          <a href="{{service.get_absolute_url}}" v-pre>{{ service.name }}</a>
         </td>
       </tr>
       {% endfor %}

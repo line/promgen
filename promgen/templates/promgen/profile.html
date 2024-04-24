@@ -3,11 +3,11 @@
 {% block content %}
 
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>{{user.username}} ({{user.email}})</h1>
 </div>
 
-<div class="panel panel-primary">
+<div class="panel panel-primary" v-pre>
   <div class="panel-heading">Subscriptions</div>
   <table class="table">
     <tr>
@@ -50,7 +50,7 @@
 <div class="panel panel-primary">
   <div class="panel-heading">Notifications</div>
   {% include "promgen/notifier_block.html" with object=notifiers show_edit=1 %}
-  <div class="panel-body">
+  <div class="panel-body" v-pre>
     <div class="row">
       <div class="col-md-3">
         <ul class="nav nav-pills nav-stacked" role="tablist">
@@ -89,7 +89,7 @@
 </div>
 
 {% if user.is_staff %}
-<div class="panel panel-warning">
+<div class="panel panel-warning" v-pre>
   <div class="panel-heading">Debug</div>
   <table class="table">
     <tr>

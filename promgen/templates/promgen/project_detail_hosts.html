@@ -1,6 +1,6 @@
 {% load i18n %}
 <div class="panel panel-primary">
-  <div class="panel-heading">Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
+  <div class="panel-heading" v-pre>Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
   <table class="table">
     <tr>
       <th>&nbsp;</th>
@@ -13,7 +13,7 @@
   {% for host in project.farm.host_set.all %}
     <tr>
       <td><input type="checkbox" value="{{ host.name }}:[0-9]*" v-model="selectedHosts"></td>
-      <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
+      <td v-pre><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       <td>
         <a
           @click="setSilenceDataset"
@@ -83,7 +83,7 @@
 {% else %}
     <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "Register Farm" %}</a>
 {% for name, source in sources %}
-    <a href="{% url 'farm-link' project.id name %}" class="btn btn-default">
+    <a href="{% url 'farm-link' project.id name %}" class="btn btn-default" v-pre>
       {% if source.remote %}
         <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
       {% endif %}

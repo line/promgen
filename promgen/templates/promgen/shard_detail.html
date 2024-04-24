@@ -8,7 +8,7 @@ Promgen / Datasource / {{ shard.name }}
 
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>Datasource: {{ shard.name }}</h1>
   <a href="{{shard.url}}">{{shard.url}}</a>
 </div>
@@ -21,7 +21,7 @@ Promgen / Datasource / {{ shard.name }}
 <table class="table table-bordered table-condensed">
   {% for service, project_list in service_list|dictsort:"grouper.name" %}
 
-  <tr>
+  <tr v-pre>
     <th colspan="4">
       <h2>
         <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>

@@ -16,7 +16,7 @@
 
 {% for group in grouped_rule_list %}
 <div class="panel panel-default">
-  <div class="panel-heading">
+  <div class="panel-heading" v-pre>
     <a href="{{ group.grouper.get_absolute_url }}">{{ group.grouper }}</a>
     <a href="{% url 'rule-new' group.grouper|klass|lower group.grouper.id %}" class="btn btn-primary btn-xs pull-right">{% trans "Register Rule" %}</a>
   </div>

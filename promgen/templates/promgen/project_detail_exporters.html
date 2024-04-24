@@ -11,9 +11,9 @@
     </tr>
   {% for exporter in project.exporter_set.all %}
     <tr {% if not exporter.enabled %}class="promgen-disabled"{% endif %}>
-      <td>{{ exporter.job }}</td>
-      <td>{{ exporter.scheme }}:{{ exporter.port }}</td>
-      <td>{{ exporter.path | default:"/metrics" }}</td>
+      <td v-pre>{{ exporter.job }}</td>
+      <td v-pre>{{ exporter.scheme }}:{{ exporter.port }}</td>
+      <td v-pre>{{ exporter.path | default:"/metrics" }}</td>
       <td style="white-space: nowrap">
         <input
           type="checkbox"

@@ -3,7 +3,7 @@
 {% load promgen %}
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>Project: {{ project.name }}</h1>
 </div>
 
@@ -31,7 +31,7 @@
             If there are no other job names that make sense, <strong class="text-success">app</strong> can be used as a general substitute
           </p>
         </div>
-        <table class="table">
+        <table class="table" v-pre>
           {{ form.as_table }}
         </table>
         <div class="panel-footer">
@@ -59,7 +59,7 @@
           <input type="hidden" name="scheme" value="{{ default.scheme }}" />
           <input type="hidden" name="enabled" value="1" />
           <div class="input-group-btn">
-            <button style="width:80%" class="btn btn-primary">Register {{ default.job }} :{{ default.port }}{{ default.path }}</button>
+            <button style="width:80%" class="btn btn-primary" v-pre>Register {{ default.job }} :{{ default.port }}{{ default.path }}</button>
             <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}">
               {% trans "Test" %}
             </exporter-test>

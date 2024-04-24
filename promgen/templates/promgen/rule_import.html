@@ -14,7 +14,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">Import Rules</div>
   <div class="panel-body">
-    <form action="{% url 'rule-import' %}" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <form action="{% url 'rule-import' %}" method="post" enctype="multipart/form-data" v-pre>{% csrf_token %}
       {{ form.as_p }}
       <button class="btn btn-primary">Import Rules</button>
     </form>

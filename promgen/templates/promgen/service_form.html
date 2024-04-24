@@ -2,7 +2,7 @@
 {% load promgen %}
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>{{ view.button_label }}</h1>
 </div>
 
@@ -14,7 +14,7 @@
 </div>
 {% endif %}
 
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
   <form action="" method="post">{% csrf_token %}
     <table class="table">
       {{ form.as_table }}

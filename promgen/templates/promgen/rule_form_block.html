@@ -1,5 +1,5 @@
 <div class="panel panel-primary">
-  <div class="panel-heading">{{ rule.name|default:"New Rule" }}</div>
+  <div class="panel-heading" v-pre>{{ rule.name|default:"New Rule" }}</div>
   <div class="panel-body">
     {% include 'promgen/error_block.html' with warning=form.name.errors only %}
     {{ form.name.label_tag }}
@@ -52,7 +52,7 @@
     {% include 'promgen/error_block.html' with errors=form.clause.errors only %}
     {{ form.clause.label_tag }}
     {{ form.clause }}
-    <p>
+    <p v-pre>
       Example Query:
       <code
         data-href="{% url 'rule-test' rule.id %}"
@@ -91,7 +91,7 @@
 
     {% if rule.parent %}
     {% if macro not in rule.parent.clause %}
-    <div class="alert alert-warning" role="alert">
+    <div class="alert alert-warning" role="alert" v-pre>
       <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
       <span class="sr-only">Warning:</span>
       Missing <strong>{{ macro }}</strong> macro in parent rule. Please reffer to Promgen's documentation regarding

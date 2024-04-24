@@ -3,18 +3,18 @@
 
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>Farm: {{ farm.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
+<ol class="breadcrumb" v-pre>
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
   <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
   <li class="active">Add hosts to {{ farm.name }}</li>
 </ol>
 
-<form action="{% url 'hosts-add' farm.id %}" method="post">{% csrf_token %}
+<form action="{% url 'hosts-add' farm.id %}" method="post" v-pre>{% csrf_token %}
   <table>
     {{ form.as_table }}
   </table>

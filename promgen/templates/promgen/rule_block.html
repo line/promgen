@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% for rule in rule_list %}
-<tr class="{% if not rule.enabled %}promgen-disabled{% endif %} {% if collapse %}active collapse {{ collapse }}{{overwrite_id}}{% endif %}">
+<tr class="{% if not rule.enabled %}promgen-disabled{% endif %} {% if collapse %}active collapse {{ collapse }}{{overwrite_id}}{% endif %}" v-pre>
   <td>
     <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a>
     {% if rule.parent %}
@@ -48,7 +48,7 @@
 </tr>
 {% empty %}
 {% if show_empty %}
-<tr>
+<tr v-pre>
   <td colspan=5>No rules found for {{show_empty}}</td>
 </tr>
 {% endif %}

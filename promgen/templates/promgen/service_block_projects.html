@@ -4,7 +4,7 @@
 
 {% for shard, shard_projects in project_shard_list %}
 <div class="panel panel-default">
-    <div class="panel-heading">
+    <div class="panel-heading" v-pre>
         Datasource
         <a href="{{shard.get_absolute_url}}">{{shard.name}}</a>
         ( <a href="{{shard.url}}">{{shard.url}}</a> )

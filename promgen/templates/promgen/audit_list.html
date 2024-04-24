@@ -7,7 +7,7 @@
 </div>
 
 {% if request.GET %}
-<ul class="list-inline">
+<ul class="list-inline" v-pre>
   <li>Filters</li>
 {% for k in request.GET %}
 <li>
@@ -19,7 +19,7 @@
 </ul>
 {% endif %}
 
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
     <table class="table table-bordered table-condensed">
       <thead>
         <tr>
