@@ -2,18 +2,18 @@
 
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>Project: {{ project.name }}</h1>
 </div>
 
-<ol class="breadcrumb">
+<ol class="breadcrumb" v-pre>
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
   <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
   <li class="active">Link Farm {{ source }}</li>
 </ol>
 
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
   <div class="panel-heading">
     <input class="form-control" data-filter="div.auto-grid div" placeholder="Type to filter">
   </div>

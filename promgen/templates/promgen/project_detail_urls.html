@@ -10,8 +10,8 @@
     </tr>
     {% for url in project.url_set.all %}
     <tr>
-      <td>{{ url.url }}</td>
-      <td title="{{ url.probe.description }}">{{ url.probe.module }}</td>
+      <td v-pre>{{ url.url }}</td>
+      <td title="{{ url.probe.description }}" v-pre>{{ url.probe.module }}</td>
       <td>
         <a @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
@@ -32,7 +32,7 @@
   </table>
   <form method="post" action="{% url 'url-new' project.id %}" style="display: inline">
     {% csrf_token %}
-    <table class="table table-condensed">
+    <table class="table table-condensed" v-pre>
       {{url_form.as_table}}
     </table>
     <div class="panel-footer">

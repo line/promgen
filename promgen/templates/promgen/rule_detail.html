@@ -8,7 +8,7 @@ Promgen / Rule / {{ rule.name }}
 {% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header" v-pre>
     <h1>Rule: {{ rule.name }}</h1>
 </div>
 
@@ -25,7 +25,7 @@ Promgen / Rule / {{ rule.name }}
     </table>
 </div>
 
-<div class="panel panel-primary">
+<div class="panel panel-primary" v-pre>
     <div class="panel-heading">{{rule.name}}</div>
     <div class="panel-body">
 {% if rule.description %}
@@ -43,7 +43,7 @@ Promgen / Rule / {{ rule.name }}
 </div>
 
 {% if rule.parent %}
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
     <div class="panel-heading">Parent</div>
     <table class="table">
         <tr>
@@ -61,7 +61,7 @@ Promgen / Rule / {{ rule.name }}
 {% endif %}
 
 {% if rule.overrides.count %}
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
     <div class="panel-heading">Child Rules</div>
     <table class="table">
         <tr>

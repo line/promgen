@@ -10,7 +10,7 @@ Promgen / Rule / New
 {% breadcrumb rule 'New Rule' %}
 
 {% if form.non_field_errors  %}
-<div class="panel panel-danger">
+<div class="panel panel-danger" v-pre>
   <div class="panel-heading">Errors</div>
     {% for error in form.non_field_errors %}
       <div class="panel-body">{{ error|linebreaks }}</div>

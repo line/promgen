@@ -1,14 +1,14 @@
 {% load i18n %}
 <tr {% if not notifier.enabled %}class="promgen-disabled"{% endif %}>
-    <td class="col-xs-2" title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
-    <td class="col-xs-5" style="word-break: break-all;" >{{ notifier.show_value }}</td>
+    <td class="col-xs-2" title="Added by: {{notifier.owner}}" v-pre>{{ notifier.sender }}</td>
+    <td class="col-xs-5" style="word-break: break-all;" v-pre>{{ notifier.show_value }}</td>
     <td class="col-xs-2">
         {% for f in notifier.filter_set.all %}
         <form method="post" action="{% url 'notifier-edit' notifier.id %}" onsubmit="return confirm('Delete this filter?')" style="display: inline">
             {% csrf_token %}
             <input name="next" type="hidden" value="{{ request.get_full_path }}" />
             <input name="filter.pk" value="{{f.id}}" type="hidden" />
-            <button class="label label-primary" style="display: inline-block;">
+            <button class="label label-primary" style="display: inline-block;" v-pre>
                 {{f.name}}:{{f.value}}
                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
             </button>

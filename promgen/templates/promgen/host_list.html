@@ -20,7 +20,7 @@
         </tr>
       </thead>
 {% for name, hosts in host_groups.items %}
-<tr>
+<tr v-pre>
   <td><a href="{% url 'host-detail' name %}">{{ name }}</a></td>
   <td>
     <ul>

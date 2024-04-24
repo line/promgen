@@ -3,16 +3,16 @@
 {% block title %}No hosts found for {{ slug }}{% endblock %}
 
 {% block content %}
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>Host: {{ slug }}</h1>
 </div>
 
-<ol class="breadcrumb">
+<ol class="breadcrumb" v-pre>
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li class="active">{{ slug }}</li>
 </ol>
 
-<div class="alert alert-danger" role="alert">
+<div class="alert alert-danger" role="alert" v-pre>
 No hosts found for {{ slug }}
 </div>
 {% endblock %}

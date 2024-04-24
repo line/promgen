@@ -12,7 +12,7 @@
 </ol>
 
 {% if service_list %}
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
   <div class="panel-heading">Services</div>
   <table class="table table-bordered table-condensed">
     <tr>
@@ -61,7 +61,7 @@
 {% endif %}
 
 {% if farm_list %}
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
   <div class="panel-heading">Farms</div>
   <table class="table table-bordered table-condensed">
     <tr>
@@ -100,7 +100,7 @@
 {% endif %}
 
 {% if host_list %}
-<div class="panel panel-default">
+<div class="panel panel-default" v-pre>
   <div class="panel-heading">Hosts</div>
   <table class="table">
     {% for host in host_list %}

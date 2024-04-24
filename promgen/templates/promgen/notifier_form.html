@@ -2,13 +2,13 @@
 {% load promgen %}
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>{{object|klass}}: {{object.name}}</h1>
 </div>
 
 {% breadcrumb object 'Register Notifier' %}
 
-<div class="row">
+<div class="row" v-pre>
   <div class="col-md-3">
     <ul class="nav nav-pills nav-stacked" role="tablist">
       {% for k, v in view.model.driver_set|dictsort:0 %}

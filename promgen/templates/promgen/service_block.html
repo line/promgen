@@ -44,7 +44,7 @@
         </ul>
       </div>
 
-      <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post">{% csrf_token %}
+      <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post" v-pre>{% csrf_token %}
         <input type="hidden" name="sender" value="promgen.notification.user">
         <input type="hidden" name="value" value="{{request.user.username}}" />
         <button class="btn btn-primary btn-sm">{% trans "Subscribe to Notifications" %}</button>

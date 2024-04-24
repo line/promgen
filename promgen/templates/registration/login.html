@@ -5,7 +5,7 @@
 <h2 class="form-signin-heading">OAuth Login</h2>
 <div class="panel panel-default">
 {% for backend in backends.not_associated %}
-    <form action="{% url 'social:begin' backend %}">
+    <form action="{% url 'social:begin' backend %}" v-pre>
         <input type="hidden" name="next" value="{{ next }}" />
         <button class="btn btn-block btn-default" type="submit">Sign in with {{backend}}</button>
     </form>
@@ -27,7 +27,7 @@
         <p class="alert alert-warning" role="alert">Please login to see this page.</p>
         {% endif %}
     {% endif %}
-    <form method="post" action="{% url 'login' %}">
+    <form method="post" action="{% url 'login' %}" v-pre>
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}" />
         <p><input type="text" name="{{ form.username.name }}" class="form-control" placeholder="{{ form.username.label }}" value="" required autofocus></p>

@@ -26,16 +26,16 @@
     {% for alert in alert_list %}
     {% ifchanged alert.created|date %}
     <tr class="table-secondary">
-        <th colspan="8">{{ alert.created|date }}</th>
+        <th colspan="8" v-pre>{{ alert.created|date }}</th>
     </tr>
     {% endifchanged %}
     <tr>
-        <td><a href="{{alert.get_absolute_url}}">{{ alert.created|timezone:TIMEZONE }}</a></td>
-        <td><a href="?alertname={{alert.json.commonLabels.alertname}}">{{alert.json.commonLabels.alertname}}</a></td>
-        <td>{{alert.json.commonLabels.datasource}}</td>
-        <td><a href="?service={{alert.json.commonLabels.service}}">{{alert.json.commonLabels.service}}</a></td>
-        <td><a href="?project={{alert.json.commonLabels.project}}">{{alert.json.commonLabels.project}}</a></td>
-        <td><a href="?job={{alert.json.commonLabels.job}}">{{alert.json.commonLabels.job}}</a></td>
+        <td><a href="{{alert.get_absolute_url}}" v-pre>{{ alert.created|timezone:TIMEZONE }}</a></td>
+        <td><a href="?alertname={{alert.json.commonLabels.alertname}}" v-pre>{{alert.json.commonLabels.alertname}}</a></td>
+        <td v-pre>{{alert.json.commonLabels.datasource}}</td>
+        <td><a href="?service={{alert.json.commonLabels.service}}" v-pre>{{alert.json.commonLabels.service}}</a></td>
+        <td><a href="?project={{alert.json.commonLabels.project}}" v-pre>{{alert.json.commonLabels.project}}</a></td>
+        <td><a href="?job={{alert.json.commonLabels.job}}" v-pre>{{alert.json.commonLabels.job}}</a></td>
         <td {% if alert.sent_count == 0 %}class="warning" {% endif %}>{{alert.sent_count}}</td>
         <td {% if alert.error_count %}class="danger" {% endif %}>{{alert.error_count}}</td>
     </tr>

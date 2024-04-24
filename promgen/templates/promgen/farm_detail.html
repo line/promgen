@@ -3,17 +3,17 @@
 
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>Farm: {{ farm.name }} ({{ farm.source }})</h1>
 </div>
 
-<ol class="breadcrumb">
+<ol class="breadcrumb" v-pre>
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li><a href="{% url 'farm-list' %}">Farms</a></li>
   <li class="active"><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></li>
 </ol>
 
-<div class="row">
+<div class="row" v-pre>
 
 <div class="col-md-6">
   <div class="panel panel-default">

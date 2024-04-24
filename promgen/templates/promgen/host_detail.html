@@ -2,11 +2,11 @@
 {% load i18n %}
 {% block content %}
 
-<div class="page-header">
+<div class="page-header" v-pre>
   <h1>Host: {{ slug }}</h1>
 </div>
 
-<ol class="breadcrumb">
+<ol class="breadcrumb" v-pre>
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li class="active">{{ slug }}</li>
 </ol>
@@ -29,7 +29,7 @@
 
 <div class="row">
 
-<div class="col-sm-6"><div class="panel panel-primary">
+<div class="col-sm-6"><div class="panel panel-primary" v-pre>
   <div class="panel-heading">Farm</div>
   <table class="table">
     <tr>
@@ -43,7 +43,7 @@
   </table>
 </div></div>
 
-<div class="col-sm-6"><div class="panel panel-primary">
+<div class="col-sm-6"><div class="panel panel-primary" v-pre>
   <div class="panel-heading">Project</div>
   <table class="table">
     <tr>
@@ -57,7 +57,7 @@
   </table>
 </div></div>
 
-<div class="col-sm-6"><div class="panel panel-primary">
+<div class="col-sm-6"><div class="panel panel-primary" v-pre>
   <div class="panel-heading">Exporters</div>
   <table class="table">
     <tr>
@@ -79,7 +79,7 @@
   </table>
 </div></div>
 
-<div class="col-sm-6"><div class="panel panel-primary">
+<div class="col-sm-6"><div class="panel panel-primary" v-pre>
   <div class="panel-heading">Notifiers</div>
   <table class="table">
     <tr>
@@ -106,7 +106,7 @@
   <table class="table table-bordered table-condensed">
     {% include "promgen/rule_header.html" %}
     {% for service in service_list %}
-    <tr>
+    <tr v-pre>
       <td colspan="5">
         <h2>
           Rules from <a href="{{ service.grouper.get_absolute_url }}">{{ service.grouper }}</a>
