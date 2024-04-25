@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "promgen"
-version = "0.63.0.dev"
+version = "0.64.0.dev"
 authors = [{ name = "LINE Corporation", email = "dl_oss_dev@linecorp.com" }]
 classifiers = [
     "Environment :: Web Environment",
