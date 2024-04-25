@@ -1,5 +1,13 @@
 # Changelog
 
+# v0.63.0 - 2024-04-25
+
+- [BUGFIX] views/NotifierUpdate: Escape square brackets in global message #503
+- [BUGFIX] global_messages: Move v-pre to a more specific place #502
+- [BUGFIX] templates: Add v-pre to protect against XSS #501
+- [INTERNAL] Routine Dependabot updates #500
+- [INTERNAL] Bump actions/checkout from 4.1.2 to 4.1.3 #499
+
 # v0.62.0 - 2024-04-22
 
 - [BUGFIX] Use additional v-pre tags to avoid issues with user input. #498
