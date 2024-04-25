@@ -295,20 +295,41 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
         context[obj.content_type.model] = obj.content_object
         return context
 
+    def escape_square_brackets(self, s):
+        return s.replace("[", "\[").replace("]", "\]")
+
     def post(self, request, pk):
         if "filter.pk" in request.POST:
             f = models.Filter.objects.get(pk=request.POST["filter.pk"])
             f.delete()
-            messages.success(request, f"Removed filter {f.name} {f.value}")
+            messages.success(
+                request,
+                "Removed filter {} {}".format(
+                    self.escape_square_brackets(f.name),
+                    self.escape_square_brackets(f.value)
+                )
+            )
         if "filter.name" in request.POST:
             obj = self.get_object()
             f, created = obj.filter_set.get_or_create(
                 name=request.POST["filter.name"], value=request.POST["filter.value"]
             )
             if created:
-                messages.success(request, f"Created filter {f.name} {f.value}")
+                messages.success(
+                    request,
+                    "Created filter {} {}".format(
+                        self.escape_square_brackets(f.name),
+                        self.escape_square_brackets(f.value)
+                    )
+                )
             else:
-                messages.warning(request, f"Updated filter {f.name} {f.value}")
+                messages.warning(
+                    request,
+                    "Updated filter {} {}".format(
+                        self.escape_square_brackets(f.name),
+                        self.escape_square_brackets(f.value)
+                    )
+                )
         if "next" in request.POST:
             return redirect(request.POST["next"])
         return self.get(self, request, pk)
