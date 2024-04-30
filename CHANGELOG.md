@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.64.0 - 2024-04-30
+
+- [BUGFIX] Fix search: Be more specific with v-pre #506
+
 # v0.63.0 - 2024-04-25
 
 - [BUGFIX] views/NotifierUpdate: Escape square brackets in global message #503
