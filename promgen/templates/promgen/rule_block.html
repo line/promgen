@@ -1,9 +1,9 @@
 {% load i18n %}
 
 {% for rule in rule_list %}
-<tr class="{% if not rule.enabled %}promgen-disabled{% endif %} {% if collapse %}active collapse {{ collapse }}{{overwrite_id}}{% endif %}" v-pre>
+<tr class="{% if not rule.enabled %}promgen-disabled{% endif %} {% if collapse %}active collapse {{ collapse }}{{overwrite_id}}{% endif %}">
   <td>
-    <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a>
+    <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-detail' rule.id %}" v-pre>{{ rule.name }}</a>
     {% if rule.parent %}
     <a class="pull-right" title="{% trans "View Parent" %}" href="{% url 'rule-detail' rule.parent.id %}">
       <span class="glyphicon glyphicon-upload"></span>
@@ -11,13 +11,13 @@
     {% endif %}
     <ul>
       {% for k,v in rule.labels.items|dictsort:0 %}
-      <li class="label label-primary">{{k}}:{{v}}</li>
+      <li class="label label-primary" v-pre>{{k}}:{{v}}</li>
       {% endfor %}
     </ul>
   </td>
-  <td class="promgen-clause">{{ rule.clause }}</td>
+  <td class="promgen-clause" v-pre>{{ rule.clause }}</td>
 
-  <td>{{ rule.duration }}</td>
+  <td v-pre>{{ rule.duration }}</td>
 
   {% if toggle %}
   <td style="white-space: nowrap">
@@ -48,8 +48,8 @@
 </tr>
 {% empty %}
 {% if show_empty %}
-<tr v-pre>
-  <td colspan=5>No rules found for {{show_empty}}</td>
+<tr>
+  <td colspan=5 v-pre>No rules found for {{show_empty}}</td>
 </tr>
 {% endif %}
 {% endfor %}
