@@ -12,7 +12,7 @@
 </ol>
 
 {% if service_list %}
-<div class="panel panel-default" v-pre>
+<div class="panel panel-default">
   <div class="panel-heading">Services</div>
   <table class="table table-bordered table-condensed">
     <tr>
@@ -22,18 +22,18 @@
     </tr>
     {% for service in service_list %}
     <tr>
-      <td><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></td>
+      <td><a href="{% url 'service-detail' service.id %}" v-pre>{{ service.name }}</a></td>
       <td>
         <ul class="list-unstyled">
         {% for project in service.project_set.all %}
-          <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+          <li><a href="{% url 'project-detail' project.id %}" v-pre>{{ project.name }}</a></li>
         {% endfor %}
         </ul>
       </td>
       <td>
         <ul class="list-unstyled">
         {% for rule in service.rule_set.all %}
-          <li><a href="{% url 'rule-detail' rule.id %}">{{ rule.name }}</a></li>
+          <li><a href="{% url 'rule-detail' rule.id %}" v-pre>{{ rule.name }}</a></li>
         {% endfor %}
         </ul>
       </td>
@@ -61,7 +61,7 @@
 {% endif %}
 
 {% if farm_list %}
-<div class="panel panel-default" v-pre>
+<div class="panel panel-default">
   <div class="panel-heading">Farms</div>
   <table class="table table-bordered table-condensed">
     <tr>
@@ -71,11 +71,11 @@
     </tr>
     {% for farm in farm_list %}
     <tr>
-      <td><a href="{% url 'farm-detail' farm.id %}">{{ farm.name }}</a></td>
+      <td><a href="{% url 'farm-detail' farm.id %}" v-pre>{{ farm.name }}</a></td>
       <td>
         <ul class="list-unstyled">
 {% for project in farm.project_set.all %}
-          <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+          <li><a href="{% url 'project-detail' project.id %}" v-pre>{{ project.name }}</a></li>
 {% endfor %}
         </ul>
       </td>
@@ -83,7 +83,7 @@
         <ul class="list-unstyled">
 {% for host in farm.host_set.all %}
           <li>
-            <a href="{% url 'host-detail' host.name %}">{{ host.name }}</a>
+            <a href="{% url 'host-detail' host.name %}" v-pre>{{ host.name }}</a>
             <a
             @click="setSilenceDataset"
             class="btn btn-warning btn-xs"
@@ -100,12 +100,12 @@
 {% endif %}
 
 {% if host_list %}
-<div class="panel panel-default" v-pre>
+<div class="panel panel-default">
   <div class="panel-heading">Hosts</div>
   <table class="table">
     {% for host in host_list %}
       <tr>
-        <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
+        <td><a href="{% url 'host-detail' host.name %}" v-pre>{{ host.name }}</a></td>
         <td><a
           @click="setSilenceDataset"
           class="btn btn-warning btn-xs"

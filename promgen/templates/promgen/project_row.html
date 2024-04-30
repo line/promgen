@@ -1,14 +1,14 @@
 {% load i18n %}
 <tr>
-    <td v-pre><a href="{{project.get_absolute_url}}">{{ project.name }}</a></td>
+    <td><a href="{{project.get_absolute_url}}" v-pre>{{ project.name }}</a></td>
 
     <td>
-        <table style="width: 100%" v-pre>
+        <table style="width: 100%">
             {% for exporter in project.exporter_set.all %}
             <tr {% if not exporter.enabled %}class="promgen-disabled" {% endif %}>
-                <td>{{ exporter.job }}</td>
-                <td>{{ exporter.port }}</td>
-                <td>{{ exporter.path }}</td>
+                <td v-pre>{{ exporter.job }}</td>
+                <td v-pre>{{ exporter.port }}</td>
+                <td v-pre>{{ exporter.path }}</td>
             </tr>
             {% empty %}
             <tr>
@@ -21,11 +21,11 @@
     </td>
 
     <td>
-        <table style="width: 100%" v-pre>
+        <table style="width: 100%">
             {% for notifier in project.notifiers.all %}
             <tr>
-                <td title="Added by: {{notifier.owner}}">{{ notifier.sender }}</td>
-                <td>{{ notifier.show_value }}</td>
+                <td title="Added by: {{notifier.owner}}" v-pre>{{ notifier.sender }}</td>
+                <td v-pre>{{ notifier.show_value }}</td>
             </tr>
             {% empty %}
             <tr>
