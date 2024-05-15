@@ -1288,6 +1288,13 @@ class RuleTest(LoginRequiredMixin, View):
     def post(self, request, pk):
         if pk == 0:
             rule = models.Rule()
+            # In Django https://code.djangoproject.com/ticket/19580, some of the
+            # foreign key checks got stricter. We sets pk to 0 here so that it passes
+            # django's m2m/foreign key checks, but marks for us that it's a temporary
+            # rule that doesn't actually exist.
+            # We'll likely want to rework this assumption when we move to a different
+            # promql check
+            rule.pk = 0
             rule.set_object(request.POST["content_type"], request.POST["object_id"])
         else:
             rule = get_object_or_404(models.Rule, id=pk)
