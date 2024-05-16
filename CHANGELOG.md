@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.65.0 - 2024-05-16
+
+- [BUGFIX] Fix testing Rule query before saving #510
+
 # v0.64.0 - 2024-04-30
 
 - [BUGFIX] Fix search: Be more specific with v-pre #506
