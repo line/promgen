@@ -8,7 +8,6 @@ import subprocess
 import tempfile
 from urllib.parse import urljoin
 
-import pytz
 import yaml
 from dateutil import parser
 from django.core.exceptions import ValidationError
@@ -264,6 +263,9 @@ def silence(*, labels, duration=None, **kwargs):
     Post a silence message to Alert Manager
     Duration should be sent in a format like 1m 2h 1d etc
     """
+    # We active a timezone here, because the frontend (browser)
+    # will be POSTing date times without timezones
+    timezone.activate(util.setting("timezone", "UTC"))
 
     if duration:
         start = timezone.now()
@@ -278,9 +280,11 @@ def silence(*, labels, duration=None, **kwargs):
         kwargs["startsAt"] = start.isoformat()
         kwargs["endsAt"] = end.isoformat()
     else:
-        local_timezone = pytz.timezone(util.setting("timezone", "UTC"))
         for key in ["startsAt", "endsAt"]:
-            kwargs[key] = local_timezone.localize(parser.parse(kwargs[key])).isoformat()
+            dt = parser.parse(kwargs[key])
+            if timezone.is_naive(dt):
+                dt = timezone.make_aware(dt)
+            kwargs[key] = dt.isoformat()
 
     kwargs["matchers"] = [
         {
