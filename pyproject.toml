@@ -22,7 +22,7 @@ requires-python = ">=3.9"
 dependencies = [
     "Django~=4.2",
     "atomicwrites",
-    "celery==4.3.0",
+    "celery",
     "django-environ",
     "django-filter",
     "djangorestframework",
