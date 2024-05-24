@@ -10,12 +10,10 @@ from urllib.parse import urlencode
 import yaml
 from django import template
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from pytz import timezone
-
-from promgen import util
 
 register = template.Library()
 
@@ -98,9 +96,16 @@ def pretty_yaml(data):
 
 @register.filter()
 def strftime(timestamp, fmt):
-    tz = util.setting("timezone", "UTC")
+    """
+    Convert a timestamp to a specific format.
+
+    Normally we would use the built in django `time` filters, but sometimes we
+    get a numeric value as a timestamp (from Prometheus results) so we want a
+    single place where we can convert any type of value to a timestamp.
+    """
     if isinstance(timestamp, int) or isinstance(timestamp, float):
-        return timezone(tz).localize(datetime.fromtimestamp(timestamp)).strftime(fmt)
+        dt = datetime.fromtimestamp(timestamp, timezone.utc)
+        return timezone.localtime(dt).strftime(fmt)
     return timestamp
 
 
