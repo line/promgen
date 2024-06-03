@@ -189,6 +189,7 @@ app.component("promql-query", {
     data: function () {
         return {
             count: 0,
+            ready: false,
         };
     },
     mixins: [mixins],
@@ -206,19 +207,12 @@ app.component("promql-query", {
     },
     template: '#promql-query-template',
     mounted() {
-        var this_ = this;
         var url = new URL(this.href);
         url.search = new URLSearchParams({ query: this.query });
         fetch(url)
             .then(response => response.json())
-            .then(result => Number.parseInt(result.data.result[0].value[1]))
-            .then(result => {
-                this_.count = result;
-                this_.$el.style.display = "inline";
-            })
-            .catch(error => {
-                this_.$el.style.display = "inline";
-            });
+            .then(result => this.count = Number.parseInt(result.data.result[0].value[1]))
+            .finally(() => this.ready = true);
     },
 });
 
