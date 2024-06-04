@@ -1,3 +1,3 @@
-<span style="display: none" :title="percent(load)" :class="classes">
-  [[ localize(count) ]] <slot></slot>
+<span v-show="ready" :title="percent(load)" :class="classes">
+  <slot></slot> [[ localize(count) ]]
 </span>
