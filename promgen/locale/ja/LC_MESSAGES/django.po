@@ -145,10 +145,6 @@ msgstr "Projectを登録"
 msgid "Edit Service"
 msgstr "Serviceを編集"
 
-#: templates/promgen/service_detail.html:52
-msgid "Edit"
-msgstr "Serviceを編集"
-
 #: templates/promgen/service_block.html:27
 msgid "Export Rules"
 msgstr "Rulesをエクスポート"
@@ -176,3 +172,11 @@ msgstr "Serviceを登録"
 #: templates/promgen/project_detail_hosts.html:49
 msgid "Silence selected hosts"
 msgstr "選択したHostをSilence"
+
+#: templates/promgen/service_detail.html:52
+msgid "Edit"
+msgstr "Serviceを編集"
+
+#: templates/promgen/service_detail.html:23
+msgid "Actions"
+msgstr "Actions"
