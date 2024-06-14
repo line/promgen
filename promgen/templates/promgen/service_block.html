@@ -38,8 +38,8 @@
           {% trans "Register" %} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li role="presentation"><a href="{% url 'project-new' service.id %}">{% trans "Register project" %}</a></li>
-          <li role="presentation"><a href="{% url 'rule-new' 'service' service.id %}">{% trans "Register rule" %}</a></li>
+          <li role="presentation"><a href="{% url 'project-new' service.id %}">{% trans "Register Project" %}</a></li>
+          <li role="presentation"><a href="{% url 'rule-new' 'service' service.id %}">{% trans "Register Rule" %}</a></li>
           <li role="presentation"><a href="{% url 'service-notifier' service.id %}">{% trans "Register Notifier" %}</a></li>
         </ul>
       </div>

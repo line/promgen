@@ -130,7 +130,7 @@ msgid "Delete Rule"
 msgstr "Ruleを削除"
 
 #: templates/promgen/rule_list.html:22 templates/promgen/service_block.html:16
-msgid "Register rule"
+msgid "Register Rule"
 msgstr "Ruleを登録"
 
 #: templates/promgen/service_block.html:7 templates/promgen/shard_list.html:38
@@ -138,7 +138,7 @@ msgid "This service does not have any notifications configured. Please configure
 msgstr "このServiceには通知設定がないProjectがあります。アラートを適切に通知するためにNotifierを設定してください"
 
 #: templates/promgen/service_block.html:15
-msgid "Register project"
+msgid "Register Project"
 msgstr "Projectを登録"
 
 #: templates/promgen/service_block.html:19

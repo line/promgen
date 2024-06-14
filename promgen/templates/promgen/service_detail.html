@@ -68,7 +68,7 @@ Promgen / Service / {{ service.name }}
 
     <div role="tabpanel" class="tab-pane" id="rule">
       <div class="text-right mb-4">
-        <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register rule" %}</a>
+        <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
       </div>
       {% if service.rule_set.count or request.site.rule_set.count %}
       <div class="panel panel-default">
