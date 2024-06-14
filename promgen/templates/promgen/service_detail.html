@@ -8,15 +8,53 @@ Promgen / Service / {{ service.name }}
 
 {% block content %}
 
-<div class="page-header" v-pre>
-  <h1>Service: {{ service.name }}</h1>
-  {% if service.owner %}
-  <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
-  {% endif %}
+<div class="page-header promgen-flex-space-between-center">
+  <div>
+    <h1>Service: {{ service.name }}</h1>
+    {% if service.owner %}
+    <p>{% translate 'Contact' %}: {{service.owner.username}}</p>
+    {% endif %}
+  </div>
+  
+
+  {% include "promgen/service_action_button_group.html" %}
+
 </div>
 
 {% breadcrumb service %}
 
-{% include "promgen/service_block.html" %}
+<ul class="nav nav-tabs mb-5" role="tablist">
+  <li role="presentation" class="active"><a href="#projects" data-toggle="tab">Projects</a></li>
+  <li role="presentation"><a href="#rules" data-toggle="tab">Rules</a></li>
+  <li role="presentation"><a href="#notifiers" data-toggle="tab">Notifiers</a></li>
+</ul>
+
+<div class="well">
+
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="projects">
+      {% include "promgen/service_detail_projects.html" with project_list=project_list|default:service.project_set.all service=service only %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="rules">
+      <div class="text-right mb-4">
+        <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Rule" %}</a>
+      </div>
+      
+      {% include "promgen/service_block_panel_rules.inc.html" %}
+
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="notifiers">
+      <div class="text-right mb-4">
+        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Notifier" %}</a>
+      </div>
+      
+      {% include "promgen/service_block_panel_notifiers.inc.html" %}
+
+    </div>
+  </div>
+
+</div> 
 
 {% endblock %}

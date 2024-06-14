@@ -81,6 +81,29 @@ a[rel]:after {
   cursor: pointer;
 }
 
+
+/* service-detail */
+.promgen-flex-space-between-center {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+/* service-action-button-group */
+.service-action-button-group {
+  hr {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+  }
+  .dropdown-menu > li > form > button {
+    padding: 3px 20px;
+    white-space: nowrap;
+    background: none;
+    border: none;
+  }
+}
+
 /* Margin Top */
 .mt-0 { margin-top: 0 !important; }
 .mt-1 { margin-top: 0.25rem !important; }
