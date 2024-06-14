@@ -81,6 +81,19 @@ a[rel]:after {
   cursor: pointer;
 }
 
+
+/* service-detail */
+.promgen-flex-space-between-center {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+hr {
+  margin-top: 5px !important;
+  margin-bottom: 5px !important;
+}
+
 /* Margin Top */
 .mt-0 { margin-top: 0 !important; }
 .mt-1 { margin-top: 0.25rem !important; }
