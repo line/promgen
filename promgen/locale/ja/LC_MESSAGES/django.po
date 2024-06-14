@@ -173,10 +173,6 @@ msgstr "Serviceを登録"
 msgid "Silence selected hosts"
 msgstr "選択したHostをSilence"
 
-#: templates/promgen/service_detail.html:52
-msgid "Edit"
-msgstr "Serviceを編集"
-
 #: templates/promgen/service_detail.html:23
 msgid "Actions"
 msgstr "Actions"

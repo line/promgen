@@ -3,7 +3,7 @@
 {% regroup project_list|dictsort:"shard_id" by shard as project_shard_list %}
 
 <div class="text-right mb-4">
-    <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Project" %}</a>
+    <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Project" %}</a>
 </div>
 
 {% for shard, shard_projects in project_shard_list %}

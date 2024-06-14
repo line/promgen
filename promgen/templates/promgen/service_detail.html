@@ -12,41 +12,17 @@ Promgen / Service / {{ service.name }}
   <div>
     <h1>Service: {{ service.name }}</h1>
     {% if service.owner %}
-    <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
+    <p>{% translate 'Contact' %}: {{service.owner.username}}</p>
     {% endif %}
   </div>
   
   <div>
 
-    <div class="btn-group btn-group-sm" role="group" aria-label="...">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        {% trans "Actions" %} <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-        <li role="presentation"><a href="{% urlqs 'audit-list' service=service.id %}">{% trans "Edit History" %}</a></li>
-        <li role="presentation"><a href="{% urlqs 'alert-list' service=service.name %}">{% trans "Alert History" %}</a></li>
+    {% include "promgen/service_action_button.html" %}
 
-        <hr>
+    <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm ml-2 mr-2">{% translate "Silence" %}</a>
 
-        <li role="presentation"><a href="{% url 'api:service-rules' name=service.name %}">{% trans "Export Rules" %}</a></li>
-        <li role="presentation"><a href="{% url 'api:service-targets' name=service.name %}">{% trans "Export Service" %}</a></li>
-
-        <hr>
-
-        <li role="presentation">
-          <a href="">
-          <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
-            {% csrf_token %}   
-              <button style="background:none;border: none;padding: 0;">{% trans "Delete Service" %}</button>  
-          </form>
-        </a>
-        </li>
-      </ul>
-    </div>
-
-    <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm ml-2 mr-2">{% trans "Silence" %}</a>
-
-    <a href="{% url 'service-update' service.id %}" class="btn btn-primary btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% translate "Edit Service" %}</a>
 
   </div>
 </div>
@@ -68,7 +44,7 @@ Promgen / Service / {{ service.name }}
 
     <div role="tabpanel" class="tab-pane" id="rule">
       <div class="text-right mb-4">
-        <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Rule" %}</a>
+        <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Rule" %}</a>
       </div>
       {% if service.rule_set.count or request.site.rule_set.count %}
       <div class="panel panel-default">
@@ -79,7 +55,7 @@ Promgen / Service / {{ service.name }}
         </table>
         <div class="panel-footer">
           <a class="btn btn-default btn-xs" role="button" data-toggle="collapse" href=".service-site-rules-{{service.id}}" aria-expanded="false" aria-controls="collapseExample">
-            {% trans 'Show Site Rules' %}
+            {% translate 'Show Site Rules' %}
           </a>
         </div>
       </div>
@@ -88,7 +64,7 @@ Promgen / Service / {{ service.name }}
 
     <div role="tabpanel" class="tab-pane" id="notifier">
       <div class="text-right mb-4">
-        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% trans "Register Notifier" %}</a>
+        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Notifier" %}</a>
       </div>
       {% if service.notifiers.count %} 
       <div class="panel panel-default">
