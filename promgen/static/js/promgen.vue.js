@@ -25,15 +25,18 @@ const silenceStore = Vue.reactive({
         show: false,
         labels: {}
     },
-    showForm() {
-        this.state.show = true;
-    },
     setLabels(labels) {
         this.state.labels = { ...labels };
     },
     addLabel(label, value) {
         this.state.labels[label] = value;
-    }
+    },
+    showModal() {
+        this.state.show = true;
+    },
+    hideModal() {
+        this.state.show = false;
+    },
 });
 
 const exporterTestResultStore = Vue.reactive({
@@ -67,16 +70,14 @@ const app = Vue.createApp({
         },
         setSilenceLabels(labels) {
             silenceStore.setLabels(labels);
-            silenceStore.showForm();
-            scroll(0, 0);
+            silenceStore.showModal();
         },
         setSilenceDataset(event) {
             this.setSilenceLabels(event.target.dataset);
         },
         addSilenceLabel(label, value) {
             silenceStore.addLabel(label, value);
-            silenceStore.showForm();
-            scroll(0, 0);
+            silenceStore.showModal();
         },
         silenceSelectedHosts(event) {
             this.setSilenceLabels(event.target.dataset);
@@ -116,7 +117,7 @@ const app = Vue.createApp({
             // and set the target list
             let tgt = document.getElementById(target);
             tgt.setAttribute('list', dst + '.' + src);
-        }
+        },
     },
     computed: {
         activeServiceAlerts: function () {
@@ -149,21 +150,37 @@ const app = Vue.createApp({
 
 app.config.compilerOptions.whitespace = "preserve";
 
-app.component('silence-form', {
-    template: '#silence-form-template',
+app.component('silence-modal', {
+    template: '#silence-modal-template',
     delimiters: ['[[', ']]'],
     data: () => ({
         state: silenceStore.state,
         form: {}
     }),
+    computed: {
+        globalMessages() {
+            return globalStore.state.messages;
+        },
+    },
     methods: {
+        addLabel() {
+            if (this.form.label && this.form.value) {
+                silenceStore.addLabel(this.form.label, this.form.value);
+                this.form.label = '';
+                this.form.value = '';
+            }
+        },
         removeLabel(label) {
             delete this.state.labels[label];
         },
         submit() {
             const body = JSON.stringify({
                 labels: this.state.labels,
-                ...this.form
+                startsAt: this.form.startsAt,
+                endsAt: this.form.endsAt,
+                duration: this.form.duration,
+                createdBy: this.form.createdBy,
+                comment: this.form.comment
             });
 
             fetch('/proxy/v1/silences', { method: 'POST', body })
@@ -180,7 +197,39 @@ app.component('silence-form', {
                     }
                 });
         },
-    }
+        hideModal() {
+            const modal = $('#silenceModal');
+            if (modal.length) {
+                globalStore.setMessages([]);
+                this.form = {};
+                this.state = silenceStore.state;
+                modal.modal('hide');
+            }
+        },
+        showModal() {
+            const modal = $('#silenceModal');
+            if (modal.length) {
+                // Detect when the modal is closed, and update the state accordingly. This is
+                // necessary in case the user closes the modal by clicking outside of it, instead of
+                // using the close button.
+                //
+                // https://getbootstrap.com/docs/3.3/javascript/#modals-events
+                modal.on('hidden.bs.modal', function (e) {
+                    silenceStore.hideModal();
+                });
+                modal.modal('show');
+            }
+        },
+    },
+    watch: {
+        "state.show"(val) {
+            if (val) {
+                this.showModal();
+            } else {
+                this.hideModal();
+            }
+        },
+    },
 });
 
 app.component("promql-query", {
