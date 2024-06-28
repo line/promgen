@@ -172,6 +172,12 @@ class Filter(models.Model):
 class Shard(models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     url = models.URLField(max_length=256)
+    authorization = models.CharField(
+        max_length=4083,  # 4KB - len("authorization")
+        blank=True,
+        null=True,
+        help_text="HTTP Authorization header for this shard's API",
+    )
     proxy = models.BooleanField(
         default=False,
         help_text="Queries can be proxied to these shards",
