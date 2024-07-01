@@ -39,7 +39,7 @@ class PrometheusProxy(View):
     proxy_headers = {"HTTP_REFERER": "Referer"}
 
     @property
-    def headers(self):
+    def request_headers(self):
         # Loop through the headers from our request, and decide which ones
         # we should pass through upstream. Currently, our 'Referer' header is
         # the main one we are interested in, since this can help us debug which
@@ -53,12 +53,15 @@ class PrometheusProxy(View):
     def proxy(self, request):
         futures = []
         with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-            for host in models.Shard.objects.filter(proxy=True):
+            for shard in models.Shard.objects.filter(proxy=True):
+                headers = self.request_headers
+                if shard.authorization:
+                    headers["Authorization"] = shard.authorization
                 futures.append(
                     executor.submit(
                         util.get,
-                        urljoin(host.url, request.get_full_path_info()),
-                        headers=self.headers,
+                        urljoin(shard.url, request.get_full_path_info()),
+                        headers=headers,
                     )
                 )
             yield from concurrent.futures.as_completed(futures)
