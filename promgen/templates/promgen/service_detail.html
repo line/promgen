@@ -8,15 +8,72 @@ Promgen / Service / {{ service.name }}
 
 {% block content %}
 
-<div class="page-header" v-pre>
-  <h1>Service: {{ service.name }}</h1>
-  {% if service.owner %}
-  <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
-  {% endif %}
+<div class="page-header promgen-flex-space-between-center">
+  <div>
+    <h1>Service: {{ service.name }}</h1>
+    {% if service.owner %}
+    <p>{% translate 'Contact' %}: {{service.owner.username}}</p>
+    {% endif %}
+  </div>
+  
+  <div>
+
+    {% include "promgen/service_action_button.html" %}
+
+    <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm ml-2 mr-2">{% translate "Silence" %}</a>
+
+    <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% translate "Edit Service" %}</a>
+
+  </div>
 </div>
 
 {% breadcrumb service %}
 
-{% include "promgen/service_block.html" %}
+<ul class="nav nav-tabs mb-5" role="tablist">
+  <li role="presentation" class="active"><a href="#project" data-toggle="tab">Project</a></li>
+  <li role="presentation"><a href="#rule" data-toggle="tab">Rule</a></li>
+  <li role="presentation"><a href="#notifier" data-toggle="tab">Notifier</a></li>
+</ul>
+
+<div class="well">
+
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="project">
+      {% include "promgen/service_detail_projects.html" with project_list=project_list|default:service.project_set.all service=service only %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="rule">
+      <div class="text-right mb-4">
+        <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Rule" %}</a>
+      </div>
+      {% if service.rule_set.count or request.site.rule_set.count %}
+      <div class="panel panel-default">
+        <table class="table table-bordered table-condensed">
+          {% include "promgen/rule_header.html" %}
+          {% include "promgen/rule_block.html" with rule_list=service.rule_set.all toggle=1 delete=1 %}
+          {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="service-site-rules-" overwrite_type='service' overwrite_id=service.id %}
+        </table>
+        <div class="panel-footer">
+          <a class="btn btn-default btn-xs" role="button" data-toggle="collapse" href=".service-site-rules-{{service.id}}" aria-expanded="false" aria-controls="collapseExample">
+            {% translate 'Show Site Rules' %}
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="notifier">
+      <div class="text-right mb-4">
+        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Notifier" %}</a>
+      </div>
+      {% if service.notifiers.count %} 
+      <div class="panel panel-default">
+        {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
+      </div>
+      {% endif %} 
+    </div>
+  </div>
+
+</div> 
 
 {% endblock %}
