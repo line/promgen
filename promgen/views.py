@@ -1382,7 +1382,7 @@ class PromqlQuery(View):
         if not all(x in request.GET for x in ["shard", "query"]):
             return HttpResponse("BAD REQUEST", status=400)
 
-        shard = models.Shard.objects.get(pk=request.GET["shard"])
+        shard = get_object_or_404(models.Shard, pk=request.GET["shard"])
         params = {"query": request.GET["query"]}
         headers = {}
 
