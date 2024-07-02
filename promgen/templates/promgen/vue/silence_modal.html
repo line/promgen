@@ -1,0 +1,108 @@
+<div id="silenceModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="silenceModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" @click="state.show = false" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="silenceModalLabel">New Silence</h4>
+      </div>
+      <div class="modal-body" style="padding:10px 30px;">
+        
+        <div>
+          <div v-for="message in globalMessages" :key="message.id">
+            <div :class="message.class" >
+              [[ message.message ]]
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            
+          </div>
+        </div>
+        
+        <form @submit.prevent="submit()">
+
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <h5>
+                Start from
+              </h5>
+              <div>
+                <input v-model="form.startsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /> 
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h5>
+                End
+              </h5>
+              <div>
+                <input v-model="form.endsAt" placeholder="2006-10-25 14:30" type='datetime-local' class="form-control" /> 
+              </div>
+            </div>
+            <div class="col-md-4">
+              <h5>
+                Duration
+              </h5>
+              <div>
+                <input v-model="form.duration" placeholder="1m/1h/etc" class="form-control" />
+              </div>
+            </div>           
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h5>
+                Target
+              </h5>
+              <div class="labels">
+                <ul class="list-inline promgen-labels-list">
+                  <li v-for="(value, label) in state.labels">
+                    <div class="promgen-label-target">
+                      <span>[[label]]=~[[value]]</span>
+                      <span @click="removeLabel(label)" aria-hidden="true" class="promgen-label-close">&times;</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h5>Matcher</h5>
+              <div style="display: flex;align-items: center;">
+                <input type="text" placeholder="Label" v-model="form.label" class="form-control">
+                <input type="text" placeholder="=~" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
+                <input type="text" placeholder="Value" v-model="form.value" class="form-control">
+                <button type="button" class="btn btn-primary ml-2" @click="addLabel">&plus;</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>
+                Created By
+              </h5>
+              <div>
+                <input v-model="form.createdBy" class="form-control" /> 
+              </div>
+            </div>  
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h5>
+                Comment
+              </h5>
+              <div>
+                <textarea v-model="form.comment" class="form-control" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+         
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" @click="submit()">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
