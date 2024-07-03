@@ -7,6 +7,7 @@ from urllib.parse import urlsplit
 import requests
 from django.conf import settings
 from django.db.models import F
+from django.http import HttpResponse
 
 # Wrappers around request api to ensure we always attach our user agent
 # https://github.com/requests/requests/blob/master/requests/api.py
@@ -119,6 +120,22 @@ def help_text(klass):
         return klass._meta.get_field(field).help_text
 
     return wrapped
+
+def proxy_error(response: requests.Response) -> HttpResponse:
+    """
+    Return a wrapped proxy error
+
+    Taking a request.response object as input, return it slightly modified
+    with an extra header for debugging so that we can see where the request
+    failed
+    """
+    r = HttpResponse(
+        response.content,
+        content_type=response.headers["content-type"],
+        status=response.status_code,
+    )
+    r.setdefault("X-PROMGEN-PROXY", response.url)
+    return r
 
 
 # Comment wrappers to get the docstrings from the upstream functions
