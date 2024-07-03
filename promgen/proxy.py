@@ -18,23 +18,6 @@ from promgen import forms, models, prometheus, util
 logger = logging.getLogger(__name__)
 
 
-def proxy_error(response):
-    """
-    Return a wrapped proxy error
-
-    Taking a request.response object as input, return it slightly modified
-    with an extra header for debugging so that we can see where the request
-    failed
-    """
-    r = HttpResponse(
-        response.content,
-        content_type=response.headers["content-type"],
-        status=response.status_code,
-    )
-    r.setdefault("X-PROMGEN-PROXY", response.url)
-    return r
-
-
 class PrometheusProxy(View):
     proxy_headers = {"HTTP_REFERER": "Referer"}
 
@@ -91,7 +74,7 @@ class ProxyLabels(PrometheusProxy):
                 data.update(_json["data"])
             except HTTPError:
                 logger.warning("Error with response")
-                return proxy_error(result)
+                return util.proxy_error(result)
 
         return JsonResponse({"status": "success", "data": sorted(data)})
 
@@ -108,7 +91,7 @@ class ProxyLabelValues(PrometheusProxy):
                 data.update(_json["data"])
             except HTTPError:
                 logger.warning("Error with response")
-                return proxy_error(result)
+                return util.proxy_error(result)
 
         return JsonResponse({"status": "success", "data": sorted(data)})
 
@@ -125,7 +108,7 @@ class ProxySeries(PrometheusProxy):
                 data += _json["data"]
             except HTTPError:
                 logger.warning("Error with response")
-                return proxy_error(result)
+                return util.proxy_error(result)
 
         return JsonResponse({"status": "success", "data": data})
 
@@ -143,7 +126,7 @@ class ProxyQueryRange(PrometheusProxy):
                 data += _json["data"]["result"]
                 resultType = _json["data"]["resultType"]
             except HTTPError:
-                return proxy_error(result)
+                return util.proxy_error(result)
 
         return JsonResponse(
             {"status": "success", "data": {"resultType": resultType, "result": data}}
@@ -163,7 +146,7 @@ class ProxyQuery(PrometheusProxy):
                 data += _json["data"]["result"]
                 resultType = _json["data"]["resultType"]
             except HTTPError:
-                return proxy_error(result)
+                return util.proxy_error(result)
 
         return JsonResponse(
             {"status": "success", "data": {"resultType": resultType, "result": data}}

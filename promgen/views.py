@@ -1404,10 +1404,6 @@ class PromqlQuery(View):
             response = util.get(f"{shard.url}/api/v1/query", params=params, headers=headers)
             response.raise_for_status()
         except HTTPError:
-            return HttpResponse(
-                response.content,
-                content_type=response.headers["content-type"],
-                status=response.status_code,
-            )
+            return util.proxy_error(response)
 
         return HttpResponse(response.content, content_type="application/json")
