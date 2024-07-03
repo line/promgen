@@ -11,6 +11,8 @@ import time
 from itertools import chain
 
 import prometheus_client
+from prometheus_client.parser import text_string_to_metric_families
+
 import requests
 from django.conf import settings
 from django.contrib import messages
@@ -667,7 +669,16 @@ class ExporterScrape(LoginRequiredMixin, View):
                     try:
                         result = future.result()
                         result.raise_for_status()
-                        yield result.url, result.status_code
+                        metrics = list(text_string_to_metric_families(result.text))
+                        yield (
+                            result.url,
+                            {
+                                "status_code": result.status_code,
+                                "metric_count": len(list(metrics)),
+                            },
+                        )
+                    except ValueError as e:
+                        yield result.url, f"Unable to parse metrics: {e}"
                     except requests.ConnectionError as e:
                         logger.warning("Error connecting to server")
                         yield e.request.url, "Error connecting to server"
