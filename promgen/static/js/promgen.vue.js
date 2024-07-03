@@ -234,7 +234,7 @@ app.component('silence-modal', {
 
 app.component("promql-query", {
     delimiters: ['[[', ']]'],
-    props: ["href", "query", "max"],
+    props: ["shard", "query", "max"],
     data: function () {
         return {
             count: 0,
@@ -256,9 +256,11 @@ app.component("promql-query", {
     },
     template: '#promql-query-template',
     mounted() {
-        var url = new URL(this.href);
-        url.search = new URLSearchParams({ query: this.query });
-        fetch(url)
+        const params = new URLSearchParams({
+            shard: this.shard,
+            query: this.query,
+        });
+        fetch(`/promql-query?${params}`)
             .then(response => response.json())
             .then(result => this.count = Number.parseInt(result.data.result[0].value[1]))
             .finally(() => this.ready = true);
