@@ -57,3 +57,9 @@
     service: 1
     shard: 1
     farm: 1
+- model: promgen.exporter
+  pk: 1
+  fields:
+    project: 1
+    job: node
+    port: 9100

@@ -22,15 +22,15 @@ class CLITests(PromgenTest):
         management.call_command("register-job", "test-project", "example", 1234)
 
         # Ensure the jobs we expect exist
-        self.assertCount(models.Exporter, 1)
+        self.assertCount(models.Exporter, 2, "Import a new exporter")
 
         # Registering the same job again shouldn't change our count
         management.call_command("register-job", "test-project", "example", 1234)
-        self.assertCount(models.Exporter, 1)
+        self.assertCount(models.Exporter, 2, "Import additional exporter")
 
         # But registering a new one will
         management.call_command("register-job", "test-project", "example", 4321)
-        self.assertCount(models.Exporter, 2)
+        self.assertCount(models.Exporter, 3, 'Import additional exporter')
 
     @mock.patch("promgen.signals._trigger_write_config")
     def test_register_host(self, mock_signal):
