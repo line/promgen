@@ -32,6 +32,13 @@ class AllViewSet(viewsets.ViewSet):
             headers={"Content-Disposition": "attachment; filename=alert.rule.yml"},
         )
 
+    @action(detail=False, methods=["get"], renderer_classes=[renderers.renderers.JSONRenderer])
+    def targets(self, request):
+        return HttpResponse(
+            prometheus.render_config(),
+            content_type="application/json",
+        )
+
 
 class ShardViewSet(viewsets.ModelViewSet):
     queryset = models.Shard.objects.all()

@@ -1,0 +1,16 @@
+[
+    {
+      "labels": {
+        "__farm_source": "promgen",
+        "__scheme__": "http",
+        "__shard": "test-shard",
+        "farm": "test-farm",
+        "job": "node",
+        "project": "test-project",
+        "service": "test-service"
+      },
+      "targets": [
+        "example.com:9100"
+      ]
+    }
+  ]

@@ -1,0 +1,11 @@
+groups:
+  - name: promgen.example.com
+    rules:
+      - alert: example-rule
+        annotations:
+          rule: http://promgen.example.com/rule/1
+          summary: Example rule summary
+        expr: up==1
+        for: 1s
+        labels:
+          severity: high

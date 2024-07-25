@@ -11,8 +11,6 @@ import time
 from itertools import chain
 
 import prometheus_client
-from prometheus_client.parser import text_string_to_metric_families
-
 import requests
 from django.conf import settings
 from django.contrib import messages
@@ -30,6 +28,7 @@ from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
+from prometheus_client.parser import text_string_to_metric_families
 from requests.exceptions import HTTPError
 
 import promgen.templatetags.promgen as macro
@@ -309,8 +308,8 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
                 request,
                 "Removed filter {} {}".format(
                     self.escape_square_brackets(f.name),
-                    self.escape_square_brackets(f.value)
-                )
+                    self.escape_square_brackets(f.value),
+                ),
             )
         if "filter.name" in request.POST:
             obj = self.get_object()
@@ -322,16 +321,16 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
                     request,
                     "Created filter {} {}".format(
                         self.escape_square_brackets(f.name),
-                        self.escape_square_brackets(f.value)
-                    )
+                        self.escape_square_brackets(f.value),
+                    ),
                 )
             else:
                 messages.warning(
                     request,
                     "Updated filter {} {}".format(
                         self.escape_square_brackets(f.name),
-                        self.escape_square_brackets(f.value)
-                    )
+                        self.escape_square_brackets(f.value),
+                    ),
                 )
         if "next" in request.POST:
             return redirect(request.POST["next"])
