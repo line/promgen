@@ -63,3 +63,10 @@
     project: 1
     job: node
     port: 9100
+- model: promgen.exporter
+  pk: 2
+  fields:
+    project: 2
+    job: node
+    port: 9100
+    enabled: false
