@@ -79,7 +79,7 @@ def setting(key, default=None, domain=None):
         try:
             rtn = rtn[index]
         except KeyError:
-            if default != KeyError:
+            if default is not KeyError:
                 return default
             raise KeyError(f"Missing required setting: {key}")
     return rtn
@@ -120,6 +120,7 @@ def help_text(klass):
         return klass._meta.get_field(field).help_text
 
     return wrapped
+
 
 def proxy_error(response: requests.Response) -> HttpResponse:
     """
