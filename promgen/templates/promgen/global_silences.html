@@ -4,16 +4,22 @@
         <a @click="toggleComponent('global-silences')" class="close" role="button">&times;</a>
     </div>
     <table class="table table-bordered table-condensed table-responsive">
-        <tr>
-            <th>Starts</th>
-            <th>Ends</th>
-            <th>Matchers</th>
-            <th>Comment</th>
-            <th>Created by</th>
-            <th>&nbsp;</th>
-        </tr>
-        <tr v-for="silence in activeSilences">
-            {% include 'promgen/silence_row.html' %}
-        </tr>
+        <tbody>
+            <tr>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Matchers</th>
+                <th>Comment</th>
+                <th>Created by</th>
+                <th>&nbsp;</th>
+            </tr>
+            <template v-for="silence in activeSilences" :key="silence.id">
+                <silence-row
+                    :silence="silence"
+                    label-color="warning"
+                    @matcher-click="addSilenceLabel"
+                />
+            </template>
+        </tbody>
     </table>
 </div>

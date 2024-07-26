@@ -17,9 +17,11 @@
       <a @click="toggleComponent('silences-service-{{service.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
     </div>
     <table v-if="components['silences-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
-      <tr v-for="silence in activeServiceSilences.get('{{service.name}}')">
-        {% include 'promgen/silence_row.html' %}
-      </tr>
+      <tbody>
+        <template v-for="silence in activeServiceSilences.get('{{service.name}}')" :key="silence.id">
+          <silence-row :silence="silence" label-color="warning" @matcher-click="addSilenceLabel" />
+        </template>
+      </tbody>
     </table>
   </div>
 

@@ -1,0 +1,28 @@
+{% load i18n %}
+<tr>
+  <td class="col-xs-1">[[ time(silence.startsAt) ]]</td>
+  <td class="col-xs-1">[[ time(silence.endsAt) ]]</td>
+  <td class="col-xs-3 text-wrap">
+    <ul class="list-inline">
+      <li v-for="matcher in silence.matchers">
+        <a
+          @click="$emit('matcherClick', matcher.name, matcher.value)"
+          class="label"
+          :class="`label-${labelColor}`"
+        >
+          [[ matcher.name ]]:[[ matcher.value ]]
+        </a>
+      </li>
+    </ul>
+  </td>
+  <td class="col-xs-3" v-html="urlize(silence.comment)"></td>
+  <td class="col-xs-3">[[ silence.createdBy ]]</td>
+  <td style="col-xs-1">
+    <a
+      @click="$root.expireSilence(silence.id)"
+      class="btn btn-warning btn-xs"
+    >
+      {% translate "Expire" %}
+    </a>
+  </td>
+</tr>

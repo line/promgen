@@ -150,6 +150,23 @@ const app = Vue.createApp({
 
 app.config.compilerOptions.whitespace = "preserve";
 
+app.component("silence-row", {
+    delimiters: ["[[", "]]"],
+    template: "#silence-row-template",
+    mixins: [mixins],
+    emits: ["matcherClick"],
+    props: {
+        silence: {
+            type: Object,
+            required: true,
+        },
+        labelColor: {
+            type: String,
+            default: "info",
+        },
+    },
+});
+
 app.component('silence-modal', {
     template: '#silence-modal-template',
     delimiters: ['[[', ']]'],
