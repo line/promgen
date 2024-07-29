@@ -70,3 +70,13 @@
     job: node
     port: 9100
     enabled: false
+- model: promgen.probe
+  pk: 1
+  fields:
+    module: fixture_test
+- model: promgen.url
+  pk: 1
+  fields:
+    project: 1
+    probe: 1
+    url: probe.example.com

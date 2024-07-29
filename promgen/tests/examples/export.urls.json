@@ -1,0 +1,12 @@
+[
+  {
+    "labels": {
+      "__param_module": "fixture_test",
+      "__shard": "test-shard",
+      "job": "fixture_test",
+      "project": "test-project",
+      "service": "test-service"
+    },
+    "targets": ["probe.example.com"]
+  }
+]

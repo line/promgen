@@ -39,6 +39,13 @@ class AllViewSet(viewsets.ViewSet):
             content_type="application/json",
         )
 
+    @action(detail=False, methods=["get"], renderer_classes=[renderers.renderers.JSONRenderer])
+    def urls(self, request):
+        return HttpResponse(
+            prometheus.render_urls(),
+            content_type="application/json",
+        )
+
 
 class ShardViewSet(viewsets.ModelViewSet):
     queryset = models.Shard.objects.all()
