@@ -23,3 +23,9 @@ class RendererTests(tests.PromgenTest):
         response = self.client.get(reverse("api:all-targets"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
+
+    def test_global_urls(self):
+        expected = tests.Data("examples", "export.urls.json").json()
+        response = self.client.get(reverse("api:all-urls"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
