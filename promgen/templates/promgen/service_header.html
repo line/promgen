@@ -1,8 +1,27 @@
 {% load i18n %}
 
-<h2 v-pre>
-    <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
-    {% if service.owner %}
-    <small class="pull-right">{% trans 'Contact' %}: {{service.owner.username}}</small>
-    {% endif %}
-</h2>
+<div v-pre class="page-header promgen-flex-space-between-center">
+    <div>
+        <h2><a href="{% url 'service-detail' service.id %}">{{ service.name }}</a></h2>
+        {% if service.owner %}
+        <p>{% translate 'Contact' %}: {{service.owner.username}}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="btn-group btn-group-sm" role="group" aria-label="...">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% trans "Register" %} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li role="presentation"><a href="{% url 'project-new' service.id %}">{% trans "Register Project" %}</a></li>
+                <li role="presentation"><a href="{% url 'rule-new' 'service' service.id %}">{% trans "Register Rule" %}</a></li>
+                <li role="presentation"><a href="{% url 'service-notifier' service.id %}">{% trans "Register Notifier" %}</a></li>
+            </ul>
+        </div>
+
+        {% include "promgen/service_action_button_group.html" %}
+    </div>
+</div>

@@ -8,15 +8,9 @@ Promgen / Service / {{ service.name }}
 
 {% block content %}
 
-<div class="page-header" v-pre>
-  <h1>Service: {{ service.name }}</h1>
-  {% if service.owner %}
-  <p>{% trans 'Contact' %}: {{service.owner.username}}</p>
-  {% endif %}
-</div>
-
 {% breadcrumb service %}
 
+{% include "promgen/service_header.html" %}
 {% include "promgen/service_block.html" %}
 
 {% endblock %}
