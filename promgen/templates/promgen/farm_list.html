@@ -50,12 +50,12 @@
         {% if farm.driver.remote %}
         <form method="post" action="{% url 'farm-convert' farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
           {% csrf_token %}
-          <button class="btn btn-warning">{% trans "Convert to Local Farm" %}</button>
+          <button class="btn btn-warning">{% translate "Convert to Local Farm" %}</button>
         </form>
         {% endif %}
         <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
           {% csrf_token %}
-          <button class="btn btn-danger">{% trans "Delete" %}</button>
+          <button class="btn btn-danger">{% translate "Delete" %}</button>
         </form>
       </td>
     </tr>
