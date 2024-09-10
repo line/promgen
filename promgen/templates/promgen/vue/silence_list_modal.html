@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load promgen %}
+<div id="silenceListModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="silenceModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" @click="state.show = false" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="silenceModalLabel">Silence</h4>
+      </div>
+      <div class="modal-body" style="padding:10px 30px;">
+        
+        <div class="row mb-4">
+          <div class="col-md-12">
+            <div style="display: flex;align-items: center;">
+              <select v-model="form.label" class="form-control" @change="updateValueOptions">
+                <option value="">Select a label</option>
+                <option v-for="label in uniqueLabels" :value="label">[[label]]</option>
+              </select>
+              <input type="text" placeholder="=~" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
+              <select v-model="form.value" class="form-control" :disabled="!form.label">
+                <option value="">Select a value</option>
+                <option v-for="value in filteredValues" :value="value">[[value]]</option>
+              </select>
+              <button type="button" class="btn btn-primary ml-2" @click="addFilterLabel" :disabled="!form.label || !form.value">&plus;</button>
+            </div>
+          </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-md-12">
+              <div class="labels">
+                <ul class="list-inline promgen-labels-list">
+                  <li v-for="item in state.labels" :key="`${item.label}-${item.value}`">
+                    <div class="promgen-label-target">
+                      <span>[[item.label]]=~[[item.value]]</span>
+                      <span @click="removeFilterLabel(item.label, item.value)" aria-hidden="true" class="promgen-label-close">&times;</span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        
+        <table class="table table-bordered table-condensed table-responsive">
+          <thead>
+            <tr>
+                <th>Starts</th>
+                <th>Ends</th>
+                <th>Matchers</th>
+                <th>Comment</th>
+                <th>Created by</th>
+                <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="silence in filteredSilences" :key="silence.id">
+              <silence-row :silence="silence" label-color="info" @matcher-click="addFilterLabel" />
+            </template>
+          </tbody>
+         
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
