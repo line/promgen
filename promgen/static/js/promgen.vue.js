@@ -167,8 +167,8 @@ app.component("silence-row", {
     },
 });
 
-app.component('silence-modal', {
-    template: '#silence-modal-template',
+app.component('silence-create-modal', {
+    template: '#silence-create-modal-template',
     delimiters: ['[[', ']]'],
     data: () => ({
         state: silenceStore.state,
@@ -215,7 +215,7 @@ app.component('silence-modal', {
                 });
         },
         hideModal() {
-            const modal = $('#silenceModal');
+            const modal = $('#silenceCreateModal');
             if (modal.length) {
                 globalStore.setMessages([]);
                 this.form = {};
@@ -224,7 +224,7 @@ app.component('silence-modal', {
             }
         },
         showModal() {
-            const modal = $('#silenceModal');
+            const modal = $('#silenceCreateModal');
             if (modal.length) {
                 // Detect when the modal is closed, and update the state accordingly. This is
                 // necessary in case the user closes the modal by clicking outside of it, instead of
