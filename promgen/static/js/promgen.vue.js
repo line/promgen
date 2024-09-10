@@ -83,6 +83,9 @@ const app = Vue.createApp({
             this.setSilenceLabels(event.target.dataset);
             this.addSilenceLabel('instance', this.selectedHosts.join('|'));
         },
+        openSilenceListModal() {
+            silenceListStore.showModal();
+        },
         fetchSilences: function () {
             fetch('/proxy/v1/silences')
                 .then(response => response.json())
@@ -167,8 +170,8 @@ app.component("silence-row", {
     },
 });
 
-app.component('silence-modal', {
-    template: '#silence-modal-template',
+app.component('silence-create-modal', {
+    template: '#silence-create-modal-template',
     delimiters: ['[[', ']]'],
     data: () => ({
         state: silenceStore.state,
@@ -215,7 +218,7 @@ app.component('silence-modal', {
                 });
         },
         hideModal() {
-            const modal = $('#silenceModal');
+            const modal = $('#silenceCreateModal');
             if (modal.length) {
                 globalStore.setMessages([]);
                 this.form = {};
@@ -224,7 +227,7 @@ app.component('silence-modal', {
             }
         },
         showModal() {
-            const modal = $('#silenceModal');
+            const modal = $('#silenceCreateModal');
             if (modal.length) {
                 // Detect when the modal is closed, and update the state accordingly. This is
                 // necessary in case the user closes the modal by clicking outside of it, instead of
@@ -322,4 +325,134 @@ app.component('exporter-test', {
                 .catch(error => alert(error))
         }
     }
+});
+
+const silenceListStore = Vue.reactive({
+    state: {
+        show: false,
+        labels: []
+    },
+    addFilterLabel(label, value) {
+        const existingLabel = this.state.labels.find(item => item.label === label && item.value === value);
+        if (!existingLabel) {
+            this.state.labels.push({ label, value });
+        }
+    },
+    removeFilterLabel(label, value) {
+        const index = this.state.labels.findIndex(item => item.label === label && item.value === value);
+        if (index > -1) {
+            this.state.labels.splice(index, 1);
+        }
+    },
+    showModal() {
+        this.state.show = true;
+    },
+    hideModal() {
+        this.state.show = false;
+    },
+});
+
+app.component('silence-list-modal', {
+    template: '#silence-list-modal-template',
+    delimiters: ['[[', ']]'],
+    mixins: [mixins],
+    data() {
+        return {
+            state: silenceListStore.state,
+            form: {
+                label: '',
+                value: ''
+            },
+            store: dataStore
+        };
+    },
+    computed: {
+        activeSilences() {
+            return this.$root.activeSilences || [];
+        },
+        filteredSilences() {
+            if (!this.state.labels || this.state.labels.length === 0) {
+                return this.activeSilences;
+            }
+
+            return this.activeSilences.filter(silence => {
+                return this.state.labels.every(filterLabel => {
+                    return silence.matchers.some(matcher => 
+                        matcher.name === filterLabel.label &&
+                        matcher.value === filterLabel.value
+                    );
+                });
+            });
+        },
+        uniqueLabels() {
+            const labels = new Set();
+            this.activeSilences.forEach(silence => {
+                silence.matchers.forEach(matcher => {
+                    labels.add(matcher.name);
+                });
+            });
+            return Array.from(labels);
+        },
+        filteredValues() {
+            if (!this.form.label) return [];
+            const values = new Set();
+            this.activeSilences.forEach(silence => {
+                silence.matchers.forEach(matcher => {
+                    if (matcher.name === this.form.label) {
+                        values.add(matcher.value);
+                    }
+                });
+            });
+            return Array.from(values);
+        }
+    },
+    methods: {
+        hideModal() {
+            const modal = $('#silenceListModal');
+            if (modal.length) {
+                globalStore.setMessages([]);
+                silenceListStore.state.labels = [];
+                this.form.label = ''; 
+                this.form.value = '';
+                modal.modal('hide');
+            }
+        },
+        showModal() {
+            const modal = $('#silenceListModal');
+            if (modal.length) {
+                modal.on('hidden.bs.modal', () => {
+                    silenceListStore.hideModal();
+                });
+                modal.modal('show');
+            }
+        },
+        addFilterLabel(label, value) {
+            if (label && value) {
+                if (!this.state.labels.some(item => item.label === label && item.value === value)) {
+                    silenceListStore.addFilterLabel(label, value);
+                }
+            } else if (this.form.label && this.form.value) {
+                if (!this.state.labels.some(item => item.label === this.form.label && item.value === this.form.value)) {
+                    silenceListStore.addFilterLabel(this.form.label, this.form.value);
+                }
+            }
+            this.form.label = '';
+            this.form.value = '';
+        },
+        removeFilterLabel(label, value) {
+            silenceListStore.removeFilterLabel(label, value);
+        },
+        updateValueOptions() {
+            this.form.value = '';
+        }
+    },
+    watch: {
+        "state.show"(val) {
+            if (val) {
+                this.showModal();
+            } else {
+                this.hideModal();
+            }
+        }
+    },
 });

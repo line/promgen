@@ -50,7 +50,7 @@ a[rel]:after {
   font-family: monospace;
 }
 
-/* silence-modal */
+/* silence-create-modal */
 .promgen-labels-list {
   padding: 10px 5px;
   min-height: 116px;

@@ -51,11 +51,10 @@
                 Alerts
                 <span v-text="activeAlerts.length" class="badge"></span>
             </a>
-            <a @click="toggleComponent('global-silences')" class="btn btn-warning navbar-btn" role="button">
+            <a @click="openSilenceListModal" class="btn btn-warning navbar-btn" role="button">    
                 Silences
                 <span v-text="activeSilences.length" class="badge"></span>
             </a>
-
             <ul class="nav navbar-nav navbar-right" v-pre>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">

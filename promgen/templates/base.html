@@ -23,7 +23,8 @@
     {% endblock %}
     <div class="container">
       {% include 'promgen/global_messages.html' %}
-      <silence-modal></silence-modal>
+      <silence-create-modal></silence-create-modal>
+      <silence-list-modal></silence-list-modal>
       {% include 'promgen/global_alerts.html' %}
       {% include 'promgen/global_silences.html' %}
       {% block content %}{% endblock %}
@@ -52,11 +53,14 @@
   <script type="text/x-template" id="promql-query-template">
     {% include 'promgen/vue/promql_query.html' %}
   </script>
-  <script type="text/x-template" id="silence-modal-template">
-    {% include 'promgen/vue/silence_modal.html' %}
+  <script type="text/x-template" id="silence-create-modal-template">
+    {% include 'promgen/vue/silence_create_modal.html' %}
   </script>
   <script type="text/x-template" id="silence-row-template">
     {% include 'promgen/vue/silence_row.html' %}
+  </script>  
+  <script type="text/x-template" id="silence-list-modal-template">
+    {% include 'promgen/vue/silence_list_modal.html' %}
   </script>
   <script src="{% static 'js/promgen.js' %}"></script>
   <script src="{% static 'js/mixins.vue.js' %}"></script>
