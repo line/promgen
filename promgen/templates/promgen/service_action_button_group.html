@@ -1,0 +1,44 @@
+{% load i18n %}
+{% load promgen %}
+
+<div style="display: inline-block;" class="service-action-button-group">
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      {% translate "Actions" %} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+
+      <li>
+        <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post" v-pre>{% csrf_token %}
+          <input type="hidden" name="sender" value="promgen.notification.user">
+          <input type="hidden" name="value" value="{{request.user.username}}" />
+          <button>{% translate "Subscribe to Notifications" %}</button>
+        </form>
+      </li>
+
+      <hr>
+
+      <li role="presentation"><a href="{% urlqs 'audit-list' service=service.id %}">{% translate "Edit History" %}</a></li>
+      <li role="presentation"><a href="{% urlqs 'alert-list' service=service.name %}">{% translate "Alert History" %}</a></li>
+
+      <hr>
+
+      <li role="presentation"><a href="{% url 'api:service-rules' name=service.name %}">{% translate "Export Rules" %}</a></li>
+      <li role="presentation"><a href="{% url 'api:service-targets' name=service.name %}">{% translate "Export Service" %}</a></li>
+
+      <hr>
+
+      <li role="presentation">
+        <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% translate "Delete this service?" %}')" style="display: inline">
+          {% csrf_token %}   
+          <button type="submit" style="color:#d9534f;">{% translate "Delete Service" %}</button>  
+        </form>
+      </li>
+
+    </ul>
+  </div>
+  <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm ml-2 mr-2">{% translate "Silence" %}</a>
+
+  <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% translate "Edit Service" %}</a>
+
+</div>
