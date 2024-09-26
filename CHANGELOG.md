@@ -1,5 +1,15 @@
 # Changelog
 
+# v0.66.0 - 2024-09-25
+
+- [IMPROVEMENT] Test metrics validity when testing Exporter #526
+- [IMPROVEMENT] Shard: Add support for Authorization header #518
+- [BUGFIX] Fix promql-query Vue component rendering #516
+- [INTERNAL] Upgrade Celery #514
+- [INTERNAL] Django upgrade fixes #515
+- [INTERNAL] Update dependencies #513
+- [INTERNAL] Update mysql settings in docker-compose #509
+
 # v0.65.0 - 2024-05-16
 
 - [BUGFIX] Fix testing Rule query before saving #510
