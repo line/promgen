@@ -5,7 +5,7 @@
   <td>
     <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-detail' rule.id %}" v-pre>{{ rule.name }}</a>
     {% if rule.parent %}
-    <a class="pull-right" title="{% trans "View Parent" %}" href="{% url 'rule-detail' rule.parent.id %}">
+    <a class="pull-right" title="{% translate "View Parent" %}" href="{% url 'rule-detail' rule.parent.id %}">
       <span class="glyphicon glyphicon-upload"></span>
     </a>
     {% endif %}
@@ -34,14 +34,14 @@
       <input name="content_type" type="hidden" value="{{overwrite_type}}" />
       <input name="object_id" type="hidden" value="{{overwrite_id}}" />
       {% csrf_token %}
-      <button class="btn btn-warning btn-xs">{% trans "Overwrite" %}</button>
+      <button class="btn btn-warning btn-xs">{% translate "Overwrite" %}</button>
     </form>
   </td>
   {% else %}
   <td>
-    <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans "Delete this Rule?" %}')" style="display: inline">
+    <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% translate "Delete this Rule?" %}')" style="display: inline">
       {% csrf_token %}
-      <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
+      <button class="btn btn-danger btn-xs">{% translate "Delete" %}</button>
     </form>
   </td>
   {% endif %}

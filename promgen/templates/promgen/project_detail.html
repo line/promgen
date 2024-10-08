@@ -12,7 +12,7 @@ Promgen / Project / {{ project.name }}
   <h1>
     Project: {{ project.name }}
     {% if project.owner %}
-    <small class="pull-right">{% trans 'Contact' %}: {{project.owner.username}}</small>
+    <small class="pull-right">{% translate 'Contact' %}: {{project.owner.username}}</small>
     {% endif %}
   </h1>
 </div>
@@ -23,7 +23,7 @@ Promgen / Project / {{ project.name }}
 <div class="alert alert-warning" role="alert">
   <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
   <span class="sr-only">Warning:</span>
-  {% trans 'No notifications configured for this project. Please configure some' %}
+  {% translate 'No notifications configured for this project. Please configure some' %}
 </div>
 {% endif %}
 

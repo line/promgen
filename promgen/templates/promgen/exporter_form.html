@@ -38,7 +38,7 @@
           <div class="input-group-btn">
             <button class="btn btn-primary">Register Exporter</button>
             <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}">
-              {% trans "Test" %}
+              {% translate "Test" %}
             </exporter-test>
           </div>
         </div>
@@ -61,7 +61,7 @@
           <div class="input-group-btn">
             <button style="width:80%" class="btn btn-primary" v-pre>Register {{ default.job }} :{{ default.port }}{{ default.path }}</button>
             <exporter-test class="btn btn-info" href="{% url 'exporter-scrape' project.id %}">
-              {% trans "Test" %}
+              {% translate "Test" %}
             </exporter-test>
           </div>
         </form>

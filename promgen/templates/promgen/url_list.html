@@ -42,7 +42,7 @@
     <td class="col-md-1">
       <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
         {% csrf_token %}
-        <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
+        <button class="btn btn-danger btn-xs">{% translate "Delete" %}</button>
       </form>
     </td>
   </tr>

@@ -26,7 +26,7 @@ Promgen / Datasource / {{ shard.name }}
       <h2>
         <a href="{% url 'service-detail' service.id %}">{{ service.name }}</a>
         {% if service.owner %}
-        <small class="pull-right">{% trans 'Contact' %}: {{service.owner.username}}</small>
+        <small class="pull-right">{% translate 'Contact' %}: {{service.owner.username}}</small>
         {% endif %}
       </h2>
 

@@ -16,11 +16,11 @@
   <div class="panel-heading">Project Notifiers</div>
   {% include "promgen/notifier_block.html" with object=project show_edit=1 %}
   <div class="panel-footer" v-pre>
-    <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary">{% trans "Register Notifier" %}</a>
+    <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary">{% translate "Register Notifier" %}</a>
     <form action="{% url 'project-notifier' project.id %}" style="display:inline" method="post">{% csrf_token %}
       <input type="hidden" name="sender" value="promgen.notification.user">
       <input type="hidden" name="value" value="{{request.user.username}}" />
-      <button class="btn btn-primary">{% trans "Subscribe to Notifications" %}</button>
+      <button class="btn btn-primary">{% translate "Subscribe to Notifications" %}</button>
     </form>
   </div>
 </div>

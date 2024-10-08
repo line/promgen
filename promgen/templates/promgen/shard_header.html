@@ -7,7 +7,7 @@
 
   {% if user.is_superuser %}
   <a class="btn btn-danger btn-sm pull-right" role="button" href="{% url 'admin:promgen_shard_change' shard.id %}">
-    {% trans "Admin" %}
+    {% translate "Admin" %}
   </a>
   {% endif %}
 </div>

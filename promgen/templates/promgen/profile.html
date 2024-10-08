@@ -26,16 +26,16 @@
         {% endfor %}
       </td>
       <td>
-        <a href="{% url 'notifier-edit' notifier.id %}" class="btn btn-warning btn-xs">{% trans "Edit" %}</a>
+        <a href="{% url 'notifier-edit' notifier.id %}" class="btn btn-warning btn-xs">{% translate "Edit" %}</a>
         <form method="post" action="{% url 'notifier-test' notifier.id %}" style="display: inline">
           {% csrf_token %}
           <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-          <button class="btn btn-info btn-xs">{% trans "Test" %}</button>
+          <button class="btn btn-info btn-xs">{% translate "Test" %}</button>
         </form>
-        <form method="post" action="{% url 'notifier-delete' notifier.id %}" onsubmit="return confirm('{% trans "Delete notification?" %}')" style="display: inline">
+        <form method="post" action="{% url 'notifier-delete' notifier.id %}" onsubmit="return confirm('{% translate "Delete notification?" %}')" style="display: inline">
           {% csrf_token %}
           <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-          <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
+          <button class="btn btn-danger btn-xs">{% translate "Delete" %}</button>
         </form>
       </td>
     </tr>

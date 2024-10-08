@@ -37,47 +37,47 @@
     <div class="panel-body">
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {% trans "Register" %} <span class="caret"></span>
+          {% translate "Register" %} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li role="presentation"><a href="{% url 'project-new' service.id %}">{% trans "Register Project" %}</a></li>
-          <li role="presentation"><a href="{% url 'rule-new' 'service' service.id %}">{% trans "Register Rule" %}</a></li>
-          <li role="presentation"><a href="{% url 'service-notifier' service.id %}">{% trans "Register Notifier" %}</a></li>
+          <li role="presentation"><a href="{% url 'project-new' service.id %}">{% translate "Register Project" %}</a></li>
+          <li role="presentation"><a href="{% url 'rule-new' 'service' service.id %}">{% translate "Register Rule" %}</a></li>
+          <li role="presentation"><a href="{% url 'service-notifier' service.id %}">{% translate "Register Notifier" %}</a></li>
         </ul>
       </div>
 
       <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post" v-pre>{% csrf_token %}
         <input type="hidden" name="sender" value="promgen.notification.user">
         <input type="hidden" name="value" value="{{request.user.username}}" />
-        <button class="btn btn-primary btn-sm">{% trans "Subscribe to Notifications" %}</button>
+        <button class="btn btn-primary btn-sm">{% translate "Subscribe to Notifications" %}</button>
       </form>
 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {% trans "Change History" %} <span class="caret"></span>
+          {% translate "Change History" %} <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li role="presentation"><a href="{% urlqs 'audit-list' service=service.id %}">{% trans "Edit History" %}</a></li>
-          <li role="presentation"><a href="{% urlqs 'alert-list' service=service.name %}">{% trans "Alert History" %}</a></li>
+          <li role="presentation"><a href="{% urlqs 'audit-list' service=service.id %}">{% translate "Edit History" %}</a></li>
+          <li role="presentation"><a href="{% urlqs 'alert-list' service=service.name %}">{% translate "Alert History" %}</a></li>
         </ul>
       </div>
 
-      <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% trans "Edit Service" %}</a>
-      <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm">{% trans "Silence" %}</a>
+      <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% translate "Edit Service" %}</a>
+      <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm">{% translate "Silence" %}</a>
 
       <div class="btn-group btn-group-sm" role="group" aria-label="...">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Export <span class="caret"></span>
         </button>
         <ul class="dropdown-menu">
-          <li role="presentation"><a href="{% url 'api:service-rules' name=service.name %}">{% trans "Export Rules" %}</a></li>
-          <li role="presentation"><a href="{% url 'api:service-targets' name=service.name %}">{% trans "Export Service" %}</a></li>
+          <li role="presentation"><a href="{% url 'api:service-rules' name=service.name %}">{% translate "Export Rules" %}</a></li>
+          <li role="presentation"><a href="{% url 'api:service-targets' name=service.name %}">{% translate "Export Service" %}</a></li>
         </ul>
       </div>
 
-      <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% trans "Delete this service?" %}')" style="display: inline">
+      <form method="post" action="{% url 'service-delete' service.id %}" onsubmit="return confirm('{% translate "Delete this service?" %}')" style="display: inline">
         {% csrf_token %}
-        <button class="btn btn-danger btn-sm pull-right">{% trans "Delete Service" %}</button>
+        <button class="btn btn-danger btn-sm pull-right">{% translate "Delete Service" %}</button>
       </form>
     </div>
   </div>
@@ -91,7 +91,7 @@
     </table>
     <div class="panel-footer">
       <a class="btn btn-default btn-xs" role="button" data-toggle="collapse" href=".service-site-rules-{{service.id}}" aria-expanded="false" aria-controls="collapseExample">
-        {% trans 'Show Site Rules' %}
+        {% translate 'Show Site Rules' %}
       </a>
     </div>
   </div>
