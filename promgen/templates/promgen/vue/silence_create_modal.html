@@ -55,7 +55,12 @@
                 <ul class="list-inline promgen-labels-list">
                   <li v-for="(value, label) in state.labels">
                     <div class="promgen-label-target">
-                      <span>[[label]]=~[[value]]</span>
+                      <span
+                        :title="`${label}:${value}`"
+                        class="promgen-silence-matcher-truncate"
+                      >
+                        [[label]]=~[[value]]
+                      </span>
                       <span @click="removeLabel(label)" aria-hidden="true" class="promgen-label-close">&times;</span>
                     </div>
                   </li>

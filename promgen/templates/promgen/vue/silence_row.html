@@ -4,7 +4,12 @@
   <td class="col-xs-1">[[ time(silence.endsAt) ]]</td>
   <td class="col-xs-3 text-wrap">
     <ul class="list-inline">
-      <li v-for="matcher in silence.matchers">
+      <li
+        v-for="matcher in silence.matchers"
+        :title="`${matcher.name}:${matcher.value}`"
+        class="promgen-silence-matcher-truncate"
+        style="color: white"
+      >
         <a
           @click="$emit('matcherClick', matcher.name, matcher.value)"
           class="label"
