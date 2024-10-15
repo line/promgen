@@ -69,6 +69,11 @@ a[rel]:after {
   margin-bottom: 10px;
 }
 
+.promgen-label-target > span {
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .promgen-label-target:hover {
   text-decoration: none !important;
   color: #000000;
@@ -77,8 +82,16 @@ a[rel]:after {
 .promgen-label-close {
   font-size: 20px;
   margin-left: 10px;
+  margin-top: -2px;
   color: #aaaaaa;
   cursor: pointer;
+}
+
+.promgen-silence-matcher-truncate {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* service-detail */
