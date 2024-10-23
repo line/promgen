@@ -2,16 +2,19 @@
 
 {% regroup project_list|dictsort:"shard_id" by shard as project_shard_list %}
 
+<div class="text-right mb-4">
+    <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Project" %}</a>
+</div>
+
 {% for shard, shard_projects in project_shard_list %}
 <div class="panel panel-default">
     <div class="panel-heading" v-pre>
         Datasource
         <a href="{{shard.get_absolute_url}}">{{shard.name}}</a>
         ( <a href="{{shard.url}}">{{shard.url}}</a> )
-        <a href="{% url 'project-new' service.id %}?shard={{shard.id}}" class="btn btn-primary btn-xs pull-right">{% trans "Register Project" %}</a>
     </div>
 
     {% include 'promgen/service_detail_projects_table.html' with shard_projects=shard_projects service=service %}
-
+    
 </div>
 {% endfor %}

@@ -1,0 +1,7 @@
+{% load promgen %}
+
+{% if service.notifiers.count %} 
+<div class="panel panel-default">
+  {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
+</div>
+{% endif %}

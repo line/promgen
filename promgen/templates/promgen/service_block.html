@@ -51,26 +51,9 @@
     </div>
   </div>
 
-  {% if service.rule_set.count or request.site.rule_set.count %}
-  <div class="panel panel-default">
-    <table class="table table-bordered table-condensed">
-      {% include "promgen/rule_header.html" %}
-      {% include "promgen/rule_block.html" with rule_list=service.rule_set.all toggle=1 delete=1 %}
-      {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="service-site-rules-" overwrite_type='service' overwrite_id=service.id %}
-    </table>
-    <div class="panel-footer">
-      <a class="btn btn-default btn-xs" role="button" data-toggle="collapse" href=".service-site-rules-{{service.id}}" aria-expanded="false" aria-controls="collapseExample">
-        {% trans 'Show Site Rules' %}
-      </a>
-    </div>
-  </div>
-  {% endif %}
+  {% include "promgen/service_block_panel_rules.inc.html" %} 
 
-  {% if service.notifiers.count %}
-  <div class="panel panel-default">
-    {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
-  </div>
-  {% endif %}
+  {% include "promgen/service_block_panel_notifiers.inc.html" %}
 
   {% include "promgen/service_block_projects.html" with project_list=project_list|default:service.project_set.all service=service only %}
 
