@@ -1,0 +1,27 @@
+{% load i18n %}
+
+<table class="table table-bordered table-condensed">
+  <tr>
+      <th class="col-md-2">Project</th>
+      <th class="col-md-3">Exporters</th>
+      <th class="col-md-3">Notifiers</th>
+      <th class="col-md-1">Actions</th>
+  </tr>
+  {% for project in shard_projects %}
+
+  {% if service.notifiers.count == 0 and project.notifiers.count == 0 %}
+  <tr>
+      <td colspan="4" class="warning">
+          <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+          {% translate "No notifications configured for this project. Please configure some" %}
+      </td>
+  </tr>
+  {% endif %}
+
+  {% include 'promgen/project_row.html' %}
+  {% empty %}
+  <tr>
+      <td colspan="4">No Projects?</td>
+  </tr>
+  {% endfor %}
+</table>
