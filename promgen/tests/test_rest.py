@@ -3,6 +3,7 @@
 
 
 from django.test import override_settings
+from django.urls import reverse
 
 from promgen import models, rest, tests
 
@@ -21,3 +22,41 @@ class RestAPITest(tests.PromgenTest):
         response = self.fireAlert()
         self.assertEqual(response.status_code, 202)
         self.assertCount(models.Alert, 1, "Alert Queued")
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_retrieve_farm(self):
+        expected = tests.Data("examples", "rest.farm.json").json()
+
+        # Check retrieving all farms
+        response = self.client.get(reverse("api:farm-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving all farms whose "name" contains "farm"
+        response = self.client.get(reverse("api:farm-list"), {"name": "farm"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving all farms whose "source" is "promgen"
+        response = self.client.get(reverse("api:farm-list"), {"source": "promgen"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving farms with a non-existent "name" returns an empty list
+        response = self.client.get(reverse("api:farm-list"), {"name": "other-name"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
+        # Check retrieving farms with a non-existent "source" returns an empty list
+        response = self.client.get(reverse("api:farm-list"), {"source": "other-source"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
+
+        farm = models.Farm.objects.get(id=1)
+        models.Host.objects.create(name="host.example.com", farm=farm)
+        expected = tests.Data("examples", "rest.farm.1.json").json()
+
+        # Check retrieving the farm whose "id" is "1", including the list of hosts.
+        response = self.client.get(reverse("api:farm-detail", args=[1]))
+        self.assertEqual(response.json(), expected)

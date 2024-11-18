@@ -102,3 +102,19 @@ class AlertRuleSerializer(serializers.ModelSerializer):
             "labels": obj.labels,
             "annotations": annotations,
         }
+
+
+class FarmSerializer(serializers.ModelSerializer):
+    url = WebLinkField()
+
+    class Meta:
+        model = models.Farm
+        fields = '__all__'
+
+
+class HostSerializer(serializers.ModelSerializer):
+    url = WebLinkField()
+
+    class Meta:
+        model = models.Host
+        exclude = ("id", "farm")

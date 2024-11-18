@@ -1,6 +1,7 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
+from django.core.serializers import get_serializer
 from django.http import HttpResponse
 from django.views.generic import View
 from rest_framework import permissions, viewsets
@@ -110,3 +111,23 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
             prometheus.render_config(project=self.get_object()),
             content_type="application/json",
         )
+
+
+class FarmViewSet(viewsets.ModelViewSet):
+    queryset = models.Farm.objects.all()
+    filterset_class = filters.FarmFilter
+    serializer_class = serializers.FarmSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+
+    def retrieve(self, request, id):
+        farm = self.get_object()
+        farm_data = self.get_serializer(farm).data
+
+        hosts = farm.host_set.all()
+        hosts_data = serializers.HostSerializer(hosts, many=True).data
+        farm_detail = {
+            **farm_data,
+            "hosts": hosts_data
+        }
+        return Response(farm_detail)

@@ -28,6 +28,7 @@ router.register("all", rest.AllViewSet, basename="all")
 router.register("service", rest.ServiceViewSet)
 router.register("shard", rest.ShardViewSet)
 router.register("project", rest.ProjectViewSet)
+router.register("farm", rest.FarmViewSet)
 
 
 urlpatterns = [
