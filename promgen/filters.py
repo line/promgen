@@ -19,3 +19,8 @@ class RuleFilter(django_filters.rest_framework.FilterSet):
     name = django_filters.CharFilter(field_name="name", lookup_expr="contains")
     parent = django_filters.CharFilter(field_name="parent__name", lookup_expr="contains")
     enabled = django_filters.BooleanFilter(field_name="enabled")
+
+
+class FarmFilter(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(field_name="name", lookup_expr="contains")
+    source = django_filters.CharFilter(field_name="source", lookup_expr="exact")
