@@ -214,7 +214,18 @@ class AuditList(LoginRequiredMixin, ListView):
 
         for key in self.FILTERS:
             if key in self.request.GET:
-                obj = self.FILTERS[key].objects.get(pk=self.request.GET[key])
+                try:
+                    obj = self.FILTERS[key].objects.get(pk=self.request.GET[key])
+                except self.FILTERS[key].DoesNotExist:
+                    # If we can't find the object (maybe because it was deleted),
+                    # we will search in the audit log by content_type and object_id
+                    # and skip finding the related objects.
+                    queryset = queryset.filter(
+                        object_id=self.request.GET[key],
+                        content_type_id=ContentType.objects.get_for_model(self.FILTERS.get(key)).id,
+                    )
+                    continue
+
                 # Get any log entries for the object itself
                 qset = Q(
                     object_id=obj.id,
