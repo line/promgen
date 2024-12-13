@@ -485,6 +485,23 @@ class Rule(models.Model):
 
         return self
 
+    # Custom logic before saving Rule to control the value of the annotation "rule":
+    # Format: annotations["rule"] = {domain}/rule/{id}
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            if self.pk:
+                # When updating rule, we already have the primary key.
+                # Just set annotations["rule"] before saving to database.
+                self.annotations["rule"] = resolve_domain("rule-detail", pk=self.pk)
+                super().save(*args, **kwargs)
+            else:
+                # When creating a new rule, the primary key is typically not available until the
+                # instance is saved to the database.
+                # Therefore, we save it first then set annotations["rule"] and save again.
+                super().save(*args, **kwargs)
+                self.annotations["rule"] = resolve_domain("rule-detail", pk=self.pk)
+                super().save(update_fields=["annotations"])
+
 
 class AlertLabel(models.Model):
     alert = models.ForeignKey("Alert", on_delete=models.CASCADE)
