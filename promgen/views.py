@@ -913,6 +913,9 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         project.save()
         return HttpResponseRedirect(project.get_absolute_url())
 
+    def get_initial(self):
+        return {"owner": self.request.user}
+
 
 class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.Sender
