@@ -908,10 +908,16 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
-        farm, _ = models.Farm.objects.get_or_create(source=discovery.FARM_DEFAULT, **form.clean())
+        farm, _ = models.Farm.objects.get_or_create(
+            source=discovery.FARM_DEFAULT, **form.clean(),
+            defaults = {"owner": self.request.user},
+        )
         project.farm = farm
         project.save()
         return HttpResponseRedirect(project.get_absolute_url())
+
+    def get_initial(self):
+        return {"owner": self.request.user}
 
 
 class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
