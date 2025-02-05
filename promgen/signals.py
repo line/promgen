@@ -7,9 +7,13 @@ from functools import wraps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db.models import Q
 from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
+from guardian.models import GroupObjectPermission, UserObjectPermission
+from guardian.shortcuts import assign_perm
 
 from promgen import models, prometheus, tasks
 
@@ -333,3 +337,27 @@ def add_default_project_subscription(instance, created, **kwargs):
             value=instance.owner.username,
             defaults={"owner": instance.owner},
         )
+
+
+@skip_raw
+def assign_admin_to_owner(sender, instance, created, **kwargs):
+    # assign the admin role to the owner of the instance when it is created
+    if created and instance.owner:
+        assign_perm(sender._meta.model_name + "_admin", instance.owner, instance)
+
+
+post_save.connect(assign_admin_to_owner, sender=models.Service)
+post_save.connect(assign_admin_to_owner, sender=models.Project)
+post_save.connect(assign_admin_to_owner, sender=models.Farm)
+
+
+@skip_raw
+def remove_obj_perms_connected_with_user(sender, instance, **kwargs):
+    filters = Q(content_type=ContentType.objects.get_for_model(instance), object_pk=instance.pk)
+    UserObjectPermission.objects.filter(filters).delete()
+    GroupObjectPermission.objects.filter(filters).delete()
+
+
+post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Service)
+post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Project)
+post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Farm)
