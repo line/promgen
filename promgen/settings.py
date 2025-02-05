@@ -65,6 +65,7 @@ INSTALLED_APPS = apps_from_setuptools + [
     "rest_framework.authtoken",
     "rest_framework",
     "social_django",
+    "guardian",
     # Django
     "django.forms",
     "django.contrib.admin",
@@ -222,3 +223,8 @@ for k, v in PROMGEN.pop("django", {}).items():
     globals()[k] = v
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "guardian.backends.ObjectPermissionBackend",
+)

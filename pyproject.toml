@@ -25,6 +25,7 @@ dependencies = [
     "celery",
     "django-environ",
     "django-filter",
+    "django-guardian",
     "djangorestframework",
     "kombu",
     "prometheus-client",
