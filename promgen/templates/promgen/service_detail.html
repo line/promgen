@@ -63,6 +63,7 @@ Promgen / Service / {{ service.name }}
   <li role="presentation" class="active"><a href="#projects" data-toggle="tab">Projects</a></li>
   <li role="presentation"><a href="#rules" data-toggle="tab">Rules</a></li>
   <li role="presentation"><a href="#notifiers" data-toggle="tab">Notifiers</a></li>
+  <li role="presentation"><a href="#members" data-toggle="tab">Members</a></li>
 </ul>
 
 <div class="well">
@@ -89,6 +90,13 @@ Promgen / Service / {{ service.name }}
       {% include "promgen/service_block_panel_notifiers.inc.html" %}
 
     </div>
+
+    <div role="tabpanel" class="tab-pane" id="members">
+      <div class="panel panel-default">
+        {% include "promgen/permission_block.html" with object=service %}
+      </div>
+    </div>
+
   </div>
 
 </div> 

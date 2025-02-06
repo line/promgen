@@ -9,11 +9,13 @@ from urllib.parse import urlencode
 
 import yaml
 from django import template
+from django.contrib.auth.models import Permission
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from guardian.shortcuts import get_users_with_perms
 
 register = template.Library()
 
@@ -220,3 +222,29 @@ def urlqs(view, **kwargs):
     This only works for views that do not need additional parameters
     """
     return reverse(view) + "?" + urlencode(kwargs)
+
+
+@register.filter()
+def get_users_roles(object):
+    users_with_perms = get_users_with_perms(
+        object,
+        attach_perms=True,
+        with_superusers=False,
+        with_group_users=False,
+        # Only include users with Admin, Editor, Viewer permissions
+        only_with_perms_in=[
+            "service_admin",
+            "service_editor",
+            "service_viewer",
+            "project_admin",
+            "project_editor",
+            "project_viewer",
+            "farm_admin",
+            "farm_editor",
+            "farm_viewer",
+        ],
+    ).items()
+    return {
+        user: [Permission.objects.get(codename=perm).name for perm in perms]
+        for user, perms in sorted(users_with_perms, key=lambda item: item[0].username)
+    }.items()
