@@ -7,6 +7,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from promgen import models, tests, views
+from promgen.middleware import get_current_user
 
 TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
 TEST_IMPORT = tests.Data("examples", "import.json").raw()
@@ -104,7 +105,11 @@ class RouteTests(tests.PromgenTest):
             self.assertTrue(response.url.startswith("/login"))
 
     def test_other_routes(self):
-        self.add_user_permissions("promgen.add_rule", "promgen.change_site")
+        user = get_current_user()
+        user.is_superuser = True
+        user.save()
         for request in [{"viewname": "rule-new", "args": ("site", 1)}]:
             response = self.client.get(reverse(**request))
             self.assertRoute(response, views.AlertRuleRegister, 200)
+        user.is_superuser = False
+        user.save()
