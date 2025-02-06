@@ -1,14 +1,17 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
+import guardian.mixins
+import guardian.utils
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic.base import ContextMixin
 
-from promgen import models
+from promgen import models, permissions, views
 
 
 class ContentTypeMixin:
@@ -78,3 +81,36 @@ class ServiceMixin(ContextMixin):
                 models.Service, id=self.kwargs["pk"]
             )
         return context
+
+
+class PromgenGuardianPermissionMixin(guardian.mixins.PermissionRequiredMixin):
+    def get_check_permission_object(self):
+        # Override this method to return the object to check permissions for
+        return self.get_object()
+
+    def check_permissions(self, request):
+        # Superusers always have permission
+        if request.user.is_active and request.user.is_superuser:
+            return None
+
+        # Always allow user to view the site rule
+        if isinstance(self, views.RuleDetail) and isinstance(
+            self.get_object().content_object, models.Site
+        ):
+            return None
+
+        if not permissions.has_perm(
+            request.user,
+            self.get_required_permissions(request),
+            self.get_check_permission_object(),
+        ):
+            return self.on_perm_check_fail(request)
+
+        return None
+
+    def on_perm_check_fail(self, request: HttpRequest) -> None:
+        messages.warning(request, "You do not have permission to perform this action.")
+        referer = request.META.get("HTTP_REFERER")
+        if referer:
+            return redirect(referer)
+        return redirect_to_login(self.request.get_full_path())
