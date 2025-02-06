@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from guardian.shortcuts import get_users_with_perms
 
 register = template.Library()
 
@@ -214,3 +215,9 @@ def urlqs(view, **kwargs):
     This only works for views that do not need additional parameters
     """
     return reverse(view) + "?" + urlencode(kwargs)
+
+
+@register.filter()
+def get_users_permissions(object):
+    return get_users_with_perms(object, attach_perms=True, with_superusers=False,
+                                with_group_users=False).items()
