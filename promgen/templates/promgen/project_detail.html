@@ -76,6 +76,7 @@ Promgen / Project / {{ project.name }}
   <li role="presentation"><a href="#rules" data-toggle="tab">Rules</a></li>
   <li role="presentation"><a href="#http-checks" data-toggle="tab">HTTP Checks</a></li>
   <li role="presentation"><a href="#notifiers" data-toggle="tab">Notifiers</a></li>
+  <li role="presentation"><a href="#members" data-toggle="tab">Members</a></li>
 </ul>
 
 <div class="well">
@@ -99,6 +100,12 @@ Promgen / Project / {{ project.name }}
 
     <div role="tabpanel" class="tab-pane" id="notifiers">
     {% include "promgen/project_detail_notifiers.html" %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="members">
+      <div class="panel panel-default">
+        {% include "promgen/permission_block.html" with object=project %}
+      </div>
     </div>
   </div>
 
