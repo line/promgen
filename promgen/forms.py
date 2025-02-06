@@ -6,7 +6,10 @@ from functools import partial
 
 from dateutil import parser
 from django import forms
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from guardian.conf.settings import ANONYMOUS_USER_NAME
+from guardian.shortcuts import get_perms_for_model
 
 from promgen import errors, models, plugins, prometheus, validators
 
@@ -254,3 +257,40 @@ class HostForm(forms.Form):
         if not hosts:
             raise ValidationError("No valid hosts")
         self.cleaned_data["hosts"] = list(hosts)
+
+
+class UserPermissionForm(forms.Form):
+    permission = forms.ChoiceField(
+        required=True,
+        label="Role",
+    )
+
+    username = forms.ChoiceField(
+        required=True,
+        label="Username",
+    )
+
+    def __init__(self, *args, **kwargs):
+        input_object = kwargs.pop("input_object", None)
+        super(UserPermissionForm, self).__init__(*args, **kwargs)
+        if input_object:
+            self.fields["permission"].choices = self.get_permission_choices(input_object)
+        self.fields["username"].choices = self.get_user_choices()
+
+    def get_permission_choices(self, input_object):
+        permissions = get_perms_for_model(input_object)
+        for permission in permissions.filter(name__in=["Admin", "Editor", "Viewer"]):
+            yield (permission.codename, permission.name)
+
+    def get_user_choices(self):
+        for u in (
+            User.objects.filter(is_active=True, is_superuser=False)
+            .exclude(username=ANONYMOUS_USER_NAME)
+            .order_by("username")
+        ):
+            if u.first_name:
+                yield (u.username, f"{u.username} ({u.first_name} {u.last_name})")
+            elif u.email:
+                yield (u.username, f"{u.username} ({u.email})")
+            else:
+                yield (u.username, u.username)

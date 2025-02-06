@@ -1,0 +1,47 @@
+{% load i18n %}
+{% load promgen %}
+<tr>
+  <td class="col-xs-3" v-pre>{{ user.username }}</td>
+  <td class="col-xs-3" v-pre>{{ user.email }}</td>
+  <td class="col-xs-3" style="word-break: break-all" v-pre>
+    {% for perm in perms %}
+    <span
+      class="label
+      {% if perm == 'Admin' %} label-danger
+      {% elif perm == 'Editor' %} label-info
+      {% else %} label-success
+      {% endif %}"
+    >
+      {{ perm|upper }}
+    </span>
+    {% endfor %}
+  </td>
+  <td class="col-xs-3" style="word-break: break-all" v-pre>
+    <form
+      method="post"
+      action="{% url 'permission-delete' %}"
+      onsubmit="return confirm('{% trans 'Delete all permissions for user?' %}')"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="username" value="{{ user.username }}" />
+      <input name="next" type="hidden" value="{{ request.get_full_path }}#members" />
+      <input name="model" type="hidden" value="{{ object | klass }}" />
+      <input name="id" type="hidden" value="{{ object.id }}" />
+      <button type="submit" class="btn btn-danger btn-xs">Delete</button>
+      {% if object|klass == "Service" %}
+      <div class="form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="removeSubPermissions"
+          name="remove_sub_permissions"
+          checked
+        />
+        <label class="form-check-label" for="removeSubPermissions" style="display: inline">
+          <small>{% trans "Remove permissions in child projects" %}</small>
+        </label>
+      </div>
+      {% endif %}
+    </form>
+  </td>
+</tr>
