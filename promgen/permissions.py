@@ -1,7 +1,11 @@
 # Copyright (c) 2025 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+from django.contrib.auth.models import User
 from django.utils.itercompat import is_iterable
+from rest_framework import permissions
 from rest_framework.permissions import BasePermission
+
+from promgen import models
 
 
 class PromgenModelPermissions(BasePermission):
@@ -41,3 +45,42 @@ class PromgenModelPermissions(BasePermission):
             return any(request.user.has_perm(perm) for perm in perm_list)
         else:
             return all(request.user.has_perm(perm) for perm in perm_list)
+
+
+def get_check_permission_objects(obj):
+    # Because we only define permission codes for Service, Group, and Project,
+    # we need to map other objects to these.
+    if isinstance(obj, (models.Service, models.Group)):
+        return [obj]
+    if isinstance(obj, models.Project):
+        return [obj, obj.service]
+    if isinstance(obj, (models.Exporter, models.URL, models.Farm)):
+        return [obj.project, obj.project.service]
+    if isinstance(obj, models.Host):
+        return [obj.farm.project, obj.farm.project.service]
+    if isinstance(obj, (models.Rule, models.Sender)):
+        content_obj = getattr(obj, "content_object", None)
+        if isinstance(content_obj, models.Project):
+            return [content_obj, content_obj.service]
+        elif content_obj is not None:
+            return [content_obj]
+    return None
+
+
+def has_perm(user: User, perms: list[str], obj) -> bool:
+    # Superusers always have permission
+    if user.is_active and user.is_superuser:
+        return True
+
+    check_permission_objects = get_check_permission_objects(obj)
+    if not check_permission_objects:
+        return False
+
+    for check_obj in check_permission_objects:
+        # If the check_obj is the user itself, return True.
+        # Otherwise, check permissions.
+        # This also returns True if the user belongs to a Group that has the permission.
+        has_permission = user == check_obj or any(user.has_perm(perm, check_obj) for perm in perms)
+        if has_permission:
+            return True
+    return False
