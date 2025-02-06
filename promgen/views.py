@@ -29,6 +29,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
+from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
 from requests.exceptions import HTTPError
@@ -45,6 +46,7 @@ from promgen import (
     tasks,
     util,
 )
+from promgen.forms import UserPermissionForm
 from promgen.mixins import PromgenGuardianPermissionMixin
 from promgen.shortcuts import resolve_domain
 
@@ -291,6 +293,10 @@ class ServiceDetail(LoginRequiredMixin, DetailView):
         "project_set__notifiers__owner",
     )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
+        return context
 
 
 class ServiceDelete(PromgenGuardianPermissionMixin, DeleteView):
@@ -503,6 +509,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["sources"] = models.Farm.driver_set()
         context["url_form"] = forms.URLForm()
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
         return context
 
 
@@ -517,6 +524,10 @@ class FarmList(LoginRequiredMixin, ListView):
 class FarmDetail(LoginRequiredMixin, DetailView):
     model = models.Farm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
+        return context
 
 
 class FarmUpdate(PromgenGuardianPermissionMixin, UpdateView):
@@ -1552,3 +1563,57 @@ class PromqlQuery(View):
             return util.proxy_error(response)
 
         return HttpResponse(response.content, content_type="application/json")
+
+
+class PermissionAssign(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "manage_project", "manage_farm"]
+
+    def post(self, request):
+        user = User.objects.get_by_natural_key(request.POST["username"])
+        permission = request.POST["permission"]
+        obj = self.get_object()
+
+        # User should only have one permission MANAGE or EDIT for an object
+        # So we remove all permissions before assigning new one
+        permissions = get_perms(user, obj)
+        for perm in permissions:
+            remove_perm(perm, user, obj)
+
+        assign_perm(permission, user, obj)
+        messages.success(
+            request,
+            "Assigned permission: {} for user: {} on: {}".format(
+                permission, user.username, obj.name
+            ),
+        )
+        return redirect(request.POST["next"])
+
+    def get_object(self):
+        id = self.request.POST["id"]
+        model = self.request.POST["model"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj
+
+
+class PermissionDelete(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "manage_project", "manage_farm"]
+
+    def post(self, request):
+        user = User.objects.get_by_natural_key(request.POST["username"])
+        obj = self.get_object()
+        permissions = get_perms(user, obj)
+        for perm in permissions:
+            remove_perm(perm, user, obj)
+        messages.success(
+            request,
+            "Removed all permissions of user: {} on: {}".format(user.username, obj.name),
+        )
+        return redirect(request.POST["next"])
+
+    def get_object(self):
+        id = self.request.POST["id"]
+        model = self.request.POST["model"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj
