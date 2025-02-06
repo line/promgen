@@ -1,11 +1,13 @@
 # Copyright (c) 2022 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 from django.urls import reverse
+from guardian.shortcuts import assign_perm, remove_perm
 
-from promgen import tests, views
+from promgen import models, views
+from promgen.tests import PromgenTest
 
 
-class WebTests(tests.PromgenTest):
+class WebTests(PromgenTest):
     fixtures = ["testcases.yaml", "extras.yaml"]
 
     route_map = [
@@ -13,16 +15,80 @@ class WebTests(tests.PromgenTest):
         ("datasource-list", views.DatasourceList, {}),
         ("datasource-detail", views.DatasourceDetail, {"pk": 1}),
         ("service-list", views.ServiceList, {}),
-        ("service-detail", views.ServiceDetail, {"pk": 1}),
-        ("project-detail", views.ProjectDetail, {"pk": 1}),
-        ("farm-link", views.FarmLink, {"pk": 1, "source": "promgen"}),
-        ("project-exporter", views.ExporterRegister, {"pk": 1}),
-        ("project-notifier", views.ProjectNotifierRegister, {"pk": 1}),
+        (
+            "service-detail",
+            views.ServiceDetail,
+            {
+                "pk": 1,
+                "permission": "service_viewer",
+                "model": models.Service,
+                "permission_object_pk": 1,
+            },
+        ),
+        (
+            "project-detail",
+            views.ProjectDetail,
+            {
+                "pk": 1,
+                "permission": "project_viewer",
+                "model": models.Project,
+                "permission_object_pk": 1,
+            },
+        ),
+        (
+            "farm-link",
+            views.FarmLink,
+            {
+                "pk": 1,
+                "source": "promgen",
+                "permission": "project_editor",
+                "model": models.Project,
+                "permission_object_pk": 1,
+            },
+        ),
+        (
+            "project-exporter",
+            views.ExporterRegister,
+            {
+                "pk": 1,
+                "permission": "project_editor",
+                "model": models.Project,
+                "permission_object_pk": 1,
+            },
+        ),
+        (
+            "project-notifier",
+            views.ProjectNotifierRegister,
+            {
+                "pk": 1,
+                "permission": "project_editor",
+                "model": models.Project,
+                "permission_object_pk": 1,
+            },
+        ),
         ("url-list", views.URLList, {}),
         ("farm-list", views.FarmList, {}),
-        ("farm-detail", views.FarmDetail, {"pk": 1}),
+        (
+            "farm-detail",
+            views.FarmDetail,
+            {
+                "pk": 1,
+                "permission": "farm_viewer",
+                "model": models.Farm,
+                "permission_object_pk": 1,
+            },
+        ),
         ("host-list", views.HostList, {}),
-        ("host-detail", views.HostDetail, {"slug": "example.com"}),
+        (
+            "host-detail",
+            views.HostDetail,
+            {
+                "slug": "example.com",
+                "permission": "farm_viewer",
+                "model": models.Farm,
+                "permission_object_pk": 1,
+            },
+        ),
         ("rules-list", views.RulesList, {}),
         ("rule-detail", views.RuleDetail, {"pk": 1}),
         ("audit-list", views.AuditList, {}),
@@ -40,6 +106,13 @@ class WebTests(tests.PromgenTest):
 
     def test_routes(self):
         for viewname, viewclass, params in self.route_map:
+            permission = params.pop("permission", None)
+            permission_model = params.pop("model", None)
+            permission_object_pk = params.pop("permission_object_pk", None)
+            if permission and permission_model and permission_object_pk:
+                permission_object = permission_model.objects.get(pk=permission_object_pk)
+                assign_perm(permission, self.user, permission_object)
+
             # By default we'll pass all params as-is to our reverse()
             # method, but we may have a few special ones (like status_code)
             # that we want to pop and handle separately
@@ -49,3 +122,7 @@ class WebTests(tests.PromgenTest):
             with self.subTest(viewname=viewname, params=params):
                 response = self.client.get(reverse(viewname, kwargs=params))
                 self.assertRoute(response, viewclass, status_code)
+
+            if permission and permission_model and permission_object_pk:
+                permission_object = permission_model.objects.get(pk=permission_object_pk)
+                remove_perm(permission, self.user, permission_object)

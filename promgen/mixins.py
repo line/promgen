@@ -1,14 +1,16 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
-
+import guardian.mixins
+import guardian.utils
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.views.generic.base import ContextMixin
 
-from promgen import models
+from promgen import models, views
 
 
 class ContentTypeMixin:
@@ -78,3 +80,78 @@ class ServiceMixin(ContextMixin):
                 models.Service, id=self.kwargs["pk"]
             )
         return context
+
+
+class PromgenGuardianPermissionMixin(guardian.mixins.PermissionRequiredMixin):
+    def get_check_permission_object(self):
+        # Override this method to return the object to check permissions for
+        return self.get_object()
+
+    def get_check_permission_objects(self):
+        # We only define permission for Service/Project/Farm
+        # So we need to check the permission for the parent objects in other cases
+        try:
+            object = self.get_check_permission_object()
+            if isinstance(object, models.Farm):
+                return [object]
+            elif isinstance(object, models.Host):
+                return [object, object.farm]
+            elif isinstance(object, models.Service):
+                return [object]
+            elif isinstance(object, models.Project):
+                return [object, object.service]
+            elif isinstance(object, models.Exporter) or isinstance(object, models.URL):
+                return [object.project, object.project.service]
+            elif isinstance(object, models.Rule) or isinstance(object, models.Sender):
+                if isinstance(object.content_object, models.Project):
+                    return [object.content_object, object.content_object.service]
+                else:
+                    return [object.content_object]
+            return None
+        except Exception:
+            return None
+
+    def check_permissions(self, request):
+        # Always allow user to view the site rule
+        if isinstance(self, views.RuleDetail) and isinstance(
+            self.get_check_permission_object().content_object, models.Site
+        ):
+            return None
+
+        check_permission_objects = self.get_check_permission_objects()
+        if check_permission_objects is None:
+            if request.user.is_active and request.user.is_superuser:
+                return None
+            return self.on_permission_check_fail(request, None)
+        # Loop through all the objects to check permissions for
+        # If any of the objects has the required permission (any_perm=True), we can proceed
+        # Otherwise, we will return the forbidden response
+        forbidden = None
+        for obj in check_permission_objects:
+            # Users always have permission on themselves
+            if isinstance(obj, User) and request.user == obj:
+                break
+
+            forbidden = guardian.utils.get_40x_or_None(
+                request,
+                perms=self.get_required_permissions(request),
+                obj=obj,
+                login_url=self.login_url,
+                redirect_field_name=self.redirect_field_name,
+                return_403=self.return_403,
+                return_404=self.return_404,
+                accept_global_perms=False,
+                any_perm=True,
+            )
+            if forbidden is None:
+                break
+        if forbidden:
+            return self.on_permission_check_fail(request, forbidden)
+        return None
+
+    def on_permission_check_fail(self, request, response, obj=None):
+        messages.warning(request, "You do not have permission to perform this action.")
+        referer = request.META.get("HTTP_REFERER")
+        if referer:
+            return redirect(referer)
+        return redirect_to_login(self.request.get_full_path())

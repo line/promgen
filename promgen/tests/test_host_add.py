@@ -1,10 +1,11 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
-
-
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from guardian.shortcuts import assign_perm
 
 from promgen import models, validators
+from promgen.middleware import get_current_user
 from promgen.tests import PromgenTest
 
 
@@ -16,6 +17,7 @@ class HostTests(PromgenTest):
     # separated and comma separated work, but are not necessarily testing
     # valid/invalid hostnames
     def test_newline(self):
+        assign_perm("promgen.farm_editor", get_current_user(), get_object_or_404(models.Farm, pk=1))
         self.client.post(
             reverse("hosts-add", args=[1]),
             {"hosts": "\naaa.example.com\nbbb.example.com\nccc.example.com \n"},
@@ -24,6 +26,7 @@ class HostTests(PromgenTest):
         self.assertCount(models.Host, 3, "Expected 3 hosts")
 
     def test_comma(self):
+        assign_perm("promgen.farm_editor", get_current_user(), get_object_or_404(models.Farm, pk=1))
         self.client.post(
             reverse("hosts-add", args=[1]),
             {"hosts": ",,aaa.example.com, bbb.example.com,ccc.example.com,"},
