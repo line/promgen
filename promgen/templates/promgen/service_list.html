@@ -11,13 +11,13 @@
 
 {% breadcrumb label="Services" %}
 
-{% include "promgen/pagination.html" %}
+{% include "promgen/pagination_short.html" %}
 
 {% for service in service_list %}
 {% include "promgen/service_header.html" %}
 {% include "promgen/service_block.html" %}
 {% endfor %}
 
-{% include "promgen/pagination.html" %}
+{% include "promgen/pagination_short.html" %}
 
 {% endblock %}
