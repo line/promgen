@@ -1,7 +1,7 @@
 {% load promgen %}
 <nav aria-label="Page navigation" v-pre>
     {% if page_obj.has_other_pages %}
-    <ul class="pagination">
+    <ul class="pagination" style="display: flex; list-style: none;">
         {% if page_obj.has_previous %}
         <li><a href="?{% qs_replace 'page' page_obj.previous_page_number %}">&laquo;</a></li>
         {% else %}
@@ -17,6 +17,18 @@
         {% else %}
         <li class="disabled"><span>&raquo;</span></li>
         {% endif %}
+
+        <li  style="padding-left: 4px;">
+            <form method="get" action="" class="form-inline">
+                {% for key, value in request.GET.items %}
+                    {% if key != "page" %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                <input name="page" class="form-control form-control-sm" placeholder="Page" style="width: 60px;">
+                <button class="btn btn-default" type="submit">Go</button>
+            </form>
+        </li>
     </ul>
     {% endif %}
 </nav>
