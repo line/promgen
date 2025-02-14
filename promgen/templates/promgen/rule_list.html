@@ -11,7 +11,7 @@
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li class="active">List Rules</li>
 </ol>
-
+{% include "promgen/pagination_short.html" %}
 {% regroup rule_list by content_object as grouped_rule_list %}
 
 {% for group in grouped_rule_list %}
@@ -27,5 +27,5 @@
   </table>
 </div>
 {% endfor %}
-
+{% include "promgen/pagination_short.html" %}
 {% endblock %}

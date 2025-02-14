@@ -11,6 +11,7 @@
   <li class="active">Search</li>
 </ol>
 
+{% include "promgen/pagination_short.html" %}
 {% if service_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Services</div>
@@ -127,5 +128,6 @@
   </table>
 </div>
 {% endif %}
+{% include "promgen/pagination_short.html" %}
 
 {% endblock %}

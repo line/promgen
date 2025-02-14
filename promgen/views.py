@@ -16,6 +16,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import EmptyPage, Paginator
 from django.db.models import Count, Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -145,6 +146,12 @@ class HostList(LoginRequiredMixin, ListView):
         for host in context["object_list"]:
             context["host_groups"][host.name].append(host)
         context["host_groups"] = dict(context["host_groups"])
+        context["host_groups"] = sorted(list(context["host_groups"].items()))
+
+        paginate_by = 50
+        page_number = self.request.GET.get("page", 1)
+        paginator = Paginator(context["host_groups"], paginate_by).page(page_number)
+        context["host_groups"] = paginator
         return context
 
 
@@ -530,6 +537,7 @@ class UnlinkFarm(LoginRequiredMixin, View):
 
 
 class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
+    paginate_by = 50
     template_name = "promgen/rule_list.html"
     queryset = models.Rule.objects.prefetch_related("content_type", "content_object")
 
@@ -557,7 +565,9 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
             "parent",
         )
 
-        context["rule_list"] = chain(site_rules, service_rules, project_rules)
+        rule_list = list(chain(site_rules, service_rules, project_rules))
+        page_number = self.request.GET.get("page", 1)
+        context["rule_list"] = Paginator(rule_list, self.paginate_by).page(page_number)
 
         return context
 
@@ -1160,6 +1170,8 @@ class Metrics(View):
 
 
 class Search(LoginRequiredMixin, View):
+    paginate_by = 20
+
     def get(self, request):
         MAPPING = {
             "farm_list": {
@@ -1218,7 +1230,21 @@ class Search(LoginRequiredMixin, View):
             logger.info("filtering %s by %s", target, filters)
 
             qs = qs.filter(filters)
-            context[target] = qs
+            try:
+                page_number = request.GET.get("page", 1)
+                page_target = Paginator(qs, self.paginate_by).page(page_number)
+                context[target] = page_target.object_list
+                # Since we run each query separately, there are many paginator objects.
+                # However, we only want to display a single navigation. Therefore, we want to use
+                # the largest paginator object to render the page navigation.
+                if (
+                    "page_obj" not in context
+                    or context["page_obj"].paginator.num_pages < page_target.paginator.num_pages
+                ):
+                    context["page_obj"] = page_target
+            except EmptyPage:
+                # If page is out of range of any paginator, deliver an empty list for target.
+                context[target] = None
 
         return render(request, "promgen/search.html", context)
 
