@@ -1205,11 +1205,26 @@ class Search(LoginRequiredMixin, View):
             },
         }
 
+        # To avoid searching all object, remove empty search parameters
+        # from the request query string.
+        query_dict = request.GET.copy()
+        empty_value_parameters = [key for key, value in query_dict.lists() if not any(value)]
+        for empty_value_parameter in empty_value_parameters:
+            del query_dict[empty_value_parameter]
+
+        # Return a warning message if no search parameters are provided with a value.
+        all_query = set().union(*(obj["query"] for obj in MAPPING.values()))
+        query = all_query.intersection(query_dict.keys())
+        if not query:
+            messages.warning(request, _("No search parameters provided."))
+            return render(request, "promgen/search.html")
+
+
         context = {}
         for target, obj in MAPPING.items():
             # If our potential search keys are not in our query string
             # then we can bail out quickly
-            query = set(obj["query"]).intersection(request.GET.keys())
+            query = set(obj["query"]).intersection(query_dict.keys())
             if not query:
                 logger.info("query for %s: <skipping>", target)
                 continue
@@ -1224,14 +1239,14 @@ class Search(LoginRequiredMixin, View):
             for var in query:
                 for field in obj["field"]:
                     if filters:
-                        filters |= Q(**{field: request.GET[var]})
+                        filters |= Q(**{field: query_dict[var]})
                     else:
-                        filters = Q(**{field: request.GET[var]})
+                        filters = Q(**{field: query_dict[var]})
             logger.info("filtering %s by %s", target, filters)
 
             qs = qs.filter(filters)
             try:
-                page_number = request.GET.get("page", 1)
+                page_number = query_dict.get("page", 1)
                 page_target = Paginator(qs, self.paginate_by).page(page_number)
                 context[target] = page_target.object_list
                 # Since we run each query separately, there are many paginator objects.

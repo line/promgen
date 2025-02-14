@@ -176,3 +176,7 @@ msgstr "選択したHostをSilence"
 #: templates/promgen/service_detail.html:23
 msgid "Actions"
 msgstr "Actions"
+
+#: views.py:1219
+msgid "No search parameters provided."
+msgstr "検索フレーズが指定されていません"
