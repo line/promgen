@@ -6,8 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.test import RequestFactory
 from guardian.shortcuts import assign_perm
 
-from promgen import models
-from promgen import tests
+from promgen import models, tests
 from promgen.mixins import PromgenGuardianPermissionMixin
 
 

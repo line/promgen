@@ -82,7 +82,6 @@ class ServiceMixin(ContextMixin):
 
 
 class PromgenGuardianPermissionMixin(guardian.mixins.PermissionRequiredMixin):
-
     def get_check_permission_object(self):
         # Override this method to return the object to check permissions for
         return self.get_object()
@@ -107,7 +106,7 @@ class PromgenGuardianPermissionMixin(guardian.mixins.PermissionRequiredMixin):
                     return [object.content_object, object.content_object.service]
                 else:
                     return [object.content_object]
-        except:
+        except Exception:
             return None
 
     def check_permissions(self, request):
@@ -121,17 +120,17 @@ class PromgenGuardianPermissionMixin(guardian.mixins.PermissionRequiredMixin):
         # Otherwise, we will return the forbidden response
         forbidden = None
         for obj in check_permission_objects:
-            forbidden = guardian.utils.get_40x_or_None(request,
-                                                       perms=self.get_required_permissions(
-                                                           request),
-                                                       obj=obj,
-                                                       login_url=self.login_url,
-                                                       redirect_field_name=self.redirect_field_name,
-                                                       return_403=self.return_403,
-                                                       return_404=self.return_404,
-                                                       accept_global_perms=False,
-                                                       any_perm=True,
-                                                       )
+            forbidden = guardian.utils.get_40x_or_None(
+                request,
+                perms=self.get_required_permissions(request),
+                obj=obj,
+                login_url=self.login_url,
+                redirect_field_name=self.redirect_field_name,
+                return_403=self.return_403,
+                return_404=self.return_404,
+                accept_global_perms=False,
+                any_perm=True,
+            )
             if forbidden is None:
                 break
         if forbidden:

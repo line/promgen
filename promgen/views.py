@@ -29,7 +29,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
-from guardian.shortcuts import get_perms, remove_perm, assign_perm
+from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
 from requests.exceptions import HTTPError
@@ -381,6 +381,7 @@ class NotifierDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 class NotifierTest(PromgenGuardianPermissionMixin, View):
     permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         try:
@@ -678,6 +679,7 @@ class FarmConvert(PromgenGuardianPermissionMixin, RedirectView):
 
 class FarmLink(PromgenGuardianPermissionMixin, View):
     permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def get(self, request, pk, source):
         context = {
             "source": source,
@@ -864,6 +866,7 @@ class RuleDetail(LoginRequiredMixin, DetailView):
 
 class RuleUpdate(PromgenGuardianPermissionMixin, UpdateView):
     permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def get_permission_denied_message(self):
         return "Unable to edit rule %s. User lacks permission" % self.object
 
@@ -1578,8 +1581,9 @@ class PermissionAssign(PromgenGuardianPermissionMixin, View):
         assign_perm(permission, user, obj)
         messages.success(
             request,
-            "Assigned permission: {} for user: {} on: {}".format(permission, user.username,
-                                                                 obj.name),
+            "Assigned permission: {} for user: {} on: {}".format(
+                permission, user.username, obj.name
+            ),
         )
         return redirect(request.POST["next"])
 

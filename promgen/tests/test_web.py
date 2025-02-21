@@ -3,7 +3,7 @@
 from django.urls import reverse
 from guardian.shortcuts import assign_perm, remove_perm
 
-from promgen import views, models
+from promgen import models, views
 from promgen.tests import PromgenTest
 
 
@@ -17,31 +17,37 @@ class WebTests(PromgenTest):
         ("service-list", views.ServiceList, {}),
         ("service-detail", views.ServiceDetail, {"pk": 1}),
         ("project-detail", views.ProjectDetail, {"pk": 1}),
-        ("farm-link", views.FarmLink,
-         {
-             "pk": 1,
-             "source": "promgen",
-             "permission": "edit_project",
-             "model": models.Project,
-             "permission_object_pk": 1
-         }
-         ),
-        ("project-exporter", views.ExporterRegister,
-         {
-             "pk": 1,
-             "permission": "edit_project",
-             "model": models.Project,
-             "permission_object_pk": 1
-         }
-         ),
-        ("project-notifier", views.ProjectNotifierRegister,
-         {
-             "pk": 1,
-             "permission": "edit_project",
-             "model": models.Project,
-             "permission_object_pk": 1
-         }
-         ),
+        (
+            "farm-link",
+            views.FarmLink,
+            {
+                "pk": 1,
+                "source": "promgen",
+                "permission": "edit_project",
+                "model": models.Project,
+                "permission_object_pk": 1,
+            },
+        ),
+        (
+            "project-exporter",
+            views.ExporterRegister,
+            {
+                "pk": 1,
+                "permission": "edit_project",
+                "model": models.Project,
+                "permission_object_pk": 1,
+            },
+        ),
+        (
+            "project-notifier",
+            views.ProjectNotifierRegister,
+            {
+                "pk": 1,
+                "permission": "edit_project",
+                "model": models.Project,
+                "permission_object_pk": 1,
+            },
+        ),
         ("url-list", views.URLList, {}),
         ("farm-list", views.FarmList, {}),
         ("farm-detail", views.FarmDetail, {"pk": 1}),
