@@ -10,7 +10,7 @@ from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
-from guardian.shortcuts import assign_perm, UserObjectPermission, GroupObjectPermission
+from guardian.shortcuts import GroupObjectPermission, UserObjectPermission, assign_perm
 
 from promgen import models, prometheus, tasks
 
