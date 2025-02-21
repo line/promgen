@@ -219,5 +219,6 @@ def urlqs(view, **kwargs):
 
 @register.filter()
 def get_users_permissions(object):
-    return get_users_with_perms(object, attach_perms=True, with_superusers=False,
-                                with_group_users=False).items()
+    return get_users_with_perms(
+        object, attach_perms=True, with_superusers=False, with_group_users=False
+    ).items()

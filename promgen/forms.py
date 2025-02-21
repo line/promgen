@@ -282,9 +282,11 @@ class UserPermissionForm(forms.Form):
             yield (permission.codename, permission.name)
 
     def get_user_choices(self):
-        for u in (User.objects.filter(is_active=True, is_superuser=False)
-                .exclude(username="AnonymousUser")
-                .order_by("username")):
+        for u in (
+            User.objects.filter(is_active=True, is_superuser=False)
+            .exclude(username="AnonymousUser")
+            .order_by("username")
+        ):
             if u.first_name:
                 yield (u.username, f"{u.username} ({u.first_name} {u.last_name})")
             elif u.email:
