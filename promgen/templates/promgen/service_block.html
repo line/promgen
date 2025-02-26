@@ -1,6 +1,14 @@
 {% load i18n %}
 {% load promgen %}
 <div class="well">
+  {% if service.description %}
+  <div class="panel panel-default">
+    <div v-pre class="panel-body">
+      {{service.description|linebreaksbr|urlize}}
+    </div>
+  </div>
+  {% endif %}
+
   <div data-service="{{service.name}}" class="panel panel-danger" v-cloak v-if="activeServiceAlerts.has('{{service.name}}')">
     <div class="panel-heading">
       <a @click="toggleComponent('alerts-service-{{service.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
@@ -21,14 +29,6 @@
   >
     Active silences
   </a>
-
-  {% if service.description %}
-  <div class="panel panel-default">
-    <div v-pre class="panel-body">
-      {{service.description|linebreaksbr|urlize}}
-    </div>
-  </div>
-  {% endif %}
 
   <div class="panel panel-default">
     <div class="panel-body">
