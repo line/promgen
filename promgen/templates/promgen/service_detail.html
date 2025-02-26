@@ -21,6 +21,14 @@ Promgen / Service / {{ service.name }}
 
 {% breadcrumb service %}
 
+{% if service.description %}
+<div class="panel panel-default">
+  <div v-pre class="panel-body">
+    {{service.description|linebreaksbr|urlize}}
+  </div>
+</div>
+{% endif %}
+
 <ul class="nav nav-tabs mb-5" role="tablist">
   <li role="presentation" class="active"><a href="#projects" data-toggle="tab">Projects</a></li>
   <li role="presentation"><a href="#rules" data-toggle="tab">Rules</a></li>
