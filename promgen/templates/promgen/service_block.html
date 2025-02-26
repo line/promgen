@@ -12,18 +12,15 @@
     </table>
   </div>
 
-  <div id="silence-service-{{ service.name|slugify }}" class="panel panel-warning" v-cloak v-if="activeServiceSilences.has('{{service.name}}')">
-    <div class="panel-heading">
-      <a @click="toggleComponent('silences-service-{{service.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
-    </div>
-    <table v-if="components['silences-service-{{service.name|slugify}}']" class="table table-bordered table-condensed">
-      <tbody>
-        <template v-for="silence in activeServiceSilences.get('{{service.name}}')" :key="silence.id">
-          <silence-row :silence="silence" label-color="warning" @matcher-click="addSilenceLabel" />
-        </template>
-      </tbody>
-    </table>
-  </div>
+  <a
+    v-cloak
+    v-if="activeServiceSilences.has('{{service.name}}')"
+    @click="openSilenceListModal({ 'matchers': { 'service': '{{service.name}}' } })"
+    class="btn btn-warning btn-sm mb-4"
+    role="button"
+  >
+    Active silences
+  </a>
 
   {% if service.description %}
   <div class="panel panel-default">
