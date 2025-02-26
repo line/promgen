@@ -10,7 +10,7 @@
   <li><a href="{% url 'service-list' %}">Home</a></li>
   <li class="active">All Hosts</li>
 </ol>
-
+{% include "promgen/pagination_short.html" with page_obj=host_groups %}
 <div class="panel panel-default">
     <table class="table table-bordered table-condensed">
       <thead>
@@ -19,7 +19,7 @@
           <th>Farm</th>
         </tr>
       </thead>
-{% for name, hosts in host_groups.items %}
+{% for name, hosts in host_groups.object_list %}
 <tr v-pre>
   <td><a href="{% url 'host-detail' name %}">{{ name }}</a></td>
   <td>
@@ -41,5 +41,5 @@
     </table>
 
 </div>
-
+{% include "promgen/pagination_short.html" with page_obj=host_groups %}
 {% endblock %}
