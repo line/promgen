@@ -83,8 +83,8 @@ const app = Vue.createApp({
             this.setSilenceLabels(event.target.dataset);
             this.addSilenceLabel('instance', this.selectedHosts.join('|'));
         },
-        openSilenceListModal() {
-            silenceListStore.showModal();
+        openSilenceListModal(params) {
+            silenceListStore.showModal(params);
         },
         fetchSilences: function () {
             fetch('/proxy/v1/silences')
@@ -344,7 +344,24 @@ const silenceListStore = Vue.reactive({
             this.state.labels.splice(index, 1);
         }
     },
-    showModal() {
+    showModal(params=null) {
+        // Accept an optional parameter of type object that contains another "matchers" object. This
+        // is to allow opening the modal with some matchers already set for filtering.
+        //
+        // Example call:
+        //
+        //     showModal({"matchers": {"service": "foo", "project": "bar"}})
+        if (
+            typeof params === "object" &&
+            !Array.isArray(params) &&
+            params !== null &&
+            params.hasOwnProperty("matchers")
+        ) {
+            for (const [label, value] of Object.entries(params.matchers)) {
+                this.addFilterLabel(label, value);
+            }
+        }
+
         this.state.show = true;
     },
     hideModal() {
