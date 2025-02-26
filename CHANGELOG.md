@@ -1,5 +1,15 @@
 # Changelog
 
+# v0.67.0 - 2025-02-26
+
+- [BUGFIX] Add a missing migration for the change in regex validation #564
+- [IMPROVEMENT] Improve the UI/UX of Promgen #563
+- [IMPROVEMENT] Handle query for the audit logs of deleted objects #558
+- [BUGFIX] Store the correct rule ID in rule annotation #556
+- [IMPROVEMENT] Organize Service View Page with Tabs #551
+- [IMPROVEMENT] Truncate long silence matchers #550
+- [IMPROVEMENT] Service: Group action buttons inside a dropdown menu #546
+
 # v0.66.0 - 2024-09-25
 
 - [IMPROVEMENT] Test metrics validity when testing Exporter #526
