@@ -368,7 +368,13 @@ app.component('silence-list-modal', {
     },
     computed: {
         activeSilences() {
-            return this.$root.activeSilences || [];
+            const silences = this.$root.activeSilences || [];
+            if (silences) {
+                for (const silence of silences) {
+                    silence.matchers.sort((a, b) => a.name.localeCompare(b.name));
+                }
+            }
+            return silences;
         },
         filteredSilences() {
             if (!this.state.labels || this.state.labels.length === 0) {
