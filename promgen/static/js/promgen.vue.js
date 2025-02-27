@@ -386,7 +386,7 @@ app.component('silence-list-modal', {
         },
         uniqueLabels() {
             const labels = new Set();
-            this.activeSilences.forEach(silence => {
+            this.filteredSilences.forEach(silence => {
                 silence.matchers.forEach(matcher => {
                     labels.add(matcher.name);
                 });
@@ -396,7 +396,7 @@ app.component('silence-list-modal', {
         filteredValues() {
             if (!this.form.label) return [];
             const values = new Set();
-            this.activeSilences.forEach(silence => {
+            this.filteredSilences.forEach(silence => {
                 silence.matchers.forEach(matcher => {
                     if (matcher.name === this.form.label) {
                         values.add(matcher.value);
