@@ -391,7 +391,7 @@ app.component('silence-list-modal', {
                     labels.add(matcher.name);
                 });
             });
-            return Array.from(labels);
+            return Array.from(labels).sort();
         },
         filteredValues() {
             if (!this.form.label) return [];
@@ -403,7 +403,7 @@ app.component('silence-list-modal', {
                     }
                 });
             });
-            return Array.from(values);
+            return Array.from(values).sort();
         }
     },
     methods: {
