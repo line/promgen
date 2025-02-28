@@ -368,7 +368,13 @@ app.component('silence-list-modal', {
     },
     computed: {
         activeSilences() {
-            return this.$root.activeSilences || [];
+            const silences = this.$root.activeSilences || [];
+            if (silences) {
+                for (const silence of silences) {
+                    silence.matchers.sort((a, b) => a.name.localeCompare(b.name));
+                }
+            }
+            return silences;
         },
         filteredSilences() {
             if (!this.state.labels || this.state.labels.length === 0) {
@@ -386,24 +392,24 @@ app.component('silence-list-modal', {
         },
         uniqueLabels() {
             const labels = new Set();
-            this.activeSilences.forEach(silence => {
+            this.filteredSilences.forEach(silence => {
                 silence.matchers.forEach(matcher => {
                     labels.add(matcher.name);
                 });
             });
-            return Array.from(labels);
+            return Array.from(labels).sort();
         },
         filteredValues() {
             if (!this.form.label) return [];
             const values = new Set();
-            this.activeSilences.forEach(silence => {
+            this.filteredSilences.forEach(silence => {
                 silence.matchers.forEach(matcher => {
                     if (matcher.name === this.form.label) {
                         values.add(matcher.value);
                     }
                 });
             });
-            return Array.from(values);
+            return Array.from(values).sort();
         }
     },
     methods: {
