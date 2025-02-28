@@ -14,7 +14,17 @@
             <div style="display: flex;align-items: center;">
               <select v-model="form.label" class="form-control" @change="updateValueOptions">
                 <option value="">Select a label</option>
-                <option v-for="label in uniqueLabels" :value="label">[[label]]</option>
+                <option value="project">project</option>
+                <option value="service">service</option>
+                <option value="" disabled>--------</option>
+                <template v-for="label in uniqueLabels">
+                  <option
+                    v-if="!['service', 'project'].includes(label)"
+                    :value="label"
+                  >
+                    [[label]]
+                  </option>
+                </template>
               </select>
               <input type="text" placeholder="=~" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
               <select v-model="form.value" class="form-control" :disabled="!form.label">
