@@ -29,6 +29,36 @@ Promgen / Service / {{ service.name }}
 </div>
 {% endif %}
 
+<div class="panel panel-danger" v-cloak v-if="activeServiceAlerts.has('{{service.name}}')">
+  <div class="panel-heading">
+    <a
+      @click="toggleCollapse('alerts-service-{{service.name|slugify}}')"
+      class="btn btn-danger btn-sm"
+      role="button"
+    >
+      Active alerts
+    </a>
+  </div>
+  <table
+    id="alerts-service-{{service.name|slugify}}"
+    class="table table-bordered table-condensed collapse"
+  >
+    <tr v-for="alert in activeServiceAlerts.get('{{service.name}}')">
+      {% include 'promgen/alert_row.html' %}
+    </tr>
+  </table>
+</div>
+
+<a
+  v-cloak
+  v-if="activeServiceSilences.has('{{service.name}}')"
+  @click="openSilenceListModal({ 'matchers': { 'service': '{{service.name}}' } })"
+  class="btn btn-warning btn-sm mb-4"
+  role="button"
+>
+  Active silences
+</a>
+
 <ul class="nav nav-tabs mb-5" role="tablist">
   <li role="presentation" class="active"><a href="#projects" data-toggle="tab">Projects</a></li>
   <li role="presentation"><a href="#rules" data-toggle="tab">Rules</a></li>
