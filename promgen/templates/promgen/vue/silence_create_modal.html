@@ -59,7 +59,7 @@
                         :title="`${label}:${value}`"
                         class="promgen-silence-matcher-truncate"
                       >
-                        [[label]]=~[[value]]
+                        [[label]]=[[value]]
                       </span>
                       <span @click="removeLabel(label)" aria-hidden="true" class="promgen-label-close">&times;</span>
                     </div>
@@ -74,7 +74,7 @@
               <h5>Matcher</h5>
               <div style="display: flex;align-items: center;">
                 <input type="text" placeholder="Label" v-model="form.label" class="form-control">
-                <input type="text" placeholder="=~" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
+                <input type="text" placeholder="=" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
                 <input type="text" placeholder="Value" v-model="form.value" class="form-control">
                 <button type="button" class="btn btn-primary ml-2" @click="addLabel">&plus;</button>
               </div>

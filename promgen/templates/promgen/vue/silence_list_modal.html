@@ -26,7 +26,7 @@
                   </option>
                 </template>
               </select>
-              <input type="text" placeholder="=~" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
+              <input type="text" placeholder="=" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
               <select v-model="form.value" class="form-control" :disabled="!form.label">
                 <option value="" disabled hidden selected>Select a value</option>
                 <option v-for="value in filteredValues" :value="value">[[value]]</option>
@@ -45,7 +45,7 @@
                         :title="`${item.label}:${item.value}`"
                         class="promgen-silence-matcher-truncate"
                       >
-                        [[item.label]]=~[[item.value]]
+                        [[item.label]]=[[item.value]]
                       </span>
                       <span @click="removeFilterLabel(item.label, item.value)" aria-hidden="true" class="promgen-label-close">&times;</span>
                     </div>

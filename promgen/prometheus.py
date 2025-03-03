@@ -290,7 +290,7 @@ def silence(*, labels, duration=None, **kwargs):
         {
             "name": name,
             "value": value,
-            "isEqual": True,  # Right now we only support =~
+            "isEqual": True,  # Right now we only support = and =~
             "isRegex": True if value.endswith("*") else False,
         }
         for name, value in labels.items()
