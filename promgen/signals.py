@@ -10,6 +10,7 @@ from django.contrib.auth.models import Group
 from django.core.cache import cache
 from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
+from guardian.shortcuts import GroupObjectPermission, UserObjectPermission, assign_perm
 
 from promgen import models, prometheus, tasks
 
@@ -333,3 +334,27 @@ def add_default_project_subscription(instance, created, **kwargs):
             value=instance.owner.username,
             defaults={"owner": instance.owner},
         )
+
+
+@skip_raw
+def assign_manage_permission(sender, instance, created, **kwargs):
+    # assign manage permission to the owner of the instance when it is created
+    if created and instance.owner:
+        assign_perm("manage_" + sender._meta.model_name, instance.owner, instance)
+
+
+post_save.connect(assign_manage_permission, sender=models.Service)
+post_save.connect(assign_manage_permission, sender=models.Project)
+post_save.connect(assign_manage_permission, sender=models.Farm)
+
+
+@skip_raw
+def cleanup_permissions(sender, instance, **kwargs):
+    # remove all object permissions when the instance is deleted
+    UserObjectPermission.objects.filter(object_pk=instance.pk).delete()
+    GroupObjectPermission.objects.filter(object_pk=instance.pk).delete()
+
+
+post_delete.connect(cleanup_permissions, sender=models.Service)
+post_delete.connect(cleanup_permissions, sender=models.Project)
+post_delete.connect(cleanup_permissions, sender=models.Farm)
