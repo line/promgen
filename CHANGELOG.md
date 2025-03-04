@@ -1,5 +1,12 @@
 # Changelog
 
+# v0.67.1 - 2025-03-04
+
+- [BUGFIX] Misleading =~ operator in silence form #570
+- [BUGFIX] Display active silences and rules for service #568
+- [IMPROVEMENT] Improve UI/UX of the global list of silence #569
+- [BUGFIX] templates/service_detail: Show description #567
+
 # v0.67.0 - 2025-02-26
 
 - [BUGFIX] Add a missing migration for the change in regex validation #564
