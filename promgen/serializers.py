@@ -54,6 +54,7 @@ class SenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Sender
+        fields = "__all__"
 
 
 class AlertRuleList(serializers.ListSerializer):
