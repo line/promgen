@@ -4,7 +4,11 @@
 {% block content %}
 
 <div class="page-header" v-pre>
-  <h1>Farm: {{ farm.name }} ({{ farm.source }})</h1>
+  <h1>Farm: {{ farm.name }} ({{ farm.source }})
+    {% if farm.owner %}
+      <small class="pull-right">{% trans 'Contact' %}: {{farm.owner.username}}</small>
+    {% endif %}
+  </h1>
 </div>
 
 <ol class="breadcrumb" v-pre>
@@ -65,6 +69,11 @@
   </div>
 </div>
 
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Permissions</div>
+  {% include "promgen/permission_block.html" with object=farm %}
 </div>
 
 {% endblock %}
