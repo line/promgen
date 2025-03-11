@@ -264,7 +264,7 @@ app.component("promql-query", {
     mixins: [mixins],
     computed: {
         load: function () {
-            return this.count / Number.parseInt(this.max);
+            return this.count / this.maxAsInt;
         },
         classes: function () {
             if (this.load > 0.9) return "label label-danger";
@@ -272,6 +272,9 @@ app.component("promql-query", {
             if (this.load > 0.5) return "label label-info";
             if (this.count == 0) return "label label-default";
             return "label label-success";
+        },
+        maxAsInt() {
+            return Number.parseInt(this.max);
         },
     },
     template: '#promql-query-template',

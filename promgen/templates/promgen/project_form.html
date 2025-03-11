@@ -87,10 +87,10 @@
         </td>
         {% if shard.proxy %}
         <td>
-          <promql-query class="label" shard="{{shard.id}}" query="sum(scrape_samples_scraped)" max="{{shard.samples}}">Samples: </promql-query>
+          <promql-query class="label" shard="{{shard.id}}" query="sum(scrape_samples_scraped)" max="{{shard.samples}}"></promql-query>
         </td>
         <td>
-          <promql-query class="label" shard="{{shard.id}}" query="count(up)" max="{{shard.targets}}">Exporters: </promql-query>
+          <promql-query class="label" shard="{{shard.id}}" query="count(up)" max="{{shard.targets}}"></promql-query>
         </td>
         {% else %}
         <td>&nbsp;</td>
