@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.68.0 - 2025-03-13
+
+- [SECURITY] Remove 'authorization' field from the retrieve Shard API #576
+
 # v0.67.1 - 2025-03-04
 
 - [BUGFIX] Misleading =~ operator in silence form #570
