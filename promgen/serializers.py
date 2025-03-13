@@ -21,7 +21,7 @@ class ShardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Shard
-        exclude = ("id",)
+        exclude = ("id", "authorization")
         lookup_field = "name"
 
 
