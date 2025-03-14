@@ -31,6 +31,7 @@ from django.views.generic.edit import CreateView, DeleteView, FormView
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
 from requests.exceptions import HTTPError
+from rest_framework.authtoken.models import Token
 
 import promgen.templatetags.promgen as macro
 from promgen import (
@@ -972,6 +973,7 @@ class Profile(LoginRequiredMixin, FormView):
         context["subscriptions"] = models.Sender.objects.filter(
             sender="promgen.notification.user", value=self.request.user.username
         )
+        context["api_token"] = Token.objects.filter(user=self.request.user).first()
         return context
 
     def form_valid(self, form):
@@ -1463,3 +1465,20 @@ class PromqlQuery(View):
             return util.proxy_error(response)
 
         return HttpResponse(response.content, content_type="application/json")
+
+
+class ProfileTokenGenerate(LoginRequiredMixin, View):
+    def get(self, request):
+        Token.objects.filter(user=request.user).delete()
+        Token.objects.create(user=request.user)
+        messages.success(
+            request, "New API token generated successfully for " + request.user.username
+        )
+        return redirect("profile")
+
+
+class ProfileTokenDelete(LoginRequiredMixin, View):
+    def get(self, request):
+        Token.objects.filter(user=request.user).delete()
+        messages.success(request, "API token deleted successfully for " + request.user.username)
+        return redirect("profile")
