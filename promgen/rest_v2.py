@@ -198,3 +198,30 @@ class NotifierViewSet(
         if notifier:
             models.Filter.objects.filter(pk=filter_id).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Rules", description="Retrieve a list of all rules."),
+    retrieve=extend_schema(
+        summary="Retrieve Rule", description="Retrieve detailed information about a specific rule."
+    ),
+    update=extend_schema(summary="Update Rule", description="Update an existing rule."),
+    partial_update=extend_schema(
+        summary="Partially Update Rule", description="Partially update an existing rule."
+    ),
+    destroy=extend_schema(summary="Delete Rule", description="Delete an existing rule."),
+)
+@extend_schema(tags=["Rule"])
+class RuleViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = models.Rule.objects.all()
+    filterset_class = filters.RuleFilterV2
+    serializer_class = serializers.RuleSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
