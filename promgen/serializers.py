@@ -50,7 +50,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class SenderSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source="owner.username")
-    label = serializers.ReadOnlyField(source="show_value")
+    label = serializers.CharField(source="show_value", read_only=True)
 
     class Meta:
         model = models.Sender
