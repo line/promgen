@@ -173,3 +173,86 @@ class RuleViewSet(
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Farms", description="Retrieve a list of all farms."),
+    retrieve=extend_schema(
+        summary="Retrieve Farm", description="Retrieve detailed information about a specific farm."
+    ),
+    create=extend_schema(summary="Create Farm", description="Create a new farm."),
+    update=extend_schema(summary="Update Farm", description="Update an existing farm."),
+    partial_update=extend_schema(
+        summary="Partially Update Farm", description="Partially update an existing farm."
+    ),
+    destroy=extend_schema(summary="Delete Farm", description="Delete an existing farm."),
+)
+@extend_schema(tags=["Farm"])
+class FarmViewSet(viewsets.ModelViewSet):
+    queryset = models.Farm.objects.all()
+    filterset_class = filters.FarmFilter
+    serializer_class = serializers.FarmRetrieveSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+
+    @extend_schema(
+        summary="List Hosts in Farm",
+        description="Retrieve all hosts associated with the specified farm.",
+        parameters=[
+            OpenApiParameter(name="page_number", required=False, type=int),
+            OpenApiParameter(name="page_size", required=False, type=int),
+        ],
+    )
+    @action(detail=True, methods=["get"])
+    def hosts(self, request, id):
+        farm = self.get_object()
+        hosts = farm.host_set.all()
+        page = self.paginate_queryset(hosts)
+        return self.get_paginated_response(serializers.HostRetrieveSerializer(page, many=True).data)
+
+    @extend_schema(
+        summary="List Projects in Farm",
+        description="Retrieve all projects associated with the specified farm.",
+        parameters=[
+            OpenApiParameter(name="page_number", required=False, type=int),
+            OpenApiParameter(name="page_size", required=False, type=int),
+        ],
+    )
+    @action(detail=True, methods=["get"])
+    def projects(self, request, id):
+        farm = self.get_object()
+        projects = farm.project_set.all()
+        page = self.paginate_queryset(projects)
+        return self.get_paginated_response(
+            serializers.ProjectRetrieveSerializer(page, many=True).data
+        )
+
+    @extend_schema(
+        summary="Register Hosts",
+        description="Register new hosts for the specified farm.",
+        request=serializers.HostListSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="hosts/register")
+    def register_host(self, request, id):
+        farm = self.get_object()
+        hostnames = request.data.get("hosts", [])
+        created_hosts = []
+        for hostname in hostnames:
+            host, created = models.Host.objects.get_or_create(name=hostname, farm_id=farm.id)
+            if created:
+                created_hosts.append(host)
+        return Response(serializers.FarmRetrieveSerializer(farm).data)
+
+    @extend_schema(
+        summary="Delete Hosts",
+        description="Delete hosts from the specified farm.",
+        request=serializers.HostListSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="hosts/delete")
+    def delete_host(self, request, id):
+        farm = self.get_object()
+        hostnames = request.data.get("hosts", [])
+        for hostname in hostnames:
+            farm.host_set.filter(name=hostname).delete()
+        return Response(serializers.FarmRetrieveSerializer(farm).data)
