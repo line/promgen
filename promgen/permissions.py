@@ -200,11 +200,15 @@ def get_highest_role(user: User, obj):
 
 
 class PromgenGuardianRestPermission(BasePermission):
+    PERMISSION_MANAGEMENT_ACTIONS = ["assign_user", "remove_user", "assign_group", "remove_group"]
+
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        if request.method == "DELETE" and isinstance(obj, (models.Project, models.Service)):
+        if view.action in self.PERMISSION_MANAGEMENT_ACTIONS:
+            perms = ["project_admin", "service_admin"]
+        elif request.method == "DELETE" and isinstance(obj, (models.Project, models.Service)):
             perms = ["project_admin", "service_admin"]
         elif request.method not in SAFE_METHODS:
             perms = [
