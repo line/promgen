@@ -19,9 +19,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework import routers
 
 from promgen import proxy, rest, views
+from promgen.schemas import SpectacularRapiDocView
 
 router = routers.DefaultRouter()
 router.register("all", rest.AllViewSet, basename="all")
@@ -128,6 +130,8 @@ urlpatterns = [
     path("proxy/v1/silences/<silence_id>", csrf_exempt(proxy.ProxyDeleteSilence.as_view()), name="proxy-silence-delete"),
     # Promgen rest API
     path("rest/", include((router.urls, "api"), namespace="api")),
+    path("rest/v2/schema/", SpectacularAPIView.as_view(), name="api-v2-schema"),
+    path("rest/v2/api-specs/", SpectacularRapiDocView.as_view(url_name="api-v2-schema"), name="api-v2-specs"),
 ]
 
 try:

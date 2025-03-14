@@ -65,6 +65,17 @@
   <script src="{% static 'js/promgen.js' %}"></script>
   <script src="{% static 'js/mixins.vue.js' %}"></script>
   <script src="{% static 'js/promgen.vue.js' %}?v=2"></script>
+  <script type="module" src="{% static 'js/rapidoc.min.js' %}"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+      const rapidocEl = document.getElementById('rapidoc');
+      rapidocEl.addEventListener('before-try', (e) => {
+        if (e.detail.request.method !== 'GET') {
+          e.detail.request.headers.append('X-CSRFToken', '{{ csrf_token }}');
+        }
+      });
+    });
+  </script>
   {% block javascript %}{% endblock %}
 
   <datalist style="display:none" id="common.labels">

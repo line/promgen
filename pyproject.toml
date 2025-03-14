@@ -26,6 +26,7 @@ dependencies = [
     "django-environ",
     "django-filter",
     "djangorestframework",
+    "drf-spectacular",
     "kombu",
     "prometheus-client",
     "python-dateutil",
