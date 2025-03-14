@@ -1,0 +1,19 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 2,
+      "probe": "http_2xx",
+      "project": "another-project",
+      "url": "probe-2.example.com"
+    },
+    {
+      "id": 1,
+      "probe": "fixture_test",
+      "project": "test-project",
+      "url": "probe.example.com"
+    }
+  ]
+}
