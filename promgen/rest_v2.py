@@ -367,3 +367,43 @@ class FarmViewSet(
         farm.source = discovery.FARM_DEFAULT
         farm.save()
         return Response(serializers.FarmRetrieveSerializer(farm).data)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Exporters", description="Retrieve a list of all exporters."),
+    retrieve=extend_schema(
+        summary="Retrieve Exporter",
+        description="Retrieve detailed information about a specific exporter.",
+    ),
+    update=extend_schema(summary="Update Exporter", description="Update an existing exporter."),
+    partial_update=extend_schema(
+        summary="Partially Update Exporter", description="Partially update an existing exporter."
+    ),
+    destroy=extend_schema(summary="Delete Exporter", description="Delete an existing exporter."),
+)
+@extend_schema(tags=["Exporter"])
+class ExporterViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = models.Exporter.objects.all()
+    filterset_class = filters.ExporterFilter
+    serializer_class = serializers.ExporterRetrieveSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
+        return self.queryset.filter(project__in=accessible_projects)
+
+    def get_serializer_class(self):
+        if self.action in ["update", "partial_update"]:
+            return serializers.ExporterUpdateSerializer
+        return serializers.ExporterRetrieveSerializer
