@@ -190,3 +190,25 @@ class UpdateNotifierSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Sender
         fields = ["enabled"]
+
+
+class RuleField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            rule = models.Rule.get(pk=data)
+        except models.Rule.DoesNotExist:
+            raise serializers.ValidationError("Owner does not exist.")
+        return rule
+
+
+class RuleSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    content_name = serializers.ReadOnlyField(source="content_object.name")
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    labels = serializers.JSONField(required=False)
+    annotations = serializers.JSONField(required=False)
+    parent = RuleField(required=False)
+
+    class Meta:
+        model = models.Rule
+        exclude = ("object_id",)
