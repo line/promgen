@@ -260,3 +260,11 @@ class HostListSerializer(serializers.Serializer):
     hosts = serializers.ListField(
         child=serializers.CharField(), help_text="List of hostnames to add."
     )
+
+
+class ExporterSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+
+    class Meta:
+        model = models.Exporter
+        fields = "__all__"
