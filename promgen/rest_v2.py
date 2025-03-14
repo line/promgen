@@ -13,6 +13,7 @@ from rest_framework.response import Response
 
 from promgen import filters, models, renderers, serializers
 
+
 class RuleMixin:
     @extend_schema(
         summary="Retrieve Rules",

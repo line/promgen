@@ -34,6 +34,7 @@ class FarmFilter(django_filters.rest_framework.FilterSet):
         help_text="Filter by exact source name. Example: source=Example Source",
     )
 
+
 class UserFilter(django_filters.rest_framework.FilterSet):
     username = django_filters.CharFilter(
         field_name="username",
