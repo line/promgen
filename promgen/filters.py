@@ -56,3 +56,37 @@ class AuditFilter(django_filters.rest_framework.FilterSet):
             return queryset.filter(content_type_id=content_type_id)
         except ContentType.DoesNotExist:
             return queryset.none()
+
+
+class NotifierFilter(django_filters.rest_framework.FilterSet):
+    sender = django_filters.CharFilter(
+        field_name="sender",
+        lookup_expr="exact",
+        help_text="Filter by exact sender name. Example: sender=Example Sender",
+    )
+    value = django_filters.CharFilter(
+        field_name="value",
+        lookup_expr="contains",
+        help_text="Filter by value containing a specific substring. Example: value=Example Value",
+    )
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.CharFilter(
+        method="filter_content_type",
+        help_text="Filter by content type model name. Example: content_type=Example Model",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )
+
+    def filter_content_type(self, queryset, name, value):
+        try:
+            content_type_id = ContentType.objects.get(model=value, app_label="promgen").id
+            return queryset.filter(content_type_id=content_type_id)
+        except ContentType.DoesNotExist:
+            return queryset.none()
