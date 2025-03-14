@@ -16,6 +16,7 @@ from rest_framework.response import Response
 
 from promgen import filters, models, serializers, signals
 
+
 class RuleMixin:
     @extend_schema(
         summary="List Rules",
