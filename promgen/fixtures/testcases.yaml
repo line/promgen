@@ -131,3 +131,28 @@
       sender: 1
       name: "severity"
       value: "critical"
+- model: promgen.rule
+  pk: 1
+  fields:
+    content_type: ["promgen", "service"]
+    object_id: 1
+    name: "Test Rule"
+    clause: "up == 0"
+    duration: 5m
+    enabled: true
+    description: "Test Rule Description"
+    labels: { "severity": "critical" }
+    annotations: { "rule": "http://promgen.example.com/rule/1" }
+- model: promgen.rule
+  pk: 2
+  fields:
+    content_type: ["promgen", "project"]
+    object_id: 1
+    name: "Test Rule 2"
+    clause: "up != 0"
+    duration: 1m
+    enabled: false
+    description: "Test Rule 2 Description"
+    labels: { "severity": "warning" }
+    annotations: { "rule": "http://promgen.example.com/rule/2" }
+    parent: 1

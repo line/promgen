@@ -1,0 +1,41 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "annotations": {
+        "rule": "http://promgen.example.com/rule/2"
+      },
+      "clause": "up != 0",
+      "content_name": "test-project",
+      "content_type": "project",
+      "description": "Test Rule 2 Description",
+      "duration": "1m",
+      "enabled": false,
+      "id": 2,
+      "labels": {
+        "severity": "warning"
+      },
+      "name": "Test Rule 2",
+      "parent": "Test Rule"
+    },
+    {
+      "annotations": {
+        "rule": "http://promgen.example.com/rule/1"
+      },
+      "clause": "up == 0",
+      "content_name": "test-service",
+      "content_type": "service",
+      "description": "Test Rule Description",
+      "duration": "5m",
+      "enabled": true,
+      "id": 1,
+      "labels": {
+        "severity": "critical"
+      },
+      "name": "Test Rule",
+      "parent": null
+    }
+  ]
+}

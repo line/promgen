@@ -106,3 +106,35 @@ class NotifierFilter(django_filters.rest_framework.FilterSet):
         lookup_expr="exact",
         help_text="Filter by exact owner username. Example: owner=Example Owner",
     )
+
+
+class RuleFilterV2(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by rule name containing a specific substring. Example: name=Example Rule",
+    )
+    parent = django_filters.CharFilter(
+        field_name="parent__name",
+        lookup_expr="contains",
+        help_text="Filter by parent rule name containing a specific substring. Example: parent=Example Parent",
+    )
+    enabled = django_filters.BooleanFilter(
+        field_name="enabled",
+        help_text="Filter by enabled status (true or false). Example: enabled=true",
+    )
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.ChoiceFilter(
+        field_name="content_type",
+        choices=[
+            ("service", "Service"),
+            ("project", "Project"),
+            ("site", "Site"),
+        ],
+        method=filter_content_type,
+        help_text="Filter by content type model name. Example: content_type=service",
+    )
