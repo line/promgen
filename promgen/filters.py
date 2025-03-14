@@ -1,4 +1,5 @@
 import django_filters
+from django.contrib.contenttypes.models import ContentType
 
 
 class ShardFilter(django_filters.rest_framework.FilterSet):
@@ -22,5 +23,193 @@ class RuleFilter(django_filters.rest_framework.FilterSet):
 
 
 class FarmFilter(django_filters.rest_framework.FilterSet):
-    name = django_filters.CharFilter(field_name="name", lookup_expr="contains")
-    source = django_filters.CharFilter(field_name="source", lookup_expr="exact")
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by farm name containing a specific substring. Example: name=Example Farm",
+    )
+    source = django_filters.CharFilter(
+        field_name="source",
+        lookup_expr="exact",
+        help_text="Filter by exact source name. Example: source=Example Source",
+    )
+
+
+class UserFilter(django_filters.rest_framework.FilterSet):
+    username = django_filters.CharFilter(
+        field_name="username",
+        lookup_expr="contains",
+        help_text="Filter by username containing a specific substring. Example: username=Example Username",
+    )
+    email = django_filters.CharFilter(
+        field_name="email",
+        lookup_expr="contains",
+        help_text="Filter by email containing a specific substring. Example: email=example@example.com",
+    )
+
+
+class AuditFilter(django_filters.rest_framework.FilterSet):
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.CharFilter(
+        method="filter_content_type",
+        help_text="Filter by content type model name. Example: content_type=Example Model",
+    )
+
+    def filter_content_type(self, queryset, name, value):
+        try:
+            content_type_id = ContentType.objects.get(model=value, app_label="promgen").id
+            return queryset.filter(content_type_id=content_type_id)
+        except ContentType.DoesNotExist:
+            return queryset.none()
+
+
+class NotifierFilter(django_filters.rest_framework.FilterSet):
+    sender = django_filters.CharFilter(
+        field_name="sender",
+        lookup_expr="exact",
+        help_text="Filter by exact sender name. Example: sender=Example Sender",
+    )
+    value = django_filters.CharFilter(
+        field_name="value",
+        lookup_expr="contains",
+        help_text="Filter by value containing a specific substring. Example: value=Example Value",
+    )
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.CharFilter(
+        method="filter_content_type",
+        help_text="Filter by content type model name. Example: content_type=Example Model",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )
+
+    def filter_content_type(self, queryset, name, value):
+        try:
+            content_type_id = ContentType.objects.get(model=value, app_label="promgen").id
+            return queryset.filter(content_type_id=content_type_id)
+        except ContentType.DoesNotExist:
+            return queryset.none()
+
+
+class RuleFilterV2(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by rule name containing a specific substring. Example: name=Example Rule",
+    )
+    parent = django_filters.CharFilter(
+        field_name="parent__name",
+        lookup_expr="contains",
+        help_text="Filter by parent rule name containing a specific substring. Example: parent=Example Parent",
+    )
+    enabled = django_filters.BooleanFilter(
+        field_name="enabled",
+        help_text="Filter by enabled status (true or false). Example: enabled=true",
+    )
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.CharFilter(
+        method="filter_content_type",
+        help_text="Filter by content type model name. Example: content_type=Example Model",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )
+
+    def filter_content_type(self, queryset, name, value):
+        try:
+            content_type_id = ContentType.objects.get(model=value, app_label="promgen").id
+            return queryset.filter(content_type_id=content_type_id)
+        except ContentType.DoesNotExist:
+            return queryset.none()
+
+
+class ExporterFilter(django_filters.rest_framework.FilterSet):
+    project = django_filters.CharFilter(
+        field_name="project__name",
+        lookup_expr="contains",
+        help_text="Filter by project name containing a specific substring. Example: project=Example Project",
+    )
+    job = django_filters.CharFilter(
+        field_name="job",
+        lookup_expr="contains",
+        help_text="Filter by job name containing a specific substring. Example: job=Example Job",
+    )
+    path = django_filters.CharFilter(
+        field_name="path",
+        lookup_expr="contains",
+        help_text="Filter by path containing a specific substring. Example: path=Example Path",
+    )
+    scheme = django_filters.CharFilter(
+        field_name="scheme",
+        lookup_expr="exact",
+        help_text="Filter by exact scheme. Example: scheme=http",
+    )
+    enabled = django_filters.BooleanFilter(
+        field_name="enabled",
+        help_text="Filter by enabled status (true or false). Example: enabled=true",
+    )
+
+
+class URLFilter(django_filters.rest_framework.FilterSet):
+    project = django_filters.CharFilter(
+        field_name="project__name",
+        lookup_expr="contains",
+        help_text="Filter by project name containing a specific substring. Example: project=Example Project",
+    )
+    probe = django_filters.CharFilter(
+        field_name="scheme",
+        lookup_expr="exact",
+        help_text="Filter by exact probe scheme. Example: probe=http",
+    )
+
+
+class ProjectFilterV2(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by project name containing a specific substring. Example: name=Example Project",
+    )
+    service = django_filters.CharFilter(
+        field_name="service__name",
+        lookup_expr="contains",
+        help_text="Filter by service name containing a specific substring. Example: service=Example Service",
+    )
+    shard = django_filters.CharFilter(
+        field_name="shard__name",
+        lookup_expr="contains",
+        help_text="Filter by shard name containing a specific substring. Example: shard=Example Shard",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )
+
+
+class ServiceFilterV2(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by service name containing a specific substring. Example: name=Example Service",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )

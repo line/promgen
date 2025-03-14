@@ -1,5 +1,6 @@
 import collections
 
+from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
 from rest_framework import serializers
 
@@ -110,7 +111,7 @@ class FarmSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Farm
-        fields = '__all__'
+        fields = "__all__"
 
 
 class HostSerializer(serializers.ModelSerializer):
@@ -119,3 +120,272 @@ class HostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Host
         exclude = ("id", "farm")
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "username", "email", "first_name", "last_name")
+
+
+class CurrentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+            "last_login",
+        )
+
+
+class AuditSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source="user.username")
+    log = serializers.ReadOnlyField(source="body")
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    new = serializers.ReadOnlyField(source="data")
+
+    class Meta:
+        model = models.Audit
+        fields = ("user", "content_type", "object_id", "log", "created", "new", "old")
+
+
+class OwnerField(serializers.Field):
+    def to_internal_value(self, data):
+        if not data:
+            return serializers.CurrentUserDefault()
+        try:
+            owner = User.objects.get(username=data)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Owner does not exist.")
+        return owner
+
+    def to_representation(self, value):
+        return value.username
+
+
+class FilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Filter
+        fields = ["name", "value"]
+
+
+class NotifierSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    content_name = serializers.ReadOnlyField(source="content_object.name")
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    filters = FilterSerializer(many=True, read_only=True, source="filter_set")
+
+    class Meta:
+        model = models.Sender
+        exclude = ("object_id",)
+
+
+class UpdateNotifierSerializer(serializers.Serializer):
+    enabled = serializers.BooleanField()
+
+
+class RuleField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            rule = models.Rule.get(pk=data)
+        except models.Rule.DoesNotExist:
+            raise serializers.ValidationError("Owner does not exist.")
+        return rule
+
+
+class RuleSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    content_name = serializers.ReadOnlyField(source="content_object.name")
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    labels = serializers.JSONField(required=False)
+    annotations = serializers.JSONField(required=False)
+    parent = RuleField(required=False)
+
+    class Meta:
+        model = models.Rule
+        exclude = ("object_id",)
+
+
+class HostRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Host
+        fields = "__all__"
+
+
+class FarmRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Farm
+        fields = "__all__"
+
+
+class HostListSerializer(serializers.Serializer):
+    hosts = serializers.ListField(
+        child=serializers.CharField(), help_text="List of hostnames to add."
+    )
+
+
+class ExporterSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+
+    class Meta:
+        model = models.Exporter
+        fields = "__all__"
+
+
+class URLSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+    probe = serializers.ReadOnlyField(source="probe.module")
+
+    class Meta:
+        model = models.URL
+        fields = "__all__"
+
+
+class ServiceField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            service = models.Service.objects.get(name=data)
+        except models.Service.DoesNotExist:
+            raise serializers.ValidationError("Service does not exist.")
+        return service
+
+    def to_representation(self, value):
+        return value.name
+
+
+class ShardField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            shard = models.Shard.objects.get(name=data)
+        except models.Shard.DoesNotExist:
+            raise serializers.ValidationError("Shard does not exist.")
+        return shard
+
+    def to_representation(self, value):
+        return value.name
+
+
+class FarmField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            farm = models.Farm.objects.get(name=data)
+        except models.Farm.DoesNotExist:
+            raise serializers.ValidationError("Farm does not exist.")
+        return farm
+
+    def to_representation(self, value):
+        return value.name
+
+
+class ProjectRetrieveSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    service = serializers.ReadOnlyField(source="service.name")
+    shard = serializers.ReadOnlyField(source="shard.name")
+    farm = serializers.ReadOnlyField(source="farm.name")
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False, default=serializers.CurrentUserDefault())
+    service = ServiceField()
+    shard = ShardField()
+    farm = FarmField(required=False)
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class ProjectUpdateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False)
+    service = ServiceField(required=False)
+    shard = ShardField(required=False)
+    farm = serializers.ReadOnlyField(source="farm.name")
+    name = serializers.CharField(required=False)
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class LinkFarmSerializer(serializers.Serializer):
+    farm = serializers.CharField()
+    source = serializers.CharField()
+
+
+class RegisterURLProjectSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    probe = serializers.CharField()
+
+
+class RegisterExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.CharField()
+    enabled = serializers.BooleanField()
+
+
+class UpdateExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.CharField()
+    enabled = serializers.BooleanField()
+
+
+class DeleteExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.CharField()
+
+
+class RegisterNotifierSerializer(serializers.Serializer):
+    sender = serializers.CharField()
+    value = serializers.CharField()
+    alias = serializers.CharField(required=False)
+    enabled = serializers.BooleanField(required=False, default=True)
+
+
+class ServiceRetrieveSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+
+class ServiceCreateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False, default=serializers.CurrentUserDefault())
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+
+class ServiceUpdateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False)
+    name = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+
+class ShardRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Shard
+        exclude = ("authorization",)
