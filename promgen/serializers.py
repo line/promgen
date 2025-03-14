@@ -236,3 +236,38 @@ class RuleSerializer(serializers.ModelSerializer):
         if hasattr(obj, "content_object"):
             return obj.content_object.name
         return None
+
+
+class HostRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Host
+        fields = "__all__"
+
+
+class FarmRetrieveSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+
+    class Meta:
+        model = models.Farm
+        fields = "__all__"
+
+
+class FarmUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Farm
+        exclude = ("id", "project", "source")
+
+
+class HostListSerializer(serializers.Serializer):
+    hosts = serializers.ListField(
+        child=serializers.CharField(), help_text="List of hostnames to add."
+    )
+
+
+class FarmSourceSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    remote = serializers.BooleanField()
+
+
+class RemoteFarmSerializer(serializers.Serializer):
+    name = serializers.CharField()
