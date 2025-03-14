@@ -236,3 +236,18 @@ class ServiceFilterV2(django_filters.rest_framework.FilterSet):
         lookup_expr="exact",
         help_text="Filter by exact owner username. Example: owner=Example Owner",
     )
+
+
+class UserFilter(django_filters.rest_framework.FilterSet):
+    username = django_filters.CharFilter(
+        field_name="username",
+        lookup_expr="contains",
+        help_text="Filter by username containing a specific substring. "
+        "Example: username=Example Username",
+    )
+    email = django_filters.CharFilter(
+        field_name="email",
+        lookup_expr="contains",
+        help_text="Filter by email containing a specific substring. "
+        "Example: email=example@example.com",
+    )

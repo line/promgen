@@ -41,6 +41,7 @@ v2_router.register("groups", rest_v2.GroupViewSet)
 v2_router.register("projects", rest_v2.ProjectViewSet)
 v2_router.register("services", rest_v2.ServiceViewSet)
 v2_router.register("shards", rest_v2.ShardViewSet)
+v2_router.register("users", rest_v2.UserViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
