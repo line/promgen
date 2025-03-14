@@ -992,3 +992,100 @@ class ProjectViewSet(
             serializers.ExporterRetrieveSerializer(exporter).data,
             status=HTTPStatus.CREATED,
         )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="List Services",
+        description="Retrieve a list of all services.",
+    ),
+    retrieve=extend_schema(
+        summary="Retrieve Service",
+        description="Retrieve detailed information about a specific service.",
+        parameters=[
+            OpenApiParameter(
+                name="extra_fields",
+                required=False,
+                type=str,
+                description=(
+                    "Optional comma-separated extra fields to include in response. "
+                    "Supported values: notifiers, projects, rules. "
+                    "Example: extra_fields=projects,notifiers"
+                ),
+            )
+        ],
+    ),
+    create=extend_schema(summary="Create Service", description="Create a new service."),
+    update=extend_schema(summary="Update Service", description="Update an existing service."),
+    partial_update=extend_schema(
+        summary="Partially Update Service", description="Partially update an existing service."
+    ),
+    destroy=extend_schema(summary="Delete Service", description="Delete an existing service."),
+)
+@extend_schema(tags=["Service"])
+class ServiceViewSet(NotifierMixin, RuleMixin, PermissionManagementMixin, viewsets.ModelViewSet):
+    queryset = models.Service.objects.all()
+    filterset_class = filters.ServiceFilterV2
+    serializer_class = serializers.ServiceSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        return permissions.get_accessible_services_for_user(self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return serializers.ServiceRegisterSerializer
+        if self.action == "retrieve":
+            return serializers.ServiceRetrieveDetailSerializer
+        return serializers.ServiceRetrieveSimpleSerializer
+
+    def perform_update(self, serializer):
+        service = self.get_object()
+        original_owner_id = service.owner_id
+        new_owner = serializer.validated_data.get("owner")
+        owner_changed = new_owner is not None and new_owner.id != original_owner_id
+
+        if owner_changed and not (
+            self.request.user.is_superuser or self.request.user.id == original_owner_id
+        ):
+            raise ValidationError({"owner": "You do not have permission to change the owner."})
+
+        super().perform_update(serializer)
+
+        if owner_changed:
+            assign_perm("service_admin", new_owner, service)
+
+    def destroy(self, request, *args, **kwargs):
+        service = self.get_object()
+        if not request.user.is_superuser and service.owner != request.user:
+            raise PermissionDenied("Only the service owner can delete the service.")
+        return super().destroy(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Register Project",
+        description="Register a new project for the specified service.",
+        request=serializers.RegisterProjectServiceSerializer,
+        responses={201: serializers.ProjectRetrieveSimpleSerializer},
+    )
+    @action(detail=True, methods=["post"], url_path="projects")
+    def register_project(self, request, id):
+        service = self.get_object()
+        serializer = serializers.RegisterProjectServiceSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        attributes = {"service": service, "owner_id": request.user.id}
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        project, _ = models.Project.objects.get_or_create(**attributes)
+        return Response(
+            serializers.ProjectRetrieveSimpleSerializer(project).data, status=HTTPStatus.CREATED
+        )

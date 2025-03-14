@@ -570,3 +570,75 @@ class GroupObjectPermissionSerializer(serializers.ModelSerializer):
             "object",
             "permission",
         )
+
+
+class ServiceRegisterSerializer(serializers.ModelSerializer):
+    owner = OwnerField(read_only=True)
+
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+    def create(self, validated_data):
+        validated_data["owner"] = self.context["request"].user
+        return super().create(validated_data)
+
+
+class ServiceRetrieveSimpleSerializer(serializers.ModelSerializer):
+    owner = OwnerField()
+
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+
+class ServiceRetrieveDetailSerializer(serializers.ModelSerializer):
+    EXTRA_FIELDS = {"notifiers", "projects", "rules"}
+
+    owner = OwnerField()
+    projects = ProjectRetrieveSimpleSerializer(many=True, read_only=True, source="project_set")
+    rules = RuleSerializer(many=True, read_only=True, source="rule_set")
+    notifiers = NotifierSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        requested_extra_fields = self._get_requested_extra_fields()
+        if requested_extra_fields is None:
+            for field in self.EXTRA_FIELDS:
+                self.fields.pop(field, None)
+            return
+
+        for field in self.EXTRA_FIELDS - requested_extra_fields:
+            self.fields.pop(field, None)
+
+    def _get_requested_extra_fields(self):
+        request = self.context.get("request")
+        if request is None:
+            return None
+
+        if "extra_fields" not in request.query_params:
+            return None
+
+        requested_fields = set()
+        for raw_value in request.query_params.getlist("extra_fields"):
+            for value in raw_value.split(","):
+                value = value.strip()
+                if value:
+                    requested_fields.add(value)
+
+        return requested_fields & self.EXTRA_FIELDS
+
+
+class RegisterProjectServiceSerializer(serializers.ModelSerializer):
+    shard = ShardField()
+    owner = OwnerField(read_only=True)
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+        read_only_fields = ("service",)
