@@ -2,6 +2,8 @@ import django_filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
+from promgen import models
+
 
 class ShardFilter(django_filters.rest_framework.FilterSet):
     name = django_filters.CharFilter(field_name="name", lookup_expr="contains")
@@ -24,8 +26,17 @@ class RuleFilter(django_filters.rest_framework.FilterSet):
 
 
 class FarmFilter(django_filters.rest_framework.FilterSet):
-    name = django_filters.CharFilter(field_name="name", lookup_expr="contains")
-    source = django_filters.CharFilter(field_name="source", lookup_expr="exact")
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by farm name containing a specific substring. Example: name=Example Farm",
+    )
+    source = django_filters.ChoiceFilter(
+        field_name="source",
+        choices=[(name, name) for name, _ in models.Farm.driver_set()],
+        lookup_expr="exact",
+        help_text="Filter by exact source name. Example: source=promgen",
+    )
 
 
 def filter_content_type(queryset, name, value):
