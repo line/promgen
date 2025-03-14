@@ -484,3 +484,215 @@ class RestAPITest(tests.PromgenTest):
             reverse("api-v2:sender-detail", args=[1]), HTTP_AUTHORIZATION=f"Token {token}"
         )
         self.assertEqual(response.status_code, 204)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_rule(self):
+        token = Token.objects.filter(user__username="demo").first().key
+
+        # Check retrieving all rules
+        expected = tests.Data("examples", "rest.rule.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated rules
+        expected = tests.Data("examples", "rest.rule.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"page_number": 1, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving rules whose "content_type" is "service"
+        expected = tests.Data("examples", "rest.rule.filter_by_content_type.json").json()
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"content_type": "service"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving rules with a non-allowed "content_type" returns 400 Bad Request
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"content_type": "non-allowed"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving rules whose "object_id" is "1"
+        expected = tests.Data("examples", "rest.rule.filter_by_object_id.json").json()
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"object_id": "1"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving rules with a non-existent "object_id" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"object_id": "-1"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving rules whose "enabled" is "true"
+        expected = tests.Data("examples", "rest.rule.filter_by_enabled.json").json()
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"enabled": "true"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving rules whose "parent" is "Test Rule"
+        expected = tests.Data("examples", "rest.rule.filter_by_parent.json").json()
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"parent": "Test Rule"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving rules with a non-existent "parent" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:rule-list"),
+            {"parent": "-1"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving rule's details without token returns 401 Unauthorized
+        response = self.client.get(
+            reverse("api-v2:rule-detail", args=[-1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving rule's details with a non-existent "id" returns 404 Not Found
+        response = self.client.get(
+            reverse("api-v2:rule-detail", args=[-1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # Check retrieving rule's details with an existing "id" returns the expected rule
+        expected = tests.Data("examples", "rest.rule.detail.json").json()
+        response = self.client.get(
+            reverse("api-v2:rule-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Check update a rule without token returns 401 Unauthorized
+        response = self.client.put(
+            reverse("api-v2:rule-detail", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleUpdated",
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check update a rule without permission returns 403 Forbidden
+        response = self.client.put(
+            reverse("api-v2:rule-detail", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleUpdated",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check partial update a rule without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:rule-detail", args=[2]),
+            {"enabled": True},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check partial update a rule without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:rule-detail", args=[2]),
+            {"enabled": True},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check delete a rule without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:rule-detail", args=[1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check delete a rule without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:rule-detail", args=[1]), HTTP_AUTHORIZATION=f"Token {token}"
+        )
+        self.assertEqual(response.status_code, 403)
+
+        user = User.objects.get(username="demo")
+        user.user_permissions.add(Permission.objects.get(codename="change_rule"))
+        user.user_permissions.add(Permission.objects.get(codename="delete_rule"))
+
+        # Check update a rule successfully with permission
+        expected = tests.Data("examples", "rest.rule.update.json").json()
+        response = self.client.put(
+            reverse("api-v2:rule-detail", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleUpdated",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check partial update a rule successfully with permission
+        expected = tests.Data("examples", "rest.rule.partial_update.json").json()
+        response = self.client.patch(
+            reverse("api-v2:rule-detail", args=[2]),
+            {"enabled": True},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check delete a rule successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:rule-detail", args=[1]), HTTP_AUTHORIZATION=f"Token {token}"
+        )
+        self.assertEqual(response.status_code, 204)

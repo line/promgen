@@ -2,6 +2,8 @@ import collections
 
 from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
@@ -185,3 +187,33 @@ class UpdateNotifierSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Sender
         fields = ["enabled"]
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class RuleField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            rule = models.Rule.objects.get(pk=data)
+        except models.Rule.DoesNotExist:
+            raise serializers.ValidationError("Owner does not exist.")
+        return rule
+
+    def to_representation(self, value):
+        return value.name
+
+
+class RuleSerializer(serializers.ModelSerializer):
+    content_name = serializers.SerializerMethodField()
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    labels = serializers.JSONField(required=False)
+    annotations = serializers.JSONField(required=False)
+    parent = RuleField(required=False)
+
+    class Meta:
+        model = models.Rule
+        exclude = ("object_id",)
+
+    def get_content_name(self, obj) -> str:
+        if hasattr(obj, "content_object"):
+            return obj.content_object.name
+        return None

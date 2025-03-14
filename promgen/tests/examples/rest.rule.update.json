@@ -1,0 +1,18 @@
+{
+  "annotations": {
+    "rule": "http://promgen.example.com/rule/1",
+    "summary": "Test Rule Summary"
+  },
+  "clause": "up == 1",
+  "content_name": "test-service",
+  "content_type": "service",
+  "description": "Test Rule Description",
+  "duration": "5m",
+  "enabled": false,
+  "id": 1,
+  "labels": {
+    "severity": "critical"
+  },
+  "name": "TestRuleUpdated",
+  "parent": null
+}
