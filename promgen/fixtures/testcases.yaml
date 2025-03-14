@@ -100,12 +100,22 @@
   pk: 1
   fields:
     module: fixture_test
+- model: promgen.probe
+  pk: 2
+  fields:
+    module: http_2xx
 - model: promgen.url
   pk: 1
   fields:
     project: 1
     probe: 1
     url: probe.example.com
+- model: promgen.url
+  pk: 2
+  fields:
+    project: 2
+    probe: 2
+    url: probe-2.example.com
 - model: promgen.audit
   pk: 1
   fields:

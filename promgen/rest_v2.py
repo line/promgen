@@ -320,3 +320,19 @@ class ExporterViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List URLs", description="Retrieve a list of all URLs."),
+    retrieve=extend_schema(
+        summary="Retrieve URL", description="Retrieve detailed information about a specific URL."
+    ),
+)
+@extend_schema(tags=["URL"])
+class URLViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = models.URL.objects.all()
+    filterset_class = filters.URLFilter
+    serializer_class = serializers.URLSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination

@@ -1111,3 +1111,79 @@ class RestAPITest(tests.PromgenTest):
             HTTP_AUTHORIZATION=f"Token {token}",
         )
         self.assertEqual(response.status_code, 404)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_url(self):
+        token = Token.objects.filter(user__username="demo").first().key
+
+        # Check retrieving urls without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:url-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all urls
+        expected = tests.Data("examples", "rest.url.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:url-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated urls
+        expected = tests.Data("examples", "rest.url.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:url-list"),
+            {"page_number": 2, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving urls whose "probe" is "fixture_test"
+        expected = tests.Data("examples", "rest.url.filter_by_probe.json").json()
+        response = self.client.get(
+            reverse("api-v2:url-list"),
+            {"probe": "fixture_test"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving urls with a non-existent "probe" returns 400 Bad Request
+        response = self.client.get(
+            reverse("api-v2:url-list"),
+            {"probe": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving urls whose "project" contains "test"
+        expected = tests.Data("examples", "rest.url.filter_by_project.json").json()
+        response = self.client.get(
+            reverse("api-v2:url-list"),
+            {"project": "test"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving urls with a non-existent "project" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:url-list"),
+            {"project": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+
+        # Check retrieving urls whose "id" is "1" without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:url-detail", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving urls whose "id" is "1"
+        expected = tests.Data("examples", "rest.url.detail.json").json()
+        response = self.client.get(
+            reverse("api-v2:url-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
