@@ -1,17 +1,8 @@
 {
-  "count": 2,
+  "count": 1,
   "next": null,
   "previous": null,
   "results": [
-    {
-      "description": "",
-      "farm": "test-farm",
-      "id": 2,
-      "name": "another-project",
-      "owner": "demo",
-      "service": "other-service",
-      "shard": "test-shard"
-    },
     {
       "description": "",
       "farm": "test-farm",

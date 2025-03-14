@@ -1,5 +1,5 @@
 {
-  "count": 2,
+  "count": 1,
   "next": null,
   "previous": null,
   "results": [
@@ -10,15 +10,6 @@
       "name": "another-project",
       "owner": "demo",
       "service": "other-service",
-      "shard": "test-shard"
-    },
-    {
-      "description": "",
-      "farm": "test-farm",
-      "id": 1,
-      "name": "test-project",
-      "owner": "admin",
-      "service": "test-service",
       "shard": "test-shard"
     }
   ]
