@@ -154,3 +154,34 @@ class AuditSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Audit
         fields = ("user", "content_type", "object_id", "log", "created", "new", "old")
+
+
+class FilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Filter
+        fields = ["id", "name", "value"]
+
+
+class NotifierSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    content_name = serializers.SerializerMethodField()
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    filters = FilterSerializer(many=True, read_only=True, source="filter_set")
+
+    class Meta:
+        model = models.Sender
+        exclude = ("object_id",)
+
+    def get_content_name(self, obj) -> str:
+        if hasattr(obj, "content_object"):
+            if hasattr(obj.content_object, "name"):
+                return obj.content_object.name
+            if hasattr(obj.content_object, "username"):
+                return obj.content_object.username
+        return None
+
+
+class UpdateNotifierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Sender
+        fields = ["enabled"]

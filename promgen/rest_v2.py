@@ -138,3 +138,63 @@ class AuditViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Notifiers", description="Retrieve a list of all notifiers."),
+    update=extend_schema(summary="Update Notifier", description="Update an existing notifier."),
+    partial_update=extend_schema(
+        summary="Partially Update Notifier", description="Partially update an existing notifier."
+    ),
+    destroy=extend_schema(summary="Delete Notifier", description="Delete an existing notifier."),
+)
+@extend_schema(tags=["Notifier"])
+class NotifierViewSet(
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = models.Sender.objects.all().order_by("value")
+    filterset_class = filters.NotifierFilter
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.NotifierSerializer
+        if self.action == "update":
+            return serializers.UpdateNotifierSerializer
+        if self.action == "partial_update":
+            return serializers.UpdateNotifierSerializer
+        return serializers.NotifierSerializer
+
+    @extend_schema(
+        summary="Add Filter",
+        description="Add a filter to the specified notifier.",
+        request=serializers.FilterSerializer,
+        responses=serializers.NotifierSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="filters")
+    def add_filter(self, request, id):
+        notifier = self.get_object()
+        serializer = serializers.FilterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        models.Filter.objects.create(
+            sender=notifier,
+            name=serializer.validated_data["name"],
+            value=serializer.validated_data["value"],
+        )
+        return Response(serializers.NotifierSerializer(notifier).data, status=HTTPStatus.CREATED)
+
+    @extend_schema(
+        summary="Delete Filter",
+        description="Delete a filter from the specified notifier.",
+    )
+    @action(detail=True, methods=["delete"], url_path="filters/(?P<filter_id>\d+)")
+    def delete_filter(self, request, id, filter_id):
+        notifier = self.get_object()
+        if notifier:
+            models.Filter.objects.filter(pk=filter_id).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)

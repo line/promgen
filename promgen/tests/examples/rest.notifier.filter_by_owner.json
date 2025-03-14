@@ -1,0 +1,18 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "alias": "",
+      "content_name": "test-project",
+      "content_type": "project",
+      "enabled": true,
+      "filters": [],
+      "id": 2,
+      "owner": "demo",
+      "sender": "promgen.notification.slack",
+      "value": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  ]
+}

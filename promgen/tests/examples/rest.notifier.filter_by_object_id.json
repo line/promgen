@@ -1,0 +1,35 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "alias": "",
+      "content_name": "test-service",
+      "content_type": "service",
+      "enabled": true,
+      "filters": [
+        {
+          "id": 1,
+          "name": "severity",
+          "value": "critical"
+        }
+      ],
+      "id": 1,
+      "owner": "admin",
+      "sender": "promgen.notification.email",
+      "value": "email@example.com"
+    },
+    {
+      "alias": "",
+      "content_name": "test-project",
+      "content_type": "project",
+      "enabled": true,
+      "filters": [],
+      "id": 2,
+      "owner": "demo",
+      "sender": "promgen.notification.slack",
+      "value": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+    }
+  ]
+}

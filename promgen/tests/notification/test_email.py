@@ -15,14 +15,15 @@ class EmailTest(tests.PromgenTest):
         one = models.Project.objects.get(pk=1)
         two = models.Project.objects.get(pk=2)
         self.user = self.force_login(username="demo")
+        permission = Permission.objects.get(codename="process_alert")
+        self.user.user_permissions.add(permission)
+        # Firstly, clear all Sender data in test database to ensure avoiding data conflicts
+        # without having to make too many changes in old tests.
+        models.Sender.objects.all().delete()
 
         NotificationEmail.create(obj=one, value="example@example.com", owner=self.user)
         NotificationEmail.create(obj=one, value="foo@example.com", owner=self.user)
         NotificationEmail.create(obj=two, value="bar@example.com", owner=self.user)
-
-        self.user = self.force_login(username="demo")
-        permission = Permission.objects.get(codename="process_alert")
-        self.user.user_permissions.add(permission)
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

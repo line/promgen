@@ -2,7 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, User
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework.authtoken.models import Token
@@ -230,3 +230,257 @@ class RestAPITest(tests.PromgenTest):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["count"], 0)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_notifier(self):
+        token = Token.objects.filter(user__username="demo").first().key
+
+        # Check retrieving notifiers without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:sender-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all notifiers
+        expected = tests.Data("examples", "rest.notifier.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated notifiers
+        expected = tests.Data("examples", "rest.notifier.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"page_number": 1, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving notifiers whose "content_type" is "service"
+        expected = tests.Data("examples", "rest.notifier.filter_by_content_type.json").json()
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"content_type": "service"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving notifiers with a non-allowed "content_type" returns 400 Bad Request
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"content_type": "non-allowed"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving notifiers whose "object_id" is "1"
+        expected = tests.Data("examples", "rest.notifier.filter_by_object_id.json").json()
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"object_id": "1"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving notifiers with a non-existent "object_id" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"object_id": "-1"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving notifiers whose "owner" is "demo"
+        expected = tests.Data("examples", "rest.notifier.filter_by_owner.json").json()
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"owner": "demo"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving notifiers with a non-existent "owner" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"owner": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving notifiers whose "sender" is "promgen.notification.email"
+        expected = tests.Data("examples", "rest.notifier.filter_by_sender.json").json()
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"sender": "promgen.notification.email"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving notifiers with a non-existent "sender" returns 400 Bad Request
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"sender": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving notifiers whose "value" contains "general"
+        expected = tests.Data("examples", "rest.notifier.filter_by_value.json").json()
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"value": "services"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving notifiers with a non-existent "value" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:sender-list"),
+            {"value": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check update a notifier without token returns 401 Unauthorized
+        response = self.client.put(
+            reverse("api-v2:sender-detail", args=[1]),
+            {"enabled": False},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check update a notifier without permission returns 403 Forbidden
+        response = self.client.put(
+            reverse("api-v2:sender-detail", args=[1]),
+            {"enabled": False},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check partial update a notifier without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:sender-detail", args=[1]),
+            {"enabled": False},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check partial update a notifier without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:sender-detail", args=[1]),
+            {"enabled": False},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check add filter for a notifier without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:sender-add-filter", args=[1]),
+            {"name": "name", "value": "value"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check add filter for a notifier without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:sender-add-filter", args=[1]),
+            {"name": "name", "value": "value"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check delete filter for a notifier without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:sender-delete-filter", args=[1, 1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check delete filter for a notifier without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:sender-delete-filter", args=[1, 1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check delete a notifier without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:sender-detail", args=[1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check delete a notifier without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:sender-detail", args=[1]), HTTP_AUTHORIZATION=f"Token {token}"
+        )
+        self.assertEqual(response.status_code, 403)
+
+        user = User.objects.get(username="demo")
+        user.user_permissions.add(Permission.objects.get(codename="add_sender"))
+        user.user_permissions.add(Permission.objects.get(codename="change_sender"))
+        user.user_permissions.add(Permission.objects.get(codename="delete_sender"))
+
+        # Check update a notifier successfully with permission
+        notifier = models.Sender.objects.get(id=1)
+        notifier.enabled = True
+        response = self.client.put(
+            reverse("api-v2:sender-detail", args=[1]),
+            {"enabled": False},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        notifier.refresh_from_db()
+        self.assertFalse(notifier.enabled)
+
+        # Check partial update a notifier successfully with permission
+        notifier = models.Sender.objects.get(id=1)
+        notifier.enabled = True
+        response = self.client.patch(
+            reverse("api-v2:sender-detail", args=[1]),
+            {"enabled": False},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        notifier.refresh_from_db()
+        self.assertFalse(notifier.enabled)
+
+        # Check add filter for a notifier successfully with permission
+        response = self.client.post(
+            reverse("api-v2:sender-add-filter", args=[2]),
+            {"name": "name", "value": "value"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        for item in response.data["filters"]:
+            item.pop("id", None)
+        self.assertEqual(response.data["filters"], [{"name": "name", "value": "value"}])
+
+        # Check delete filter for a notifier successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:sender-delete-filter", args=[2, 2]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 204)
+
+        # Check delete a notifier successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:sender-detail", args=[1]), HTTP_AUTHORIZATION=f"Token {token}"
+        )
+        self.assertEqual(response.status_code, 204)
