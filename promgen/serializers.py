@@ -7,7 +7,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
-from promgen import models, shortcuts
+from promgen import discovery, models, shortcuts
 from promgen.shortcuts import resolve_domain
 
 
@@ -277,3 +277,116 @@ class URLSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.URL
         fields = "__all__"
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class ServiceField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            service = models.Service.objects.get(name=data)
+        except models.Service.DoesNotExist:
+            raise serializers.ValidationError("Service does not exist.")
+        return service
+
+    def to_representation(self, value):
+        return value.name
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class ShardField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            shard = models.Shard.objects.get(name=data)
+        except models.Shard.DoesNotExist:
+            raise serializers.ValidationError("Shard does not exist.")
+        return shard
+
+    def to_representation(self, value):
+        return value.name
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class FarmField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            farm = models.Farm.objects.get(name=data, source=discovery.FARM_DEFAULT)
+        except models.Farm.DoesNotExist:
+            raise serializers.ValidationError("Farm does not exist.")
+        return farm
+
+    def to_representation(self, value):
+        return value.name
+
+
+class ProjectV2Serializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False, default=serializers.CurrentUserDefault())
+    service = ServiceField()
+    shard = ShardField()
+    farm = FarmField(required=False)
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class ProjectUpdateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False)
+    service = ServiceField(required=False, read_only=True)
+    shard = ShardField(required=False)
+    farm = serializers.ReadOnlyField(source="farm.name")
+    name = serializers.CharField(required=False)
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class LinkFarmSerializer(serializers.Serializer):
+    farm = serializers.CharField()
+    source = serializers.ChoiceField(choices=[name for name, _ in models.Farm.driver_set()])
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class ProbeField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            probe = models.Probe.objects.get(module=data)
+        except models.Probe.DoesNotExist:
+            raise serializers.ValidationError("Probe does not exist.")
+        return probe
+
+    def to_representation(self, value):
+        return value.module
+
+
+class RegisterURLProjectSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    probe = ProbeField()
+
+
+class RegisterExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.ChoiceField(choices=["http", "https"])
+    enabled = serializers.BooleanField(required=False)
+
+
+class UpdateExporterProjectSerializer(serializers.Serializer):
+    enabled = serializers.BooleanField()
+
+
+class DeleteExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.CharField()
+
+
+class RegisterNotifierSerializer(serializers.Serializer):
+    sender = serializers.ChoiceField(choices=[name for name, _ in models.Sender.driver_set()])
+    value = serializers.CharField()
+    alias = serializers.CharField(required=False)
+    enabled = serializers.BooleanField(required=False, default=True)
+    filters = FilterSerializer(many=True, required=False)
+    owner = OwnerField(required=False, default=serializers.CurrentUserDefault())

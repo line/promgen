@@ -195,6 +195,23 @@ class RestAPITest(tests.PromgenTest):
         )
         self.assertEqual(response.status_code, 404)
 
+        # Check retrieving the list of projects of the farm whose "id" is "1"
+        expected = tests.Data("examples", "rest.farm.projects.json").json()
+        response = self.client.get(
+            reverse("api-v2:farm-projects", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving the list of projects of the farm
+        # with a non-existent "id" returns 404 Not Found
+        response = self.client.get(
+            reverse("api-v2:farm-projects", args=[-1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
         # Check create a farm without token returns 401 Unauthorized
         response = self.client.post(
             reverse("api-v2:farm-list"),
@@ -1187,3 +1204,635 @@ class RestAPITest(tests.PromgenTest):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_project(self):
+        token = Token.objects.filter(user__username="demo").first().key
+
+        # Check retrieving projects without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:project-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all projects
+        expected = tests.Data("examples", "rest.project.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated projects
+        expected = tests.Data("examples", "rest.project.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"page_number": 1, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving projects whose "name" contains "test"
+        expected = tests.Data("examples", "rest.project.filter_by_name.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"name": "test"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving projects with a non-existent "name" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"name": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving projects whose "owner" is "demo"
+        expected = tests.Data("examples", "rest.project.filter_by_owner.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"owner": "demo"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving projects with a non-existent "owner" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"owner": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving projects whose "service" is "test-service"
+        expected = tests.Data("examples", "rest.project.filter_by_service.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"service": "test-service"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving projects with a non-existent "service" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"service": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving projects whose "shard" is "test-shard"
+        expected = tests.Data("examples", "rest.project.filter_by_shard.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"shard": "test-shard"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving projects with a non-existent "shard" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:project-list"),
+            {"shard": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving projects whose "id" is "1" without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:project-detail", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving projects whose "id" is "1"
+        expected = tests.Data("examples", "rest.project.detail.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving projects with a non-existent "id" returns 404 Not Found
+        response = self.client.get(
+            reverse("api-v2:project-detail", args=[-1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # Check retrieving list of exporters for a project without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:project-exporters", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of exporters for a project
+        expected = tests.Data("examples", "rest.project.exporters.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-exporters", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving list of urls for a project without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:project-urls", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of urls for a project
+        expected = tests.Data("examples", "rest.project.urls.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-urls", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving list of rules for a project without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:project-rules", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of rules for a project
+        expected = tests.Data("examples", "rest.project.rules.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-rules", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving list of notifiers for a project without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:project-notifiers", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of notifiers for a project
+        expected = tests.Data("examples", "rest.project.notifiers.json").json()
+        response = self.client.get(
+            reverse("api-v2:project-notifiers", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check creating a project without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:project-list"),
+            {"name": "new-project", "service": "test-service", "shard": "test-shard"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check creating a project without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:project-list"),
+            {"name": "new-project", "service": "test-service", "shard": "test-shard"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check updating a project without token returns 401 Unauthorized
+        response = self.client.put(
+            reverse("api-v2:project-detail", args=[1]),
+            {
+                "name": "updated-project",
+                "owner": "demo",
+                "shard": "test-shard",
+                "description": "Test Project Description",
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check updating a project without permission returns 403 Forbidden
+        response = self.client.put(
+            reverse("api-v2:project-detail", args=[1]),
+            {
+                "name": "updated-project",
+                "owner": "demo",
+                "shard": "test-shard",
+                "description": "Test Project Description",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check partial updating a project without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:project-detail", args=[1]),
+            {"name": "updated-project"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check partial updating a project without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:project-detail", args=[1]),
+            {"name": "updated-project"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check register exporter for a project without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:project-exporters", args=[1]),
+            {
+                "job": "test-job",
+                "port": 8080,
+                "path": "/metrics",
+                "scheme": "http",
+                "enabled": True,
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register exporter for a project without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:project-exporters", args=[1]),
+            {
+                "job": "test-job",
+                "port": 8080,
+                "path": "/metrics",
+                "scheme": "http",
+                "enabled": True,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check update exporter for a project without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:project-update-exporter", args=[1, 1]),
+            {
+                "enabled": False,
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check update exporter for a project without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:project-update-exporter", args=[1, 1]),
+            {
+                "enabled": False,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check delete exporter for a project without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:project-update-exporter", args=[1, 1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check delete exporter for a project without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:project-update-exporter", args=[1, 1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check register url for a project without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:project-urls", args=[1]),
+            {"url": "http://test-url", "probe": "test-probe"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register url for a project without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:project-urls", args=[1]),
+            {"url": "http://test-url", "probe": "test-probe"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check delete url for a project without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:project-delete-url", args=[1, 1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check delete url for a project without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:project-delete-url", args=[1, 1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check register rule for a project without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:project-rules", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleCreated",
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register rule for a project without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:project-rules", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleCreated",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check register notifier for a project without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:project-notifiers", args=[1]),
+            {
+                "owner": "demo",
+                "filters": [{"name": "test-name", "value": "test-value"}],
+                "sender": "promgen.notification.slack",
+                "value": "https://test.slack.com",
+                "enabled": False,
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register notifier for a project without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:project-notifiers", args=[1]),
+            {
+                "owner": "demo",
+                "filters": [{"name": "test-name", "value": "test-value"}],
+                "sender": "promgen.notification.slack",
+                "value": "https://test.slack.com",
+                "enabled": False,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check link farm for a project without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:project-link-farm", args=[1]),
+            {"farm": "test-farm", "source": "promgen"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check link farm for a project without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:project-link-farm", args=[1]),
+            {"farm": "test-farm", "source": "promgen"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check unlink farm for a project without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:project-unlink-farm", args=[1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check unlink farm for a project without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:project-unlink-farm", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check deleting a project without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:project-detail", args=[1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check deleting a project without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:project-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        user = User.objects.get(username="demo")
+        user.user_permissions.add(Permission.objects.get(codename="add_project"))
+        user.user_permissions.add(Permission.objects.get(codename="change_project"))
+        user.user_permissions.add(Permission.objects.get(codename="delete_project"))
+
+        # Check creating a project successfully with permission
+        expected = tests.Data("examples", "rest.project.create.json").json()
+        before_count = models.Project.objects.count()
+        response = self.client.post(
+            reverse("api-v2:project-list"),
+            {"name": "new-project", "service": "test-service", "shard": "test-shard"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        after_count = models.Project.objects.count()
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(before_count + 1, after_count)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        expected.pop("id", None)
+        response.json().pop("id", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check updating a project successfully with permission
+        expected = tests.Data("examples", "rest.project.update.json").json()
+        response = self.client.put(
+            reverse("api-v2:project-detail", args=[1]),
+            {
+                "name": "updated-project",
+                "owner": "demo",
+                "shard": "test-shard",
+                "description": "Test Project Description",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check partial updating a project successfully with permission
+        expected = tests.Data("examples", "rest.project.partial_update.json").json()
+        response = self.client.patch(
+            reverse("api-v2:project-detail", args=[1]),
+            {"name": "updated-project"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check register exporter for a project successfully with permission
+        expected = tests.Data("examples", "rest.project.register_exporter.json").json()
+        response = self.client.post(
+            reverse("api-v2:project-exporters", args=[1]),
+            {
+                "job": "test-job",
+                "port": 8080,
+                "path": "/metrics",
+                "scheme": "http",
+                "enabled": True,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        for item in expected:
+            item.pop("id", None)
+        for item in response.json():
+            item.pop("id", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check update exporter for a project successfully with permission
+        expected = tests.Data("examples", "rest.project.update_exporter.json").json()
+        response = self.client.patch(
+            reverse("api-v2:project-update-exporter", args=[1, 1]),
+            {
+                "enabled": False,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        for item in expected:
+            item.pop("id", None)
+        for item in response.json():
+            item.pop("id", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check delete exporter for a project successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:project-update-exporter", args=[1, 1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 204)
+
+        # Check register url for a project successfully with permission
+        expected = tests.Data("examples", "rest.project.register_url.json").json()
+        response = self.client.post(
+            reverse("api-v2:project-urls", args=[1]),
+            {"url": "http://test-url", "probe": "http_2xx"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json(), expected)
+
+        # Check delete url for a project successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:project-delete-url", args=[1, 1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 204)
+
+        # Check register rule for a project successfully with permission
+        expected = tests.Data("examples", "rest.project.register_rule.json").json()
+        response = self.client.post(
+            reverse("api-v2:project-rules", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleCreated",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        for item in expected:
+            item.pop("id", None)
+            item["annotations"].pop("rule", None)
+        for item in response.json():
+            item.pop("id", None)
+            item["annotations"].pop("rule", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check register notifier for a project successfully with permission
+        expected = tests.Data("examples", "rest.project.register_notifier.json").json()
+        response = self.client.post(
+            reverse("api-v2:project-notifiers", args=[1]),
+            {
+                "owner": "demo",
+                "filters": [{"name": "test-name", "value": "test-value"}],
+                "sender": "promgen.notification.slack",
+                "value": "https://test.slack.com",
+                "enabled": False,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        for item in expected:
+            item.pop("id", None)
+            for filter in item["filters"]:
+                filter.pop("id", None)
+        for item in response.json():
+            item.pop("id", None)
+            for filter in item["filters"]:
+                filter.pop("id", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check link farm for a project successfully with permission
+        expected = tests.Data("examples", "rest.project.link_farm.json").json()
+        response = self.client.patch(
+            reverse("api-v2:project-link-farm", args=[1]),
+            {"farm": "test-farm", "source": "promgen"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check unlink farm for a project successfully with permission
+        expected = tests.Data("examples", "rest.project.unlink_farm.json").json()
+        response = self.client.patch(
+            reverse("api-v2:project-unlink-farm", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check deleting a project successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:project-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 204)

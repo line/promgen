@@ -1,0 +1,9 @@
+{
+  "description": "",
+  "farm": null,
+  "id": 3,
+  "name": "new-project",
+  "owner": "demo",
+  "service": "test-service",
+  "shard": "test-shard"
+}

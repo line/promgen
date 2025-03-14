@@ -1,0 +1,20 @@
+[
+  {
+    "enabled": false,
+    "id": 1,
+    "job": "node",
+    "path": "/metrics",
+    "port": 9100,
+    "project": "updated-project",
+    "scheme": "http"
+  },
+  {
+    "enabled": true,
+    "id": 3,
+    "job": "test-job",
+    "path": "/metrics",
+    "port": 8080,
+    "project": "updated-project",
+    "scheme": "http"
+  }
+]

@@ -72,8 +72,8 @@
   pk: 2
   fields:
     name: another-project
-    owner: 1
-    service: 1
+    owner: 2
+    service: 2
     shard: 1
     farm: 1
 - model: promgen.host

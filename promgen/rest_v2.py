@@ -14,7 +14,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from promgen import filters, models, serializers
+from promgen import filters, models, serializers, signals
 
 
 class RuleMixin:
@@ -279,6 +279,22 @@ class FarmViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializers.HostRetrieveSerializer(page, many=True).data)
 
     @extend_schema(
+        summary="List Projects in Farm",
+        description="Retrieve all projects associated with the specified farm.",
+        parameters=[
+            OpenApiParameter(name="page_number", required=False, type=int),
+            OpenApiParameter(name="page_size", required=False, type=int),
+        ],
+        responses=serializers.ProjectV2Serializer(many=True),
+    )
+    @action(detail=True, methods=["get"], filterset_class=None)
+    def projects(self, request, id):
+        farm = self.get_object()
+        projects = farm.project_set.all()
+        page = self.paginate_queryset(projects)
+        return self.get_paginated_response(serializers.ProjectV2Serializer(page, many=True).data)
+
+    @extend_schema(
         summary="Register Hosts",
         description="Register new hosts for the specified farm.",
         request=serializers.HostListSerializer,
@@ -336,3 +352,194 @@ class URLViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.Gene
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Projects", description="Retrieve a list of all projects."),
+    retrieve=extend_schema(
+        summary="Retrieve Project",
+        description="Retrieve detailed information about a specific project.",
+    ),
+    create=extend_schema(summary="Create Project", description="Create a new project."),
+    update=extend_schema(summary="Update Project", description="Update an existing project."),
+    partial_update=extend_schema(
+        summary="Partially Update Project", description="Partially update an existing project."
+    ),
+    destroy=extend_schema(summary="Delete Project", description="Delete an existing project."),
+)
+@extend_schema(tags=["Project"])
+class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
+    queryset = models.Project.objects.prefetch_related("service", "shard", "farm")
+    filterset_class = filters.ProjectFilterV2
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.ProjectV2Serializer
+        if self.action == "retrieve":
+            return serializers.ProjectV2Serializer
+        if self.action == "create":
+            return serializers.ProjectV2Serializer
+        if self.action == "update":
+            return serializers.ProjectUpdateSerializer
+        if self.action == "partial_update":
+            return serializers.ProjectUpdateSerializer
+        return serializers.ProjectV2Serializer
+
+    @extend_schema(
+        summary="List Exporters",
+        description="Retrieve all exporters associated with the specified project.",
+        responses=serializers.ExporterSerializer(many=True),
+    )
+    @action(detail=True, methods=["get"], pagination_class=None, filterset_class=None)
+    def exporters(self, request, id):
+        project = self.get_object()
+        return Response(serializers.ExporterSerializer(project.exporter_set.all(), many=True).data)
+
+    @extend_schema(
+        summary="List URLs",
+        description="Retrieve all URLs associated with the specified project.",
+        responses=serializers.URLSerializer(many=True),
+    )
+    @action(detail=True, methods=["get"], pagination_class=None, filterset_class=None)
+    def urls(self, request, id):
+        project = self.get_object()
+        return Response(serializers.URLSerializer(project.url_set.all(), many=True).data)
+
+    @extend_schema(
+        summary="Link Farm",
+        description="Link a farm to the specified project.",
+        request=serializers.LinkFarmSerializer,
+        responses=serializers.ProjectV2Serializer,
+    )
+    @action(detail=True, methods=["patch"], url_path="farm-link")
+    def link_farm(self, request, id):
+        serializer = serializers.LinkFarmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        project = self.get_object()
+        farm, created = models.Farm.objects.get_or_create(
+            name=serializer.validated_data["farm"],
+            source=serializer.validated_data["source"],
+        )
+        if created:
+            farm.refresh()
+        project.farm = farm
+        project.save()
+        return Response(serializers.ProjectV2Serializer(project).data)
+
+    @extend_schema(
+        summary="Unlink Farm",
+        description="Unlink the farm from the specified project.",
+        responses=serializers.ProjectV2Serializer,
+    )
+    @action(detail=True, methods=["patch"], url_path="farm-unlink")
+    def unlink_farm(self, request, id):
+        project = self.get_object()
+        if project.farm is None:
+            return Response(serializers.ProjectV2Serializer(project).data)
+
+        old_farm, project.farm = project.farm, None
+        project.save()
+        signals.trigger_write_config.send(request)
+
+        if old_farm.project_set.count() == 0 and old_farm.editable is False:
+            old_farm.delete()
+        return Response(serializers.ProjectV2Serializer(project).data)
+
+    @extend_schema(
+        summary="Register URL",
+        description="Register a new URL for the specified project.",
+        request=serializers.RegisterURLProjectSerializer,
+        responses={201: serializers.URLSerializer(many=True)},
+    )
+    @urls.mapping.post
+    def register_url(self, request, id):
+        serializer = serializers.RegisterURLProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        project = self.get_object()
+
+        models.URL.objects.get_or_create(
+            project=project,
+            url=serializer.validated_data["url"],
+            probe=serializer.validated_data["probe"],
+        )
+        return Response(
+            serializers.URLSerializer(project.url_set, many=True).data, status=HTTPStatus.CREATED
+        )
+
+    @extend_schema(
+        summary="Delete URL",
+        description="Delete a URL from the specified project.",
+    )
+    @action(
+        detail=True,
+        methods=["delete"],
+        url_path="urls/(?P<url_id>\d+)",
+        pagination_class=None,
+        filterset_class=None,
+    )
+    def delete_url(self, request, id, url_id):
+        project = self.get_object()
+        models.URL.objects.filter(project=project, pk=url_id).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+    @extend_schema(
+        summary="Register Exporter",
+        description="Register a new exporter for the specified project.",
+        request=serializers.RegisterExporterProjectSerializer,
+        responses={201: serializers.ExporterSerializer(many=True)},
+    )
+    @exporters.mapping.post
+    def register_exporter(self, request, id):
+        serializer = serializers.RegisterExporterProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        project = self.get_object()
+
+        attributes = {
+            "project_id": project.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        models.Exporter.objects.get_or_create(**attributes)
+        return Response(
+            serializers.ExporterSerializer(project.exporter_set, many=True).data,
+            status=HTTPStatus.CREATED,
+        )
+
+    @extend_schema(
+        summary="Update Exporter",
+        description="Update an existing exporter for the specified project.",
+        request=serializers.UpdateExporterProjectSerializer,
+        responses=serializers.ExporterSerializer(many=True),
+    )
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="exporters/(?P<exporter_id>\d+)",
+        pagination_class=None,
+        filterset_class=None,
+    )
+    def update_exporter(self, request, id, exporter_id):
+        serializer = serializers.UpdateExporterProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        project = self.get_object()
+        exporter = models.Exporter.objects.filter(project=project, pk=exporter_id).first()
+        exporter.enabled = serializer.validated_data.get("enabled")
+        exporter.save()
+        return Response(serializers.ExporterSerializer(project.exporter_set, many=True).data)
+
+    @extend_schema(
+        summary="Delete Exporter",
+        description="Delete an exporter from the specified project.",
+    )
+    @update_exporter.mapping.delete
+    def delete_exporter(self, request, id, exporter_id):
+        project = self.get_object()
+        models.Exporter.objects.filter(project=project, pk=exporter_id).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)

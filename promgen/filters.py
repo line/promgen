@@ -193,3 +193,26 @@ class URLFilter(django_filters.rest_framework.FilterSet):
         choices=models.Probe.objects.values_list("module", "description").distinct(),
         help_text="Filter by exact probe scheme. Example: probe=http_2xx",
     )
+
+
+class ProjectFilterV2(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by project name containing a specific substring. Example: name=Example Project",
+    )
+    service = django_filters.CharFilter(
+        field_name="service__name",
+        lookup_expr="exact",
+        help_text="Filter by exact service name. Example: service=Example Service",
+    )
+    shard = django_filters.CharFilter(
+        field_name="shard__name",
+        lookup_expr="exact",
+        help_text="Filter by exact shard name. Example: shard=Example Shard",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )

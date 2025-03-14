@@ -1,0 +1,16 @@
+{
+  "count": 2,
+  "next": "http://testserver/rest/v2/projects/?page_number=2&page_size=1",
+  "previous": null,
+  "results": [
+    {
+      "description": "",
+      "farm": "test-farm",
+      "id": 2,
+      "name": "another-project",
+      "owner": "demo",
+      "service": "other-service",
+      "shard": "test-shard"
+    }
+  ]
+}
