@@ -5,7 +5,7 @@
       "__shard": "test-shard",
       "job": "http_2xx",
       "project": "another-project",
-      "service": "test-service"
+      "service": "other-service"
     },
     "targets": [
       "probe-2.example.com"
