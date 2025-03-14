@@ -62,6 +62,7 @@ INSTALLED_APPS = apps_from_setuptools + [
     "promgen",
     # Third Party
     "django_filters",
+    "drf_spectacular",
     "rest_framework.authtoken",
     "rest_framework",
     "social_django",
@@ -196,6 +197,7 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
     ),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_SCHEMA_CLASS": "promgen.schemas.CustomSchema",
 }
 
 # If CELERY_BROKER_URL is set in our environment, then we configure celery as
@@ -222,3 +224,9 @@ for k, v in PROMGEN.pop("django", {}).items():
     globals()[k] = v
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Promgen's APIs",
+    "VERSION": PROMGEN_VERSION,
+    "DESCRIPTION": "Non-GET APIs require authentication. "
+    "Please login Promgen and access the Profile page to get a Token.",
+}
