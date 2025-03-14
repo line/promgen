@@ -220,6 +220,7 @@ class Service(models.Model):
 
     class Meta:
         ordering = ["name"]
+        default_permissions = ("manage", "edit")
 
     def get_absolute_url(self):
         return reverse("service-detail", kwargs={"pk": self.pk})
@@ -255,6 +256,7 @@ class Project(models.Model):
 
     class Meta:
         ordering = ["name"]
+        default_permissions = ("manage", "edit")
 
     def get_absolute_url(self):
         return reverse("project-detail", kwargs={"pk": self.pk})
@@ -266,10 +268,14 @@ class Project(models.Model):
 class Farm(models.Model):
     name = models.CharField(max_length=128, validators=[validators.labelvalue])
     source = models.CharField(max_length=128)
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
+    )
 
     class Meta:
         ordering = ["name"]
         unique_together = (("name", "source"),)
+        default_permissions = ("manage", "edit")
 
     def get_absolute_url(self):
         return reverse("farm-detail", kwargs={"pk": self.pk})

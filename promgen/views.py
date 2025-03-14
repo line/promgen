@@ -15,6 +15,7 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, Paginator
 from django.db.models import Count, Q
@@ -28,6 +29,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
+from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
 from requests.exceptions import HTTPError
@@ -44,6 +46,8 @@ from promgen import (
     tasks,
     util,
 )
+from promgen.forms import UserPermissionForm
+from promgen.mixins import PromgenGuardianPermissionMixin
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
@@ -289,22 +293,30 @@ class ServiceDetail(LoginRequiredMixin, DetailView):
         "project_set__notifiers__owner",
     )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
+        return context
 
-class ServiceDelete(LoginRequiredMixin, DeleteView):
+
+class ServiceDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["manage_service"]
     model = models.Service
 
     def get_success_url(self):
         return reverse("service-list")
 
 
-class ProjectDelete(LoginRequiredMixin, DeleteView):
+class ProjectDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["manage_service", "manage_project"]
     model = models.Project
 
     def get_success_url(self):
         return reverse("service-detail", args=[self.object.service_id])
 
 
-class NotifierUpdate(LoginRequiredMixin, UpdateView):
+class NotifierUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Sender
     form_class = forms.NotifierUpdate
 
@@ -355,7 +367,8 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
         return self.get(self, request, pk)
 
 
-class NotifierDelete(LoginRequiredMixin, DeleteView):
+class NotifierDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Sender
 
     def get_success_url(self):
@@ -366,7 +379,9 @@ class NotifierDelete(LoginRequiredMixin, DeleteView):
         return reverse("profile")
 
 
-class NotifierTest(LoginRequiredMixin, View):
+class NotifierTest(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         try:
@@ -382,15 +397,21 @@ class NotifierTest(LoginRequiredMixin, View):
             return redirect(sender.content_object)
         return redirect("profile")
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Sender, id=self.kwargs["pk"])
 
-class ExporterDelete(LoginRequiredMixin, DeleteView):
+
+class ExporterDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Exporter
 
     def get_success_url(self):
         return reverse("project-detail", args=[self.object.project_id])
 
 
-class ExporterToggle(LoginRequiredMixin, View):
+class ExporterToggle(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def post(self, request, pk):
         exporter = get_object_or_404(models.Exporter, id=pk)
         exporter.enabled = not exporter.enabled
@@ -398,8 +419,13 @@ class ExporterToggle(LoginRequiredMixin, View):
         signals.trigger_write_config.send(request)
         return JsonResponse({"redirect": exporter.project.get_absolute_url()})
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Exporter, id=self.kwargs["pk"])
 
-class NotifierToggle(LoginRequiredMixin, View):
+
+class NotifierToggle(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         sender.enabled = not sender.enabled
@@ -407,8 +433,12 @@ class NotifierToggle(LoginRequiredMixin, View):
         # Redirect to current page
         return JsonResponse({"redirect": ""})
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Sender, id=self.kwargs["pk"])
 
-class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
+
+class RuleDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Rule
 
     def get_permission_denied_message(self):
@@ -428,7 +458,8 @@ class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
         return self.object.content_object.get_absolute_url()
 
 
-class RuleToggle(mixins.PromgenPermissionMixin, SingleObjectMixin, View):
+class RuleToggle(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Rule
 
     def get_permission_denied_message(self):
@@ -450,7 +481,8 @@ class RuleToggle(mixins.PromgenPermissionMixin, SingleObjectMixin, View):
         return JsonResponse({"redirect": self.object.content_object.get_absolute_url()})
 
 
-class HostDelete(LoginRequiredMixin, DeleteView):
+class HostDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["manage_farm", "edit_farm"]
     model = models.Host
 
     def get_success_url(self):
@@ -477,6 +509,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context["sources"] = models.Farm.driver_set()
         context["url_form"] = forms.URLForm()
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
         return context
 
 
@@ -491,8 +524,14 @@ class FarmList(LoginRequiredMixin, ListView):
 class FarmDetail(LoginRequiredMixin, DetailView):
     model = models.Farm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
+        return context
 
-class FarmUpdate(LoginRequiredMixin, UpdateView):
+
+class FarmUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["manage_farm", "edit_farm"]
     model = models.Farm
     button_label = _("Update Farm")
     template_name = "promgen/farm_form.html"
@@ -512,7 +551,8 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
         return HttpResponseRedirect(reverse("project-detail", args=[farm.project_set.first().id]))
 
 
-class FarmDelete(LoginRequiredMixin, RedirectView):
+class FarmDelete(PromgenGuardianPermissionMixin, RedirectView):
+    permission_required = ["manage_farm"]
     pattern_name = "farm-detail"
 
     def post(self, request, pk):
@@ -521,8 +561,13 @@ class FarmDelete(LoginRequiredMixin, RedirectView):
 
         return HttpResponseRedirect(request.POST.get("next", reverse("service-list")))
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
-class UnlinkFarm(LoginRequiredMixin, View):
+
+class UnlinkFarm(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def post(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
         oldfarm, project.farm = project.farm, None
@@ -534,6 +579,9 @@ class UnlinkFarm(LoginRequiredMixin, View):
             oldfarm.delete()
 
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
 
 class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
@@ -601,7 +649,8 @@ class FarmRefresh(LoginRequiredMixin, RedirectView):
         return redirect(farm)
 
 
-class FarmConvert(LoginRequiredMixin, RedirectView):
+class FarmConvert(PromgenGuardianPermissionMixin, RedirectView):
+    permission_required = ["manage_farm", "edit_farm"]
     pattern_name = "farm-detail"
 
     def post(self, request, pk):
@@ -625,8 +674,13 @@ class FarmConvert(LoginRequiredMixin, RedirectView):
             request.POST.get("next", reverse("farm-detail", args=[farm.pk]))
         )
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
-class FarmLink(LoginRequiredMixin, View):
+
+class FarmLink(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def get(self, request, pk, source):
         context = {
             "source": source,
@@ -649,8 +703,12 @@ class FarmLink(LoginRequiredMixin, View):
         project.save()
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
-class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+
+class ExporterRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Exporter
     template_name = "promgen/exporter_form.html"
     form_class = forms.ExporterForm
@@ -659,6 +717,9 @@ class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
         exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
 
 class ExporterScrape(LoginRequiredMixin, View):
@@ -715,7 +776,8 @@ class ExporterScrape(LoginRequiredMixin, View):
             return JsonResponse({"error": "Error with query %s" % e})
 
 
-class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+class URLRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.URL
     template_name = "promgen/url_form.html"
     form_class = forms.URLForm
@@ -725,8 +787,12 @@ class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         url, _ = models.URL.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
-class URLDelete(LoginRequiredMixin, DeleteView):
+
+class URLDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.URL
 
     def get_success_url(self):
@@ -742,7 +808,8 @@ class URLList(LoginRequiredMixin, ListView):
     )
 
 
-class ProjectRegister(LoginRequiredMixin, CreateView):
+class ProjectRegister(PromgenGuardianPermissionMixin, CreateView):
+    permission_required = ["manage_service", "edit_service"]
     button_label = _("Register Project")
     model = models.Project
     fields = ["name", "description", "owner", "shard"]
@@ -763,8 +830,12 @@ class ProjectRegister(LoginRequiredMixin, CreateView):
         form.instance.service_id = self.kwargs["pk"]
         return super().form_valid(form)
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Service, id=self.kwargs["pk"])
 
-class ProjectUpdate(LoginRequiredMixin, UpdateView):
+
+class ProjectUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Project
     button_label = _("Project Update")
     template_name = "promgen/project_form.html"
@@ -777,7 +848,8 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
         return context
 
 
-class ServiceUpdate(LoginRequiredMixin, UpdateView):
+class ServiceUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["manage_service", "edit_service"]
     button_label = _("Update Service")
     form_class = forms.ServiceUpdate
     model = models.Service
@@ -793,7 +865,9 @@ class RuleDetail(LoginRequiredMixin, DetailView):
     )
 
 
-class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
+class RuleUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
+
     def get_permission_denied_message(self):
         return "Unable to edit rule %s. User lacks permission" % self.object
 
@@ -858,7 +932,8 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         return self.form_valid(context["form"])
 
 
-class AlertRuleRegister(mixins.PromgenPermissionMixin, mixins.RuleFormMixin, FormView):
+class AlertRuleRegister(PromgenGuardianPermissionMixin, mixins.RuleFormMixin, FormView):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Rule
     template_name = "promgen/rule_register.html"
     form_class = forms.AlertRuleForm
@@ -890,6 +965,13 @@ class AlertRuleRegister(mixins.PromgenPermissionMixin, mixins.RuleFormMixin, For
         messages.info(self.request, "Imported %s" % counters)
         return HttpResponseRedirect(content_object.get_absolute_url())
 
+    def get_check_permission_object(self):
+        id = self.kwargs["object_id"]
+        model = self.kwargs["content_type"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj
+
 
 class ServiceRegister(LoginRequiredMixin, CreateView):
     button_label = _("Register Service")
@@ -900,7 +982,8 @@ class ServiceRegister(LoginRequiredMixin, CreateView):
         return {"owner": self.request.user}
 
 
-class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+class FarmRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Farm
     button_label = _("Register Farm")
     template_name = "promgen/farm_form.html"
@@ -908,13 +991,24 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
-        farm, _ = models.Farm.objects.get_or_create(source=discovery.FARM_DEFAULT, **form.clean())
+        farm, _ = models.Farm.objects.get_or_create(
+            source=discovery.FARM_DEFAULT,
+            **form.clean(),
+            defaults={"owner": self.request.user},
+        )
         project.farm = farm
         project.save()
         return HttpResponseRedirect(project.get_absolute_url())
 
+    def get_initial(self):
+        return {"owner": self.request.user}
 
-class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
+
+
+class ProjectNotifierRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
+    permission_required = ["manage_service", "edit_service", "manage_project", "edit_project"]
     model = models.Sender
     template_name = "promgen/notifier_form.html"
     form_class = forms.SenderForm
@@ -929,8 +1023,12 @@ class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin)
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(project.get_absolute_url())
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
-class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin):
+
+class ServiceNotifierRegister(PromgenGuardianPermissionMixin, FormView, mixins.ServiceMixin):
+    permission_required = ["manage_service", "edit_service"]
     model = models.Sender
     template_name = "promgen/notifier_form.html"
     form_class = forms.SenderForm
@@ -944,6 +1042,9 @@ class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin)
         )
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(service.get_absolute_url())
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Service, id=self.kwargs["pk"])
 
 
 class SiteDetail(LoginRequiredMixin, TemplateView):
@@ -979,7 +1080,8 @@ class Profile(LoginRequiredMixin, FormView):
         return redirect("profile")
 
 
-class HostRegister(LoginRequiredMixin, FormView):
+class HostRegister(PromgenGuardianPermissionMixin, FormView):
+    permission_required = ["manage_farm", "edit_farm"]
     model = models.Host
     template_name = "promgen/host_form.html"
     form_class = forms.HostForm
@@ -1000,6 +1102,9 @@ class HostRegister(LoginRequiredMixin, FormView):
         if farm.project_set.count() == 0:
             return redirect("farm-detail", pk=farm.id)
         return redirect("project-detail", pk=farm.project_set.first().id)
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
 
 class ApiConfig(View):
@@ -1458,3 +1563,57 @@ class PromqlQuery(View):
             return util.proxy_error(response)
 
         return HttpResponse(response.content, content_type="application/json")
+
+
+class PermissionAssign(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "manage_project", "manage_farm"]
+
+    def post(self, request):
+        user = User.objects.get_by_natural_key(request.POST["username"])
+        permission = request.POST["permission"]
+        obj = self.get_object()
+
+        # User should only have one permission MANAGE or EDIT for an object
+        # So we remove all permissions before assigning new one
+        permissions = get_perms(user, obj)
+        for perm in permissions:
+            remove_perm(perm, user, obj)
+
+        assign_perm(permission, user, obj)
+        messages.success(
+            request,
+            "Assigned permission: {} for user: {} on: {}".format(
+                permission, user.username, obj.name
+            ),
+        )
+        return redirect(request.POST["next"])
+
+    def get_object(self):
+        id = self.request.POST["id"]
+        model = self.request.POST["model"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj
+
+
+class PermissionDelete(PromgenGuardianPermissionMixin, View):
+    permission_required = ["manage_service", "manage_project", "manage_farm"]
+
+    def post(self, request):
+        user = User.objects.get_by_natural_key(request.POST["username"])
+        obj = self.get_object()
+        permissions = get_perms(user, obj)
+        for perm in permissions:
+            remove_perm(perm, user, obj)
+        messages.success(
+            request,
+            "Removed all permissions of user: {} on: {}".format(user.username, obj.name),
+        )
+        return redirect(request.POST["next"])
+
+    def get_object(self):
+        id = self.request.POST["id"]
+        model = self.request.POST["model"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj
