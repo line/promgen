@@ -271,3 +271,24 @@ class FarmSourceSerializer(serializers.Serializer):
 
 class RemoteFarmSerializer(serializers.Serializer):
     name = serializers.CharField()
+
+
+class ExporterRetrieveSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+
+    class Meta:
+        model = models.Exporter
+        fields = "__all__"
+
+
+class ExporterUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Exporter
+        fields = "__all__"
+        read_only_fields = (
+            "job",
+            "port",
+            "path",
+            "scheme",
+            "project",
+        )

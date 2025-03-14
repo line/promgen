@@ -1,0 +1,26 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list exporters.,,,GET,api-v2:exporter-list,,,401,
+An unauthenticated user cannot view exporter detail.,,,GET,api-v2:exporter-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot update an exporter.,,,PUT,api-v2:exporter-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot partially update an exporter.,,,PATCH,api-v2:exporter-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot delete an exporter.,,,DELETE,api-v2:exporter-detail,"{""id"": 1}",,401,
+An authenticated user without permissions sees no exporters.,demo,,GET,api-v2:exporter-list,,,200,"{""count"": 0}"
+An authenticated user without permissions cannot view exporter detail.,demo,,GET,api-v2:exporter-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot update an exporter.,demo,,PUT,api-v2:exporter-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot partially update an exporter.,demo,,PATCH,api-v2:exporter-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot delete an exporter.,demo,,DELETE,api-v2:exporter-detail,"{""id"": 1}",,403,
+A viewer can list exporters.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,,200,"{""example"": ""rest.exporter.list.json""}"
+A viewer can get paginated exporter results.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
+A viewer can filter exporters by enabled state.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,"{""enabled"": ""true""}",200,"{""count"": 1}"
+A viewer can filter exporters by job.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,"{""job"": ""inx""}",200,"{""count"": 1}"
+A viewer can filter exporters by path.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,"{""path"": ""/metrics""}",200,"{""count"": 1}"
+A viewer can filter exporters by project.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,"{""project"": ""test""}",200,"{""count"": 1}"
+A viewer can filter exporters by scheme.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,"{""scheme"": ""https""}",200,"{""count"": 1}"
+Invalid exporter scheme returns HTTP 400.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:exporter-list,,"{""scheme"": ""non-existent""}",400,
+A viewer can view exporter detail.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",GET,api-v2:exporter-detail,"{""id"": 1}",,200,"{""example"": ""rest.exporter.detail.json""}"
+A viewer cannot update an exporter.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PUT,api-v2:exporter-detail,"{""id"": 1}",,403,
+A viewer cannot partially update an exporter.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PATCH,api-v2:exporter-detail,"{""id"": 1}",,403,
+A viewer cannot delete an exporter.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:exporter-detail,"{""id"": 1}",,403,
+An editor can update an exporter.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PUT,api-v2:exporter-detail,"{""id"": 1}","{""enabled"": true}",200,
+An editor can partially update an exporter.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PATCH,api-v2:exporter-detail,"{""id"": 1}","{""enabled"": true}",200,
+An editor can delete an exporter.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:exporter-detail,"{""id"": 1}",,204,
