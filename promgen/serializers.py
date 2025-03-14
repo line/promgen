@@ -153,3 +153,40 @@ class AuditSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Audit
         fields = ("user", "content_type", "object_id", "log", "created", "new", "old")
+
+
+class OwnerField(serializers.Field):
+    def to_internal_value(self, data):
+        if not data:
+            return serializers.CurrentUserDefault()
+        try:
+            owner = User.objects.get(username=data)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Owner does not exist.")
+        return owner
+
+    def to_representation(self, value):
+        return value.username
+
+
+class FilterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Filter
+        fields = ["name", "value"]
+
+
+class NotifierSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    content_name = serializers.ReadOnlyField(source="content_object.name")
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    filters = FilterSerializer(many=True, read_only=True, source="filter_set")
+
+    class Meta:
+        model = models.Sender
+        exclude = ("object_id",)
+
+
+class UpdateNotifierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Sender
+        fields = ["enabled"]
