@@ -407,3 +407,24 @@ class ExporterViewSet(
         if self.action in ["update", "partial_update"]:
             return serializers.ExporterUpdateSerializer
         return serializers.ExporterRetrieveSerializer
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List URLs", description="Retrieve a list of all URLs."),
+    destroy=extend_schema(summary="Delete URL", description="Delete an existing URL."),
+)
+@extend_schema(tags=["URL"])
+class URLViewSet(mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    queryset = models.URL.objects.all()
+    filterset_class = filters.URLFilter
+    serializer_class = serializers.URLSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
+        return self.queryset.filter(project__in=accessible_projects)

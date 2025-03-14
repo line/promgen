@@ -292,3 +292,12 @@ class ExporterUpdateSerializer(serializers.ModelSerializer):
             "scheme",
             "project",
         )
+
+
+class URLSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+    probe = serializers.ReadOnlyField(source="probe.module")
+
+    class Meta:
+        model = models.URL
+        fields = "__all__"
