@@ -548,3 +548,102 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
 
         rule, _ = models.Rule.objects.get_or_create(**attributes)
         return Response(serializers.RuleSerializer(rule).data)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="List Services",
+        description="Retrieve a list of all services.",
+    ),
+    retrieve=extend_schema(
+        summary="Retrieve Service",
+        description="Retrieve detailed information about a specific service.",
+    ),
+    create=extend_schema(summary="Create Service", description="Create a new service."),
+    update=extend_schema(summary="Update Service", description="Update an existing service."),
+    partial_update=extend_schema(
+        summary="Partially Update Service", description="Partially update an existing service."
+    ),
+    destroy=extend_schema(summary="Delete Service", description="Delete an existing service."),
+)
+@extend_schema(tags=["Service"])
+class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
+    model = "Service"
+    queryset = models.Service.objects.all()
+    filterset_class = filters.ServiceFilterV2
+    serializer_class = serializers.ServiceSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.ServiceRetrieveSerializer
+        if self.action == "retrieve":
+            return serializers.ServiceRetrieveSerializer
+        if self.action == "create":
+            return serializers.ServiceCreateSerializer
+        if self.action == "update":
+            return serializers.ServiceUpdateSerializer
+        if self.action == "partial_update":
+            return serializers.ServiceUpdateSerializer
+        return None
+
+    @extend_schema(
+        summary="List Projects",
+        description="Retrieve all projects associated with the specified service.",
+    )
+    @action(detail=True, methods=["get"])
+    def projects(self, request, id):
+        service = self.get_object()
+        return Response(serializers.ProjectSerializer(service.project_set.all(), many=True).data)
+
+    @extend_schema(
+        summary="Register Notifier",
+        description="Register a new notifier for the specified service.",
+        request=serializers.RegisterNotifierSerializer,
+        responses=serializers.NotifierSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="notifiers/register")
+    def register_notifier(self, request, id):
+        serializer = serializers.RegisterNotifierSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        service = self.get_object()
+
+        attributes = {
+            "content_type_id": get_content_type_for_model(models.Service).id,
+            "object_id": service.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        notifier, _ = models.Sender.objects.get_or_create(**attributes)
+        return Response(serializers.NotifierSerializer(notifier).data)
+
+    @extend_schema(
+        summary="Register Rule",
+        description="Register a new rule for the specified service.",
+        request=serializers.RuleSerializer,
+        responses=serializers.RuleSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="rules/register")
+    def register_rule(self, request, id):
+        serializer = serializers.RuleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        service = self.get_object()
+
+        attributes = {
+            "content_type_id": get_content_type_for_model(models.Service).id,
+            "object_id": service.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        rule, _ = models.Rule.objects.get_or_create(**attributes)
+        return Response(serializers.RuleSerializer(rule).data)
