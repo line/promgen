@@ -92,3 +92,19 @@
     project: 1
     probe: 1
     url: probe.example.com
+- model: promgen.audit
+  pk: 1
+  fields:
+    content_type: 11
+    object_id: 1
+    body: "Created test-service"
+    user: 1
+    created: 2024-03-19T00:00:00Z
+- model: promgen.audit
+  pk: 2
+  fields:
+    content_type: 7
+    object_id: 1
+    body: "Updated test-project"
+    user: 2
+    created: 2024-03-19T01:00:00Z

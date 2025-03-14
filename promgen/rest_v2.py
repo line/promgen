@@ -1,7 +1,9 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+from django.contrib.admin.options import get_content_type_for_model
 from django.contrib.auth.models import User
 from drf_spectacular.utils import (
+    OpenApiParameter,
     extend_schema,
     extend_schema_view,
 )
@@ -11,7 +13,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from promgen import filters, models, renderers, serializers
-
 
 class RuleMixin:
     @extend_schema(
@@ -65,3 +66,16 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @action(detail=False, methods=["get"], url_path="me", permission_classes=[IsAuthenticated])
     def get_current_user(self, request):
         return Response(serializers.CurrentUserSerializer(request.user).data)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Audit Logs", description="Retrieve a list of all audit logs."),
+)
+@extend_schema(tags=["Log"])
+class AuditViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = models.Audit.objects.all()
+    filterset_class = filters.AuditFilter
+    serializer_class = serializers.AuditSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination

@@ -113,3 +113,49 @@ class RestAPITest(tests.PromgenTest):
         response_json["date_joined"] = None
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json, expected)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_audit(self):
+        # Check retrieving all audits
+        expected = tests.Data("examples", "rest.audit.default.json").json()
+        response = self.client.get(reverse("api-v2:audit-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated audits
+        expected = tests.Data("examples", "rest.audit.paginated.json").json()
+        response = self.client.get(reverse("api-v2:audit-list"), {"page_number": 1, "page_size": 1})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving audits whose "content_type" is "service"
+        expected = tests.Data("examples", "rest.audit.filter_by_content_type.json").json()
+        response = self.client.get(reverse("api-v2:audit-list"), {"content_type": "service"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving audits with a non-allowed "content_type" returns 400 Bad Request
+        response = self.client.get(reverse("api-v2:audit-list"), {"content_type": "non-allowed"})
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving audits whose "object_id" is "1"
+        expected = tests.Data("examples", "rest.audit.filter_by_object_id.json").json()
+        response = self.client.get(reverse("api-v2:audit-list"), {"object_id": "1"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving audits with a non-existent "object_id" returns an empty list
+        response = self.client.get(reverse("api-v2:audit-list"), {"object_id": "-1"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving audits whose "user" is "demo"
+        expected = tests.Data("examples", "rest.audit.filter_by_user.json").json()
+        response = self.client.get(reverse("api-v2:audit-list"), {"user": "demo"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving audits with a non-existent "user" returns an empty list
+        response = self.client.get(reverse("api-v2:audit-list"), {"user": "non-existent"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
