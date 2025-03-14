@@ -19,6 +19,18 @@
     password: demo
     email: demo@example.com
     is_active: true
+- model: authtoken.token
+  pk: 1
+  fields:
+    user: 1
+    key: admin_token
+    created: 2024-03-18T00:00:00Z
+- model: authtoken.token
+  pk: 2
+  fields:
+    user: 2
+    key: demo_token
+    created: 2024-03-18T00:00:00Z
 - model: promgen.shard
   pk: 1
   fields:
