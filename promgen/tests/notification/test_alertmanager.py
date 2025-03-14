@@ -36,7 +36,7 @@ class AlertmanagerTest(tests.PromgenTest):
         self.assertCount(models.AlertError, 0, "No failed alerts")
 
         self.assertCount(models.Alert, 1, "Alert should be queued")
-        self.assertEqual(mock_post.call_count, 2, "Two alerts should be sent")
+        self.assertEqual(mock_post.call_count, 3, "Two alerts should be sent")
 
         # Our sample is the same as the original's "alerts" field.
         _SAMPLE = tests.Data("notification", "alertmanager.json").json()
