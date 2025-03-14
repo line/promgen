@@ -209,6 +209,9 @@ class PromgenGuardianRestPermission(BasePermission):
         elif request.method not in SAFE_METHODS:
             perms = ["project_editor", "project_admin", "service_editor", "service_admin"]
         else:
+            # Always allow user to view the site rule
+            if isinstance(obj, models.Rule) and isinstance(obj.content_object, models.Site):
+                return True
             perms = [
                 "project_viewer",
                 "project_editor",

@@ -132,3 +132,45 @@ class NotifierViewSet(
         if notifier:
             models.Filter.objects.filter(pk=filter_id).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Rules", description="Retrieve a list of all rules."),
+    retrieve=extend_schema(
+        summary="Retrieve Rule", description="Retrieve detailed information about a specific rule."
+    ),
+    update=extend_schema(summary="Update Rule", description="Update an existing rule."),
+    partial_update=extend_schema(
+        summary="Partially Update Rule", description="Partially update an existing rule."
+    ),
+    destroy=extend_schema(summary="Delete Rule", description="Delete an existing rule."),
+)
+@extend_schema(tags=["Rule"])
+class RuleViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = models.Rule.objects.all()
+    filterset_class = filters.RuleFilterV2
+    serializer_class = serializers.RuleSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
+        accessible_services = permissions.get_accessible_services_for_user(self.request.user)
+        project_ct = ContentType.objects.get_for_model(models.Project)
+        service_ct = ContentType.objects.get_for_model(models.Service)
+        site_ct = ContentType.objects.get_for_model(models.Site, for_concrete_model=False)
+        return self.queryset.filter(
+            Q(content_type=project_ct, object_id__in=accessible_projects)
+            | Q(content_type=service_ct, object_id__in=accessible_services)
+            | Q(content_type=site_ct)
+        )
