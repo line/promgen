@@ -321,3 +321,89 @@ class RestAPITest(tests.PromgenTest):
             HTTP_AUTHORIZATION=f"Token {user_token}",
         )
         self.assertEqual(response.status_code, 204, "Service owner can delete project.")
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_service(self):
+        cases = tests.Data("cases", "test_rest_service.csv").csv()
+        for case in cases:
+            self._run_rest_test(case)
+
+            # Delete newly created service to avoid affecting other tests
+            if case["case"] == "An authenticated user without permissions can create a service.":
+                models.Service.objects.get(name="new-service").delete()
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_service__changing_owner(self):
+        # Prepare test data
+        admin = User.objects.get(username="admin")
+        admin_token = Token.objects.filter(user=admin).first().key
+        user = User.objects.get(username="demo")
+        user_token = Token.objects.filter(user=user).first().key
+        service = models.Service.objects.get(id=1)
+        assign_perm("service_admin", user, service)
+
+        response = self.client.patch(
+            reverse("api-v2:service-detail", kwargs={"id": 1}),
+            data={"owner": "demo"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {admin_token}",
+        )
+        self.assertEqual(response.status_code, 200, "Site Admin can change service owner.")
+
+        response = self.client.patch(
+            reverse("api-v2:service-detail", kwargs={"id": 1}),
+            data={"owner": "admin"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200, "Current owner can change service owner.")
+
+        response = self.client.patch(
+            reverse("api-v2:service-detail", kwargs={"id": 1}),
+            data={"owner": "demo"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(
+            response.status_code, 400, "Non-owner service admin cannot change service owner."
+        )
+        self.assertEqual(
+            response.json(), {"owner": "You do not have permission to change the owner."}
+        )
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_service__deleting_service(self):
+        # Prepare test data
+        admin = User.objects.get(username="admin")
+        admin_token = Token.objects.filter(user=admin).first().key
+        user = User.objects.get(username="demo")
+        user_token = Token.objects.filter(user=user).first().key
+
+        response = self.client.delete(
+            reverse("api-v2:service-detail", kwargs={"id": 1}),
+            HTTP_AUTHORIZATION=f"Token {admin_token}",
+        )
+        self.assertEqual(response.status_code, 204, "Site Admin can delete service.")
+
+        # Recreate the deleted service for the next test case
+        models.Service.objects.create(name="test-service", owner_id=1)
+        service = models.Service.objects.get(name="test-service")
+        assign_perm("service_admin", user, service)
+
+        response = self.client.delete(
+            reverse("api-v2:service-detail", kwargs={"id": service.pk}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(
+            response.status_code, 403, "Non-owner service admin cannot delete service."
+        )
+
+        service.owner = user
+        service.save()
+        service.refresh_from_db()
+
+        response = self.client.delete(
+            reverse("api-v2:service-detail", kwargs={"id": service.pk}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 204, "Service owner can delete service.")

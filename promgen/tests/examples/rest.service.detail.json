@@ -1,0 +1,54 @@
+{
+  "description": "",
+  "id": 1,
+  "name": "test-service",
+  "notifiers": [
+    {
+      "alias": "",
+      "content_name": "test-service",
+      "content_type": "service",
+      "enabled": true,
+      "filters": [
+        {
+          "id": 1,
+          "name": "severity",
+          "value": "critical"
+        }
+      ],
+      "id": 1,
+      "owner": "admin",
+      "sender": "promgen.notification.email",
+      "value": "email@example.com"
+    }
+  ],
+  "owner": "admin",
+  "projects": [
+    {
+      "description": "",
+      "id": 1,
+      "name": "test-project",
+      "owner": "admin",
+      "service": "test-service",
+      "shard": "test-shard"
+    }
+  ],
+  "rules": [
+    {
+      "annotations": {
+        "rule": "http://promgen.example.com/rule/1"
+      },
+      "clause": "up == 0",
+      "content_name": "test-service",
+      "content_type": "service",
+      "description": "Test Rule Description",
+      "duration": "5m",
+      "enabled": true,
+      "id": 1,
+      "labels": {
+        "severity": "critical"
+      },
+      "name": "Test Rule",
+      "parent": null
+    }
+  ]
+}
