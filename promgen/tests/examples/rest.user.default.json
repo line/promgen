@@ -1,0 +1,21 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "first_name": "",
+      "last_name": ""
+    },
+    {
+      "id": 2,
+      "username": "demo",
+      "email": "demo@example.com",
+      "first_name": "",
+      "last_name": ""
+    }
+  ]
+}
