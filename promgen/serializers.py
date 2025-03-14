@@ -210,3 +210,21 @@ class RuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Rule
         exclude = ("object_id",)
+
+
+class HostRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Host
+        fields = "__all__"
+
+
+class FarmRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Farm
+        fields = "__all__"
+
+
+class HostListSerializer(serializers.Serializer):
+    hosts = serializers.ListField(
+        child=serializers.CharField(), help_text="List of hostnames to add."
+    )
