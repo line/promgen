@@ -136,3 +136,30 @@ class RuleFilterV2(django_filters.rest_framework.FilterSet):
             return queryset.filter(content_type_id=content_type_id)
         except ContentType.DoesNotExist:
             return queryset.none()
+
+
+class ExporterFilter(django_filters.rest_framework.FilterSet):
+    project = django_filters.CharFilter(
+        field_name="project__name",
+        lookup_expr="contains",
+        help_text="Filter by project name containing a specific substring. Example: project=Example Project",
+    )
+    job = django_filters.CharFilter(
+        field_name="job",
+        lookup_expr="contains",
+        help_text="Filter by job name containing a specific substring. Example: job=Example Job",
+    )
+    path = django_filters.CharFilter(
+        field_name="path",
+        lookup_expr="contains",
+        help_text="Filter by path containing a specific substring. Example: path=Example Path",
+    )
+    scheme = django_filters.CharFilter(
+        field_name="scheme",
+        lookup_expr="exact",
+        help_text="Filter by exact scheme. Example: scheme=http",
+    )
+    enabled = django_filters.BooleanFilter(
+        field_name="enabled",
+        help_text="Filter by enabled status (true or false). Example: enabled=true",
+    )

@@ -255,3 +255,20 @@ class FarmViewSet(viewsets.ModelViewSet):
         for hostname in hostnames:
             farm.host_set.filter(name=hostname).delete()
         return Response(serializers.FarmRetrieveSerializer(farm).data)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Exporters", description="Retrieve a list of all exporters."),
+    retrieve=extend_schema(
+        summary="Retrieve Exporter",
+        description="Retrieve detailed information about a specific exporter.",
+    ),
+)
+@extend_schema(tags=["Exporter"])
+class ExporterViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = models.Exporter.objects.all()
+    filterset_class = filters.ExporterFilter
+    serializer_class = serializers.ExporterSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
