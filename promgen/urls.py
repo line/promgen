@@ -21,7 +21,7 @@ from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import routers
 
-from promgen import proxy, rest, views
+from promgen import proxy, rest, rest_v2, views
 
 router = routers.DefaultRouter()
 router.register("all", rest.AllViewSet, basename="all")
@@ -31,6 +31,7 @@ router.register("project", rest.ProjectViewSet)
 router.register("farm", rest.FarmViewSet)
 
 v2_router = routers.DefaultRouter()
+v2_router.register("logs", rest_v2.AuditViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
