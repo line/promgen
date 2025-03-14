@@ -1,0 +1,11 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list users.,,,GET,api-v2:user-list,,,401,
+An unauthenticated user cannot get current user detail.,,,GET,api-v2:user-get-current-user,,,401,
+An unauthenticated user cannot register new notifier.,,,POST,api-v2:user-register-notifier,,,401,
+An authenticated user can list users.,demo,,GET,api-v2:user-list,,,200,"{""example"": ""rest.user.list.json""}"
+An authenticated user can list users with pagination.,demo,,GET,api-v2:user-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
+An authenticated user can filter users by username.,demo,,GET,api-v2:user-list,,"{""username"": ""demo""}",200,"{""count"": 1}"
+An authenticated user can filter users by email.,demo,,GET,api-v2:user-list,,"{""email"": ""demo@example""}",200,"{""count"": 1}"
+An authenticated user can retrieve current user detail.,demo,,GET,api-v2:user-get-current-user,,,200,"{""example"": ""rest.user.detail.json"", ""normalize_fields"": [""date_joined""]}"
+An authenticated user can register new notifier.,demo,,POST,api-v2:user-register-notifier,,"{""filters"": [{""name"": ""test-name"", ""value"": ""test-value""}], ""sender"": ""promgen.notification.slack"", ""value"": ""https://test.slack.com"", ""enabled"": false}",201,
+An authenticated user cannot register new notifier with type promgen.notification.user.,demo,,POST,api-v2:user-register-notifier,,"{""filters"": [{""name"": ""test-name"", ""value"": ""test-value""}], ""sender"": ""promgen.notification.user"", ""value"": ""https://test.slack.com"", ""enabled"": false}",400,"{""response_body"": {""detail"": ""Cannot register a promgen.notification.user notifier for a user.""}}"
