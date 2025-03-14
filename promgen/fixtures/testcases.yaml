@@ -38,6 +38,13 @@
     url: http://prometheus.example.com
     proxy: true
     enabled: true
+- model: promgen.shard
+  pk: 2
+  fields:
+    name: other-shard
+    url: http://prometheus-002.example.com
+    proxy: false
+    enabled: false
 - model: promgen.service
   pk: 1
   fields:

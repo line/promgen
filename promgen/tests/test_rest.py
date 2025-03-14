@@ -2220,3 +2220,82 @@ class RestAPITest(tests.PromgenTest):
             HTTP_AUTHORIZATION=f"Token {token}",
         )
         self.assertEqual(response.status_code, 204)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_shard(self):
+        token = Token.objects.filter(user__username="demo").first().key
+
+        # Check retrieving shards without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:shard-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all shards
+        expected = tests.Data("examples", "rest.shard.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:shard-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated shards
+        expected = tests.Data("examples", "rest.shard.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:shard-list"),
+            {"page_number": 1, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving shards whose "name" contains "test"
+        expected = tests.Data("examples", "rest.shard.filter_by_name.json").json()
+        response = self.client.get(
+            reverse("api-v2:shard-list"),
+            {"name": "test"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving shards with a non-existent "name" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:shard-list"),
+            {"name": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving shards whose "id" is "1" without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:shard-detail", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving shards whose "id" is "1"
+        expected = tests.Data("examples", "rest.shard.detail.json").json()
+        response = self.client.get(
+            reverse("api-v2:shard-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving shards with a non-existent "id" returns 404 Not Found
+        response = self.client.get(
+            reverse("api-v2:shard-detail", args=[-1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # Check retrieving list of projects for a shard without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:shard-projects", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of projects for a shard
+        expected = tests.Data("examples", "rest.shard.projects.json").json()
+        response = self.client.get(
+            reverse("api-v2:shard-projects", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)

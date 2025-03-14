@@ -615,3 +615,35 @@ class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
 
         project, _ = models.Project.objects.get_or_create(**attributes)
         return Response(serializers.ProjectV2Serializer(project).data, status=HTTPStatus.CREATED)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Shards", description="Retrieve a list of all shards."),
+    retrieve=extend_schema(
+        summary="Retrieve Shard",
+        description="Retrieve detailed information about a specific shard.",
+    ),
+)
+@extend_schema(tags=["Shard"])
+class ShardViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = models.Shard.objects.all()
+    filterset_class = filters.ShardFilter
+    serializer_class = serializers.ShardRetrieveSerializer
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+
+    @extend_schema(
+        summary="List Projects in Shard",
+        description="Retrieve all projects associated with the specified shard.",
+        parameters=[
+            OpenApiParameter(name="page_number", required=False, type=int),
+            OpenApiParameter(name="page_size", required=False, type=int),
+        ],
+        responses=serializers.ProjectV2Serializer(many=True),
+    )
+    @action(detail=True, methods=["get"], filterset_class=None)
+    def projects(self, request, id):
+        shard = self.get_object()
+        projects = shard.project_set.all()
+        page = self.paginate_queryset(projects)
+        return self.get_paginated_response(serializers.ProjectV2Serializer(page, many=True).data)

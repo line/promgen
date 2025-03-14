@@ -1,0 +1,16 @@
+{
+  "count": 2,
+  "next": "http://testserver/rest/v2/shards/?page_number=2&page_size=1",
+  "previous": null,
+  "results": [
+    {
+      "enabled": false,
+      "id": 2,
+      "name": "other-shard",
+      "proxy": false,
+      "samples": 5000000,
+      "targets": 10000,
+      "url": "http://prometheus-002.example.com"
+    }
+  ]
+}

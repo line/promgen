@@ -1,0 +1,16 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "enabled": true,
+      "id": 1,
+      "name": "test-shard",
+      "proxy": true,
+      "samples": 5000000,
+      "targets": 10000,
+      "url": "http://prometheus.example.com"
+    }
+  ]
+}
