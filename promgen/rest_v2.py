@@ -125,3 +125,16 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     @action(detail=False, methods=["get"], url_path="me", permission_classes=[IsAuthenticated])
     def get_current_user(self, request):
         return Response(serializers.CurrentUserSerializer(request.user).data)
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Audit Logs", description="Retrieve a list of all audit logs."),
+)
+@extend_schema(tags=["Log"])
+class AuditViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = models.Audit.objects.all().order_by("-created")
+    filterset_class = filters.AuditFilter
+    serializer_class = serializers.AuditSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
