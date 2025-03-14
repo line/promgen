@@ -1,0 +1,16 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "enabled": false,
+      "id": 2,
+      "job": "nginx",
+      "path": "",
+      "port": 9100,
+      "project": "another-project",
+      "scheme": "https"
+    }
+  ]
+}

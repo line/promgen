@@ -87,13 +87,15 @@
     project: 1
     job: node
     port: 9100
+    path: /metrics
 - model: promgen.exporter
   pk: 2
   fields:
     project: 2
-    job: node
+    job: nginx
     port: 9100
     enabled: false
+    scheme: https
 - model: promgen.probe
   pk: 1
   fields:

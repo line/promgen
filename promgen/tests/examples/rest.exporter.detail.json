@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "id": 1,
+  "job": "node",
+  "path": "/metrics",
+  "port": 9100,
+  "project": "test-project",
+  "scheme": "http"
+}

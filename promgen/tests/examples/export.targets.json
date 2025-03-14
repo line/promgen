@@ -2,6 +2,7 @@
     {
       "labels": {
         "__farm_source": "promgen",
+        "__metrics_path__": "/metrics",
         "__scheme__": "http",
         "__shard": "test-shard",
         "farm": "test-farm",

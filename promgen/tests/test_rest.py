@@ -979,3 +979,135 @@ class RestAPITest(tests.PromgenTest):
             reverse("api-v2:rule-detail", args=[1]), HTTP_AUTHORIZATION=f"Token {token}"
         )
         self.assertEqual(response.status_code, 204)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_exporter(self):
+        token = Token.objects.filter(user__username="demo").first().key
+
+        # Check retrieving exporters without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:exporter-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all exporters
+        expected = tests.Data("examples", "rest.exporter.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated exporters
+        expected = tests.Data("examples", "rest.exporter.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"page_number": 1, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving exporters whose "enabled" is "true"
+        expected = tests.Data("examples", "rest.exporter.filter_by_enabled.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"enabled": "true"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving exporters whose "job" contains "inx"
+        expected = tests.Data("examples", "rest.exporter.filter_by_job.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"job": "inx"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving exporters with a non-existent "job" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"job": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving exporters whose "path" contains "metrics"
+        expected = tests.Data("examples", "rest.exporter.filter_by_path.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"path": "/metrics"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving exporters with a non-existent "path" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"path": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving exporters whose "project" contains "test"
+        expected = tests.Data("examples", "rest.exporter.filter_by_project.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"project": "test"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving exporters with a non-existent "project" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"project": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving exporters whose "scheme" is "http"
+        expected = tests.Data("examples", "rest.exporter.filter_by_scheme.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"scheme": "https"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving exporters with a non-existent "scheme" returns an 400 Bad Request
+        response = self.client.get(
+            reverse("api-v2:exporter-list"),
+            {"scheme": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving exporters whose "id" is "1" without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:exporter-detail", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving exporters whose "id" is "1"
+        expected = tests.Data("examples", "rest.exporter.detail.json").json()
+        response = self.client.get(
+            reverse("api-v2:exporter-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving exporters with a non-existent "id" returns 404 Not Found
+        response = self.client.get(
+            reverse("api-v2:exporter-detail", args=[-1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 404)
