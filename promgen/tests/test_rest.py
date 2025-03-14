@@ -37,41 +37,324 @@ class RestAPITest(tests.PromgenTest):
         self.assertCount(models.Alert, 1, "Alert Queued")
 
     @override_settings(PROMGEN=tests.SETTINGS)
-    def test_retrieve_farm(self):
-        expected = tests.Data("examples", "rest.farm.json").json()
+    def test_rest_farm(self):
+        token = Token.objects.filter(user__username="demo").first().key
 
-        # Check retrieving all farms
+        # Test V1 API
+        expected = tests.Data("examples", "rest.farm.v1.json").json()
+
+        # Check retrieving farms without token returns 401 Unauthorized
         response = self.client.get(reverse("api:farm-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all farms with token successfully
+        response = self.client.get(
+            reverse("api:farm-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
 
         # Check retrieving all farms whose "name" contains "farm"
-        response = self.client.get(reverse("api:farm-list"), {"name": "farm"})
+        response = self.client.get(
+            reverse("api:farm-list"),
+            {"name": "farm"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
 
         # Check retrieving all farms whose "source" is "promgen"
-        response = self.client.get(reverse("api:farm-list"), {"source": "promgen"})
+        expected = tests.Data("examples", "rest.farm.v1.filter_by_source.json").json()
+        response = self.client.get(
+            reverse("api:farm-list"),
+            {"source": "promgen"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
 
         # Check retrieving farms with a non-existent "name" returns an empty list
-        response = self.client.get(reverse("api:farm-list"), {"name": "other-name"})
+        response = self.client.get(
+            reverse("api:farm-list"),
+            {"name": "other-name"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
-        # Check retrieving farms with a non-existent "source" returns an empty list
-        response = self.client.get(reverse("api:farm-list"), {"source": "other-source"})
+        # Check retrieving farms with a non-existent "source" returns 400 Bad Request
+        response = self.client.get(
+            reverse("api:farm-list"),
+            {"source": "other-source"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving the farm whose "id" is "1" without token returns 401 Unauthorized
+        expected = tests.Data("examples", "rest.farm.v1.detail.json").json()
+        response = self.client.get(
+            reverse("api:farm-detail", args=[1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving the farm whose "id" is "1", including the list of hosts.
+        expected = tests.Data("examples", "rest.farm.v1.detail.json").json()
+        response = self.client.get(
+            reverse("api:farm-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(response.json(), expected)
+
+        # Test V2 API
+        # Check retrieving all farms
+        expected = tests.Data("examples", "rest.farm.default.json").json()
+        response = self.client.get(reverse("api-v2:farm-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all farms
+        expected = tests.Data("examples", "rest.farm.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:farm-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated farms
+        expected = tests.Data("examples", "rest.farm.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:farm-list"),
+            {"page_number": 1, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving farms whose "name" contains "farm"
+        expected = tests.Data("examples", "rest.farm.filter_by_name.json").json()
+        response = self.client.get(
+            reverse("api-v2:farm-list"),
+            {"name": "test"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving farms with a non-existent "name" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:farm-list"),
+            {"name": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving farms whose "source" is "promgen"
+        expected = tests.Data("examples", "rest.farm.filter_by_source.json").json()
+        response = self.client.get(
+            reverse("api-v2:farm-list"),
+            {"source": "promgen"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving farms with a non-existent "source" returns 400 Bad Request
+        response = self.client.get(
+            reverse("api-v2:farm-list"),
+            {"source": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # Check retrieving the farm whose "id" is "1"
+        expected = tests.Data("examples", "rest.farm.detail.json").json()
+        response = self.client.get(
+            reverse("api-v2:farm-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving the list of hosts of the farm whose "id" is "1"
+        expected = tests.Data("examples", "rest.farm.hosts.json").json()
+        response = self.client.get(
+            reverse("api-v2:farm-hosts", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving the list of hosts of the farm
+        # with a non-existent "id" returns 404 Not Found
+        response = self.client.get(
+            reverse("api-v2:farm-hosts", args=[-1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # Check create a farm without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:farm-list"),
+            {"name": "new-farm", "source": "promgen"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check create a farm without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:farm-list"),
+            {"name": "new-farm", "source": "promgen"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check update a farm without token returns 401 Unauthorized
+        response = self.client.put(
+            reverse("api-v2:farm-detail", args=[1]),
+            {"name": "new-name", "source": "promgen"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check update a farm without permission returns 403 Forbidden
+        response = self.client.put(
+            reverse("api-v2:farm-detail", args=[1]),
+            {"name": "new-name", "source": "promgen"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check partial update a farm without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:farm-detail", args=[1]),
+            {"name": "new-new-name"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
 
         farm = models.Farm.objects.get(id=1)
         models.Host.objects.create(name="host.example.com", farm=farm)
-        expected = tests.Data("examples", "rest.farm.1.json").json()
+        # Check partial update a farm without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:farm-detail", args=[1]),
+            {"name": "new-new-name"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
 
-        # Check retrieving the farm whose "id" is "1", including the list of hosts.
-        response = self.client.get(reverse("api:farm-detail", args=[1]))
+        # Check register hosts for a farm without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:farm-hosts", args=[1]),
+            {"hosts": ["new-host", "new-host-2"]},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register hosts for a farm without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:farm-hosts", args=[1]),
+            {"hosts": ["new-host", "new-host-2"]},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check delete hosts for a farm without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:farm-delete-host", args=[1, 2]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check delete hosts for a farm without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:farm-delete-host", args=[1, 2]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check delete a farm without token returns 401 Unauthorized
+        response = self.client.delete(reverse("api-v2:farm-detail", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check delete a farm without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:farm-detail", args=[1]), HTTP_AUTHORIZATION=f"Token {token}"
+        )
+        self.assertEqual(response.status_code, 403)
+
+        user = User.objects.get(username="demo")
+        user.user_permissions.add(Permission.objects.get(codename="add_farm"))
+        user.user_permissions.add(Permission.objects.get(codename="change_farm"))
+        user.user_permissions.add(Permission.objects.get(codename="delete_farm"))
+
+        # Check create a farm successfully with permission
+        expected = tests.Data("examples", "rest.farm.create.json").json()
+        before_count = models.Farm.objects.count()
+        response = self.client.post(
+            reverse("api-v2:farm-list"),
+            {"name": "new-farm", "source": "promgen"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        after_count = models.Farm.objects.count()
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(before_count + 1, after_count)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        expected.pop("id", None)
+        response.json().pop("id", None)
         self.assertEqual(response.json(), expected)
+
+        # Check update a farm successfully with permission
+        expected = tests.Data("examples", "rest.farm.update.json").json()
+        response = self.client.put(
+            reverse("api-v2:farm-detail", args=[1]),
+            {"name": "new-name", "source": "new-source"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check partial update a farm successfully with permission
+        expected = tests.Data("examples", "rest.farm.partial_update.json").json()
+        response = self.client.patch(
+            reverse("api-v2:farm-detail", args=[1]),
+            {"name": "new-new-name"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check register hosts for a farm successfully with permission
+        response = self.client.post(
+            reverse("api-v2:farm-hosts", args=[1]),
+            {"hosts": ["new-host", "new-host-2"]},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+
+        # Check delete hosts for a farm successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:farm-delete-host", args=[1, 2]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 204)
+
+        # Check delete a farm successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:farm-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 204)
 
     @override_settings(PROMGEN=tests.SETTINGS)
     def test_rest_user(self):

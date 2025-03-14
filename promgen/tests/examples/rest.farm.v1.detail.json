@@ -6,8 +6,8 @@
   "owner": "admin",
   "hosts": [
     {
-      "name": "host.example.com",
-      "url": "http://promgen.example.com/host/host.example.com"
+      "name": "example.com",
+      "url": "http://promgen.example.com/host/example.com"
     }
   ]
 }

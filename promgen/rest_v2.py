@@ -5,6 +5,7 @@ from http import HTTPStatus
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import (
+    OpenApiParameter,
     extend_schema,
     extend_schema_view,
 )
@@ -225,3 +226,80 @@ class RuleViewSet(
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Farms", description="Retrieve a list of all farms."),
+    retrieve=extend_schema(
+        summary="Retrieve Farm", description="Retrieve detailed information about a specific farm."
+    ),
+    create=extend_schema(summary="Create Farm", description="Create a new farm."),
+    update=extend_schema(summary="Update Farm", description="Update an existing farm."),
+    partial_update=extend_schema(
+        summary="Partially Update Farm", description="Partially update an existing farm."
+    ),
+    destroy=extend_schema(summary="Delete Farm", description="Delete an existing farm."),
+)
+@extend_schema(tags=["Farm"])
+class FarmViewSet(viewsets.ModelViewSet):
+    queryset = models.Farm.objects.all()
+    filterset_class = filters.FarmFilter
+    serializer_class = serializers.FarmRetrieveSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.FarmRetrieveSerializer
+        if self.action == "retrieve":
+            return serializers.FarmRetrieveSerializer
+        if self.action == "create":
+            return serializers.FarmRetrieveSerializer
+        if self.action == "update":
+            return serializers.FarmUpdateSerializer
+        if self.action == "partial_update":
+            return serializers.FarmUpdateSerializer
+        return serializers.FarmRetrieveSerializer
+
+    @extend_schema(
+        summary="List Hosts in Farm",
+        description="Retrieve all hosts associated with the specified farm.",
+        parameters=[
+            OpenApiParameter(name="page_number", required=False, type=int),
+            OpenApiParameter(name="page_size", required=False, type=int),
+        ],
+        responses=serializers.HostRetrieveSerializer(many=True),
+    )
+    @action(detail=True, methods=["get"], filterset_class=None)
+    def hosts(self, request, id):
+        farm = self.get_object()
+        hosts = farm.host_set.all()
+        page = self.paginate_queryset(hosts)
+        return self.get_paginated_response(serializers.HostRetrieveSerializer(page, many=True).data)
+
+    @extend_schema(
+        summary="Register Hosts",
+        description="Register new hosts for the specified farm.",
+        request=serializers.HostListSerializer,
+        responses={201: None},
+    )
+    @hosts.mapping.post
+    def register_host(self, request, id):
+        farm = self.get_object()
+        hostnames = request.data.get("hosts", [])
+        for hostname in hostnames:
+            models.Host.objects.get_or_create(name=hostname, farm_id=farm.id)
+        return Response(status=HTTPStatus.CREATED)
+
+    @extend_schema(
+        summary="Delete Hosts",
+        description="Delete hosts from the specified farm.",
+    )
+    @action(
+        detail=True, methods=["delete"], url_path="hosts/(?P<host_id>\d+)", pagination_class=None
+    )
+    def delete_host(self, request, id, host_id):
+        farm = self.get_object()
+        models.Host.objects.filter(pk=host_id, farm=farm).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)

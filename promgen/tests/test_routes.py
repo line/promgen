@@ -31,7 +31,7 @@ class RouteTests(tests.PromgenTest):
         self.assertCount(models.Service, 3, "Import one service (Fixture has two services)")
         self.assertCount(models.Project, 4, "Import two projects")
         self.assertCount(models.Exporter, 4, "Import two more exporters")
-        self.assertCount(models.Host, 3, "Import three hosts")
+        self.assertCount(models.Host, 4, "Import three hosts (Fixture has one host)")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
@@ -52,9 +52,9 @@ class RouteTests(tests.PromgenTest):
         self.assertCount(models.Project, 4, "Import two projects (Fixture has 2 projectsa)")
         self.assertCount(models.Exporter, 4, "Import two more exporters")
         self.assertCount(
-            models.Farm, 4, "Original two farms and one new farm (fixture has one farm)"
+            models.Farm, 5, "Original three farms and one new farm (fixture has one farm)"
         )
-        self.assertCount(models.Host, 5, "Original 3 hosts and two new ones")
+        self.assertCount(models.Host, 6, "Original 4 hosts and two new ones")
 
     @mock.patch("requests.get")
     def test_scrape(self, mock_get):

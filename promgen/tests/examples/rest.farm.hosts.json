@@ -1,0 +1,12 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "farm": 1,
+      "id": 1,
+      "name": "example.com"
+    }
+  ]
+}

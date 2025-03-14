@@ -217,3 +217,46 @@ class RuleSerializer(serializers.ModelSerializer):
         if hasattr(obj, "content_object"):
             return obj.content_object.name
         return None
+
+
+class HostRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Host
+        fields = "__all__"
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class OwnerField(serializers.Field):
+    def to_internal_value(self, data):
+        if not data:
+            return serializers.CurrentUserDefault()
+        try:
+            owner = User.objects.get(username=data)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Owner does not exist.")
+        return owner
+
+    def to_representation(self, value):
+        return value.username
+
+
+class FarmRetrieveSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False, default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = models.Farm
+        fields = "__all__"
+
+
+class FarmUpdateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False)
+
+    class Meta:
+        model = models.Farm
+        fields = "__all__"
+
+
+class HostListSerializer(serializers.Serializer):
+    hosts = serializers.ListField(
+        child=serializers.CharField(), help_text="List of hostnames to add."
+    )
