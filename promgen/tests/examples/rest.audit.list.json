@@ -1,0 +1,31 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 2,
+      "content_type": "project",
+      "created": "2024-03-19T01:00:00Z",
+      "log": "Updated test-project",
+      "new": "",
+      "object_id": 1,
+      "old": "",
+      "user": "demo",
+      "parent_content_type": null,
+      "parent_object_id": 0
+    },
+    {
+      "id": 1,
+      "content_type": "service",
+      "created": "2024-03-19T00:00:00Z",
+      "log": "Created test-service",
+      "new": "",
+      "object_id": 1,
+      "old": "",
+      "user": "admin",
+      "parent_content_type": null,
+      "parent_object_id": 0
+    }
+  ]
+}
