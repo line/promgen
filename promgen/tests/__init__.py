@@ -1,6 +1,6 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
-
+import csv
 import json
 
 import yaml
@@ -25,6 +25,10 @@ class Data:
     def raw(self):
         with self.path.open() as fp:
             return fp.read()
+
+    def csv(self):
+        with self.path.open(newline="", encoding="utf-8") as handle:
+            return list(csv.DictReader(handle))
 
 
 class PromgenTest(TestCase):

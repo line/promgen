@@ -31,6 +31,7 @@ router.register("project", rest.ProjectViewSet)
 router.register("farm", rest.FarmViewSet)
 
 v2_router = rest_v2.Router()
+v2_router.register("logs", rest_v2.AuditViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

@@ -162,3 +162,26 @@ class SilenceSerializer(serializers.Serializer):
             raise errors.SilenceError.STARTENDMISMATCH.error()
 
         return data
+
+
+class AuditSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source="user.username")
+    log = serializers.ReadOnlyField(source="body")
+    content_type = serializers.ReadOnlyField(source="content_type.model")
+    new = serializers.ReadOnlyField(source="data")
+    parent_content_type = serializers.ReadOnlyField(source="parent_content_type.model")
+
+    class Meta:
+        model = models.Audit
+        fields = (
+            "id",
+            "user",
+            "content_type",
+            "object_id",
+            "log",
+            "created",
+            "new",
+            "old",
+            "parent_content_type",
+            "parent_object_id",
+        )

@@ -625,6 +625,10 @@ class Audit(models.Model):
             return "danger"
         return ""
 
+    @property
+    def parent_content_type(self):
+        return ContentType.objects.get_for_id(self.parent_content_type_id)
+
     @staticmethod
     def get_parent(obj):
         # The variable's name of the parent object is different depending on the model.
