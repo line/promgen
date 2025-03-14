@@ -22,7 +22,7 @@ from django.views.decorators.csrf import csrf_exempt
 from drf_spectacular.views import SpectacularAPIView
 from rest_framework import routers
 
-from promgen import proxy, rest, views
+from promgen import proxy, rest, rest_v2, views
 from promgen.schemas import SpectacularRapiDocView
 
 router = routers.DefaultRouter()
@@ -33,6 +33,7 @@ router.register("project", rest.ProjectViewSet)
 router.register("farm", rest.FarmViewSet)
 
 v2_router = routers.DefaultRouter()
+v2_router.register("users", rest_v2.UserViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
