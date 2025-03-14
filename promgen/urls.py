@@ -35,6 +35,7 @@ router.register("farm", rest.FarmViewSet)
 v2_router = routers.DefaultRouter()
 v2_router.register("users", rest_v2.UserViewSet)
 v2_router.register("logs", rest_v2.AuditViewSet)
+v2_router.register("notifiers", rest_v2.NotifierViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

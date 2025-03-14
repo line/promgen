@@ -109,3 +109,25 @@
     body: "Updated test-project"
     user: 2
     created: 2024-03-19T01:00:00Z
+- model: promgen.sender
+  pk: 1
+  fields:
+    content_type: ["promgen", "service"]
+    object_id: 1
+    sender: promgen.notification.email
+    value: "email@example.com"
+    owner: 1
+- model: promgen.sender
+  pk: 2
+  fields:
+    content_type: ["promgen", "project"]
+    object_id: 1
+    sender: promgen.notification.slack
+    value: "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+    owner: 2
+- model: promgen.filter
+  pk: 1
+  fields:
+      sender: 1
+      name: "severity"
+      value: "critical"
