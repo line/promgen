@@ -27,6 +27,7 @@ dependencies = [
     "django-filter",
     "django-guardian",
     "djangorestframework",
+    "drf-spectacular",
     "kombu",
     "prometheus-client",
     "python-dateutil",
