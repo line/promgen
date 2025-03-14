@@ -1,0 +1,5 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot view the shard list.,,,GET,api-v2:service-list,,,401,
+An authenticated user can view the shard list.,demo,,GET,api-v2:shard-list,,,200,"{""example"": ""rest.shard.list.json""}"
+An authenticated user can view the paginated shard list.,demo,,GET,api-v2:shard-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
+An authenticated user can filter the shard list by name.,demo,,GET,api-v2:shard-list,,"{""name"": ""test""}",200,"{""results_length"": 1}"
