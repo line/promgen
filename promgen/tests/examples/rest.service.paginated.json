@@ -1,0 +1,13 @@
+{
+  "count": 2,
+  "next": "http://testserver/rest/v2/services/?page_number=2&page_size=1",
+  "previous": null,
+  "results": [
+    {
+      "description": "",
+      "id": 2,
+      "name": "other-service",
+      "owner": "demo"
+    }
+  ]
+}

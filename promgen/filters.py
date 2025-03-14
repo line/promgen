@@ -216,3 +216,16 @@ class ProjectFilterV2(django_filters.rest_framework.FilterSet):
         lookup_expr="exact",
         help_text="Filter by exact owner username. Example: owner=Example Owner",
     )
+
+
+class ServiceFilterV2(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by service name containing a specific substring. Example: name=Example Service",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )

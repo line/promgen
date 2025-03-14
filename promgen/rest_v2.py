@@ -543,3 +543,75 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
         project = self.get_object()
         models.Exporter.objects.filter(project=project, pk=exporter_id).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
+
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="List Services",
+        description="Retrieve a list of all services.",
+    ),
+    retrieve=extend_schema(
+        summary="Retrieve Service",
+        description="Retrieve detailed information about a specific service.",
+    ),
+    create=extend_schema(summary="Create Service", description="Create a new service."),
+    update=extend_schema(summary="Update Service", description="Update an existing service."),
+    partial_update=extend_schema(
+        summary="Partially Update Service", description="Partially update an existing service."
+    ),
+    destroy=extend_schema(summary="Delete Service", description="Delete an existing service."),
+)
+@extend_schema(tags=["Service"])
+class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
+    model = "Service"
+    queryset = models.Service.objects.all()
+    filterset_class = filters.ServiceFilterV2
+    serializer_class = serializers.ServiceSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.ServiceV2Serializer
+        if self.action == "retrieve":
+            return serializers.ServiceV2Serializer
+        if self.action == "create":
+            return serializers.ServiceV2Serializer
+        if self.action == "update":
+            return serializers.ServiceUpdateSerializer
+        if self.action == "partial_update":
+            return serializers.ServiceUpdateSerializer
+        return serializers.ServiceV2Serializer
+
+    @extend_schema(
+        summary="List Projects",
+        description="Retrieve all projects associated with the specified service.",
+        responses=serializers.ProjectV2Serializer(many=True),
+    )
+    @action(detail=True, methods=["get"], pagination_class=None, filterset_class=None)
+    def projects(self, request, id):
+        service = self.get_object()
+        return Response(serializers.ProjectV2Serializer(service.project_set.all(), many=True).data)
+
+    @extend_schema(
+        summary="Register Project",
+        description="Register a new project for the specified service.",
+        request=serializers.ProjectUpdateSerializer,
+        responses={201: serializers.ProjectV2Serializer},
+    )
+    @projects.mapping.post
+    def register_project(self, request, id):
+        serializer = serializers.ProjectUpdateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        service = self.get_object()
+
+        attributes = {"service": service}
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        project, _ = models.Project.objects.get_or_create(**attributes)
+        return Response(serializers.ProjectV2Serializer(project).data, status=HTTPStatus.CREATED)

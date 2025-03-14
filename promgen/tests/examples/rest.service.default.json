@@ -1,0 +1,19 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "description": "",
+      "id": 2,
+      "name": "other-service",
+      "owner": "demo"
+    },
+    {
+      "description": "",
+      "id": 1,
+      "name": "test-service",
+      "owner": "admin"
+    }
+  ]
+}

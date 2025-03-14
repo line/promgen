@@ -47,7 +47,7 @@
   pk: 2
   fields:
     name: other-service
-    owner: 1
+    owner: 2
 - model: promgen.farm
   pk: 1
   fields:

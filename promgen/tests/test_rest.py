@@ -1836,3 +1836,387 @@ class RestAPITest(tests.PromgenTest):
             HTTP_AUTHORIZATION=f"Token {token}",
         )
         self.assertEqual(response.status_code, 204)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_service(self):
+        token = Token.objects.filter(user__username="demo").first().key
+
+        # Check retrieving services without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:service-list"))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving all services
+        expected = tests.Data("examples", "rest.service.default.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-list"),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving paginated services
+        expected = tests.Data("examples", "rest.service.paginated.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-list"),
+            {"page_number": 1, "page_size": 1},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving services whose "name" contains "test"
+        expected = tests.Data("examples", "rest.service.filter_by_name.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-list"),
+            {"name": "test"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving services with a non-existent "name" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:service-list"),
+            {"name": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving services whose "owner" is "demo"
+        expected = tests.Data("examples", "rest.service.filter_by_owner.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-list"),
+            {"owner": "demo"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving services with a non-existent "owner" returns an empty list
+        response = self.client.get(
+            reverse("api-v2:service-list"),
+            {"owner": "non-existent"},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["count"], 0)
+
+        # Check retrieving services whose "id" is "1" without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:service-detail", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving services whose "id" is "1"
+        expected = tests.Data("examples", "rest.service.detail.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving services with a non-existent "id" returns 404 Not Found
+        response = self.client.get(
+            reverse("api-v2:service-detail", args=[-1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 404)
+
+        # Check retrieving list of projects for a service without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:service-projects", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of projects for a service
+        expected = tests.Data("examples", "rest.service.projects.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-projects", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving list of notifiers for a service without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:service-notifiers", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of notifiers for a service
+        expected = tests.Data("examples", "rest.service.notifiers.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-notifiers", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check retrieving list of rules for a service without token returns 401 Unauthorized
+        response = self.client.get(reverse("api-v2:service-rules", args=[1]))
+        self.assertEqual(response.status_code, 401)
+
+        # Check retrieving list of rules for a service
+        expected = tests.Data("examples", "rest.service.rules.json").json()
+        response = self.client.get(
+            reverse("api-v2:service-rules", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check creating a service without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:service-list"),
+            {"name": "new-service", "owner": "demo", "description": "Test New Service Description"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check creating a service without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:service-list"),
+            {"name": "new-service", "owner": "demo", "description": "Test New Service Description"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check updating a service without token returns 401 Unauthorized
+        response = self.client.put(
+            reverse("api-v2:service-detail", args=[1]),
+            {"name": "updated-service", "owner": "demo", "description": "Test Updated Description"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check updating a service without permission returns 403 Forbidden
+        response = self.client.put(
+            reverse("api-v2:service-detail", args=[1]),
+            {"name": "updated-service", "owner": "demo", "description": "Test Updated Description"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check partial updating a service without token returns 401 Unauthorized
+        response = self.client.patch(
+            reverse("api-v2:service-detail", args=[1]),
+            {"name": "updated-service"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check partial updating a service without permission returns 403 Forbidden
+        response = self.client.patch(
+            reverse("api-v2:service-detail", args=[1]),
+            {"name": "updated-service"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check register project for a service without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:service-projects", args=[1]),
+            {"name": "new-project", "owner": "demo", "shard": "test-shard"},
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register project for a service without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:service-projects", args=[1]),
+            {"name": "new-project", "owner": "demo", "shard": "test-shard"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check register notifier for a service without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:service-notifiers", args=[1]),
+            {
+                "owner": "demo",
+                "filters": [{"name": "test-name", "value": "test-value"}],
+                "sender": "promgen.notification.slack",
+                "value": "https://test.slack.com",
+                "enabled": False,
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register notifier for a service without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:service-notifiers", args=[1]),
+            {
+                "owner": "demo",
+                "filters": [{"name": "test-name", "value": "test-value"}],
+                "sender": "promgen.notification.slack",
+                "value": "https://test.slack.com",
+                "enabled": False,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check register rule for a service without token returns 401 Unauthorized
+        response = self.client.post(
+            reverse("api-v2:service-rules", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleCreated",
+            },
+            content_type="application/json",
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check register rule for a service without permission returns 403 Forbidden
+        response = self.client.post(
+            reverse("api-v2:service-rules", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleCreated",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # Check deleting a service without token returns 401 Unauthorized
+        response = self.client.delete(
+            reverse("api-v2:service-detail", args=[1]),
+        )
+        self.assertEqual(response.status_code, 401)
+
+        # Check deleting a service without permission returns 403 Forbidden
+        response = self.client.delete(
+            reverse("api-v2:service-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 403)
+
+        user = User.objects.get(username="demo")
+        user.user_permissions.add(Permission.objects.get(codename="add_service"))
+        user.user_permissions.add(Permission.objects.get(codename="change_service"))
+        user.user_permissions.add(Permission.objects.get(codename="delete_service"))
+
+        # Check creating a service successfully with permission
+        expected = tests.Data("examples", "rest.service.create.json").json()
+        response = self.client.post(
+            reverse("api-v2:service-list"),
+            {"name": "new-service", "owner": "demo", "description": "Test New Service Description"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json(), expected)
+
+        # Check updating a service successfully with permission
+        expected = tests.Data("examples", "rest.service.update.json").json()
+        response = self.client.put(
+            reverse("api-v2:service-detail", args=[1]),
+            {"name": "updated-service", "owner": "demo", "description": "Test Updated Description"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check partial updating a service successfully with permission
+        expected = tests.Data("examples", "rest.service.partial_update.json").json()
+        response = self.client.patch(
+            reverse("api-v2:service-detail", args=[1]),
+            {"name": "partial-updated-service"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Check register project for a service successfully with permission
+        expected = tests.Data("examples", "rest.service.register_project.json").json()
+        before_count = models.Project.objects.count()
+        response = self.client.post(
+            reverse("api-v2:service-projects", args=[1]),
+            {"name": "new-project", "owner": "demo", "shard": "test-shard"},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        after_count = models.Project.objects.count()
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(before_count + 1, after_count)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        expected.pop("id", None)
+        response.json().pop("id", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check register notifier for a service successfully with permission
+        expected = tests.Data("examples", "rest.service.register_notifier.json").json()
+        response = self.client.post(
+            reverse("api-v2:service-notifiers", args=[1]),
+            {
+                "owner": "demo",
+                "filters": [{"name": "test-name", "value": "test-value"}],
+                "sender": "promgen.notification.slack",
+                "value": "https://test.slack.com",
+                "enabled": False,
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        for item in expected:
+            item.pop("id", None)
+            for filter in item["filters"]:
+                filter.pop("id", None)
+        for item in response.json():
+            item.pop("id", None)
+            for filter in item["filters"]:
+                filter.pop("id", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check register rule for a service successfully with permission
+        expected = tests.Data("examples", "rest.service.register_rule.json").json()
+        response = self.client.post(
+            reverse("api-v2:service-rules", args=[1]),
+            {
+                "annotations": {"summary": "Test Rule Summary"},
+                "clause": "up == 1",
+                "description": "Test Rule Description",
+                "duration": "5m",
+                "enabled": False,
+                "labels": {"severity": "critical"},
+                "name": "TestRuleCreated",
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 201)
+        # skip comparing the ID
+        # and make sure the rest of the input from the request is the same as the output
+        for item in expected:
+            item.pop("id", None)
+            item["annotations"].pop("rule", None)
+        for item in response.json():
+            item.pop("id", None)
+            item["annotations"].pop("rule", None)
+        self.assertEqual(response.json(), expected)
+
+        # Check deleting a service successfully with permission
+        response = self.client.delete(
+            reverse("api-v2:service-detail", args=[1]),
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
+        self.assertEqual(response.status_code, 204)
