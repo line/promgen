@@ -1,0 +1,6 @@
+{
+  "description": "Test Updated Description",
+  "id": 1,
+  "name": "updated-service",
+  "owner": "demo"
+}

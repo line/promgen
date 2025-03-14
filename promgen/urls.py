@@ -41,6 +41,7 @@ v2_router.register("farms", rest_v2.FarmViewSet)
 v2_router.register("exporters", rest_v2.ExporterViewSet)
 v2_router.register("urls", rest_v2.URLViewSet)
 v2_router.register("projects", rest_v2.ProjectViewSet)
+v2_router.register("services", rest_v2.ServiceViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
