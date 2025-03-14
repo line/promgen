@@ -2,15 +2,18 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 from http import HTTPStatus
 
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import (
     extend_schema,
+    extend_schema_view,
 )
-from rest_framework import pagination
+from rest_framework import mixins, pagination, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from promgen import models, serializers
+from promgen import filters, models, serializers
 
 
 class RuleMixin:
@@ -101,3 +104,24 @@ class PromgenPagination(pagination.PageNumberPagination):
     page_size_query_param = "page_size"
     page_size = 100  # Default page size
     max_page_size = 1000
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Users", description="Retrieve a list of all users."),
+)
+@extend_schema(tags=["User"])
+class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = User.objects.all().order_by("id")
+    filterset_class = filters.UserFilter
+    serializer_class = serializers.UserSerializer
+    lookup_value_regex = "[^/]+"
+    pagination_class = PromgenPagination
+
+    @extend_schema(
+        summary="Get Current User",
+        description="Retrieve the current authenticated user's information.",
+        responses=serializers.CurrentUserSerializer,
+    )
+    @action(detail=False, methods=["get"], url_path="me", permission_classes=[IsAuthenticated])
+    def get_current_user(self, request):
+        return Response(serializers.CurrentUserSerializer(request.user).data)

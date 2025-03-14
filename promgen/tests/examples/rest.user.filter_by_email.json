@@ -1,0 +1,14 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "email": "demo@example.com",
+      "first_name": "",
+      "id": 2,
+      "last_name": "",
+      "username": "demo"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "count": 2,
+  "next": "http://testserver/rest/v2/users/?page_number=2&page_size=1",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "first_name": "",
+      "last_name": ""
+    }
+  ]
+}

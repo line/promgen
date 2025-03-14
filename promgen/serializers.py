@@ -1,5 +1,6 @@
 import collections
 
+from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
 from rest_framework import serializers
 
@@ -120,3 +121,25 @@ class HostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Host
         exclude = ("id", "farm")
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "username", "email", "first_name", "last_name")
+
+
+class CurrentUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+            "last_login",
+        )
