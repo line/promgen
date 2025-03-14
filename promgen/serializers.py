@@ -245,3 +245,113 @@ class URLSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.URL
         fields = "__all__"
+
+
+class ServiceField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            service = models.Service.objects.get(name=data)
+        except models.Service.DoesNotExist:
+            raise serializers.ValidationError("Service does not exist.")
+        return service
+
+    def to_representation(self, value):
+        return value.name
+
+
+class ShardField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            shard = models.Shard.objects.get(name=data)
+        except models.Shard.DoesNotExist:
+            raise serializers.ValidationError("Shard does not exist.")
+        return shard
+
+    def to_representation(self, value):
+        return value.name
+
+
+class FarmField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            farm = models.Farm.objects.get(name=data)
+        except models.Farm.DoesNotExist:
+            raise serializers.ValidationError("Farm does not exist.")
+        return farm
+
+    def to_representation(self, value):
+        return value.name
+
+
+class ProjectRetrieveSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    service = serializers.ReadOnlyField(source="service.name")
+    shard = serializers.ReadOnlyField(source="shard.name")
+    farm = serializers.ReadOnlyField(source="farm.name")
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False, default=serializers.CurrentUserDefault())
+    service = ServiceField()
+    shard = ShardField()
+    farm = FarmField(required=False)
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class ProjectUpdateSerializer(serializers.ModelSerializer):
+    owner = OwnerField(required=False)
+    service = ServiceField(required=False)
+    shard = ShardField(required=False)
+    farm = serializers.ReadOnlyField(source="farm.name")
+    name = serializers.CharField(required=False)
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class LinkFarmSerializer(serializers.Serializer):
+    farm = serializers.CharField()
+    source = serializers.CharField()
+
+
+class RegisterURLProjectSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    probe = serializers.CharField()
+
+
+class RegisterExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.CharField()
+    enabled = serializers.BooleanField()
+
+
+class UpdateExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.CharField()
+    enabled = serializers.BooleanField()
+
+
+class DeleteExporterProjectSerializer(serializers.Serializer):
+    job = serializers.CharField()
+    port = serializers.IntegerField()
+    path = serializers.CharField()
+    scheme = serializers.CharField()
+
+
+class RegisterNotifierSerializer(serializers.Serializer):
+    sender = serializers.CharField()
+    value = serializers.CharField()
+    alias = serializers.CharField(required=False)
+    enabled = serializers.BooleanField(required=False, default=True)
