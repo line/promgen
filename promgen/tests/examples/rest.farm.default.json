@@ -1,0 +1,19 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 2,
+      "name": "other-farm",
+      "source": "external",
+      "owner": null
+    },
+    {
+      "id": 1,
+      "name": "test-farm",
+      "source": "promgen",
+      "owner": null
+    }
+  ]
+}
