@@ -1,12 +1,26 @@
 [
   {
     "labels": {
+      "__param_module": "http_2xx",
+      "__shard": "test-shard",
+      "job": "http_2xx",
+      "project": "another-project",
+      "service": "test-service"
+    },
+    "targets": [
+      "probe-2.example.com"
+    ]
+  },
+  {
+    "labels": {
       "__param_module": "fixture_test",
       "__shard": "test-shard",
       "job": "fixture_test",
       "project": "test-project",
       "service": "test-service"
     },
-    "targets": ["probe.example.com"]
+    "targets": [
+      "probe.example.com"
+    ]
   }
 ]

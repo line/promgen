@@ -175,3 +175,17 @@ class ExporterFilter(django_filters.rest_framework.FilterSet):
         field_name="enabled",
         help_text="Filter by enabled status (true or false). Example: enabled=true",
     )
+
+
+class URLFilter(django_filters.rest_framework.FilterSet):
+    project = django_filters.CharFilter(
+        field_name="project__name",
+        lookup_expr="contains",
+        help_text="Filter by project name containing a specific substring. "
+        "Example: project=Example Project",
+    )
+    probe = django_filters.ChoiceFilter(
+        field_name="probe__module",
+        choices=models.Probe.objects.values_list("module", "description").distinct(),
+        help_text="Filter by exact probe scheme. Example: probe=http_2xx",
+    )

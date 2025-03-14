@@ -1,0 +1,12 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list urls.,,,GET,api-v2:url-list,,,401,
+An unauthenticated user cannot delete a url.,,,DELETE,api-v2:url-detail,"{""id"": 1}",,401,
+An authenticated user without permissions sees no urls.,demo,,GET,api-v2:url-list,,,200,"{""count"": 0}"
+An authenticated user without permissions cannot delete a url.,demo,,DELETE,api-v2:url-detail,"{""id"": 1}",,403,
+A viewer can list urls.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:url-list,,,200,"{""example"": ""rest.url.list.json""}"
+A viewer can get paginated url results.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:url-list,,"{""page_number"": 2, ""page_size"": 1}",200,"{""results_length"": 1}"
+A viewer can filter urls by probe.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:url-list,,"{""probe"": ""fixture_test""}",200,"{""results_length"": 1}"
+An invalid probe returns HTTP 400.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:url-list,,"{""probe"": ""non-existent""}",400,
+A viewer can filter urls by project.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:url-list,,"{""project"": ""test""}",200,"{""results_length"": 1}"
+A viewer cannot delete a url.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:url-detail,"{""id"": 1}",,403,
+An editor can delete a url.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:url-detail,"{""id"": 1}",,204,
