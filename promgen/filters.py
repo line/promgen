@@ -37,3 +37,22 @@ class UserFilter(django_filters.rest_framework.FilterSet):
         lookup_expr="contains",
         help_text="Filter by email containing a specific substring. Example: email=example@example.com",
     )
+
+
+class AuditFilter(django_filters.rest_framework.FilterSet):
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.CharFilter(
+        method="filter_content_type",
+        help_text="Filter by content type model name. Example: content_type=Example Model",
+    )
+
+    def filter_content_type(self, queryset, name, value):
+        try:
+            content_type_id = ContentType.objects.get(model=value, app_label="promgen").id
+            return queryset.filter(content_type_id=content_type_id)
+        except ContentType.DoesNotExist:
+            return queryset.none()
