@@ -407,3 +407,9 @@ class RestAPITest(tests.PromgenTest):
             HTTP_AUTHORIZATION=f"Token {user_token}",
         )
         self.assertEqual(response.status_code, 204, "Service owner can delete service.")
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_shard(self):
+        cases = tests.Data("cases", "test_rest_shard.csv").csv()
+        for case in cases:
+            self._run_rest_test(case)
