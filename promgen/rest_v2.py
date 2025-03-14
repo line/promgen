@@ -61,3 +61,74 @@ class AuditViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             | Q(content_type__model="group", content_type__app_label="auth", object_id__in=groups)
             | Q(parent_content_type_id=group_ct.id, parent_object_id__in=groups)
         )
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Notifiers", description="Retrieve a list of all notifiers."),
+    update=extend_schema(summary="Update Notifier", description="Update an existing notifier."),
+    partial_update=extend_schema(
+        summary="Partially Update Notifier", description="Partially update an existing notifier."
+    ),
+    destroy=extend_schema(summary="Delete Notifier", description="Delete an existing notifier."),
+)
+@extend_schema(tags=["Notifier"])
+class NotifierViewSet(
+    mixins.ListModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = models.Sender.objects.all().order_by("value")
+    filterset_class = filters.NotifierFilter
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
+        accessible_services = permissions.get_accessible_services_for_user(self.request.user)
+        project_ct = ContentType.objects.get_for_model(models.Project)
+        service_ct = ContentType.objects.get_for_model(models.Service)
+        user_ct = ContentType.objects.get_for_model(User)
+        return self.queryset.filter(
+            Q(content_type=project_ct, object_id__in=accessible_projects)
+            | Q(content_type=service_ct, object_id__in=accessible_services)
+            | Q(content_type=user_ct, object_id=self.request.user.id)
+        )
+
+    def get_serializer_class(self):
+        if self.action in ["update", "partial_update"]:
+            return serializers.UpdateNotifierSerializer
+        return serializers.NotifierSerializer
+
+    @extend_schema(
+        summary="Add Filter",
+        description="Add a filter to the specified notifier.",
+        request=serializers.FilterSerializer,
+        responses=serializers.NotifierSerializer,
+    )
+    @action(detail=True, methods=["post"], url_path="filters")
+    def add_filter(self, request, id):
+        notifier = self.get_object()
+        serializer = serializers.FilterSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        models.Filter.objects.create(
+            sender=notifier,
+            name=serializer.validated_data["name"],
+            value=serializer.validated_data["value"],
+        )
+        return Response(serializers.NotifierSerializer(notifier).data, status=HTTPStatus.CREATED)
+
+    @extend_schema(
+        summary="Delete Filter",
+        description="Delete a filter from the specified notifier.",
+    )
+    @action(detail=True, methods=["delete"], url_path="filters/(?P<filter_id>\d+)")
+    def delete_filter(self, request, id, filter_id):
+        notifier = self.get_object()
+        if notifier:
+            models.Filter.objects.filter(pk=filter_id).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)

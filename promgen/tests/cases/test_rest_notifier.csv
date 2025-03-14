@@ -1,0 +1,32 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list notifiers.,,,GET,api-v2:sender-list,,,401,
+An unauthenticated user cannot update a notifier.,,,PUT,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",401,
+An unauthenticated user cannot partially update a notifier.,,,PATCH,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",401,
+An unauthenticated user cannot delete a notifier.,,,DELETE,api-v2:sender-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot add a notifier filter.,,,POST,api-v2:sender-add-filter,"{""id"": 1}","{""name"": ""name"", ""value"": ""value""}",401,
+An unauthenticated user cannot delete a notifier filter.,,,DELETE,api-v2:sender-delete-filter,"{""id"": 1, ""filter_id"": 1}",,401,
+An authenticated user without permissions sees no notifiers.,demo,,GET,api-v2:sender-list,,,200,"{""count"":0}"
+An authenticated user cannot update a notifier.,demo,,PUT,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",403,
+An authenticated user cannot partially update a notifier.,demo,,PATCH,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",403,
+An authenticated user cannot delete a notifier.,demo,,DELETE,api-v2:sender-detail,"{""id"": 1}",,403,
+An authenticated user cannot add a notifier filter.,demo,,POST,api-v2:sender-add-filter,"{""id"": 1}","{""name"": ""name"", ""value"": ""value""}",403,
+An authenticated user cannot delete a notifier filter.,demo,,DELETE,api-v2:sender-delete-filter,"{""id"": 1, ""filter_id"": 1}",,403,
+A viewer can list notifiers.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,,200,"{""example"":""rest.notifier.list.json""}"
+A viewer can get paginated notifier results.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"":1}"
+A viewer can filter notifiers by content_type.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""content_type"": ""service""}",200,"{""count"":1}"
+An invalid content_type returns HTTP 400.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""content_type"": ""non-allowed""}",400,
+A viewer can filter notifiers by object_id.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""object_id"": ""1""}",200,"{""count"":2}"
+A viewer can filter notifiers by owner username.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""owner"": ""demo""}",200,"{""count"":1}"
+A viewer can filter notifiers by sender type.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""sender"": ""promgen.notification.email""}",200,"{""count"":1}"
+An invalid sender type returns HTTP 400.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""sender"": ""non-existent""}",400,
+A viewer can filter notifiers by value.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:sender-list,,"{""value"": ""services""}",200,"{""count"":1}"
+A viewer cannot update a notifier.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",PUT,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",403,
+A viewer cannot partially update a notifier.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",PATCH,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",403,
+A viewer cannot add filters to a notifier.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",POST,api-v2:sender-add-filter,"{""id"": 1}","{""name"": ""name"", ""value"": ""value""}",403,
+A viewer cannot delete filters from a notifier.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",DELETE,api-v2:sender-delete-filter,"{""id"": 1, ""filter_id"": 1}",,403,
+A viewer cannot delete a notifier.,demo,"[{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",DELETE,api-v2:sender-detail,"{""id"": 1}",,403,
+An editor can update a notifier.,demo,"[{""codename"":""service_editor"",""model"":""promgen.service"",""obj_pk"":1}]",PUT,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",200,
+An editor can partially update a notifier.,demo,"[{""codename"":""service_editor"",""model"":""promgen.service"",""obj_pk"":1}]",PATCH,api-v2:sender-detail,"{""id"": 1}","{""enabled"": false}",200,
+An editor can add filters to a notifier.,demo,"[{""codename"":""service_editor"",""model"":""promgen.service"",""obj_pk"":1}]",POST,api-v2:sender-add-filter,"{""id"": 2}","{""name"": ""name"", ""value"": ""value""}",201,
+An editor can delete filters from a notifier.,demo,"[{""codename"":""service_editor"",""model"":""promgen.service"",""obj_pk"":1}]",DELETE,api-v2:sender-delete-filter,"{""id"": 2, ""filter_id"": 2}",,204,
+An editor can delete a notifier.,demo,"[{""codename"":""service_editor"",""model"":""promgen.service"",""obj_pk"":1}]",DELETE,api-v2:sender-detail,"{""id"": 1}",,204,
