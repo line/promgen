@@ -385,3 +385,9 @@ class ServiceUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Service
         fields = "__all__"
+
+
+class ShardRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Shard
+        exclude = ("authorization",)
