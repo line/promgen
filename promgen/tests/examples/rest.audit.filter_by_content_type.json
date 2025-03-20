@@ -1,0 +1,16 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "content_type": "service",
+      "created": "2024-03-19T00:00:00Z",
+      "log": "Created test-service",
+      "new": "",
+      "object_id": 1,
+      "old": "",
+      "user": "admin"
+    }
+  ]
+}

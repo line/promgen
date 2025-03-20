@@ -1,0 +1,23 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "alias": "",
+      "content_name": "test-service",
+      "content_type": "service",
+      "enabled": true,
+      "filters": [
+        {
+          "name": "severity",
+          "value": "critical"
+        }
+      ],
+      "id": 1,
+      "owner": "admin",
+      "sender": "promgen.notification.email",
+      "value": "email@example.com"
+    }
+  ]
+}

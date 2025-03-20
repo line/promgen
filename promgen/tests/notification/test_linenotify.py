@@ -14,6 +14,10 @@ class LineNotifyTest(tests.PromgenTest):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=2)
 
+        # Firstly, clear all Sender data in test database to ensure avoiding data conflicts
+        # without having to make too many changes in old tests.
+        models.Sender.objects.all().delete()
+
         NotificationLineNotify.create(obj=one, value="hogehoge")
         NotificationLineNotify.create(obj=two, value="asdfasdf")
 
