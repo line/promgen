@@ -18,12 +18,15 @@ caching system to set a key and then triggering the actual event from middleware
 """
 
 import logging
+from http import HTTPStatus
 from threading import local
 
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
+from django.http import JsonResponse
+from rest_framework import exceptions, views
 
-from promgen import models
+from promgen import models, settings
 from promgen.signals import trigger_write_config, trigger_write_rules, trigger_write_urls
 
 logger = logging.getLogger(__name__)
@@ -67,3 +70,18 @@ class PromgenMiddleware:
 
 def get_current_user():
     return getattr(_user, "value", None)
+
+
+def custom_exception_handler(exc, context):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = views.exception_handler(exc, context)
+
+    if response is None:
+        # If an exception is raised that we don't handle, we will return a 500 error
+        # with the exception message. This is useful for debugging in development
+        if settings.DEBUG:
+            return JsonResponse({"detail": str(exc)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        return exceptions.server_error(context["request"])
+
+    return response
