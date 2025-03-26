@@ -196,6 +196,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.DjangoModelPermissions",),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_SCHEMA_CLASS": "promgen.schemas.CustomSchema",
+    "EXCEPTION_HANDLER": "promgen.middleware.custom_exception_handler",
 }
 
 # If CELERY_BROKER_URL is set in our environment, then we configure celery as
