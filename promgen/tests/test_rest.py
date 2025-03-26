@@ -1,5 +1,6 @@
 # Copyright (c) 2018 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+import django.core.cache
 from django.contrib.auth.models import User, Permission
 from django.test import override_settings
 from django.urls import reverse
@@ -9,6 +10,11 @@ from promgen import models, rest, tests
 
 
 class RestAPITest(tests.PromgenTest):
+    def setUp(self):
+        super().setUp()
+        # Clear the cache before each test to reset throttling
+        django.core.cache.cache.clear()
+
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert_blackhole(self):
@@ -2284,3 +2290,31 @@ class RestAPITest(tests.PromgenTest):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_throttling(self):
+        # Check throttling for authenticated users
+        token = Token.objects.filter(user__username="demo").first().key
+        for _ in range(1000):
+            response = self.client.get(
+                reverse("api-v2:service-list"), HTTP_AUTHORIZATION=f"Token {token}"
+            )
+            self.assertEqual(response.status_code, 200)
+        response = self.client.get(
+            reverse("api-v2:service-list"), HTTP_AUTHORIZATION=f"Token {token}"
+        )
+        self.assertEqual(response.status_code, 429)
+
+        # Check changing rate
+        models.SiteConfiguration.objects.get_or_create(
+            key="THROTTLE_RATES", value={"user": "3/day"}
+        )
+        for _ in range(3):
+            response = self.client.get(
+                reverse("api-v2:service-list"), HTTP_AUTHORIZATION=f"Token {token}"
+            )
+            self.assertEqual(response.status_code, 200)
+        response = self.client.get(
+            reverse("api-v2:service-list"), HTTP_AUTHORIZATION=f"Token {token}"
+        )
+        self.assertEqual(response.status_code, 429)
