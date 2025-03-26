@@ -197,6 +197,14 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
     "DEFAULT_SCHEMA_CLASS": "promgen.schemas.CustomSchema",
     "EXCEPTION_HANDLER": "promgen.middleware.custom_exception_handler",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "promgen.util.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        # Limits the rate of API calls that may be made by a given user.
+        # The user id will be used as a unique cache key.
+        "user": "1000/day",
+    },
 }
 
 # If CELERY_BROKER_URL is set in our environment, then we configure celery as
