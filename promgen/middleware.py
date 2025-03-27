@@ -17,7 +17,9 @@ files, we need to handle some deduplication. This is handled by using the django
 caching system to set a key and then triggering the actual event from middleware
 """
 
+import json
 import logging
+import uuid
 from http import HTTPStatus
 from threading import local
 
@@ -53,7 +55,45 @@ class PromgenMiddleware:
         if request.user.is_authenticated:
             _user.value = request.user
 
+        # Log all requests to our v2 API endpoints
+        if settings.ENABLE_API_LOGGING and request.path.startswith("/rest/v2/"):
+            try:
+                # Generate a trace ID for each request
+                trace_id = str(uuid.uuid4())
+                request.trace_id = trace_id
+                # Log the IP address of the request
+                ip_address = request.META.get("REMOTE_ADDR")
+                logger.info(f"[Trace ID: {trace_id}] IP Address: {ip_address}")
+                # Log the user if authenticated
+                if request.user.is_authenticated:
+                    logger.info(f"[Trace ID: {trace_id}] User: {request.user.username}")
+                # Log the request details
+                logger.info(
+                    f"[Trace ID: {request.trace_id}] Request: {request.method} {request.get_full_path()} - body size: {len(request.body) if request.body else 0} bytes"
+                )
+                if request.body and request.headers["Content-Type"] == "application/json":
+                    # Only log first 512 characters of the request body to avoid flooding the logs
+                    logger.info(
+                        f"[Trace ID: {request.trace_id}] Request body: {json.dumps(json.loads(request.body))[:512]}"
+                    )
+            except Exception as e:
+                logger.exception(
+                    f"[Trace ID: {request.trace_id}] An error occurred when parsing request: {str(e)}"
+                )
+
         response = self.get_response(request)
+
+        # Log all responses to our v2 API endpoints
+        if settings.ENABLE_API_LOGGING and request.path.startswith("/rest/v2/"):
+            try:
+                # Log the response details
+                logger.info(
+                    f"[Trace ID: {request.trace_id}] Response status: {response.status_code} - content size: {len(response.content)} bytes"
+                )
+            except Exception as e:
+                logger.exception(
+                    f"[Trace ID: {request.trace_id}] An error occurred when logging response: {str(e)}"
+                )
 
         triggers = {
             "Config": trigger_write_config.send,
