@@ -235,6 +235,8 @@ SPECTACULAR_SETTINGS = {
     "VERSION": PROMGEN_VERSION,
 }
 
+ENABLE_API_LOGGING = env.bool("ENABLE_API_LOGGING", default=False)
+
 # Load overrides from PROMGEN to replace Django settings
 for k, v in PROMGEN.pop("django", {}).items():
     globals()[k] = v
