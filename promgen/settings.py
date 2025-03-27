@@ -237,3 +237,5 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Non-GET APIs require authentication. "
     "Please login Promgen and access the Profile page to get a Token.",
 }
+
+ENABLE_API_LOGGING = env.bool("ENABLE_API_LOGGING", default=False)
