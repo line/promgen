@@ -1,0 +1,16 @@
+{
+  "count": 2,
+  "next": "http://testserver/rest/v2/exporters/?page_number=2&page_size=1",
+  "previous": null,
+  "results": [
+    {
+      "enabled": false,
+      "id": 2,
+      "job": "nginx",
+      "path": "",
+      "port": 9100,
+      "project": "another-project",
+      "scheme": "https"
+    }
+  ]
+}

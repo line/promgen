@@ -17,13 +17,18 @@ files, we need to handle some deduplication. This is handled by using the django
 caching system to set a key and then triggering the actual event from middleware
 """
 
+import json
 import logging
+import uuid
+from http import HTTPStatus
 from threading import local
 
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
+from django.http import JsonResponse
+from rest_framework import views, exceptions
 
-from promgen import models
+from promgen import models, settings
 from promgen.signals import trigger_write_config, trigger_write_rules, trigger_write_urls
 
 logger = logging.getLogger(__name__)
@@ -50,7 +55,52 @@ class PromgenMiddleware:
         if request.user.is_authenticated:
             _user.value = request.user
 
+        # Log all requests to our v2 API endpoints
+        if settings.ENABLE_API_LOGGING and request.path.startswith("/rest/v2/"):
+            try:
+                # Generate a trace ID for each request
+                trace_id = str(uuid.uuid4())
+                request.trace_id = trace_id
+                # Log the IP address of the request
+                ip_address = request.META.get("REMOTE_ADDR")
+                logger.info(f"[Trace ID: {trace_id}] IP Address: {ip_address}")
+                # Log the user if authenticated
+                if request.user.is_authenticated:
+                    logger.info(f"[Trace ID: {trace_id}] User: {request.user.username}")
+                # Log the request details
+                logger.info(
+                    f"[Trace ID: {request.trace_id}] Request: {request.method} {request.get_full_path()}"
+                )
+                if request.body and request.headers["Content-Type"] == "application/json":
+                    logger.info(
+                        f"[Trace ID: {request.trace_id}] Request body: {json.loads(request.body)}"
+                    )
+            except Exception as e:
+                logger.exception(
+                    f"[Trace ID: {request.trace_id}] An error occurred when parsing request: {str(e)}"
+                )
+
         response = self.get_response(request)
+
+        # Log all responses to our v2 API endpoints
+        if settings.ENABLE_API_LOGGING and request.path.startswith("/rest/v2/"):
+            try:
+                # Log the response details
+                logger.info(
+                    f"[Trace ID: {request.trace_id}] Response status: {response.status_code}"
+                )
+                if (
+                    hasattr(response, "content")
+                    and response.headers["Content-Type"] == "application/json"
+                    and response.content
+                ):
+                    logger.info(
+                        f"[Trace ID: {request.trace_id}] Response body: {json.loads(response.content)}"
+                    )
+            except Exception as e:
+                logger.exception(
+                    f"[Trace ID: {request.trace_id}] An error occurred when parsing response: {str(e)}"
+                )
 
         triggers = {
             "Config": trigger_write_config.send,
@@ -67,3 +117,18 @@ class PromgenMiddleware:
 
 def get_current_user():
     return getattr(_user, "value", None)
+
+
+def custom_exception_handler(exc, context):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = views.exception_handler(exc, context)
+
+    if response is None:
+        # If an exception is raised that we don't handle, we will return a 500 error
+        # with the exception message. This is useful for debugging in development
+        if settings.DEBUG:
+            return JsonResponse({"detail": str(exc)}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
+        return exceptions.server_error(context["request"])
+
+    return response

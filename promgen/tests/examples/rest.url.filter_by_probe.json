@@ -1,0 +1,13 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "probe": "fixture_test",
+      "project": "test-project",
+      "url": "probe.example.com"
+    }
+  ]
+}

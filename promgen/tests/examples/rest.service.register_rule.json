@@ -1,0 +1,37 @@
+[
+  {
+    "annotations": {
+      "rule": "http://promgen.example.com/rule/1"
+    },
+    "clause": "up == 0",
+    "content_name": "partial-updated-service",
+    "content_type": "service",
+    "description": "Test Rule Description",
+    "duration": "5m",
+    "enabled": true,
+    "id": 1,
+    "labels": {
+      "severity": "critical"
+    },
+    "name": "Test Rule",
+    "parent": null
+  },
+  {
+    "annotations": {
+      "rule": "http://promgen.example.com/rule/4",
+      "summary": "Test Rule Summary"
+    },
+    "clause": "up == 1",
+    "content_name": "partial-updated-service",
+    "content_type": "service",
+    "description": "Test Rule Description",
+    "duration": "5m",
+    "enabled": false,
+    "id": 4,
+    "labels": {
+      "severity": "critical"
+    },
+    "name": "TestRuleCreated",
+    "parent": null
+  }
+]
