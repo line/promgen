@@ -6,6 +6,7 @@ import json
 from django.core.management.base import BaseCommand
 
 from promgen import prometheus, util
+from promgen.middleware import get_current_user
 from promgen.signals import (
     trigger_write_config,
     trigger_write_rules,
@@ -24,7 +25,7 @@ class Command(BaseCommand):
         else:
             config = json.load(open(target_file), encoding="utf8")
 
-        imported, skipped = prometheus.import_config(config, replace_shard)
+        imported, skipped = prometheus.import_config(config, get_current_user(), replace_shard)
 
         if imported:
             counters = {key: len(imported[key]) for key in imported}
