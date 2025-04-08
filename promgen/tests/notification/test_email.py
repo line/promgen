@@ -13,10 +13,11 @@ class EmailTest(tests.PromgenTest):
     def setUp(self):
         one = models.Project.objects.get(pk=1)
         two = models.Project.objects.get(pk=2)
+        self.user = self.force_login(username="demo")
 
-        NotificationEmail.create(obj=one, value="example@example.com")
-        NotificationEmail.create(obj=one, value="foo@example.com")
-        NotificationEmail.create(obj=two, value="bar@example.com")
+        NotificationEmail.create(obj=one, value="example@example.com", owner=self.user)
+        NotificationEmail.create(obj=one, value="foo@example.com", owner=self.user)
+        NotificationEmail.create(obj=two, value="bar@example.com", owner=self.user)
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
