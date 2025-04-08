@@ -184,7 +184,7 @@ def import_rules_v2(config, content_object=None):
     return dict(counters)
 
 
-def import_config(config, replace_shard=None):
+def import_config(config, user, replace_shard=None):
     counters = collections.defaultdict(list)
     skipped = collections.defaultdict(list)
     for entry in config:
@@ -202,6 +202,7 @@ def import_config(config, replace_shard=None):
 
         service, created = models.Service.objects.get_or_create(
             name=entry["labels"]["service"],
+            owner=user,
         )
         if created:
             logger.debug("Created service %s", service)
@@ -212,6 +213,7 @@ def import_config(config, replace_shard=None):
         farm, created = models.Farm.objects.get_or_create(
             name=entry["labels"]["farm"],
             defaults={"source": entry["labels"].get("__farm_source", "pmc")},
+            owner=user,
         )
         if created:
             logger.debug("Created farm %s", farm)
@@ -224,6 +226,7 @@ def import_config(config, replace_shard=None):
             service=service,
             shard=shard,
             defaults={"farm": farm},
+            owner=user,
         )
         if created:
             logger.debug("Created project %s", project)

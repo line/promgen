@@ -13,6 +13,9 @@ from promgen.tests import PromgenTest
 class CLITests(PromgenTest):
     fixtures = ["testcases.yaml", "extras.yaml"]
 
+    def setUp(self):
+        self.user = self.force_login(username="demo")
+
     @mock.patch("promgen.signals._trigger_write_config")
     def test_register_job(self, mock_signal):
         # Assert when project doesn't exist
@@ -38,14 +41,16 @@ class CLITests(PromgenTest):
         with self.assertRaises(CommandError):
             management.call_command("register-host", "missing-project", "cli.example.com")
 
-        project = models.Project.objects.create(name="cli-project", service_id=1, shard_id=1)
+        project = models.Project.objects.create(
+            name="cli-project", service_id=1, shard_id=1, owner=self.user
+        )
 
         # Still assert an error if there is no Farm
         with self.assertRaises(CommandError):
             management.call_command("register-host", "cli-project", "cli.example.com")
 
         # Register farm and finally register host
-        project.farm = models.Farm.objects.create(name="cli-farm")
+        project.farm = models.Farm.objects.create(name="cli-farm", owner=self.user)
         project.save()
         management.call_command("register-host", "cli-project", "cli.example.com")
         self.assertCount(models.Host, 2, "Should be a new host registered (1 host from fixture)")
