@@ -1013,7 +1013,7 @@ class ApiConfig(View):
         try:
             body = json.loads(request.body.decode("utf-8"))
 
-            prometheus.import_config(body, **kwargs)
+            prometheus.import_config(body, self.request.user, **kwargs)
         except Exception as e:
             return HttpResponse(e, status=400)
 
@@ -1328,7 +1328,9 @@ class Import(mixins.PromgenPermissionMixin, FormView):
         if data.get("shard"):
             kwargs["replace_shard"] = data.get("shard")
 
-        imported, skipped = prometheus.import_config(json.loads(config), **kwargs)
+        imported, skipped = prometheus.import_config(
+            json.loads(config), self.request.user, **kwargs
+        )
 
         if imported:
             counters = {key: len(imported[key]) for key in imported}
