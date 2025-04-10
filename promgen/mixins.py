@@ -8,6 +8,7 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic.base import ContextMixin
+from django.utils.translation import gettext as _
 
 from promgen import models
 
@@ -137,7 +138,7 @@ class PromgenGuardianPermissionMixin(guardian.mixins.PermissionRequiredMixin):
             return self.on_permission_check_fail(request, forbidden)
 
     def on_permission_check_fail(self, request, response, obj=None):
-        messages.warning(request, "You do not have permission to perform this action.")
+        messages.warning(request, _("You do not have permission to perform this action."))
         referer = request.META.get("HTTP_REFERER")
         if referer:
             return redirect(referer)

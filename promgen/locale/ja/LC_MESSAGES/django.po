@@ -180,3 +180,23 @@ msgstr "Actions"
 #: views.py:1219
 msgid "No search parameters provided."
 msgstr "検索フレーズが指定されていません"
+
+#: templates/promgen/permission_block.html:24
+msgid "Assign permission for user?"
+msgstr "ユーザーに権限を追加しますか？"
+
+#: views.py:1585
+msgid "Assigned permission: {0} for user: {1} on: {2}."
+msgstr "ユーザー {1} に、{2} での権限 {0} を追加しました。"
+
+#: templates/promgen/permission_row.py:13
+msgid "Delete all permissions for user?"
+msgstr "ユーザーから全ての権限を削除しますか？"
+
+#: views.py:1610
+msgid "Removed all permissions of user: {0} on: {1}."
+msgstr "ユーザー {0} から、{1} での権限を全て削除しました。"
+
+#: mixins.py:140
+msgid "You do not have permission to perform this action."
+msgstr "あなたはこの操作をする権限がありません。"
