@@ -41,6 +41,7 @@
   fields:
     name: test-farm
     source: promgen
+    owner: 1
 - model: promgen.project
   pk: 1
   fields:
