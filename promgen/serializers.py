@@ -106,6 +106,7 @@ class AlertRuleSerializer(serializers.ModelSerializer):
 
 
 class FarmSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
     url = WebLinkField()
 
     class Meta:
