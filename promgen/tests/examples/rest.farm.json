@@ -4,6 +4,6 @@
     "url": "http://promgen.example.com/farm/1",
     "name": "test-farm",
     "source":"promgen",
-    "owner": null
+    "owner": "admin"
   }
 ]
