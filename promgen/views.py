@@ -1602,7 +1602,7 @@ class PermissionAssign(PromgenGuardianPermissionMixin, View):
         assign_perm(permission, user, obj)
         messages.success(
             request,
-            "Assigned permission: {} for user: {} on: {}".format(
+            _("Assigned permission: {0} for user: {1} on: {2}.").format(
                 permission, user.username, obj.name
             ),
         )
@@ -1627,7 +1627,7 @@ class PermissionDelete(PromgenGuardianPermissionMixin, View):
             remove_perm(perm, user, obj)
         messages.success(
             request,
-            "Removed all permissions of user: {} on: {}".format(user.username, obj.name),
+            _("Removed all permissions of user: {0} on: {1}.").format(user.username, obj.name),
         )
         if user == self.request.user:
             return redirect(reverse("home"))
