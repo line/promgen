@@ -8,6 +8,9 @@ import requests
 from django.conf import settings
 from django.db.models import F
 from django.http import HttpResponse
+from rest_framework import throttling
+
+from promgen import models
 
 # Wrappers around request api to ensure we always attach our user agent
 # https://github.com/requests/requests/blob/master/requests/api.py
@@ -143,3 +146,11 @@ def proxy_error(response: requests.Response) -> HttpResponse:
 get.__doc__ = requests.get.__doc__
 post.__doc__ = requests.post.__doc__
 delete.__doc__ = requests.delete.__doc__
+
+
+class UserRateThrottle(throttling.UserRateThrottle):
+    def get_rate(self):
+        rate = models.SiteConfiguration.objects.filter(key="THROTTLE_RATES").first()
+        if rate and rate.value["user"]:
+            return rate.value["user"]
+        return super().get_rate()
