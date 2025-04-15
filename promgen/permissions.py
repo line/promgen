@@ -1,8 +1,12 @@
 # Copyright (c) 2025 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+from django.contrib.auth.models import User
 from django.utils.itercompat import is_iterable
+from guardian.shortcuts import get_objects_for_user
 from rest_framework import permissions
 from rest_framework.permissions import BasePermission
+
+from promgen import models
 
 
 class PromgenModelPermissions(BasePermission):
@@ -58,3 +62,14 @@ class ReadOnlyForAuthenticatedUserOrIsSuperuser(BasePermission):
             and request.user.is_authenticated
             and request.method in permissions.SAFE_METHODS
         )
+
+
+def get_accessible_services_for_user(user: User):
+    return get_objects_for_user(
+        user,
+        ["service_admin", "service_editor", "service_viewer"],
+        any_perm=True,
+        use_groups=True,
+        accept_global_perms=False,
+        klass=models.Service,
+    )
