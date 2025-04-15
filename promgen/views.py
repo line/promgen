@@ -29,7 +29,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
-from guardian.shortcuts import assign_perm, get_perms, remove_perm
+from guardian.shortcuts import assign_perm, get_objects_for_user, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
 from rest_framework.authtoken.models import Token
@@ -121,7 +121,7 @@ class HomeList(LoginRequiredMixin, ListView):
         ).values_list("object_id")
 
         # and return just our list of services
-        return models.Service.objects.filter(pk__in=senders).prefetch_related(
+        query_set = models.Service.objects.filter(pk__in=senders).prefetch_related(
             "notifiers",
             "notifiers__owner",
             "owner",
@@ -134,6 +134,15 @@ class HomeList(LoginRequiredMixin, ListView):
             "project_set__notifiers",
             "project_set__owner",
             "project_set__notifiers__owner",
+        )
+
+        return get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=query_set,
         )
 
 
