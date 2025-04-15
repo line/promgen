@@ -41,6 +41,7 @@ from promgen import (
     forms,
     mixins,
     models,
+    permissions,
     plugins,
     prometheus,
     signals,
@@ -122,7 +123,7 @@ class HomeList(LoginRequiredMixin, ListView):
         ).values_list("object_id")
 
         # and return just our list of services
-        return models.Service.objects.filter(pk__in=senders).prefetch_related(
+        query_set = models.Service.objects.filter(pk__in=senders).prefetch_related(
             "notifiers",
             "notifiers__owner",
             "owner",
@@ -136,6 +137,9 @@ class HomeList(LoginRequiredMixin, ListView):
             "project_set__owner",
             "project_set__notifiers__owner",
         )
+
+        services = permissions.get_accessible_services_for_user(self.request.user)
+        return query_set.filter(pk__in=services)
 
 
 class HostList(LoginRequiredMixin, ListView):
