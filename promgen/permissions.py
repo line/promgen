@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 from django.contrib.auth.models import User
 from django.utils.itercompat import is_iterable
+from guardian.shortcuts import get_objects_for_user
 from rest_framework import permissions
 from rest_framework.permissions import BasePermission
 
@@ -100,3 +101,38 @@ def has_perm(user: User, perms: list[str], obj) -> bool:
         if has_permission:
             return True
     return False
+
+
+def get_objects_for_user_with_perms(user: User, perms: list[str], klass):
+    """
+    Wrapper around guardian.shortcuts.get_objects_for_user to get objects
+    for a user with specific permissions.
+
+    Some important parameters are set according to Promgen's permission model:
+    - any_perm=True: Return objects that match any of the specified permissions.
+    - use_groups=True: Consider permissions assigned via both user and group of users.
+    - accept_global_perms=False: Do not consider global permissions for objects.
+
+    Args:
+        user (User): The user for whom to retrieve objects.
+        perms (list[str]): List of permission codenames to check.
+        klass (Model, optional): The model class to filter objects.
+
+    Returns:
+        QuerySet: A queryset of objects the user has the specified permissions for.
+
+    """
+    return get_objects_for_user(
+        user,
+        perms,
+        any_perm=True,
+        use_groups=True,
+        accept_global_perms=False,
+        klass=klass,
+    )
+
+
+def get_accessible_services_for_user(user: User):
+    return get_objects_for_user_with_perms(
+        user, ["service_admin", "service_editor", "service_viewer"], klass=models.Service
+    )
