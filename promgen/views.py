@@ -1320,24 +1320,51 @@ class AlertList(LoginRequiredMixin, ListView):
     queryset = models.Alert.objects.order_by("-created")
 
     def get_queryset(self):
+        qs = self.queryset
         search = self.request.GET.get("search")
         if search:
-            return self.queryset.filter(
+            qs = self.queryset.filter(
                 Q(alertlabel__name="Service", alertlabel__value__icontains=search)
                 | Q(alertlabel__name="Project", alertlabel__value__icontains=search)
                 | Q(alertlabel__name="Job", alertlabel__value__icontains=search)
             )
+        else:
+            for key, value in self.request.GET.items():
+                if key in ["page", "search"]:
+                    continue
+                elif key == "noSent":
+                    qs = qs.filter(sent_count=0)
+                elif key == "sentError":
+                    qs = qs.exclude(error_count=0)
+                else:
+                    qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
 
-        qs = self.queryset
-        for key, value in self.request.GET.items():
-            if key in ["page", "search"]:
-                continue
-            elif key == "noSent":
-                qs = qs.filter(sent_count=0)
-            elif key == "sentError":
-                qs = qs.exclude(error_count=0)
-            else:
-                qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
+        # If the user is not a superuser, we need to filter the alerts by the user's permissions
+        if not self.request.user.is_superuser:
+            services = get_objects_for_user(
+                self.request.user,
+                ["service_admin", "service_editor", "service_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Service,
+            )
+
+            projects = get_objects_for_user(
+                self.request.user,
+                ["project_admin", "project_editor", "project_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Project,
+            )
+            projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+            qs = qs.filter(
+                Q(alertlabel__name="Service", alertlabel__value__in=services.values_list("name"))
+                | Q(alertlabel__name="Project", alertlabel__value__in=projects.values_list("name"))
+            )
+
         return qs
 
 
