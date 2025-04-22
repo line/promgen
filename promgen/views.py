@@ -514,10 +514,19 @@ class ProjectDetail(PromgenGuardianPermissionMixin, DetailView):
 
 class FarmList(LoginRequiredMixin, ListView):
     paginate_by = 50
-    queryset = models.Farm.objects.prefetch_related(
-        "project",
-        "host_set",
-    )
+
+    def get_queryset(self):
+        query_set = models.Farm.objects.prefetch_related(
+            "project",
+            "host_set",
+        )
+
+        # If the user is not a superuser, we need to filter the farms by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            query_set = query_set.filter(project__in=projects)
+
+        return query_set
 
 
 class FarmDetail(PromgenGuardianPermissionMixin, DetailView):
