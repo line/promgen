@@ -894,12 +894,39 @@ class URLDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class URLList(LoginRequiredMixin, ListView):
-    queryset = models.URL.objects.prefetch_related(
-        "project",
-        "project__service",
-        "project__shard",
-        "probe",
-    )
+    def get_queryset(self):
+        query_set = models.URL.objects.prefetch_related(
+            "project",
+            "project__service",
+            "project__shard",
+            "probe",
+        )
+
+        # If the user is not a superuser, we need to filter the URLs by the user's permissions
+        if not self.request.user.is_superuser:
+            services = get_objects_for_user(
+                self.request.user,
+                ["service_admin", "service_editor", "service_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Service,
+            )
+
+            projects = get_objects_for_user(
+                self.request.user,
+                ["project_admin", "project_editor", "project_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Project,
+            )
+
+            projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+            query_set = query_set.filter(project__in=projects)
+
+        return query_set
 
 
 class ProjectRegister(PromgenGuardianPermissionMixin, CreateView):
