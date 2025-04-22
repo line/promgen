@@ -158,11 +158,26 @@ class HomeList(LoginRequiredMixin, ListView):
 
 
 class HostList(LoginRequiredMixin, ListView):
-    queryset = models.Host.objects.prefetch_related(
-        "farm",
-        "farm__project_set",
-        "farm__project_set__service",
-    )
+    def get_queryset(self):
+        query_set = models.Host.objects.prefetch_related(
+            "farm",
+            "farm__project_set",
+            "farm__project_set__service",
+        )
+
+        # If the user is not a superuser, we need to filter the hosts by the user's permissions
+        if not self.request.user.is_superuser:
+            farms = get_objects_for_user(
+                self.request.user,
+                ["farm_admin", "farm_editor", "farm_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Farm,
+            )
+            query_set = query_set.filter(farm__in=farms)
+
+        return query_set
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
