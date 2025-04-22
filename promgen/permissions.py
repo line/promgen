@@ -145,3 +145,9 @@ def get_accessible_projects_for_user(user: User):
         user, ["project_admin", "project_editor", "project_viewer"], klass=models.Project
     )
     return models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+
+def get_accessible_groups_for_user(user: User):
+    return get_objects_for_user_with_perms(
+        user, ["group_admin", "group_member"], klass=models.Group
+    )

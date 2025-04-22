@@ -264,6 +264,60 @@ class AuditList(LoginRequiredMixin, ListView):
         if "user" in self.request.GET:
             queryset = queryset.filter(user_id=self.request.GET["user"])
 
+        # If the user is not a superuser, we need to filter the audits by the user's permissions
+        if not self.request.user.is_superuser:
+            # Get all the services that the user has access to
+            services = permissions.get_accessible_services_for_user(self.request.user)
+
+            # Get all the projects that the user has access to
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+            # Get all the farm that the user has access to
+            farms = models.Farm.objects.filter(project__in=projects)
+
+            # Get all the groups that the user has access to
+            groups = permissions.get_accessible_groups_for_user(self.request.user)
+
+            # Filter the queryset by the user's permissions
+            queryset = queryset.filter(
+                Q(
+                    content_type__model="service",
+                    content_type__app_label="promgen",
+                    object_id__in=services,
+                )
+                | Q(
+                    content_type__model="project",
+                    content_type__app_label="promgen",
+                    object_id__in=projects,
+                )
+                | Q(
+                    content_type__model="farm",
+                    content_type__app_label="promgen",
+                    object_id__in=farms,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Service).id,
+                    parent_object_id__in=services,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Project).id,
+                    parent_object_id__in=projects,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Farm).id,
+                    parent_object_id__in=farms,
+                )
+                | Q(
+                    content_type__model="group",
+                    content_type__app_label="auth",
+                    object_id__in=groups,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Group).id,
+                    parent_object_id__in=groups,
+                )
+            )
+
         return queryset
 
     paginate_by = 50
