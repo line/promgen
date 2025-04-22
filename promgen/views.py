@@ -1646,6 +1646,61 @@ class Search(LoginRequiredMixin, View):
             logger.info("filtering %s by %s", target, filters)
 
             qs = qs.filter(filters)
+
+            # If the user is not a superuser, we need to filter the result by the user's permissions
+            if not self.request.user.is_superuser:
+                services = get_objects_for_user(
+                    self.request.user,
+                    ["service_admin", "service_editor", "service_viewer"],
+                    any_perm=True,
+                    use_groups=False,
+                    accept_global_perms=False,
+                    klass=models.Service,
+                )
+
+                projects = get_objects_for_user(
+                    self.request.user,
+                    ["project_admin", "project_editor", "project_viewer"],
+                    any_perm=True,
+                    use_groups=False,
+                    accept_global_perms=False,
+                    klass=models.Project,
+                )
+                projects = models.Project.objects.filter(
+                    Q(pk__in=projects) | Q(service__in=services)
+                )
+
+                farms = get_objects_for_user(
+                    self.request.user,
+                    ["farm_admin", "farm_editor", "farm_viewer"],
+                    any_perm=True,
+                    use_groups=False,
+                    accept_global_perms=False,
+                    klass=models.Farm,
+                )
+
+                if obj["model"] == models.Service:
+                    qs = qs.filter(pk__in=services)
+                elif obj["model"] == models.Project:
+                    qs = qs.filter(pk__in=projects)
+                elif obj["model"] == models.Farm:
+                    qs = qs.filter(pk__in=farms)
+                elif obj["model"] == models.Host:
+                    qs = qs.filter(farm__in=farms)
+                elif obj["model"] == models.Rule:
+                    qs = qs.filter(
+                        Q(
+                            content_type__model="service",
+                            content_type__app_label="promgen",
+                            object_id__in=services,
+                        )
+                        | Q(
+                            content_type__model="project",
+                            content_type__app_label="promgen",
+                            object_id__in=projects,
+                        )
+                    )
+
             try:
                 page_number = query_dict.get("page", 1)
                 page_target = Paginator(qs, self.paginate_by).page(page_number)
@@ -1659,7 +1714,7 @@ class Search(LoginRequiredMixin, View):
                 ):
                     context["page_obj"] = page_target
             except EmptyPage:
-                # If page is out of range of any paginator, deliver an empty list for target.
+                # If the page is out of range of any paginator, deliver an empty list for target.
                 context[target] = None
 
         return render(request, "promgen/search.html", context)
