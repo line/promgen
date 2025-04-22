@@ -618,9 +618,18 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
             "parent",
         )
 
+        # If the user is not a superuser, we need to filter the rules by the user's permissions
+        if not self.request.user.is_superuser:
+            services = permissions.get_accessible_services_for_user(self.request.user)
+            service_rules = service_rules.filter(object_id__in=services)
+
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            project_rules = project_rules.filter(object_id__in=projects)
+
         rule_list = list(chain(site_rules, service_rules, project_rules))
         page_number = self.request.GET.get("page", 1)
         context["rule_list"] = Paginator(rule_list, self.paginate_by).page(page_number)
+        context["page_obj"] = context["rule_list"]
 
         return context
 
