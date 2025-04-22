@@ -556,10 +556,21 @@ class ProjectDetail(PromgenGuardianPermissionMixin, DetailView):
 
 class FarmList(LoginRequiredMixin, ListView):
     paginate_by = 50
-    queryset = models.Farm.objects.prefetch_related(
-        "project_set",
-        "host_set",
-    )
+
+    def get_queryset(self):
+        query_set = models.Farm.objects.prefetch_related(
+            "project_set",
+            "host_set",
+        )
+
+        return get_objects_for_user(
+            self.request.user,
+            ["farm_admin", "farm_editor", "farm_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=query_set,
+        )
 
 
 class FarmDetail(PromgenGuardianPermissionMixin, DetailView):
