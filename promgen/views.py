@@ -90,22 +90,33 @@ class DatasourceDetail(LoginRequiredMixin, DetailView):
 
 class ServiceList(LoginRequiredMixin, ListView):
     paginate_by = 20
-    queryset = models.Service.objects.prefetch_related(
-        "rule_set",
-        "rule_set__parent",
-        "project_set",
-        "project_set__owner",
-        "project_set__shard",
-        "project_set__notifiers",
-        "project_set__notifiers__owner",
-        "project_set__notifiers__filter_set",
-        "project_set__farm",
-        "project_set__exporter_set",
-        "owner",
-        "notifiers",
-        "notifiers__owner",
-        "notifiers__filter_set",
-    )
+
+    def get_queryset(self):
+        query_set = models.Service.objects.prefetch_related(
+            "rule_set",
+            "rule_set__parent",
+            "project_set",
+            "project_set__owner",
+            "project_set__shard",
+            "project_set__notifiers",
+            "project_set__notifiers__owner",
+            "project_set__notifiers__filter_set",
+            "project_set__farm",
+            "project_set__exporter_set",
+            "owner",
+            "notifiers",
+            "notifiers__owner",
+            "notifiers__filter_set",
+        )
+
+        return get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=query_set,
+        )
 
 
 class HomeList(LoginRequiredMixin, ListView):
