@@ -1545,6 +1545,38 @@ class Search(LoginRequiredMixin, View):
             logger.info("filtering %s by %s", target, filters)
 
             qs = qs.filter(filters)
+
+            # If the user is not a superuser, we need to filter the result by the user's permissions
+            if not self.request.user.is_superuser:
+                services = permissions.get_accessible_services_for_user(self.request.user)
+                projects = permissions.get_accessible_projects_for_user(self.request.user)
+                farms = models.Farm.objects.filter(project__in=projects)
+                groups = permissions.get_accessible_groups_for_user(self.request.user)
+
+                if obj["model"] == models.Service:
+                    qs = qs.filter(pk__in=services)
+                elif obj["model"] == models.Project:
+                    qs = qs.filter(pk__in=projects)
+                elif obj["model"] == models.Farm:
+                    qs = qs.filter(pk__in=farms)
+                elif obj["model"] == models.Host:
+                    qs = qs.filter(farm__in=farms)
+                elif obj["model"] == models.Group:
+                    qs = qs.filter(pk__in=groups)
+                elif obj["model"] == models.Rule:
+                    qs = qs.filter(
+                        Q(
+                            content_type__model="service",
+                            content_type__app_label="promgen",
+                            object_id__in=services,
+                        )
+                        | Q(
+                            content_type__model="project",
+                            content_type__app_label="promgen",
+                            object_id__in=projects,
+                        )
+                    )
+
             try:
                 page_number = query_dict.get("page", 1)
                 page_target = Paginator(qs, self.paginate_by).page(page_number)
