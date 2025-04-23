@@ -18,7 +18,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -57,38 +57,50 @@ logger = logging.getLogger(__name__)
 
 
 class DatasourceList(LoginRequiredMixin, ListView):
-    queryset = models.Shard.objects.prefetch_related(
-        "project_set__service",
-        "project_set__service__owner",
-        "project_set__service__notifiers",
-        "project_set__service__notifiers__owner",
-        "project_set__service__rule_set",
-        "project_set",
-        "project_set__owner",
-        "project_set__farm",
-        "project_set__exporter_set",
-        "project_set__notifiers",
-        "project_set__notifiers__owner",
-        "prometheus_set",
-    ).annotate(num_projects=Count("project"))
+    def get_queryset(self):
+        projects = models.Project.objects.all()
+        # If the user is not a superuser, we need to filter the shards by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+        return models.Shard.objects.prefetch_related(
+            Prefetch("project_set", queryset=projects),
+            "project_set__service",
+            "project_set__service__owner",
+            "project_set__service__notifiers",
+            "project_set__service__notifiers__owner",
+            "project_set__service__rule_set",
+            "project_set__owner",
+            "project_set__farm",
+            "project_set__exporter_set",
+            "project_set__notifiers",
+            "project_set__notifiers__owner",
+            "prometheus_set",
+        ).annotate(num_projects=Count("project"))
 
 
 class DatasourceDetail(LoginRequiredMixin, DetailView):
-    queryset = models.Shard.objects.prefetch_related(
-        "project_set__service",
-        "project_set__service__owner",
-        "project_set__service__notifiers",
-        "project_set__service__notifiers__owner",
-        "project_set__service__notifiers__filter_set",
-        "project_set__service__rule_set",
-        "project_set",
-        "project_set__owner",
-        "project_set__farm",
-        "project_set__exporter_set",
-        "project_set__notifiers",
-        "project_set__notifiers__owner",
-        "project_set__notifiers__filter_set",
-    )
+    def get_queryset(self):
+        projects = models.Project.objects.all()
+        # If the user is not a superuser, we need to filter the shards by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+        return models.Shard.objects.prefetch_related(
+            Prefetch("project_set", queryset=projects),
+            "project_set__service",
+            "project_set__service__owner",
+            "project_set__service__notifiers",
+            "project_set__service__notifiers__owner",
+            "project_set__service__notifiers__filter_set",
+            "project_set__service__rule_set",
+            "project_set__owner",
+            "project_set__farm",
+            "project_set__exporter_set",
+            "project_set__notifiers",
+            "project_set__notifiers__owner",
+            "project_set__notifiers__filter_set",
+        )
 
 
 class ServiceList(LoginRequiredMixin, ListView):
