@@ -245,47 +245,104 @@ class HostDetail(LoginRequiredMixin, View):
         context = {}
         context["slug"] = self.kwargs["slug"]
 
-        context["host_list"] = models.Host.objects.filter(
-            name__icontains=self.kwargs["slug"]
-        ).prefetch_related("farm")
+        hosts = models.Host.objects.filter(name__icontains=self.kwargs["slug"]).prefetch_related(
+            "farm"
+        )
+
+        # If the user is not a superuser, we need to filter the hosts by the user's permissions
+        if not self.request.user.is_superuser:
+            accessible_farms = get_objects_for_user(
+                self.request.user,
+                ["farm_admin", "farm_editor", "farm_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Farm,
+            )
+            hosts = hosts.filter(farm__in=accessible_farms)
+
+        context["host_list"] = hosts
 
         if not context["host_list"]:
             return render(request, "promgen/host_404.html", context, status=404)
 
-        context["farm_list"] = models.Farm.objects.filter(
+        farms = models.Farm.objects.filter(
             id__in=context["host_list"].values_list("farm_id", flat=True)
         )
 
-        context["project_list"] = models.Project.objects.filter(
-            id__in=context["farm_list"].values_list("project__id", flat=True)
+        projects = models.Project.objects.filter(
+            id__in=farms.values_list("project__id", flat=True)
         ).prefetch_related("notifiers", "rule_set")
 
-        context["exporter_list"] = models.Exporter.objects.filter(
-            project_id__in=context["project_list"].values_list("id", flat=True)
+        exporters = models.Exporter.objects.filter(
+            project_id__in=projects.values_list("id", flat=True)
         ).prefetch_related("project", "project__service")
 
-        context["service_list"] = models.Service.objects.filter(
-            id__in=context["project_list"].values_list("service__id", flat=True)
+        services = models.Service.objects.filter(
+            id__in=projects.values_list("service__id", flat=True)
         ).prefetch_related("notifiers", "rule_set")
 
-        context["rule_list"] = (
+        rules = (
             models.Rule.objects.filter(
-                Q(id__in=context["project_list"].values_list("rule_set__id"))
-                | Q(id__in=context["service_list"].values_list("rule_set__id"))
+                Q(id__in=projects.values_list("rule_set__id"))
+                | Q(id__in=services.values_list("rule_set__id"))
                 | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
             )
             .select_related("content_type")
             .prefetch_related("content_object")
         )
 
-        context["notifier_list"] = (
+        notifiers = (
             models.Sender.objects.filter(
-                Q(id__in=context["project_list"].values_list("notifiers__id"))
-                | Q(id__in=context["service_list"].values_list("notifiers__id"))
+                Q(id__in=projects.values_list("notifiers__id"))
+                | Q(id__in=services.values_list("notifiers__id"))
             )
             .select_related("content_type")
             .prefetch_related("content_object")
         )
+
+        # If the user is not a superuser, we need to filter other objects by the user's permissions
+        if not self.request.user.is_superuser:
+            accessible_services = get_objects_for_user(
+                self.request.user,
+                ["service_admin", "service_editor", "service_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Service,
+            )
+
+            accessible_projects = get_objects_for_user(
+                self.request.user,
+                ["project_admin", "project_editor", "project_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Project,
+            )
+            accessible_projects = models.Project.objects.filter(
+                Q(pk__in=accessible_projects) | Q(service__in=accessible_services)
+            )
+
+            projects = projects.filter(pk__in=accessible_projects)
+            exporters = exporters.filter(project__in=accessible_projects)
+            services = services.filter(pk__in=accessible_services)
+            rules = rules.filter(
+                Q(content_type__model="service", object_id__in=accessible_services)
+                | Q(content_type__model="project", object_id__in=accessible_projects)
+                | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
+            )
+            notifiers = notifiers.filter(
+                Q(content_type__model="service", object_id__in=accessible_services)
+                | Q(content_type__model="project", object_id__in=accessible_projects)
+            )
+
+        context["farm_list"] = farms
+        context["project_list"] = projects
+        context["exporter_list"] = exporters
+        context["service_list"] = services
+        context["rule_list"] = rules
+        context["notifier_list"] = notifiers
 
         return render(request, "promgen/host_detail.html", context)
 
