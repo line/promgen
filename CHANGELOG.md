@@ -1,5 +1,10 @@
 # Changelog
 
+# v0.69.0 - 2025-04-25
+
+- [IMPROVEMENT] Return owner name in Farm API #583
+- [IMPROVEMENT] Add owner field to Farm object #582
+
 # v0.68.0 - 2025-03-13
 
 - [SECURITY] Remove 'authorization' field from the retrieve Shard API #576
