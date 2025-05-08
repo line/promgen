@@ -5,7 +5,7 @@ from django.db import migrations
 
 
 def create_group(apps, schema_editor):
-    if not settings.PROMGEN_DEFAULT_GROUP:
+    if not getattr(settings, "PROMGEN_DEFAULT_GROUP", None):
         return
 
     # Create Default Group
