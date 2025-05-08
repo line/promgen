@@ -1427,13 +1427,6 @@ class Search(LoginRequiredMixin, View):
                     else:
                         filters = Q(**{field: query_dict[var]})
 
-            # For groups, we want to exclude the default group from search results
-            if obj["model"] == models.Group:
-                if filters:
-                    filters &= ~Q(name=settings.PROMGEN_DEFAULT_GROUP)
-                else:
-                    filters = ~Q(name=settings.PROMGEN_DEFAULT_GROUP)
-
             logger.info("filtering %s by %s", target, filters)
 
             qs = qs.filter(filters)
@@ -1816,12 +1809,12 @@ class PermissionDelete(PromgenGuardianPermissionMixin, View):
 
 class GroupList(LoginRequiredMixin, ListView):
     paginate_by = 20
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP).order_by("name")
+    queryset = models.Group.objects.order_by("name")
 
 
 class GroupDetail(PromgenGuardianPermissionMixin, DetailView):
     permission_required = ["group_admin", "group_member"]
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1832,7 +1825,7 @@ class GroupDetail(PromgenGuardianPermissionMixin, DetailView):
 
 class GroupAddMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
     permission_required = ["group_admin"]
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1871,7 +1864,7 @@ class GroupAddMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
 
 class GroupUpdateMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
     permission_required = ["group_admin"]
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1898,7 +1891,7 @@ class GroupUpdateMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View)
 
 class GroupRemoveMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
     permission_required = ["group_admin"]
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1949,14 +1942,14 @@ class GroupRegister(LoginRequiredMixin, CreateView):
 class GroupUpdate(PromgenGuardianPermissionMixin, UpdateView):
     permission_required = ["group_admin"]
     button_label = _("Update Group")
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
     fields = ["name"]
 
 
 class GroupDelete(PromgenGuardianPermissionMixin, DeleteView):
     permission_required = ["group_admin"]
     button_label = _("Delete Group")
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
 
     def get_success_url(self):
         return reverse("group-list")
