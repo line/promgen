@@ -268,7 +268,7 @@ def get_permission_choices(input_object):
 
 def get_group_choices():
     yield ("", "")
-    for g in models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP).order_by("name"):
+    for g in models.Group.objects.order_by("name"):
         yield (g.name, g.name)
 
 
