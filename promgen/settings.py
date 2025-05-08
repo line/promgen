@@ -50,7 +50,6 @@ if PROMGEN_CONFIG_FILE.exists():
 else:
     PROMGEN = {}
 
-PROMGEN_DEFAULT_GROUP = "Default"
 PROMGEN_SCHEME = env.str("PROMGEN_SCHEME", default="http")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
