@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from promgen import filters, models, prometheus, renderers, serializers, tasks
+from guardian.shortcuts import get_objects_for_user
 
 
 class AlertReceiver(View):
@@ -82,6 +83,16 @@ class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     serializer_class = serializers.ServiceSerializer
     lookup_value_regex = "[^/]+"
     lookup_field = "name"
+
+    def get_queryset(self):
+        return get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=self.queryset,
+        )
 
     @action(detail=True, methods=["get"])
     def projects(self, request, name):
