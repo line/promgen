@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from promgen import filters, models, prometheus, renderers, serializers, tasks, util
+from promgen import filters, models, permissions, prometheus, renderers, serializers, tasks, util
 from promgen.permissions import PromgenModelPermissions
 
 
@@ -112,6 +112,12 @@ class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     serializer_class = serializers.ServiceSerializer
     lookup_value_regex = "[^/]+"
     lookup_field = "name"
+
+    def get_queryset(self):
+        query_set = self.queryset
+        return query_set.filter(
+            pk__in=permissions.get_accessible_services_for_user(self.request.user)
+        )
 
     @action(detail=True, methods=["get"])
     def projects(self, request, name):
