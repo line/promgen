@@ -9,6 +9,7 @@ from urllib.parse import urljoin
 
 import requests
 from django.http import HttpResponse, JsonResponse
+from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.views.generic.base import TemplateView
 from requests.exceptions import HTTPError
@@ -272,6 +273,48 @@ class ProxySilences(View):
                 status=HTTPStatus.UNPROCESSABLE_ENTITY,
             )
 
+        # Check if the user has permission to silence the alert
+        if not request.user.is_superuser:
+            if "project" not in body["labels"] and "service" not in body["labels"]:
+                return JsonResponse(
+                    {
+                        "messages": [
+                            {
+                                "class": "alert alert-warning",
+                                "message": _("You must specify either a project or service label."),
+                            }
+                        ]
+                    },
+                    status=HTTPStatus.UNPROCESSABLE_ENTITY,
+                )
+
+            permission_denied_response = JsonResponse(
+                {
+                    "messages": [
+                        {
+                            "class": "alert alert-danger",
+                            "message": _("You do not have permission to silence this alert."),
+                        }
+                    ]
+                },
+                status=HTTPStatus.FORBIDDEN,
+            )
+            if "project" in body["labels"]:
+                project = models.Project.objects.get(name=body["labels"]["project"])
+                if (
+                    not request.user.has_perm("project_admin", project)
+                    and not request.user.has_perm("project_editor", project)
+                    and not request.user.has_perm("service_admin", project.service)
+                    and not request.user.has_perm("service_editor", project.service)
+                ):
+                    return permission_denied_response
+            elif "service" in body["labels"]:
+                service = models.Service.objects.get(name=body["labels"]["service"])
+                if not request.user.has_perm(
+                    "service_admin", service
+                ) and not request.user.has_perm("service_editor", service):
+                    return permission_denied_response
+
         try:
             response = prometheus.silence(**form.cleaned_data)
         except requests.HTTPError as e:
@@ -294,6 +337,29 @@ class ProxySilences(View):
         )
 
 
+def get_uneditable_obj_by_silence_matchers(matchers, user):
+    affected_projects, affected_services = get_affected_obj_by_matchers(matchers)
+
+    uneditable_projects = models.Project.objects.none()
+    uneditable_services = models.Service.objects.none()
+
+    if affected_projects.exists():
+        editable_projects = promgen_permissions.get_editable_projects_for_user(user)
+        uneditable_projects = affected_projects.exclude(
+            id__in=editable_projects.values_list("id", flat=True)
+        )
+
+    # If there are any affected projects, the silence is already related to some projects.
+    # Therefore, checking permissions on projects is sufficient.
+    if not affected_projects.exists() and affected_services.exists():
+        editable_services = promgen_permissions.get_editable_services_for_user(user)
+        uneditable_services = affected_services.exclude(
+            id__in=editable_services.values_list("id", flat=True)
+        )
+
+    return uneditable_projects, uneditable_services
+
+
 class ProxySilencesV2(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -305,13 +371,52 @@ class ProxySilencesV2(APIView):
             return JsonResponse(
                 {
                     "messages": [
-                        {"class": "alert alert-warning", "message": m, "label": k}
+                        {"class": "alert alert-warning", "message": _(m), "label": k}
                         for k in serializer.errors
                         for m in serializer.errors[k]
                     ]
                 },
                 status=HTTPStatus.UNPROCESSABLE_ENTITY,
             )
+
+        # Check if the user has permission to silence the alert
+        if not request.user.is_superuser:
+            uneditable_projects, uneditable_services = get_uneditable_obj_by_silence_matchers(
+                serializer.data["matchers"], request.user
+            )
+            messages = []
+            for objs, label in [
+                (uneditable_projects, "projects"),
+                (uneditable_services, "services"),
+            ]:
+                if objs.exists():
+                    count = objs.count()
+                    if count <= 20:
+                        names = ", ".join(objs.values_list("name", flat=True))
+                        messages.append(
+                            {
+                                "class": "alert alert-warning",
+                                "message": _(
+                                    "You do not have permission to silence alerts for "
+                                    "the following {label}: {names}."
+                                ).format(label=label, names=names),
+                            }
+                        )
+                    else:
+                        messages.append(
+                            {
+                                "class": "alert alert-warning",
+                                "message": _(
+                                    "You do not have permission to silence alerts for "
+                                    "many ({count}) {label}."
+                                ).format(count=count, label=label),
+                            }
+                        )
+            if messages:
+                return JsonResponse(
+                    {"messages": messages},
+                    status=HTTPStatus.FORBIDDEN,
+                )
 
         try:
             response = prometheus.silence(labels=None, **serializer.data)
