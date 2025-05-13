@@ -47,6 +47,22 @@ class PromgenModelPermissions(BasePermission):
             return all(request.user.has_perm(perm) for perm in perm_list)
 
 
+class ReadOnlyForAuthenticatedUserOrIsSuperuser(BasePermission):
+    """
+    Customize Django REST Framework's base permission class to only allow read-only access for
+    authenticated users and full access for superusers.
+    """
+
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.method in permissions.SAFE_METHODS
+        )
+
+
 def get_check_permission_objects(obj):
     # Because we only define permission codes for Service, Group, and Project,
     # we need to map other objects to these.
