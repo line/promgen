@@ -160,6 +160,14 @@ class FarmViewSet(viewsets.ModelViewSet):
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
 
+    def get_queryset(self):
+        query_set = self.queryset
+        # If the user is not a superuser, we need to filter the farms by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            query_set = query_set.filter(project__in=projects)
+        return query_set
+
     def retrieve(self, request, id):
         farm = self.get_object()
         farm_data = self.get_serializer(farm).data
