@@ -98,7 +98,7 @@ def render_urls():
     return json.dumps(data, indent=2, sort_keys=True)
 
 
-def render_config(service=None, project=None):
+def render_config(service=None, project=None, services=None, projects=None, farms=None):
     data = []
     for exporter in models.Exporter.objects.prefetch_related(
         "project__farm__host_set",
@@ -112,6 +112,10 @@ def render_config(service=None, project=None):
         if service and exporter.project.service.name != service.name:
             continue
         if project and exporter.project.name != project.name:
+            continue
+        if services is not None and exporter.project.service not in services:
+            continue
+        if projects is not None and exporter.project not in projects:
             continue
         if not exporter.enabled:
             continue
@@ -129,8 +133,9 @@ def render_config(service=None, project=None):
             labels["__metrics_path__"] = exporter.path
 
         hosts = []
-        for host in exporter.project.farm.host_set.all():
-            hosts.append(f"{host.name}:{exporter.port}")
+        if farms is None or exporter.project.farm in farms:
+            for host in exporter.project.farm.host_set.all():
+                hosts.append(f"{host.name}:{exporter.port}")
 
         data.append({"labels": labels, "targets": hosts})
     return json.dumps(data, indent=2, sort_keys=True)
