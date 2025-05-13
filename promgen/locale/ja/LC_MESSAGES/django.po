@@ -337,3 +337,23 @@ msgstr "{from_user}は{to_user}に統合されました。"
 # : templates/admin/auth/user/change_list.html:7
 msgid "Merge user"
 msgstr "ユーザー統合"
+
+#: proxy.py:284
+msgid "You must specify either a project or service label."
+msgstr "プロジェクトまたはサービスラベルを指定する必要があります。"
+
+#: proxy.py:296
+msgid "You do not have permission to silence this alert."
+msgstr "このアラートを無効にする権限がありません。"
+
+#: proxy.py:390
+msgid "You do not have permission to silence alerts for the following {label}: {names}."
+msgstr "次の{label}のアラートを無効にする権限がありません: {names}。"
+
+#: proxy.py:400
+msgid "You do not have permission to silence alerts for many ({count}) {label}."
+msgstr "多くの({count}) {label}のアラートを無効にする権限がありません。"
+
+#: errors.py:20
+msgid "Silence must include a service or project matcher."
+msgstr "サイレンスにはサービスまたはプロジェクトのマッチャーを含める必要があります。"

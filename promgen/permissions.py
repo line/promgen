@@ -151,3 +151,17 @@ def get_accessible_groups_for_user(user: User):
     return get_objects_for_user_with_perms(
         user, ["group_admin", "group_member"], klass=models.Group
     )
+
+
+def get_editable_services_for_user(user: User):
+    return get_objects_for_user_with_perms(
+        user, ["service_admin", "service_editor"], klass=models.Service
+    )
+
+
+def get_editable_projects_for_user(user: User):
+    services = get_editable_services_for_user(user)
+    projects = get_objects_for_user_with_perms(
+        user, ["project_admin", "project_editor"], klass=models.Project
+    )
+    return models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
