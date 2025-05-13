@@ -9,6 +9,9 @@ from promgen import models, rest, tests
 
 
 class RestAPITest(tests.PromgenTest):
+    def setUp(self):
+        self.user = self.force_login(username="demo")
+
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert_blackhole(self):
