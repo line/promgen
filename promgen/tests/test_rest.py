@@ -5,6 +5,7 @@
 from django.contrib.auth.models import Permission
 from django.test import override_settings
 from django.urls import reverse
+from guardian.shortcuts import assign_perm
 
 from promgen import models, rest, tests
 
@@ -36,6 +37,18 @@ class RestAPITest(tests.PromgenTest):
     @override_settings(PROMGEN=tests.SETTINGS)
     def test_retrieve_farm(self):
         expected = tests.Data("examples", "rest.farm.json").json()
+
+        # Check retrieving all farms without assigning permissions return empty list
+        response = self.client.get(reverse("api:farm-list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [])
+
+        # Check retrieving a specific farm without assigning permissions return 404 Not Found
+        response = self.client.get(reverse("api:farm-detail", args=[1]))
+        self.assertEqual(response.status_code, 404)
+
+        # Assigning permissions to the user
+        assign_perm("project_viewer", self.user, models.Project.objects.get(id=1))
 
         # Check retrieving all farms
         response = self.client.get(reverse("api:farm-list"))
