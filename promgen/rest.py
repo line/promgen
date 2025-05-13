@@ -1,6 +1,8 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+from itertools import chain
 
+from django.db.models import Q
 from django.http import HttpResponse
 from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
@@ -31,7 +33,40 @@ class AlertReceiver(APIView):
 class AllViewSet(viewsets.ViewSet):
     @action(detail=False, methods=["get"], renderer_classes=[renderers.RuleRenderer])
     def rules(self, request):
-        rules = models.Rule.objects.filter(enabled=True)
+        site_rules = models.Rule.objects.filter(
+            content_type__model="site", content_type__app_label="promgen", enabled=True
+        )
+        service_rules = models.Rule.objects.filter(
+            content_type__model="service", content_type__app_label="promgen", enabled=True
+        )
+        project_rules = models.Rule.objects.filter(
+            content_type__model="project", content_type__app_label="promgen", enabled=True
+        )
+
+        # If the user is not a superuser, we need to filter the rules by the user's permissions
+        if not self.request.user.is_superuser:
+            services = get_objects_for_user(
+                self.request.user,
+                ["service_admin", "service_editor", "service_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Service,
+            )
+            service_rules = service_rules.filter(object_id__in=services)
+
+            projects = get_objects_for_user(
+                self.request.user,
+                ["project_admin", "project_editor", "project_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Project,
+            )
+            projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+            project_rules = project_rules.filter(object_id__in=projects)
+
+        rules = list(chain(site_rules, service_rules, project_rules))
         return Response(
             serializers.AlertRuleSerializer(rules, many=True).data,
             headers={"Content-Disposition": "attachment; filename=alert.rule.yml"},
