@@ -2,16 +2,15 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 from itertools import chain
 
-from django.core.serializers import get_serializer
 from django.db.models import Q
 from django.http import HttpResponse
 from django.views.generic import View
-from rest_framework import permissions, viewsets
+from guardian.shortcuts import get_objects_for_user
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from promgen import filters, models, prometheus, renderers, serializers, tasks
-from guardian.shortcuts import get_objects_for_user
 
 
 class AlertReceiver(View):
@@ -69,8 +68,43 @@ class AllViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["get"], renderer_classes=[renderers.renderers.JSONRenderer])
     def targets(self, request):
+        if self.request.user.is_superuser:
+            return HttpResponse(
+                prometheus.render_config(),
+                content_type="application/json",
+            )
+
+        # if the user is not a superuser, we need to filter the targets by the user's permissions
+        services = get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Service,
+        )
+
+        projects = get_objects_for_user(
+            self.request.user,
+            ["project_admin", "project_editor", "project_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Project,
+        )
+        projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+        farms = get_objects_for_user(
+            self.request.user,
+            ["farm_admin", "farm_editor", "farm_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Farm,
+        )
+
         return HttpResponse(
-            prometheus.render_config(),
+            prometheus.render_config(services=services, projects=projects, farms=farms),
             content_type="application/json",
         )
 
