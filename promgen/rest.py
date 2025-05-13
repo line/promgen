@@ -75,8 +75,17 @@ class AllViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["get"], renderer_classes=[renderers.renderers.JSONRenderer])
     def urls(self, request):
+        if self.request.user.is_superuser:
+            return HttpResponse(
+                prometheus.render_urls(),
+                content_type="application/json",
+            )
+
+        # if the user is not a superuser, we need to filter the URLs by the user's permissions
+        projects = permissions.get_accessible_projects_for_user(self.request.user)
+
         return HttpResponse(
-            prometheus.render_urls(),
+            prometheus.render_urls(projects=projects),
             content_type="application/json",
         )
 
