@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 from django.http import HttpResponse
+from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -112,6 +113,16 @@ class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     serializer_class = serializers.ServiceSerializer
     lookup_value_regex = "[^/]+"
     lookup_field = "name"
+
+    def get_queryset(self):
+        return get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=self.queryset,
+        )
 
     @action(detail=True, methods=["get"])
     def projects(self, request, name):
