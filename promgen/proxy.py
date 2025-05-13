@@ -443,6 +443,54 @@ class ProxySilencesV2(APIView):
 class ProxyDeleteSilence(View):
     def delete(self, request, silence_id):
         url = urljoin(util.setting("alertmanager:url"), f"/api/v2/silence/{silence_id}")
+        # First, check if the silence exists
+        response = util.get(url)
+        if response.status_code != 200:
+            return HttpResponse(
+                response.text, status=response.status_code, content_type="application/json"
+            )
+
+        # Check if the user has permission to delete the silence
+        if not request.user.is_superuser:
+            silence = response.json()
+            uneditable_projects, uneditable_services = get_uneditable_obj_by_silence_matchers(
+                silence.get("matchers", []), request.user
+            )
+            messages = []
+            for objs, label in [
+                (uneditable_projects, "projects"),
+                (uneditable_services, "services"),
+            ]:
+                if objs.exists():
+                    count = objs.count()
+                    if count <= 20:
+                        names = ", ".join(objs.values_list("name", flat=True))
+                        messages.append(
+                            {
+                                "class": "alert alert-warning",
+                                "message": _(
+                                    "You do not have permission to expire the silence that matches "
+                                    "the following {label}: {names}."
+                                ).format(label=label, names=names),
+                            }
+                        )
+                    else:
+                        messages.append(
+                            {
+                                "class": "alert alert-warning",
+                                "message": _(
+                                    "You do not have permission to expire the silence that matches "
+                                    "many ({count}) {label}."
+                                ).format(count=count, label=label),
+                            }
+                        )
+            if messages:
+                return JsonResponse(
+                    {"messages": messages},
+                    status=HTTPStatus.FORBIDDEN,
+                )
+
+        # Delete the silence
         response = util.delete(url)
         return HttpResponse(
             response.text, status=response.status_code, content_type="application/json"

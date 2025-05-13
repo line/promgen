@@ -357,3 +357,11 @@ msgstr "多くの({count}) {label}のアラートを無効にする権限があ�
 #: errors.py:20
 msgid "Silence must include a service or project matcher."
 msgstr "サイレンスにはサービスまたはプロジェクトのマッチャーを含める必要があります。"
+
+#: proxy.py:461
+msgid "You do not have permission to expire the silence that matches the following {label}: {names}."
+msgstr "次の{label}に一致するサイレンスを期限切れにする権限がありません: {names}。"
+
+#: proxy.py:472
+msgid "You do not have permission to expire the silence that matches many ({count}) {label}."
+msgstr "多くの({count}) {label}に一致するサイレンスを期限切れにする権限がありません。"

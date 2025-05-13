@@ -82,7 +82,18 @@ const app = Vue.createApp({
         },
         expireSilence(id) {
             fetch(`/proxy/v1/silences/${id}`, { method: 'DELETE' })
-                .then(() => location.reload());
+                .then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then(result => {
+                    if (result) {
+                        globalStore.setMessages(result.messages);
+                    }
+                });
         },
         setSilenceLabels(labels) {
             silenceStore.setLabels(labels);
@@ -484,6 +495,9 @@ app.component('silence-list-modal', {
         };
     },
     computed: {
+        globalMessages() {
+            return globalStore.state.messages;
+        },
         activeSilences() {
             const silences = this.$root.activeSilences || [];
             if (silences) {
