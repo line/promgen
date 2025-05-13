@@ -273,6 +273,48 @@ class ProxySilences(View):
                 status=HTTPStatus.UNPROCESSABLE_ENTITY,
             )
 
+        # Check if the user has permission to silence the alert
+        if not request.user.is_superuser:
+            if "project" not in body["labels"] and "service" not in body["labels"]:
+                return JsonResponse(
+                    {
+                        "messages": [
+                            {
+                                "class": "alert alert-warning",
+                                "message": "You must specify either a project or service label",
+                            }
+                        ]
+                    },
+                    status=HTTPStatus.UNPROCESSABLE_ENTITY,
+                )
+
+            permission_denied_response = JsonResponse(
+                {
+                    "messages": [
+                        {
+                            "class": "alert alert-danger",
+                            "message": "You do not have permission to silence this alert",
+                        }
+                    ]
+                },
+                status=HTTPStatus.FORBIDDEN,
+            )
+            if "project" in body["labels"]:
+                project = models.Project.objects.get(name=body["labels"]["project"])
+                if (
+                    not request.user.has_perm("project_admin", project)
+                    and not request.user.has_perm("project_editor", project)
+                    and not request.user.has_perm("service_admin", project.service)
+                    and not request.user.has_perm("service_editor", project.service)
+                ):
+                    return permission_denied_response
+            elif "service" in body["labels"]:
+                service = models.Service.objects.get(name=body["labels"]["service"])
+                if not request.user.has_perm(
+                    "service_admin", service
+                ) and not request.user.has_perm("service_editor", service):
+                    return permission_denied_response
+
         try:
             response = prometheus.silence(**form.cleaned_data)
         except requests.HTTPError as e:
