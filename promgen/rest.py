@@ -23,8 +23,6 @@ class AlertReceiver(View):
 
 
 class AllViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.AllowAny]
-
     @action(detail=False, methods=["get"], renderer_classes=[renderers.RuleRenderer])
     def rules(self, request):
         rules = models.Rule.objects.filter(enabled=True)
