@@ -139,6 +139,12 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     lookup_value_regex = "[^/]+"
     lookup_field = "name"
 
+    def get_queryset(self):
+        query_set = self.queryset
+        return query_set.filter(
+            pk__in=permissions.get_accessible_projects_for_user(self.request.user)
+        )
+
     @action(detail=True, methods=["get"])
     def targets(self, request, name):
         return HttpResponse(
