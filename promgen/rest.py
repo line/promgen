@@ -169,6 +169,16 @@ class FarmViewSet(viewsets.ModelViewSet):
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
 
+    def get_queryset(self):
+        return get_objects_for_user(
+            self.request.user,
+            ["farm_admin", "farm_editor", "farm_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=self.queryset,
+        )
+
     def retrieve(self, request, id):
         farm = self.get_object()
         farm_data = self.get_serializer(farm).data
