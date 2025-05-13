@@ -10,6 +10,9 @@ from promgen import tests
 class RendererTests(tests.PromgenTest):
     fixtures = ["testcases.yaml", "extras.yaml"]
 
+    def setUp(self):
+        self.user = self.force_login(username="admin")
+
     def test_global_rule(self):
         expected = tests.Data("examples", "export.rule.yml").yaml()
         response = self.client.get(reverse("api:all-rules"))
