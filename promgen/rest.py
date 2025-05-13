@@ -74,8 +74,43 @@ class AllViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["get"], renderer_classes=[renderers.renderers.JSONRenderer])
     def targets(self, request):
+        if self.request.user.is_superuser:
+            return HttpResponse(
+                prometheus.render_config(),
+                content_type="application/json",
+            )
+
+        # if the user is not a superuser, we need to filter the targets by the user's permissions
+        services = get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Service,
+        )
+
+        projects = get_objects_for_user(
+            self.request.user,
+            ["project_admin", "project_editor", "project_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Project,
+        )
+        projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+        farms = get_objects_for_user(
+            self.request.user,
+            ["farm_admin", "farm_editor", "farm_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Farm,
+        )
+
         return HttpResponse(
-            prometheus.render_config(),
+            prometheus.render_config(services=services, projects=projects, farms=farms),
             content_type="application/json",
         )
 
