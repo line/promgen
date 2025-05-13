@@ -65,14 +65,18 @@ def render_rules(rules=None):
     return renderers.RuleRenderer().render(serializers.AlertRuleSerializer(rules, many=True).data)
 
 
-def render_urls():
+def render_urls(projects=None):
     urls = collections.defaultdict(list)
 
-    for url in models.URL.objects.prefetch_related(
+    url_queryset = models.URL.objects.prefetch_related(
         "project__service",
         "project__shard",
         "project",
-    ):
+    )
+    if projects is not None:
+        url_queryset = url_queryset.filter(project__in=projects)
+
+    for url in url_queryset:
         urls[
             (
                 url.project.name,
