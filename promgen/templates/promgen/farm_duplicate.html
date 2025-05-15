@@ -1,11 +1,9 @@
 {% extends "base.html" %}
+{% load promgen %}
 
 {% block content %}
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">Convert Farm</li>
-</ol>
+{% breadcrumb label="Convert Farm" %}
 
 <div class="panel panel-warning" v-pre>
   <div class="panel-heading">Error converting farm. Duplicate detected</div>

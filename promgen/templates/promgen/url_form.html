@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load promgen %}
 
 {% block content %}
 
@@ -6,12 +7,7 @@
   <h1 v-pre>Project: {{ project.name }}</h1>
 </div>
 
-<ol class="breadcrumb" v-pre>
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li><a href="{% url 'service-detail' project.service.id %}">{{ project.service.name }}</a></li>
-  <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
-  <li class="active">Add URL to {{ farm.name }}</li>
-</ol>
+{% breadcrumb project label="Add URL" %}
 
 <form action="{% url 'url-new' project.id %}" method="post" v-pre>{% csrf_token %}
   <table>
