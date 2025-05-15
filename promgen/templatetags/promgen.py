@@ -177,7 +177,7 @@ def breadcrumb(instance=None, label=None):
             yield from farm(instance)
 
     def to_tag():
-        yield '<ol class="breadcrumb">'
+        yield '<ol class="breadcrumb" v-pre>'
         for href, text in generator():
             yield format_html('<li><a href="{}">{}</a></li>', mark_safe(href), text)
         if label:
