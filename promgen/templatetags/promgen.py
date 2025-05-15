@@ -155,6 +155,10 @@ def breadcrumb(instance=None, label=None):
         if obj.content_type.model == "project":
             yield from project(obj.content_object)
 
+    def farm(obj):
+        yield reverse("farm-list"), _("Farms")
+        yield obj.get_absolute_url(), obj.name
+
     def generator():
         yield reverse("home"), _("Home")
         if isinstance(instance, models.Sender):
@@ -169,6 +173,8 @@ def breadcrumb(instance=None, label=None):
             yield from rule(instance)
         if isinstance(instance, models.Alert):
             yield from alert(instance)
+        if isinstance(instance, models.Farm):
+            yield from farm(instance)
 
     def to_tag():
         yield '<ol class="breadcrumb">'
