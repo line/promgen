@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load promgen %}
 
 {% block content %}
 
@@ -6,10 +7,7 @@
   <h1>Import Rules</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">Import Rule</li>
-</ol>
+{% breadcrumb label="Import Rule" %}
 
 <div class="panel panel-default">
   <div class="panel-heading">Import Rules</div>

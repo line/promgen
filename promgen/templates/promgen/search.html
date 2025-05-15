@@ -1,15 +1,13 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load promgen %}
 {% block content %}
 
 <div class="page-header">
   <h1>Search</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">Search</li>
-</ol>
+{% breadcrumb label="Search" %}
 
 {% include "promgen/pagination_short.html" %}
 {% if service_list %}

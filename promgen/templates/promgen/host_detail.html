@@ -1,15 +1,13 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load promgen %}
 {% block content %}
 
 <div class="page-header" v-pre>
   <h1>Host: {{ slug }}</h1>
 </div>
 
-<ol class="breadcrumb" v-pre>
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">{{ slug }}</li>
-</ol>
+{% breadcrumb label=slug %}
 
 <div style="display:none" data-instance="{{slug}}" class="panel panel-danger promgen-alert">
   <div class="panel-heading">Alerts</div>

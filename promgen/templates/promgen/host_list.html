@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load promgen %}
 
 {% block content %}
 
@@ -6,10 +7,8 @@
   <h1>Hosts</h1>
 </div>
 
-<ol class="breadcrumb">
-  <li><a href="{% url 'service-list' %}">Home</a></li>
-  <li class="active">All Hosts</li>
-</ol>
+{% breadcrumb label="All Hosts" %}
+
 {% include "promgen/pagination_short.html" with page_obj=host_groups %}
 <div class="panel panel-default">
     <table class="table table-bordered table-condensed">
