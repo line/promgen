@@ -2072,12 +2072,25 @@ class PermissionDelete(PromgenGuardianPermissionMixin, View):
         for perm in permissions:
             remove_perm(perm, user, obj)
 
+        models.Sender.objects.filter(
+            value=user.username,
+            sender="promgen.notification.user",
+            obj=obj,
+        ).delete()
+
         if "on" == request.POST.get("remove_sub_permissions") and isinstance(obj, models.Service):
             # Remove all permissions for the user on this Service's projects
             for project in obj.project_set.all():
                 permissions = get_perms(user, project)
                 for perm in permissions:
                     remove_perm(perm, user, project)
+
+                models.Sender.objects.filter(
+                    value=user.username,
+                    sender="promgen.notification.user",
+                    obj=project,
+                ).delete()
+
             messages.success(
                 request,
                 "Removed all permissions of user: {0} on: {1} and its projects.".format(
