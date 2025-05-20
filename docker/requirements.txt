@@ -54,6 +54,8 @@ django-environ==0.10.0
     # via promgen (pyproject.toml)
 django-filter==23.2
     # via promgen (pyproject.toml)
+django-guardian==3.0.0
+    # via promgen (pyproject.toml)
 djangorestframework==3.14.0
     # via promgen (pyproject.toml)
 gunicorn==22.0.0
