@@ -4,13 +4,23 @@
 
 {% block content %}
 
-<div class="page-header" v-pre>
-  <h1>
-    Farm: {{ farm.name }} ({{ farm.source }})
+<div class="page-header promgen-flex-space-between-center" v-pre>
+  <div>
+    <h1>
+      Farm: {{ farm.name }} ({{ farm.source }})
+    </h1>
     {% if farm.owner %}
-      <small class="pull-right">{% trans "Contact" %}: {{farm.owner.username}}</small>
+      <p>{% trans "Contact" %}: {{farm.owner.username}}</p>
     {% endif %}
-  </h1>
+  </div>
+  {% if farm.editable %}
+    <div>
+      <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
+        {% csrf_token %}
+        <button class="btn btn-danger btn-sm">Delete Farm</button>
+      </form>
+    </div>
+  {% endif %}
 </div>
 
 {% breadcrumb farm %}
@@ -19,7 +29,7 @@
 
 <div class="col-md-6">
   <div class="panel panel-default">
-    <div class="panel-heading">Hosts from {{ farm.name }} ({{ farm.source }})</div>
+    <div class="panel-heading">Hosts</div>
     <table class="table">
       <tr>
         <th>Name</th>
@@ -34,7 +44,7 @@
         <td>
           <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
             {% csrf_token %}
-          <button name="delete" type="submit" class="btn btn-danger">Delete</button>
+          <button name="delete" type="submit" class="btn btn-danger btn-sm">Delete</button>
           </form>
         </td>
         {% endif %}
@@ -46,10 +56,6 @@
   {% if farm.editable %}
       <a href="{% url 'hosts-add' farm.id %}" class="btn btn-primary">{% trans "Register Hosts" %}</a>
   {% endif %}
-    <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
-      {% csrf_token %}
-      <button class="btn btn-danger">Delete Farm</button>
-    </form>
     </div>
   </div>
 </div>
