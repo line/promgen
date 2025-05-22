@@ -1211,6 +1211,9 @@ class Search(LoginRequiredMixin, View):
         # To avoid searching all object, remove empty search parameters
         # from the request query string.
         query_dict = request.GET.copy()
+        for key, value in query_dict.items():
+            query_dict[key] = value.strip() # Trim whitespaces of search input
+
         empty_value_parameters = [key for key, value in query_dict.lists() if not any(value)]
         for empty_value_parameter in empty_value_parameters:
             del query_dict[empty_value_parameter]
