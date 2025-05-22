@@ -454,10 +454,6 @@ class HostDelete(LoginRequiredMixin, DeleteView):
     model = models.Host
 
     def get_success_url(self):
-        # If there's only one linked project then we redirect to the project page
-        # otherwise we redirect to our farm page
-        if self.object.farm.project_set.count():
-            return self.object.farm.project_set.first().get_absolute_url()
         return self.object.farm.get_absolute_url()
 
 
@@ -495,21 +491,15 @@ class FarmDetail(LoginRequiredMixin, DetailView):
 class FarmUpdate(LoginRequiredMixin, UpdateView):
     model = models.Farm
     button_label = _("Update Farm")
-    template_name = "promgen/farm_form.html"
+    template_name = "promgen/farm_update.html"
     form_class = forms.FarmForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["project"] = self.object.project_set.first()
-        context["service"] = context["project"].service
-        return context
 
     def form_valid(self, form):
         farm, created = models.Farm.objects.update_or_create(
             id=self.kwargs["pk"],
             defaults=form.clean(),
         )
-        return HttpResponseRedirect(reverse("project-detail", args=[farm.project_set.first().id]))
+        return redirect("farm-detail", pk=farm.id)
 
 
 class FarmDelete(LoginRequiredMixin, RedirectView):
@@ -519,7 +509,7 @@ class FarmDelete(LoginRequiredMixin, RedirectView):
         farm = get_object_or_404(models.Farm, id=pk)
         farm.delete()
 
-        return HttpResponseRedirect(request.POST.get("next", reverse("service-list")))
+        return HttpResponseRedirect(request.POST.get("next", reverse("farm-list")))
 
 
 class UnlinkFarm(LoginRequiredMixin, View):
@@ -902,12 +892,30 @@ class ServiceRegister(LoginRequiredMixin, CreateView):
 class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.Farm
     button_label = _("Register Farm")
-    template_name = "promgen/farm_form.html"
+    template_name = "promgen/farm_register.html"
     form_class = forms.FarmForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["host_form"] = kwargs.get("host_form", forms.HostForm())
+        return context
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
+        host_form = forms.HostForm(data={"hosts": self.request.POST["hosts"]})
+        if not host_form.is_valid():
+            return self.render_to_response(self.get_context_data(form=form, host_form=host_form))
+
+        hostnames = set()
+        for hostname in host_form.cleaned_data["hosts"]:
+            hostnames.add(hostname)
+
         farm, _ = models.Farm.objects.get_or_create(source=discovery.FARM_DEFAULT, **form.clean())
+        for hostname in hostnames:
+            host, created = models.Host.objects.get_or_create(name=hostname, farm_id=farm.id)
+            if created:
+                logger.debug("Added %s to %s", host.name, farm.name)
+
         project.farm = farm
         project.save()
         return HttpResponseRedirect(project.get_absolute_url())
@@ -989,7 +997,6 @@ class HostRegister(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["farm"] = get_object_or_404(models.Farm, pk=self.kwargs["pk"])
-        context["project"] = context["farm"].project_set.first()
         return context
 
     def form_valid(self, form):
@@ -999,9 +1006,7 @@ class HostRegister(LoginRequiredMixin, FormView):
             if created:
                 logger.debug("Added %s to %s", host.name, farm.name)
 
-        if farm.project_set.count() == 0:
-            return redirect("farm-detail", pk=farm.id)
-        return redirect("project-detail", pk=farm.project_set.first().id)
+        return redirect("farm-detail", pk=farm.id)
 
 
 class ApiConfig(View):

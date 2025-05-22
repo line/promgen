@@ -8,7 +8,7 @@
   <h1>Farm: {{ farm.name }}</h1>
 </div>
 
-{% breadcrumb project label="Add hosts to "|add:farm.name %}
+{% breadcrumb farm label="Add hosts to "|add:farm.name %}
 
 <form action="{% url 'hosts-add' farm.id %}" method="post" v-pre>{% csrf_token %}
   <table>
