@@ -717,7 +717,6 @@ class ExporterScrape(LoginRequiredMixin, View):
 
 class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.URL
-    template_name = "promgen/url_form.html"
     form_class = forms.URLForm
 
     def form_valid(self, form):
