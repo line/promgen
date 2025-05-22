@@ -454,10 +454,6 @@ class HostDelete(LoginRequiredMixin, DeleteView):
     model = models.Host
 
     def get_success_url(self):
-        # If there's only one linked project then we redirect to the project page
-        # otherwise we redirect to our farm page
-        if self.object.farm.project_set.count():
-            return self.object.farm.project_set.first().get_absolute_url()
         return self.object.farm.get_absolute_url()
 
 
@@ -498,18 +494,12 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
     template_name = "promgen/farm_form.html"
     form_class = forms.FarmForm
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["project"] = self.object.project_set.first()
-        context["service"] = context["project"].service
-        return context
-
     def form_valid(self, form):
         farm, created = models.Farm.objects.update_or_create(
             id=self.kwargs["pk"],
             defaults=form.clean(),
         )
-        return HttpResponseRedirect(reverse("project-detail", args=[farm.project_set.first().id]))
+        return redirect("farm-detail", pk=farm.id)
 
 
 class FarmDelete(LoginRequiredMixin, RedirectView):
@@ -519,7 +509,7 @@ class FarmDelete(LoginRequiredMixin, RedirectView):
         farm = get_object_or_404(models.Farm, id=pk)
         farm.delete()
 
-        return HttpResponseRedirect(request.POST.get("next", reverse("service-list")))
+        return HttpResponseRedirect(request.POST.get("next", reverse("farm-list")))
 
 
 class UnlinkFarm(LoginRequiredMixin, View):
@@ -989,7 +979,6 @@ class HostRegister(LoginRequiredMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["farm"] = get_object_or_404(models.Farm, pk=self.kwargs["pk"])
-        context["project"] = context["farm"].project_set.first()
         return context
 
     def form_valid(self, form):
@@ -999,9 +988,7 @@ class HostRegister(LoginRequiredMixin, FormView):
             if created:
                 logger.debug("Added %s to %s", host.name, farm.name)
 
-        if farm.project_set.count() == 0:
-            return redirect("farm-detail", pk=farm.id)
-        return redirect("project-detail", pk=farm.project_set.first().id)
+        return redirect("farm-detail", pk=farm.id)
 
 
 class ApiConfig(View):
