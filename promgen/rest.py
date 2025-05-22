@@ -3,15 +3,17 @@
 
 from django.core.serializers import get_serializer
 from django.http import HttpResponse
-from django.views.generic import View
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from promgen import filters, models, prometheus, renderers, serializers, tasks
 
 
-class AlertReceiver(View):
+class AlertReceiver(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, *args, **kwargs):
         # Normally it would be more 'correct' to check our 'alert_blacklist' here and avoid
         # writing to the database, but to keep the alert ingestion queue as simple as possible
