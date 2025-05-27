@@ -3,6 +3,7 @@
 
 from unittest import mock
 
+from django.contrib.auth.models import Permission
 from django.test import override_settings
 
 from promgen import models, rest, tests
@@ -19,6 +20,10 @@ class SlackTest(tests.PromgenTest):
 
         NotificationSlack.create(obj=one, value=self.TestHook1)
         NotificationSlack.create(obj=two, value=self.TestHook2)
+
+        self.user = self.force_login(username="demo")
+        permission = Permission.objects.get(codename="process_alert")
+        self.user.user_permissions.add(permission)
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

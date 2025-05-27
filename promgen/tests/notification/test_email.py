@@ -3,6 +3,7 @@
 
 from unittest import mock
 
+from django.contrib.auth.models import Permission
 from django.test import override_settings
 
 from promgen import models, rest, tests
@@ -17,6 +18,10 @@ class EmailTest(tests.PromgenTest):
         NotificationEmail.create(obj=one, value="example@example.com")
         NotificationEmail.create(obj=one, value="foo@example.com")
         NotificationEmail.create(obj=two, value="bar@example.com")
+
+        self.user = self.force_login(username="demo")
+        permission = Permission.objects.get(codename="process_alert")
+        self.user.user_permissions.add(permission)
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
