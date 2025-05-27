@@ -9,10 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from promgen import filters, models, prometheus, renderers, serializers, tasks
+from promgen.permissions import PromgenModelPermissions
 
 
 class AlertReceiver(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [PromgenModelPermissions]
+    permissions_required = ["promgen.alert_trigger"]
+    any_perm = True
 
     def post(self, request, *args, **kwargs):
         # Normally it would be more 'correct' to check our 'alert_blacklist' here and avoid
