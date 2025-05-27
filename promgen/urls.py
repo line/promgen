@@ -19,9 +19,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
+from drf_spectacular.views import SpectacularAPIView
 from rest_framework import routers
 
-from promgen import proxy, rest, views
+from promgen import proxy, rest, rest_v2, views
+from promgen.schemas import SpectacularRapiDocView
 
 router = routers.DefaultRouter()
 router.register("all", rest.AllViewSet, basename="all")
@@ -30,6 +32,17 @@ router.register("shard", rest.ShardViewSet)
 router.register("project", rest.ProjectViewSet)
 router.register("farm", rest.FarmViewSet)
 
+v2_router = routers.DefaultRouter()
+v2_router.register("users", rest_v2.UserViewSet)
+v2_router.register("logs", rest_v2.AuditViewSet)
+v2_router.register("notifiers", rest_v2.NotifierViewSet)
+v2_router.register("rules", rest_v2.RuleViewSet)
+v2_router.register("farms", rest_v2.FarmViewSet)
+v2_router.register("exporters", rest_v2.ExporterViewSet)
+v2_router.register("urls", rest_v2.URLViewSet)
+v2_router.register("projects", rest_v2.ProjectViewSet)
+v2_router.register("services", rest_v2.ServiceViewSet)
+v2_router.register("shards", rest_v2.ShardViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -126,6 +139,9 @@ urlpatterns = [
     path("proxy/v1/silences/<silence_id>", csrf_exempt(proxy.ProxyDeleteSilence.as_view()), name="proxy-silence-delete"),
     # Promgen rest API
     path("rest/", include((router.urls, "api"), namespace="api")),
+    path("rest/v2/", include((v2_router.urls, "api-v2"), namespace="api-v2")),
+    path("rest/v2/schema/", SpectacularAPIView.as_view(), name="api-v2-schema"),
+    path("rest/v2/api-specs/", SpectacularRapiDocView.as_view(url_name="api-v2-schema"), name="api-v2-specs"),
     # PromQL Query
     path("promql-query", views.PromqlQuery.as_view(), name="promql-query"),
 ]

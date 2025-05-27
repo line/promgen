@@ -1,0 +1,13 @@
+[
+  {
+    "alias": "",
+    "content_type": 7,
+    "enabled": true,
+    "id": 2,
+    "label": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX",
+    "object_id": 1,
+    "owner": "demo",
+    "sender": "promgen.notification.slack",
+    "value": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+  }
+]

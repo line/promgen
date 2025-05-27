@@ -21,7 +21,7 @@ class HostTests(PromgenTest):
             {"hosts": "\naaa.example.com\nbbb.example.com\nccc.example.com \n"},
             follow=False,
         )
-        self.assertCount(models.Host, 3, "Expected 3 hosts")
+        self.assertCount(models.Host, 4, "Expected 4 hosts (Fixture has one host)")
 
     def test_comma(self):
         self.client.post(
@@ -29,7 +29,7 @@ class HostTests(PromgenTest):
             {"hosts": ",,aaa.example.com, bbb.example.com,ccc.example.com,"},
             follow=False,
         )
-        self.assertCount(models.Host, 3, "Expected 3 hosts")
+        self.assertCount(models.Host, 4, "Expected 4 hosts (Fixture has one host)")
 
     # Within our new host code, the hosts are split (by newline or comma) and then
     # individually tested. Here we will test our validator on specific entries that
