@@ -1447,24 +1447,3 @@ class RuleTest(LoginRequiredMixin, View):
         return JsonResponse(
             {request.POST["target"]: render_to_string("promgen/ajax_clause_check.html", result)}
         )
-
-
-class PromqlQuery(View):
-    def get(self, request):
-        if not all(x in request.GET for x in ["shard", "query"]):
-            return HttpResponse("BAD REQUEST", status=400)
-
-        shard = get_object_or_404(models.Shard, pk=request.GET["shard"])
-        params = {"query": request.GET["query"]}
-        headers = {}
-
-        if shard.authorization:
-            headers["Authorization"] = shard.authorization
-
-        try:
-            response = util.get(f"{shard.url}/api/v1/query", params=params, headers=headers)
-            response.raise_for_status()
-        except HTTPError:
-            return util.proxy_error(response)
-
-        return HttpResponse(response.content, content_type="application/json")

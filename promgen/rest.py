@@ -3,12 +3,13 @@
 
 from django.core.serializers import get_serializer
 from django.http import HttpResponse
+from requests.exceptions import HTTPError
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from promgen import filters, models, prometheus, renderers, serializers, tasks
+from promgen import filters, models, prometheus, renderers, serializers, tasks, util
 
 
 class AlertReceiver(APIView):
@@ -60,6 +61,31 @@ class ShardViewSet(viewsets.ModelViewSet):
     def services(self, request, name):
         shard = self.get_object()
         return Response(serializers.ServiceSerializer(shard.service_set.all(), many=True).data)
+
+    @action(detail=True, methods=["get"])
+    def usages(self, request, name):
+        metric = request.query_params.get("metric", None)
+        METRIC_QUERY_MAPPING = {
+            "samples": "sum(scrape_samples_scraped)",
+            "exporters": "count(up)",
+        }
+        if metric not in METRIC_QUERY_MAPPING:
+            return HttpResponse("BAD REQUEST", status=400)
+
+        shard = self.get_object()
+        params = {"query": METRIC_QUERY_MAPPING[request.GET["metric"]]}
+        headers = {}
+
+        if shard.authorization:
+            headers["Authorization"] = shard.authorization
+
+        try:
+            response = util.get(f"{shard.url}/api/v1/query", params=params, headers=headers)
+            response.raise_for_status()
+        except HTTPError:
+            return util.proxy_error(response)
+
+        return HttpResponse(response.content, content_type="application/json")
 
 
 class RuleMixin:
