@@ -6,9 +6,6 @@
       <th>&nbsp;</th>
       <th>Name</th>
       <th>&nbsp;</th>
-    {% if project.farm.editable %}
-      <th>&nbsp;</th>
-    {% endif %}
     </tr>
   {% for host in project.farm.host_set.all %}
     <tr>
@@ -24,14 +21,6 @@
           style="display: inline-block;"
         >{% trans "Silence" %}</a>
       </td>
-      {% if project.farm.editable %}
-      <td>
-        <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('{% trans "Delete this host?" %}');">
-          {% csrf_token %}
-        <button name="delete" type="submit" class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
-        </form>
-      </td>
-      {% endif %}
     </tr>
   {% endfor %}
   </table>
@@ -46,14 +35,10 @@
       v-if="selectedHosts.length"
     >{% trans "Silence selected hosts" %}</a>
 {% if project.farm %}
-  {% if project.farm.editable %}
-    <a href="{% url 'hosts-add' project.farm.id %}" class="btn btn-primary">
-      {% trans "Register Hosts" %}
+    <a href="{% url 'farm-detail' project.farm.id %}" class="btn btn-default">
+      {% trans "Farm Detail" %}
     </a>
-    <a href="{% url 'farm-update' project.farm.id %}" class="btn btn-default">
-      {% trans "Edit Farm" %}
-    </a>
-  {% else %}
+  {% if not project.farm.editable %}
     <form method="post" action="{% url 'farm-convert' project.farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
       {% csrf_token %}
       <input name="next" type="hidden" value="{{ request.get_full_path }}" />
