@@ -50,8 +50,8 @@
   <script type="text/x-template" id="exporter-test-template">
     {% include 'promgen/vue/exporter_test.html' %}
   </script>
-  <script type="text/x-template" id="promql-query-template">
-    {% include 'promgen/vue/promql_query.html' %}
+  <script type="text/x-template" id="data-source-usage-template">
+    {% include 'promgen/vue/data_source_usage.html' %}
   </script>
   <script type="text/x-template" id="silence-create-modal-template">
     {% include 'promgen/vue/silence_create_modal.html' %}
@@ -64,7 +64,7 @@
   </script>
   <script src="{% static 'js/promgen.js' %}"></script>
   <script src="{% static 'js/mixins.vue.js' %}"></script>
-  <script src="{% static 'js/promgen.vue.js' %}?v=1"></script>
+  <script src="{% static 'js/promgen.vue.js' %}?v=2"></script>
   {% block javascript %}{% endblock %}
 
   <datalist style="display:none" id="common.labels">

@@ -252,9 +252,9 @@ app.component('silence-create-modal', {
     },
 });
 
-app.component("promql-query", {
+app.component("data-source-usage", {
     delimiters: ['[[', ']]'],
-    props: ["shard", "query", "max"],
+    props: ["shard", "metric", "max"],
     data: function () {
         return {
             count: 0,
@@ -277,13 +277,12 @@ app.component("promql-query", {
             return Number.parseInt(this.max);
         },
     },
-    template: '#promql-query-template',
+    template: '#data-source-usage-template',
     mounted() {
         const params = new URLSearchParams({
-            shard: this.shard,
-            query: this.query,
+            metric: this.metric,
         });
-        fetch(`/promql-query?${params}`)
+        fetch(`/rest/shard/${this.shard}/usages/?${params}`)
             .then(response => response.json())
             .then(result => this.count = Number.parseInt(result.data.result[0].value[1]))
             .finally(() => this.ready = true);
