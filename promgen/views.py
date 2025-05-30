@@ -635,6 +635,9 @@ class FarmLink(LoginRequiredMixin, View):
             logger.info("Importing %s from %s", farm.name, source)
             farm.refresh()
             messages.info(request, "Refreshed hosts")
+            if source != discovery.FARM_DEFAULT:
+                farm.owner = self.request.user
+                farm.save()
         project.farm = farm
         project.save()
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
