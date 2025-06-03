@@ -32,17 +32,11 @@
   <div class="panel panel-default">
     <div class="panel-heading">Hosts</div>
     <table class="table">
-      <tr>
-        <th>Name</th>
-      {% if farm.editable %}
-        <th>&nbsp;</th>
-      {% endif %}
-      </tr>
     {% for host in farm.host_set.all %}
       <tr>
         <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
         {% if farm.editable %}
-        <td>
+        <td style="width: 0; min-width: fit-content;">
           <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
             {% csrf_token %}
           <button name="delete" type="submit" class="btn btn-danger btn-sm">Delete</button>
@@ -53,11 +47,11 @@
     {% endfor %}
     </table>
 
-    <div class="panel-footer">
   {% if farm.editable %}
+    <div class="panel-footer">
       <a href="{% url 'hosts-add' farm.id %}" class="btn btn-primary">{% trans "Register Hosts" %}</a>
-  {% endif %}
     </div>
+  {% endif %}
   </div>
 </div>
 
