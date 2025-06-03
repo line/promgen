@@ -6,3 +6,11 @@ receivers:
 - name: "default"
   webhook_configs:
   - url: http://web:8000/api/v1/alerts
+    # Promgen requires authentication for this webhook endpoint.
+    # First, please access to Promgen's Admin site to create a user account specifically
+    # for Alertmanager. Next, grant this account the "process_alert" permission and generate
+    # a token for it.
+#    http_config:
+#      authorization:
+#        type: Token
+#        credentials: "{alertmanager_account_token}"

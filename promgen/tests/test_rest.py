@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 
+from django.contrib.auth.models import Permission
 from django.test import override_settings
 from django.urls import reverse
 
@@ -9,9 +10,15 @@ from promgen import models, rest, tests
 
 
 class RestAPITest(tests.PromgenTest):
+    def setUp(self):
+        self.user = self.force_login(username="demo")
+
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert_blackhole(self):
+        permission = Permission.objects.get(codename="process_alert")
+        self.user.user_permissions.add(permission)
+
         response = self.fireAlert("heartbeat.json")
         self.assertRoute(response, rest.AlertReceiver, 202)
         self.assertCount(models.Alert, 0, "Heartbeat alert should be deleted")
@@ -19,6 +26,9 @@ class RestAPITest(tests.PromgenTest):
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     def test_alert(self):
+        permission = Permission.objects.get(codename="process_alert")
+        self.user.user_permissions.add(permission)
+
         response = self.fireAlert()
         self.assertEqual(response.status_code, 202)
         self.assertCount(models.Alert, 1, "Alert Queued")

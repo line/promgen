@@ -3,6 +3,7 @@
 
 from unittest import mock
 
+from django.contrib.auth.models import Permission
 from django.test import override_settings
 from requests.exceptions import RequestException
 
@@ -21,6 +22,10 @@ class WebhookTest(tests.PromgenTest):
         self.senderB = NotificationWebhook.create(
             obj=two, value="http://webhook.example.com/service"
         )
+
+        self.user = self.force_login(username="demo")
+        permission = Permission.objects.get(codename="process_alert")
+        self.user.user_permissions.add(permission)
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

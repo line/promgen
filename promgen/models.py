@@ -556,6 +556,9 @@ class Alert(models.Model):
     def json(self):
         return json.loads(self.body)
 
+    class Meta:
+        permissions = [("process_alert", "Can process alerts")]
+
 
 class AlertError(models.Model):
     alert = models.ForeignKey(Alert, on_delete=models.CASCADE)
