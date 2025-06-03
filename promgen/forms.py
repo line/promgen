@@ -254,3 +254,22 @@ class HostForm(forms.Form):
         if not hosts:
             raise ValidationError("No valid hosts")
         self.cleaned_data["hosts"] = list(hosts)
+
+
+class FarmRegisterForm(forms.ModelForm):
+    hosts = forms.CharField(widget=forms.Textarea)
+
+    class Meta:
+        model = models.Farm
+        exclude = ["source"]
+
+    def clean_hosts(self):
+        hosts = set()
+        for hostname in re.split(r"[,\s]+", self.cleaned_data["hosts"]):
+            if hostname == "":
+                continue
+            validators.hostname(hostname)
+            hosts.add(hostname)
+        if not hosts:
+            raise ValidationError("No valid hosts")
+        return list(hosts)

@@ -896,25 +896,18 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     model = models.Farm
     button_label = _("Register Farm")
     template_name = "promgen/farm_register.html"
-    form_class = forms.FarmForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["host_form"] = kwargs.get("host_form", forms.HostForm())
-        return context
+    form_class = forms.FarmRegisterForm
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
-        host_form = forms.HostForm(data={"hosts": self.request.POST["hosts"]})
-        if not host_form.is_valid():
-            return self.render_to_response(self.get_context_data(form=form, host_form=host_form))
 
-        hostnames = set()
-        for hostname in host_form.cleaned_data["hosts"]:
-            hostnames.add(hostname)
+        farm, _ = models.Farm.objects.get_or_create(
+            source=discovery.FARM_DEFAULT,
+            name=form.cleaned_data["name"],
+            owner=form.cleaned_data["owner"],
+        )
 
-        farm, _ = models.Farm.objects.get_or_create(source=discovery.FARM_DEFAULT, **form.clean())
-        for hostname in hostnames:
+        for hostname in form.cleaned_data["hosts"]:
             host, created = models.Host.objects.get_or_create(name=hostname, farm_id=farm.id)
             if created:
                 logger.debug("Added %s to %s", host.name, farm.name)
