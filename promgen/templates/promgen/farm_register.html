@@ -13,10 +13,7 @@
   <form action="" method="post">{% csrf_token %}
     <table class="table">
       {{ form.as_table }}
-    </table>
-    <hr>
-    <table>
-    {{ host_form.as_table }}
+      {{ host_form.as_table }}
     </table>
     <div class="panel-footer">
       <button class="btn btn-primary">{{ view.button_label }}</button>
