@@ -8,6 +8,59 @@
 </div>
 
 <div class="panel panel-primary" v-pre>
+  <div class="panel-heading">API Token</div>
+  <table class="table">
+    <tr>
+      <th>Token</th>
+      <th>Actions</th>
+    </tr>
+    <tr>
+      {% if api_token %}
+      <td>
+          {{ api_token }}
+      </td>
+      <td>
+        <form
+          method="get"
+          action="{% url 'token-generate' %}"
+          style="display: inline"
+          onsubmit="return confirm('{% trans 'Are you sure? The current token will become invalid.' %}')"
+        >
+          {% csrf_token %}
+          <button class="btn btn-primary btn-xs">
+            Regenerate Token
+          </button>
+        </form>
+        <form
+          method="get"
+          action="{% url 'token-delete' %}"
+          style="display: inline"
+          onsubmit="return confirm('{% trans 'Are you sure?' %}')"
+        >
+          {% csrf_token %}
+          <button class="btn btn-danger btn-xs">
+            Delete Token
+          </button>
+        </form>
+      </td>
+      {% else %}
+      <td>
+      </td>
+      <td>
+      <form method="get" action="{% url 'token-generate' %}">
+        {% csrf_token %}
+        <button class="btn btn-primary btn-xs">
+          Generate Token
+        </button>
+      </form>
+      </td>
+      {% endif %}
+
+    </tr>
+  </table>
+</div>
+
+<div class="panel panel-primary" v-pre>
   <div class="panel-heading">Subscriptions</div>
   <table class="table">
     <tr>
