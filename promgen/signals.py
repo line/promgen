@@ -281,7 +281,7 @@ def add_user_to_default_group(instance, created, **kwargs):
 def add_email_sender(instance, created, **kwargs):
     if instance.email:
         models.Sender.objects.get_or_create(
-            obj=instance, sender="promgen.notification.email", value=instance.email
+            obj=instance, sender="promgen.notification.email", value=instance.email, owner=instance
         )
     else:
         logger.warning("No email for user %s", instance)

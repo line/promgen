@@ -17,10 +17,10 @@ class WebhookTest(tests.PromgenTest):
         two = models.Service.objects.get(pk=1)
 
         self.senderA = NotificationWebhook.create(
-            obj=one, value="http://webhook.example.com/project"
+            obj=one, value="http://webhook.example.com/project", owner_id=1
         )
         self.senderB = NotificationWebhook.create(
-            obj=two, value="http://webhook.example.com/service"
+            obj=two, value="http://webhook.example.com/service", owner_id=1
         )
 
         self.user = self.force_login(username="demo")

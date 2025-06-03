@@ -59,11 +59,11 @@ class RouteTests(tests.PromgenTest):
     @mock.patch("requests.get")
     def test_scrape(self, mock_get):
         shard = models.Shard.objects.create(name="test_scrape_shard")
-        service = models.Service.objects.create(name="test_scrape_service")
-        farm = models.Farm.objects.create(name="test_scrape_farm")
+        service = models.Service.objects.create(name="test_scrape_service", owner=self.user)
+        farm = models.Farm.objects.create(name="test_scrape_farm", owner=self.user)
         farm.host_set.create(name="example.com")
         project = models.Project.objects.create(
-            name="test_scrape_project", service=service, shard=shard, farm=farm
+            name="test_scrape_project", service=service, shard=shard, farm=farm, owner=self.user
         )
 
         # Uses the scrape target as the key, and the POST body that should

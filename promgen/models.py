@@ -81,7 +81,7 @@ class Sender(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey("content_type", "object_id")
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     enabled = models.BooleanField(default=True)
 
@@ -211,9 +211,7 @@ class Shard(models.Model):
 class Service(models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
-    owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
-    )
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation("Rule")
@@ -242,9 +240,7 @@ class Service(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
-    owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
-    )
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     service = models.ForeignKey("promgen.Service", on_delete=models.CASCADE)
     shard = models.ForeignKey("promgen.Shard", on_delete=models.CASCADE)
@@ -266,9 +262,7 @@ class Project(models.Model):
 class Farm(models.Model):
     name = models.CharField(max_length=128, validators=[validators.labelvalue])
     source = models.CharField(max_length=128)
-    owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
-    )
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     class Meta:
         ordering = ["name"]

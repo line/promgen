@@ -17,9 +17,10 @@ class SlackTest(tests.PromgenTest):
     def setUp(self):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=2)
+        self.user = self.force_login(username="demo")
 
-        NotificationSlack.create(obj=one, value=self.TestHook1)
-        NotificationSlack.create(obj=two, value=self.TestHook2)
+        NotificationSlack.create(obj=one, value=self.TestHook1, owner=self.user)
+        NotificationSlack.create(obj=two, value=self.TestHook2, owner=self.user)
 
         self.user = self.force_login(username="demo")
         permission = Permission.objects.get(codename="process_alert")

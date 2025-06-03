@@ -14,9 +14,10 @@ class LineNotifyTest(tests.PromgenTest):
     def setUp(self):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=2)
+        self.user = self.force_login(username="demo")
 
-        NotificationLineNotify.create(obj=one, value="hogehoge")
-        NotificationLineNotify.create(obj=two, value="asdfasdf")
+        NotificationLineNotify.create(obj=one, value="hogehoge", owner=self.user)
+        NotificationLineNotify.create(obj=two, value="asdfasdf", owner=self.user)
 
         self.user = self.force_login(username="demo")
         permission = Permission.objects.get(codename="process_alert")
