@@ -628,17 +628,26 @@ class FarmLink(LoginRequiredMixin, View):
 
     def post(self, request, pk, source):
         project = get_object_or_404(models.Project, id=pk)
-        farm, created = models.Farm.objects.get_or_create(
-            name=request.POST["farm"],
-            source=source,
-        )
+
+        try:
+            farm = models.Farm.objects.get(
+                name=request.POST["farm"],
+                source=source,
+            )
+            created = False
+        except models.Farm.DoesNotExist:
+            farm = models.Farm.objects.create(
+                name=request.POST["farm"],
+                source=source,
+                owner=self.request.user,
+            )
+            created = True
+
         if created:
             logger.info("Importing %s from %s", farm.name, source)
             farm.refresh()
             messages.info(request, "Refreshed hosts")
-            if source != discovery.FARM_DEFAULT:
-                farm.owner = self.request.user
-                farm.save()
+
         project.farm = farm
         project.save()
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
