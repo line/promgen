@@ -1,5 +1,29 @@
 # Changelog
 
+# v0.70.0 - 2025-06-04
+
+- [IMPROVEMENT] Make owner fields not nullable #581
+- [IMPROVEMENT] Permission check for Alertmanager #595
+- [IMPROVEMENT] Fix UI quirks in the Farm Register page #604
+- [IMPROVEMENT] Add 'Token' panel to UI #596
+- [IMPROVEMENT] Fix UI quirks in Farm detail page #602
+- [IMPROVEMENT] Set owner when adding external farms #599
+- [IMPROVEMENT] Improve the feature displaying data source load #597
+- [IMPROVEMENT] Preventing the browser from caching promgen.vue.js file #600
+- [IMPROVEMENT] Rename some buttons #598
+- [IMPROVEMENT] Disengage Farm Update from Project #594
+- [IMPROVEMENT] Use DRF's APIView for AlertReceiver API #591
+- [IMPROVEMENT] Fix LegacyKeyValueFormat warnings in Dockerfile #589
+- [CLEANUP] Delete the unused template file url_form.html #592
+- [BUGFIX] Fix external Farm linkage #605
+- [BUGFIX] Trim whitespaces of search input #593
+- [BUGFIX] "Home" link in some breadcrumbs redirects to "Services" page #588
+- [INTERNAL] Bump docker/build-push-action from 6.17.0 to 6.18.0 #601
+- [INTERNAL] Update CODEOWNERS #606
+- [INTERNAL] Bump docker/build-push-action from 6.16.0 to 6.17.0 #590
+- [INTERNAL] Bump docker/build-push-action from 6.15.0 to 6.16.0 #587
+- [INTERNAL] Bump actions/setup-python from 5.5.0 to 5.6.0 #586
+
 # v0.69.0 - 2025-04-25
 
 - [IMPROVEMENT] Return owner name in Farm API #583
