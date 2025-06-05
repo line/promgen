@@ -30,7 +30,6 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
-from requests.exceptions import HTTPError
 from rest_framework.authtoken.models import Token
 
 import promgen.templatetags.promgen as macro
@@ -1230,7 +1229,7 @@ class Search(LoginRequiredMixin, View):
         # from the request query string.
         query_dict = request.GET.copy()
         for key, value in query_dict.items():
-            query_dict[key] = value.strip() # Trim whitespaces of search input
+            query_dict[key] = value.strip()  # Trim whitespaces of search input
 
         empty_value_parameters = [key for key, value in query_dict.lists() if not any(value)]
         for empty_value_parameter in empty_value_parameters:
@@ -1242,7 +1241,6 @@ class Search(LoginRequiredMixin, View):
         if not query:
             messages.warning(request, _("No search parameters provided."))
             return render(request, "promgen/search.html")
-
 
         context = {}
         for target, obj in MAPPING.items():

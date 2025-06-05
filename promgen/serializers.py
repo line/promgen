@@ -111,7 +111,7 @@ class FarmSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Farm
-        fields = '__all__'
+        fields = "__all__"
 
 
 class HostSerializer(serializers.ModelSerializer):

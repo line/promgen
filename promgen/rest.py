@@ -1,7 +1,6 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 
-from django.core.serializers import get_serializer
 from django.http import HttpResponse
 from requests.exceptions import HTTPError
 from rest_framework import permissions, viewsets
@@ -157,8 +156,5 @@ class FarmViewSet(viewsets.ModelViewSet):
 
         hosts = farm.host_set.all()
         hosts_data = serializers.HostSerializer(hosts, many=True).data
-        farm_detail = {
-            **farm_data,
-            "hosts": hosts_data
-        }
+        farm_detail = {**farm_data, "hosts": hosts_data}
         return Response(farm_detail)

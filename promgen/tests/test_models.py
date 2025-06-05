@@ -46,7 +46,7 @@ class ModelTest(PromgenTest):
             content_type=ContentType.objects.get_for_model(models.Site),
             object_id=1,
             clause="up==1",
-            duration="1s"
+            duration="1s",
         )
         rule.save()
         self.assertEqual(resolve_domain("rule-detail", rule.pk), rule.annotations["rule"])
