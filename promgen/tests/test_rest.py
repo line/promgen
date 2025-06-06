@@ -62,7 +62,6 @@ class RestAPITest(tests.PromgenTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
-
         farm = models.Farm.objects.get(id=1)
         models.Host.objects.create(name="host.example.com", farm=farm)
         expected = tests.Data("examples", "rest.farm.1.json").json()

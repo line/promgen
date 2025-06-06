@@ -33,7 +33,7 @@ class CLITests(PromgenTest):
 
         # But registering a new one will
         management.call_command("register-job", "test-project", "example", 4321)
-        self.assertCount(models.Exporter, 4, 'Import additional exporter')
+        self.assertCount(models.Exporter, 4, "Import additional exporter")
 
     @mock.patch("promgen.signals._trigger_write_config")
     def test_register_host(self, mock_signal):
