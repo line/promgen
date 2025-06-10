@@ -13,9 +13,6 @@ Promgen / Project / {{ project.name }}
     <h1>
       Project: {{ project.name }}
     </h1>
-    {% if project.owner %}
-    <p>{% translate 'Contact' %}: {{project.owner.username}}</p>
-    {% endif %}
   </div>
 
   {% include "promgen/project_action_button_group.html" %}
