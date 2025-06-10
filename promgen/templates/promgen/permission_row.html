@@ -1,7 +1,12 @@
 {% load i18n %}
 {% load promgen %}
 <tr>
-  <td class="col-xs-3" v-pre>{{ user.username }}</td>
+  <td class="col-xs-3" v-pre>
+    {{ user.username }}
+    {% if user.username == object.owner.username %}
+    <span class="glyphicon glyphicon-user" aria-hidden="true" title="Owner"></span>
+    {% endif %}
+  </td>
   <td class="col-xs-3" v-pre>{{ user.email }}</td>
   <td class="col-xs-3" style="word-break: break-all" v-pre>
     {% for perm in perms %}
