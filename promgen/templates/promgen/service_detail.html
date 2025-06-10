@@ -11,9 +11,6 @@ Promgen / Service / {{ service.name }}
 <div class="page-header promgen-flex-space-between-center">
   <div>
     <h1>Service: {{ service.name }}</h1>
-    {% if service.owner %}
-    <p>{% translate 'Contact' %}: {{service.owner.username}}</p>
-    {% endif %}
   </div>
 
   {% include "promgen/service_action_button_group.html" %}

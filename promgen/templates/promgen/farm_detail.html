@@ -9,9 +9,6 @@
     <h1>
       Farm: {{ farm.name }} ({{ farm.source }})
     </h1>
-    {% if farm.owner %}
-      <p>{% trans "Contact" %}: {{farm.owner.username}}</p>
-    {% endif %}
   </div>
   {% if farm.editable %}
     <div>
