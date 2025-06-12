@@ -779,7 +779,7 @@ class ProjectRegister(LoginRequiredMixin, CreateView):
     fields = ["name", "description", "owner", "shard"]
 
     def get_initial(self):
-        initial = {"owner": self.request.user}
+        initial = {}
         if "shard" in self.request.GET:
             initial["shard"] = get_object_or_404(models.Shard, pk=self.request.GET["shard"])
         return initial
@@ -788,7 +788,15 @@ class ProjectRegister(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["service"] = get_object_or_404(models.Service, id=self.kwargs["pk"])
         context["shard_list"] = models.Shard.objects.all()
+        if not self.request.user.is_superuser:
+            context["form"].fields.pop("owner", None)
         return context
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            self.request.POST = request.POST.copy()
+            self.request.POST["owner"] = self.request.user.pk
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.service_id = self.kwargs["pk"]
@@ -927,8 +935,17 @@ class ServiceRegister(LoginRequiredMixin, CreateView):
     model = models.Service
     fields = ["name", "description", "owner"]
 
-    def get_initial(self):
-        return {"owner": self.request.user}
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.user.is_superuser:
+            context["form"].fields.pop("owner", None)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            self.request.POST = request.POST.copy()
+            self.request.POST["owner"] = self.request.user.pk
+        return super().post(request, *args, **kwargs)
 
 
 class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
@@ -940,7 +957,15 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["host_form"] = kwargs.get("host_form", forms.HostForm())
+        if not self.request.user.is_superuser:
+            context["form"].fields.pop("owner", None)
         return context
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            self.request.POST = request.POST.copy()
+            self.request.POST["owner"] = self.request.user.pk
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
