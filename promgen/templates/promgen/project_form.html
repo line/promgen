@@ -38,6 +38,7 @@
           {{form.description}}
         </td>
       </tr>
+      {% if form.owner %}
       <tr>
         <th>{{form.owner.label}}</th>
         <td>
@@ -45,6 +46,7 @@
           {{form.owner}}
         </td>
       </tr>
+      {% endif %}
       {% if project.pk %}
       <tr>
         <th>{{form.service.label}}</th>
