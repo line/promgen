@@ -45,6 +45,7 @@
           {{form.owner}}
         </td>
       </tr>
+      {% if project.pk %}
       <tr>
         <th>{{form.service.label}}</th>
         <td>
@@ -52,6 +53,7 @@
           {{form.service}}
         </td>
       </tr>
+      {% endif %}
     </table>
   </div>
   {% include 'promgen/error_block.html' with warning=form.shard.errors only %}
