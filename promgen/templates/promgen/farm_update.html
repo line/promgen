@@ -9,6 +9,10 @@
 
 {% breadcrumb farm view.button_label %}
 
+<div class="alert alert-danger" role="alert">
+  Warning. The new owner will have the ADMIN role.
+</div>
+
 <div class="panel panel-default" v-pre>
   <form action="" method="post">{% csrf_token %}
     <table class="table">

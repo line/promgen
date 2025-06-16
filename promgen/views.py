@@ -525,6 +525,8 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
     form_class = forms.FarmForm
 
     def form_valid(self, form):
+        if "owner" in form.changed_data:
+            assign_perm("farm_admin", form.cleaned_data["owner"], form.instance)
         farm, created = models.Farm.objects.update_or_create(
             id=self.kwargs["pk"],
             defaults=form.clean(),
@@ -815,11 +817,21 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
         context["shard_list"] = models.Shard.objects.all()
         return context
 
+    def form_valid(self, form):
+        if "owner" in form.changed_data:
+            assign_perm("project_admin", form.cleaned_data["owner"], form.instance)
+        return super().form_valid(form)
+
 
 class ServiceUpdate(LoginRequiredMixin, UpdateView):
     button_label = _("Update Service")
     form_class = forms.ServiceUpdate
     model = models.Service
+
+    def form_valid(self, form):
+        if "owner" in form.changed_data:
+            assign_perm("service_admin", form.cleaned_data["owner"], form.instance)
+        return super().form_valid(form)
 
 
 class RuleDetail(LoginRequiredMixin, DetailView):
