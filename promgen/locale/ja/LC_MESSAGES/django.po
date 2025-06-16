@@ -214,3 +214,15 @@ msgstr "ユーザー: {username} が持っている、 {name} および子プロ
 #: views.py:1633
 msgid "Removed all permissions of user: {username} on: {name}."
 msgstr "ユーザー {username} から、{name} での権限を全て削除しました。"
+
+#: templates/promgen/farm_update.html:13
+#: templates/promgen/project_form.html:18
+#: templates/promgen/service_form.html:16
+msgid "Warning. The owner can only be changed by the current owner. The new owner will have the ADMIN role."
+msgstr "警告：オーナーを変更できるのは現在のオーナーだけです。新しいオーナーが ADMIN 権限を取得します。"
+
+#: views.py:532
+#: views.py:830
+#: views.py:846
+msgid _("You do not have permission to change the owner.")
+msgstr "あなたはオーナーを変更する権限を持っていません。"

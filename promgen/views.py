@@ -526,6 +526,11 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         if "owner" in form.changed_data:
+            if not (
+                self.request.user.is_superuser or self.request.user.id == form.initial["owner"]
+            ):
+                form.add_error("owner", _("You do not have permission to change the owner."))
+                return self.form_invalid(form)
             assign_perm("farm_admin", form.cleaned_data["owner"], form.instance)
         farm, created = models.Farm.objects.update_or_create(
             id=self.kwargs["pk"],
@@ -819,6 +824,11 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         if "owner" in form.changed_data:
+            if not (
+                self.request.user.is_superuser or self.request.user.id == form.initial["owner"]
+            ):
+                form.add_error("owner", _("You do not have permission to change the owner."))
+                return self.form_invalid(form)
             assign_perm("project_admin", form.cleaned_data["owner"], form.instance)
         return super().form_valid(form)
 
@@ -830,6 +840,11 @@ class ServiceUpdate(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         if "owner" in form.changed_data:
+            if not (
+                self.request.user.is_superuser or self.request.user.id == form.initial["owner"]
+            ):
+                form.add_error("owner", _("You do not have permission to change the owner."))
+                return self.form_invalid(form)
             assign_perm("service_admin", form.cleaned_data["owner"], form.instance)
         return super().form_valid(form)
 
