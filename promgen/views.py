@@ -1439,7 +1439,10 @@ class RuleTest(LoginRequiredMixin, View):
 
             for label in expected_labels:
                 if label in row["metric"]:
-                    if row["metric"][label] not in expected_labels[label]:
+                    if (
+                        expected_labels[label]
+                        and row["metric"][label] not in expected_labels[label]
+                    ):
                         unexpected_labels[label].add(row["metric"][label])
 
         # For each key in our unexpected_labels, we want to go through the returned
