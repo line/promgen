@@ -83,7 +83,7 @@
         <th v-pre>{{shard.name}}</th>
         <th v-pre>{{shard.url|urlize}}</th>
         <td>
-          <input type="radio" name="shard" value="{{shard.id}}" {% if shard.id == form.shard.value %}checked{% elif shard.enabled is False %}disabled{% endif %}>
+          <input type="radio" name="shard" value="{{shard.id}}" {% if shard.id == project.shard_id %}checked{% elif shard.enabled is False %}disabled{% endif %}>
         </td>
         <td>
           <data-source-usage class="label" shard="{{shard.name}}" metric="samples" max="{{shard.samples}}"></data-source-usage>
