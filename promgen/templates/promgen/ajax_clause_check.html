@@ -4,29 +4,14 @@
   <div class="panel-heading">Query Result</div>
   <div class="panel-body">
   <p>Query Duration: {{ duration }}</p>
-  <p><code>{{ query }}</code></p>
-{% if collapse %}
-<a class="btn btn-success btn-sm" role="button" data-toggle="collapse" href="#prometheus-query-results" aria-expanded="false" aria-controls="collapseExample">
-  Show {{ data.result|length }} Results
-</a>
-{% endif %}
+  <h3>
+    {% if firing %}
+    <span class="label label-danger">Firing</span>
+    {% else %}
+    <span class="label label-default">Not firing</span>
+    {% endif %}
+  </h3>
 </div>
-{% if data.result %}
-    <table id="prometheus-query-results" class="table table-condensed table-scroll {% if collapse %}collapse{% endif %}">
-      <tr class="{{ severity }}">
-        <th>Timestamp</th>
-        <th>Value</th>
-        <th>Metric</th>
-      </tr>
-{% for row in data.result %}
-      <tr>
-        <td>{{ row.value.0 | strftime:"%Y-%m-%d %H:%M" }}</td>
-        <td>{{ row.value.1 }}</td>
-        <td>{{ row.metric }}</td>
-      </tr>
-{% endfor %}
-    </table>
-{% endif %}
 
 {% if errors %}
     <table class="table table-condensed">
