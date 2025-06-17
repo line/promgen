@@ -1421,14 +1421,8 @@ class RuleTest(LoginRequiredMixin, View):
         # TODO: This could be more robust, but for now this ensures failed queries
         # without a 'data' field get processed
         metrics = result.get("data", {}).setdefault("result", [])
-        result["collapse"] = len(metrics) > 5
+        result["firing"] = len(metrics) > 0
         errors = result.setdefault("errors", {})
-
-        if len(metrics) == 0:
-            errors["no_results"] = (
-                "No results. "
-                "You may need to temporarily remove conditional checks (> < ==) to verify."
-            )
 
         for row in metrics:
             if "service" not in row["metric"] and "project" not in row["metric"]:
