@@ -8,13 +8,17 @@ Promgen / Project / {{ project.name }}
 
 {% block content %}
 
-<div class="page-header" v-pre>
-  <h1>
-    Project: {{ project.name }}
+<div class="page-header promgen-flex-space-between-center">
+  <div v-pre>
+    <h1>
+      Project: {{ project.name }}
+    </h1>
     {% if project.owner %}
-    <small class="pull-right">{% trans 'Contact' %}: {{project.owner.username}}</small>
+    <p>{% translate 'Contact' %}: {{project.owner.username}}</p>
     {% endif %}
-  </h1>
+  </div>
+
+  {% include "promgen/project_action_button_group.html" %}
 </div>
 
 {% breadcrumb project %}
@@ -27,13 +31,19 @@ Promgen / Project / {{ project.name }}
 </div>
 {% endif %}
 
-{% include "promgen/project_detail_configuration.html" %}
+{% if project.description %}
+<div class="panel panel-default">
+  <div v-pre class="panel-body">
+    {{project.description|linebreaksbr|urlize}}
+  </div>
+</div>
+{% endif %}
 
 <div class="panel panel-danger" v-cloak v-if="activeProjectAlerts.has('{{project.name}}')">
   <div class="panel-heading">
     <a @click="toggleCollapse('alerts-project-{{project.name|slugify}}')" class="btn btn-danger btn-sm" role="button">Alerts</a>
   </div>
-  <table id="alerts-project-{{project.name|slugify}}" class="table table-bordered table-condensed">
+  <table id="alerts-project-{{project.name|slugify}}" class="table table-bordered table-condensed collapse">
     <tr v-for="alert in activeProjectAlerts.get('{{project.name}}')">
       {% include 'promgen/alert_row.html' %}
     </tr>
@@ -44,7 +54,7 @@ Promgen / Project / {{ project.name }}
   <div class="panel-heading">
     <a @click="toggleCollapse('silences-project-{{project.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
   </div>
-  <table id="silences-project-{{project.name|slugify}}" class="table table-bordered table-condensed">
+  <table id="silences-project-{{project.name|slugify}}" class="table table-bordered table-condensed collapse">
     <tbody>
       <template v-for="silence in activeProjectSilences.get('{{project.name}}')" :key="silence.id">
         <silence-row :silence="silence" label-color="warning" @matcher-click="addSilenceLabel" />
@@ -53,18 +63,45 @@ Promgen / Project / {{ project.name }}
   </table>
 </div>
 
-<div class="row">
-  <div class="col-md-6">
-    {% include "promgen/project_detail_exporters.html" %}
-    {% include "promgen/project_detail_hosts.html" %}
-  </div>
-
-  <div class="col-md-6">
-    {% include "promgen/project_detail_urls.html" %}
-    {% include "promgen/project_detail_notifiers.html" %}
+<div class="panel panel-default">
+  <div v-pre class="panel-body">
+    Datasource: <a href="{{project.shard.get_absolute_url}}">{{project.shard.name}}</a>
+    (<a href="{{project.shard.url}}">{{project.shard.url}}</a>)
   </div>
 </div>
 
-{% include "promgen/project_detail_rules.html" %}
+<ul class="nav nav-tabs mb-5" role="tablist">
+  <li role="presentation" class="active"><a href="#exporters" data-toggle="tab">Exporters</a></li>
+  <li role="presentation"><a href="#hosts" data-toggle="tab">Hosts</a></li>
+  <li role="presentation"><a href="#rules" data-toggle="tab">Rules</a></li>
+  <li role="presentation"><a href="#http-checks" data-toggle="tab">HTTP Checks</a></li>
+  <li role="presentation"><a href="#notifiers" data-toggle="tab">Notifiers</a></li>
+</ul>
+
+<div class="well">
+
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="exporters">
+    {% include "promgen/project_detail_exporters.html" %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="hosts">
+    {% include "promgen/project_detail_hosts.html" %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="rules">
+    {% include "promgen/project_detail_rules.html" %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="http-checks">
+    {% include "promgen/project_detail_urls.html" %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="notifiers">
+    {% include "promgen/project_detail_notifiers.html" %}
+    </div>
+  </div>
+
+</div>
 
 {% endblock %}

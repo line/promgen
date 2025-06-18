@@ -1,0 +1,108 @@
+{% load i18n %}
+{% load promgen %}
+
+<div style="display: inline-block" class="service-action-button-group">
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    {% if project.farm %}
+    <button
+      type="button"
+      class="btn btn-default dropdown-toggle"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      {% translate "Actions" %} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      {% if not project.farm.editable %}
+      <li>
+        <form
+          method="post"
+          action="{% url 'farm-convert' project.farm.id %}"
+          onsubmit="return confirm('Convert this farm to local?')"
+          style="display: inline"
+        >
+          {% csrf_token %}
+          <input
+            name="next"
+            type="hidden"
+            value="{{ request.get_full_path }}"
+          />
+          <button>
+            <span
+              class="glyphicon glyphicon-cloud-download"
+              aria-hidden="true"
+            ></span>
+            {% trans "Convert to Local Farm" %}
+          </button>
+        </form>
+      </li>
+      <hr />
+      <li>
+        <form
+          method="post"
+          action="{% url 'farm-refresh' project.farm.id %}"
+          style="display: inline"
+        >
+          {% csrf_token %}
+          <input
+            name="next"
+            type="hidden"
+            value="{{ request.get_full_path }}"
+          />
+          <button type="submit">
+            <span
+              class="glyphicon glyphicon-cloud-download"
+              aria-hidden="true"
+            ></span>
+            {% trans "Sync Farm" %}
+          </button>
+        </form>
+      </li>
+      <hr />
+      {% endif %}
+      <li>
+        <form
+          method="post"
+          action="{% url 'farm-unlink' project.id %}"
+          onsubmit="return confirm('{% trans 'Unlink this farm?' %}')"
+          style="display: inline"
+        >
+          {% csrf_token %}
+          <button type="submit" style="color: #d9534f">
+            {% if source.remote %}
+            <span
+              class="glyphicon glyphicon-cloud-download"
+              aria-hidden="true"
+            ></span>
+            {% endif %} {% trans "Unlink Farm" %}
+          </button>
+        </form>
+      </li>
+    </ul>
+    {% else %}
+    <button
+      type="button"
+      class="btn btn-default dropdown-toggle"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      {% translate "Link Farm" %} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      {% for name, source in sources %}
+      <li>
+        <a href="{% url 'farm-link' project.id name %}" v-pre>
+          {% if source.remote %}
+          <span
+            class="glyphicon glyphicon-cloud-download"
+            aria-hidden="true"
+          ></span>
+          {% endif %} {% trans "Link Farm" %} {{ name }}
+        </a>
+      </li>
+      {% endfor %} {% endif %}
+    </ul>
+  </div>
+</div>
