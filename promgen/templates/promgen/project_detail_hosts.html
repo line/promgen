@@ -1,17 +1,32 @@
 {% load i18n %}
-<div class="panel panel-primary">
-  <div class="panel-heading" v-pre>Hosts from {{ project.farm.name }} ({{ project.farm.source }})</div>
-  <table class="table">
+
+<div class="text-right mb-4">
+  {% if project.farm %}
+    <a href="{% url 'farm-detail' project.farm.id %}" class="btn btn-default btn-sm">
+      {% trans "Farm Detail" %}
+    </a>
+  {% else %}
+    <a href="{% url 'farm-new' project.id %}" class="btn btn-primary btn-sm">
+      {% trans "Register Farm" %}
+    </a>
+  {% endif %}
+  {% include "promgen/project_detail_hosts_action_button_group.html" %}
+</div>
+<div class="panel panel-default">
+  <div v-pre class="panel-heading">
+    <p class="panel-title">Hosts from {{ project.farm.name }} ({{ project.farm.source }})</p>
+  </div>
+  <table class="table table-bordered table-condensed">
     <tr>
-      <th>&nbsp;</th>
+      <th>Select</th>
       <th>Name</th>
-      <th>&nbsp;</th>
+      <th>Actions</th>
     </tr>
   {% for host in project.farm.host_set.all %}
     <tr>
-      <td><input type="checkbox" value="{{ host.name }}:[0-9]*" v-model="selectedHosts"></td>
-      <td v-pre><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
-      <td>
+      <td class="col-xs-1"><input type="checkbox" value="{{ host.name }}:[0-9]*" v-model="selectedHosts"></td>
+      <td class="col-xs-5" v-pre><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
+      <td class="col-xs-2">
         <a
           @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
@@ -25,56 +40,13 @@
   {% endfor %}
   </table>
 
-  <div class="panel-footer">
+  <div class="panel-footer" v-if="selectedHosts.length">
     <a
       @click="silenceSelectedHosts"
-      class="btn btn-warning"
+      class="btn btn-warning btn-sm"
       data-project="{{project.name}}"
       data-service="{{project.service.name}}"
       style="display: inline-block;"
-      v-if="selectedHosts.length"
     >{% trans "Silence selected hosts" %}</a>
-{% if project.farm %}
-    <a href="{% url 'farm-detail' project.farm.id %}" class="btn btn-default">
-      {% trans "Farm Detail" %}
-    </a>
-  {% if not project.farm.editable %}
-    <form method="post" action="{% url 'farm-convert' project.farm.id %}" onsubmit="return confirm('Convert this farm to local?')" style="display: inline">
-      {% csrf_token %}
-      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-      <button class="btn btn-warning">
-        <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
-        {% trans "Convert to Local Farm" %}
-      </button>
-    </form>
-    <form method="post" action="{% url 'farm-refresh' project.farm.id %}" style="display: inline">
-      {% csrf_token %}
-      <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-      <button type="submit" class="btn btn-warning">
-        <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
-        {% trans "Sync Farm" %}
-      </button>
-    </form>
-  {% endif %}
-  <form method="post" action="{% url 'farm-unlink' project.id %}" onsubmit="return confirm('{% trans "Unlink this farm?" %}')" style="display: inline">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">
-      {% if source.remote %}
-        <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
-      {% endif %}
-      {% trans "Unlink Farm" %}
-    </button>
-  </form>
-{% else %}
-    <a href="{% url 'farm-new' project.id %}" class="btn btn-primary">{% trans "Register Farm" %}</a>
-{% for name, source in sources %}
-    <a href="{% url 'farm-link' project.id name %}" class="btn btn-default" v-pre>
-      {% if source.remote %}
-        <span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span>
-      {% endif %}
-      {% trans "Link Farm" %} {{ name }}
-    </a>
-{% endfor %}
-{% endif %}
   </div>
 </div>

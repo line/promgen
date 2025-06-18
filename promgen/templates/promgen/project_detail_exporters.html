@@ -1,8 +1,11 @@
 {% load i18n %}
 
-<div class="panel panel-primary">
-  <div class="panel-heading">Exporters</div>
-  <table class="table">
+<div class="text-right mb-4">
+  <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary btn-sm">{% trans "Register Exporter" %}</a>
+</div>
+
+<div class="panel panel-default">
+  <table class="table table-bordered table-condensed">
     <tr>
       <th>Job</th>
       <th>Port</th>
@@ -11,10 +14,11 @@
     </tr>
   {% for exporter in project.exporter_set.all %}
     <tr {% if not exporter.enabled %}class="promgen-disabled"{% endif %}>
-      <td v-pre>{{ exporter.job }}</td>
-      <td v-pre>{{ exporter.scheme }}:{{ exporter.port }}</td>
-      <td v-pre>{{ exporter.path | default:"/metrics" }}</td>
-      <td style="white-space: nowrap">
+      <td class="col-xs-2" v-pre>{{ exporter.job }}</td>
+      <td class="col-xs-2" v-pre>{{ exporter.scheme }}:{{ exporter.port }}</td>
+      <td class="col-xs-5" v-pre>{{ exporter.path | default:"/metrics" }}</td>
+      <td class="col-xs-3" style="white-space: nowrap">
+
         <input
           type="checkbox"
           {% if exporter.enabled %}checked{% endif %}
@@ -23,9 +27,8 @@
           data-csrfmiddlewaretoken="{{csrf_token}}"
           data-action="{% url 'exporter-toggle' exporter.id %}"
         />
-      </td>
-      <td>
-        <form id="{{exporter.job}}_{{exporter.port}}">
+
+        <form id="{{exporter.job}}_{{exporter.port}}" style="display: inline">
           {% csrf_token %}
           <input type="hidden" name="job" value="{{ exporter.job }}" />
           <input type="hidden" name="scheme" value="{{ exporter.scheme }}" />
@@ -35,8 +38,7 @@
             {% trans "Test" %}
           </exporter-test>
         </form>
-      </td>
-      <td>
+
         <a
           @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
@@ -44,20 +46,19 @@
           data-project="{{project.name}}"
           data-service="{{project.service.name}}"
           style="display: inline-block;"
-        >{% trans "Silence" %}</a>
-      </td>
-      <td>
+        >
+          {% trans "Silence" %}
+        </a>
+
         <form method="post" action="{% url 'exporter-delete' exporter.id %}" onsubmit="return confirm('{% trans 'Delete this exporter?' %}')" style="display: inline">
           {% csrf_token %}
           <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
         </form>
+
       </td>
     </tr>
   {% endfor %}
   </table>
-  <div class="panel-footer">
-    <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary">{% trans "Register Exporter" %}</a>
-  </div>
 </div>
 
 <div>
