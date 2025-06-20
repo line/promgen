@@ -115,6 +115,10 @@ a[rel]:after {
   }
 }
 
+.table.collapse.in {
+  display: table;
+}
+
 /* Margin Top */
 .mt-0 { margin-top: 0 !important; }
 .mt-1 { margin-top: 0.25rem !important; }
