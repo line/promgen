@@ -11,9 +11,6 @@ Promgen / Project / {{ project.name }}
 <div class="page-header" v-pre>
   <h1>
     Project: {{ project.name }}
-    {% if project.owner %}
-    <small class="pull-right">{% trans 'Contact' %}: {{project.owner.username}}</small>
-    {% endif %}
   </h1>
 </div>
 
@@ -66,5 +63,6 @@ Promgen / Project / {{ project.name }}
 </div>
 
 {% include "promgen/project_detail_rules.html" %}
+{% include "promgen/project_detail_permissions.html" %}
 
 {% endblock %}
