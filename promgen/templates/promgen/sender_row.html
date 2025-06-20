@@ -4,18 +4,26 @@
     <td class="col-xs-5" style="word-break: break-all;" v-pre>{{ notifier.show_value }}</td>
     <td class="col-xs-2">
         {% for f in notifier.filter_set.all %}
-        <form method="post" action="{% url 'notifier-edit' notifier.id %}" onsubmit="return confirm('Delete this filter?')" style="display: inline">
-            {% csrf_token %}
-            <input name="next" type="hidden" value="{{ request.get_full_path }}" />
-            <input name="filter.pk" value="{{f.id}}" type="hidden" />
-            <button class="label label-primary" style="display: inline-block;" v-pre>
+            {% if show_edit %}
+            <form method="post" action="{% url 'notifier-edit' notifier.id %}" onsubmit="return confirm('Delete this filter?')" style="display: inline">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path }}" />
+                <input name="filter.pk" value="{{f.id}}" type="hidden" />
+                <button class="label label-primary" style="display: inline-block;" v-pre>
+                    {{f.name}}:{{f.value}}
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+            </form>
+            {% else %}
+            <span class="label label-primary" style="display: inline-block;">
                 {{f.name}}:{{f.value}}
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-            </button>
-        </form>
+            </span>
+            {% endif %}
         {% endfor %}
 
+        {% if show_edit %}
         <button class="btn btn-primary btn-xs" data-toggle="collapse" data-target="#notifierLabel{{notifier.id}}">+</button>
+        {% endif %}
         <div class="collapse" id="notifierLabel{{notifier.id}}">
             <form method="post" action="{% url 'notifier-edit' notifier.id %}" style="display: inline">
                 {% csrf_token %}
