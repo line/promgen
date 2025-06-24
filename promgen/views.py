@@ -471,7 +471,23 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["sources"] = models.Farm.driver_set()
+        sources = models.Farm.driver_set()
+
+        # Sort sources to ensure local ones appear first on the UI.
+        #
+        # - Local sources have the `remote` attribute set to False.
+        # - In Python, "False < True" returns "True".
+        # - The sorted function uses the < operator to compare items.
+        # - When comparing tuples, it first compares the first element of the tuple, after that
+        #   the second one, and so on so forth.
+        #
+        # Based on those four premises, by setting the comparison key as a tuple where the first
+        # element is the remote attribute, we ensure all the local farms are in the first positions,
+        # and by having the source name as the second element, we ensure that they are also sorted
+        # alphabetically.
+        sources = sorted(sources, key=lambda source: (source[1].remote, source[0]))
+
+        context["sources"] = sources
         context["url_form"] = forms.URLForm()
         return context
 
