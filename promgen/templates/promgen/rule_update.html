@@ -90,21 +90,10 @@ Promgen / Rule / {{ rule.name }}
   {% endif %}
 
   <div class="panel panel-primary">
-    <div class="panel-body">
+    <div class="panel-footer">
       <button class="btn btn-primary">Save Rule</button>
-      <a href="{% urlqs 'audit-list' rule=rule.id %}" class="btn btn-info">{% trans "View Edit History" %}</a>
-      <a href="{% urlqs 'alert-list' alertname=rule.name %}" class="btn btn-info">{% trans "View Alert History" %}</a>
     </div>
   </div>
 </form>
-
-<div class="panel panel-danger">
-  <div class="panel-body">
-    <form method="post" action="{% url 'rule-delete' rule.id %}" onsubmit="return confirm('{% trans " Delete this Rule?" %}')" style="display: inline">
-      {% csrf_token %}
-      <button class="btn btn-danger">{% trans "Delete Rule" %}</button>
-    </form>
-  </div>
-</div>
 
 {% endblock %}
