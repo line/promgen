@@ -1,0 +1,43 @@
+{% load i18n %}
+{% load promgen %}
+
+<div style="display: inline-block;" class="service-action-button-group">
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <button
+      type="button"
+      class="btn btn-default dropdown-toggle"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      {% translate "Actions" %} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li role="presentation">
+        <a href="{% urlqs 'audit-list' rule=rule.id %}">
+          {% trans "View Edit History" %}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="{% urlqs 'alert-list' alertname=rule.name %}" >
+          {% trans "View Alert History" %}
+        </a>
+      </li>
+      <hr />
+      <li role="presentation">
+        <form
+          method="post"
+          action="{% url 'rule-delete' rule.id %}"
+          onsubmit="return confirm('{% trans 'Delete this Rule?' %}')"
+          style="display: inline"
+        >
+          {% csrf_token %}
+          <button type="submit" style="color:#d9534f;">{% trans "Delete Rule" %}</button>
+        </form>
+      </li>
+    </ul>
+  </div>
+
+  <a href="{% url 'rule-edit' rule.pk %}" class="btn btn-warning btn-sm">{% trans "Edit Rule" %}</a>
+
+</div>
