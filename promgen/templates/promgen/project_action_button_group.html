@@ -1,0 +1,90 @@
+{% load i18n %}
+{% load promgen %}
+
+<div style="display: inline-block" class="service-action-button-group">
+  <div class="btn-group btn-group-sm" role="group" aria-label="...">
+    <button
+      type="button"
+      class="btn btn-default dropdown-toggle"
+      data-toggle="dropdown"
+      aria-haspopup="true"
+      aria-expanded="false"
+    >
+      {% translate "Actions" %} <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu">
+      <li>
+        <form
+          action="{% url 'project-notifier' project.id %}"
+          style="display: inline"
+          method="post"
+          v-pre
+        >
+          {% csrf_token %}
+          <input
+            type="hidden"
+            name="sender"
+            value="promgen.notification.user"
+          />
+          <input type="hidden" name="value" value="{{request.user.username}}" />
+          <button>{% translate "Subscribe to Notifications" %}</button>
+        </form>
+      </li>
+
+      <hr />
+
+      <li role="presentation">
+        <a href="{% urlqs 'audit-list' project=project.id %}">
+          {% translate "View Edit History" %}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="{% urlqs 'alert-list' project=project.name %}">
+          {% translate "View Alert History" %}
+        </a>
+      </li>
+
+      <hr />
+
+      <li role="presentation">
+        <a href="{% url 'api:project-rules' name=project.name %}">
+          {% translate "Export Rules" %}
+        </a>
+      </li>
+      <li role="presentation">
+        <a href="{% url 'api:project-targets' name=project.name %}">
+          {% translate "Export Project" %}
+        </a>
+      </li>
+
+      <hr />
+
+      <li role="presentation">
+        <form
+          method="post"
+          onsubmit="return confirm('{% translate 'Delete this project?' %}')"
+          action="{% url 'project-delete' project.id %}"
+          style="display: inline"
+        >
+          {% csrf_token %}
+          <button type="submit" style="color: #d9534f">
+            {% translate "Delete Project" %}
+          </button>
+        </form>
+      </li>
+    </ul>
+  </div>
+
+  <a
+    @click="setSilenceDataset"
+    class="btn btn-warning btn-sm"
+    data-project="{{project.name}}"
+    data-service="{{project.service.name}}"
+  >
+    {% trans "Silence" %}
+  </a>
+
+  <a href="{% url 'project-update' project.id %}" class="btn btn-warning btn-sm">
+    {% translate "Edit Project" %}
+  </a>
+</div>

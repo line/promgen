@@ -1,9 +1,12 @@
 {% load i18n %}
 
-<div class="panel panel-primary">
-  <div class="panel-heading" v-pre>
-    Rules for {{ project.name }}
-  </div>
+<div class="text-right mb-4">
+  <a href="{% url 'rule-new' 'project' project.id %}" class="btn btn-primary btn-sm">
+    {% trans "Register Rule" %}
+  </a>
+</div>
+
+<div class="panel panel-default">
   <table class="table table-bordered table-condensed">
     {% include "promgen/rule_header.html" %}
     {% include "promgen/rule_block.html" with rule_list=project.rule_set.all toggle=1 delete=1 %}

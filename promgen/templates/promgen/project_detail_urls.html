@@ -1,12 +1,10 @@
 {% load i18n %}
-<div class="panel panel-primary">
-  <div class="panel-heading">HTTP Checks</div>
-  <table class="table table-condensed">
+<div class="panel panel-default">
+  <table class="table table-bordered table-condensed">
     <tr>
       <th>URL</th>
       <th>Probe</th>
-      <th>Silence</th>
-      <th>&nbsp;</th>
+      <th>Actions</th>
     </tr>
     {% for url in project.url_set.all %}
     <tr>
@@ -17,8 +15,6 @@
           class="btn btn-warning btn-xs"
           data-job="{{url.probe.module}}"
           data-instance="{{url.url}}">{% trans "Silence" %}</a>
-      </td>
-      <td>
         <form method="post"
           action="{% url 'url-delete' url.id %}"
           onsubmit="return confirm('Delete this url?')"
@@ -30,13 +26,15 @@
     </tr>
     {% endfor %}
   </table>
-  <form method="post" action="{% url 'url-new' project.id %}" style="display: inline">
-    {% csrf_token %}
-    <table class="table table-condensed" v-pre>
-      {{url_form.as_table}}
-    </table>
-    <div class="panel-footer">
-      <button class="btn btn-primary btn-sm">{% trans "Register URL" %}</button>
-    </div>
-  </form>
+  <div class="panel-footer">
+    <form method="post" action="{% url 'url-new' project.id %}" style="display: inline">
+      {% csrf_token %}
+      <table class="table table-condensed" v-pre>
+        {{url_form.as_table}}
+      </table>
+      <div class="panel-footer">
+        <button class="btn btn-primary btn-sm">{% trans "Register URL" %}</button>
+      </div>
+    </form>
+  </div>
 </div>
