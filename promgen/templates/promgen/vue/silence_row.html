@@ -15,7 +15,7 @@
           class="label"
           :class="`label-${labelColor}`"
         >
-          [[ matcher.name ]]:[[ matcher.value ]]
+          [[ matcher.name ]]<span v-if="matcher.isEqual && !matcher.isRegex">=</span><span v-if="matcher.isEqual && matcher.isRegex">=~</span><span v-if="!matcher.isEqual && !matcher.isRegex">!=</span><span v-if="!matcher.isEqual && matcher.isRegex">!~</span>[[ matcher.value ]]
         </a>
       </li>
     </ul>
