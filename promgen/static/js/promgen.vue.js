@@ -27,8 +27,24 @@ const silenceStore = Vue.reactive({
     },
     setLabels(labels) {
         this.state.labels = { ...labels };
+        for (const [key, value] of Object.entries(this.state.labels)) {
+            if (!Array.isArray(value)) {
+                if (value.includes("*")) {
+                    this.state.labels[key] = [value, "=~"];
+                } else {
+                    this.state.labels[key] = [value, "="];
+                }
+            }
+        }
     },
     addLabel(label, value) {
+        if (Array.isArray(value) && value[1] === undefined) {
+            if (value[0].includes("*")) {
+                value[1] = "=~";
+            } else {
+                value[1] = "=";
+            }
+        }
         this.state.labels[label] = value;
     },
     showModal() {
@@ -75,8 +91,8 @@ const app = Vue.createApp({
         setSilenceDataset(event) {
             this.setSilenceLabels(event.target.dataset);
         },
-        addSilenceLabel(label, value) {
-            silenceStore.addLabel(label, value);
+        addSilenceLabel(label, value, operator) {
+            silenceStore.addLabel(label, [value, operator]);
             silenceStore.showModal();
         },
         silenceSelectedHosts(event) {
@@ -175,7 +191,7 @@ app.component('silence-create-modal', {
     delimiters: ['[[', ']]'],
     data: () => ({
         state: silenceStore.state,
-        form: {}
+        form: {operator: "="}
     }),
     computed: {
         globalMessages() {
@@ -184,18 +200,29 @@ app.component('silence-create-modal', {
     },
     methods: {
         addLabel() {
-            if (this.form.label && this.form.value) {
-                silenceStore.addLabel(this.form.label, this.form.value);
+            if (this.form.label && this.form.value && this.form.operator) {
+                silenceStore.addLabel(this.form.label, [this.form.value, this.form.operator]);
                 this.form.label = '';
                 this.form.value = '';
+                this.form.operator = "=";
             }
         },
         removeLabel(label) {
             delete this.state.labels[label];
         },
         submit() {
+            matchers = [];
+            for (const [label, value] of Object.entries(this.state.labels)) {
+                matchers.push({
+                    name: label,
+                    value: value[0],
+                    isEqual: ["=", "=~"].includes(value[1]),
+                    isRegex: ["=~", "!~"].includes(value[1]),
+                });
+            }
+
             const body = JSON.stringify({
-                labels: this.state.labels,
+                matchers: matchers,
                 startsAt: this.form.startsAt,
                 endsAt: this.form.endsAt,
                 duration: this.form.duration,
@@ -203,7 +230,12 @@ app.component('silence-create-modal', {
                 comment: this.form.comment
             });
 
-            fetch('/proxy/v1/silences', { method: 'POST', body })
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value,
+            };
+
+            fetch('/proxy/v2/silences', {method: 'POST', headers, body})
                 .then(response => {
                     if (response.ok) {
                         location.reload();
@@ -221,7 +253,7 @@ app.component('silence-create-modal', {
             const modal = $('#silenceCreateModal');
             if (modal.length) {
                 globalStore.setMessages([]);
-                this.form = {};
+                this.form = {operator: "="};
                 this.state = silenceStore.state;
                 modal.modal('hide');
             }
@@ -402,7 +434,7 @@ app.component('silence-list-modal', {
 
             return this.activeSilences.filter(silence => {
                 return this.state.labels.every(filterLabel => {
-                    return silence.matchers.some(matcher => 
+                    return silence.matchers.some(matcher =>
                         matcher.name === filterLabel.label &&
                         matcher.value === filterLabel.value
                     );
