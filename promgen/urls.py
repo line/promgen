@@ -126,6 +126,7 @@ urlpatterns = [
     path("proxy/v1/alerts", csrf_exempt(proxy.ProxyAlerts.as_view()), name="proxy-alerts"),
     path("proxy/v1/silences", csrf_exempt(proxy.ProxySilences.as_view()), name="proxy-silence"),
     path("proxy/v1/silences/<silence_id>", csrf_exempt(proxy.ProxyDeleteSilence.as_view()), name="proxy-silence-delete"),
+    path("proxy/v2/silences", csrf_exempt(proxy.ProxySilencesV2.as_view()), name="proxy-silence-v2"),
     # Promgen rest API
     path("rest/", include((router.urls, "api"), namespace="api")),
 ]
