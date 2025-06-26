@@ -9,12 +9,13 @@
 <div class="panel panel-default">
   {% include "promgen/notifier_block.html" with object=project show_edit=1 %}
 </div>
-{% if project.service.notifiers.count %}
+<div>
+  {% if project.service.notifiers.count %}
   <a class="btn btn-default btn-xs" role="button" data-toggle="collapse"
      href="#show-service-senders" aria-expanded="false" aria-controls="collapseExample"
   >
     Show Service Notifiers ({{project.service.notifiers.count}})
   </a>
   {% include "promgen/notifier_block.html" with object=project.service collapse="show-service-senders" %}
-{% endif %}
+  {% endif %}
 </div>
