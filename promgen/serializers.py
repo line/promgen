@@ -1,10 +1,11 @@
 import collections
 
+from dateutil import parser
 from django.db.models import prefetch_related_objects
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
-from promgen import models, shortcuts
+from promgen import errors, models, shortcuts
 from promgen.shortcuts import resolve_domain
 
 
@@ -120,3 +121,53 @@ class HostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Host
         exclude = ("id", "farm")
+
+
+class MatcherSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    value = serializers.CharField()
+    isRegex = serializers.BooleanField()
+    isEqual = serializers.BooleanField(required=False)
+
+
+class SilenceSerializer(serializers.Serializer):
+    matchers = MatcherSerializer(many=True)
+    startsAt = serializers.CharField(required=False)
+    endsAt = serializers.CharField(required=False)
+    createdBy = serializers.CharField(default="Promgen")
+    comment = serializers.CharField(default="Silenced from Promgen")
+    duration = serializers.CharField(required=False)
+
+    def validate(self, data):
+        # Validation for matchers
+        if "matchers" not in data or not data["matchers"]:
+            raise errors.SilenceError.NOMATCHER.error()
+
+        # Users should not be able to accidentally silence a global rule without
+        # setting some other labels as well.
+        for matcher in data["matchers"]:
+            if matcher["name"] == "alertname" and matcher["isEqual"] == True:
+                if not any(
+                    (
+                        other_matcher["name"] in ["service", "project"]
+                        and other_matcher["isEqual"] == True
+                    )
+                    for other_matcher in data["matchers"]
+                ):
+                    raise errors.SilenceError.GLOBALSILENCE.error()
+
+        if data.get("duration"):
+            # No further validation is required if only duration is set
+            return data
+
+        # Validate our start/end times
+        start = data.get("startsAt")
+        stop = data.get("endsAt")
+
+        if not all([start, stop]):
+            raise errors.SilenceError.STARTENDTIME.error()
+
+        elif parser.parse(start) > parser.parse(stop):
+            raise errors.SilenceError.STARTENDMISMATCH.error()
+
+        return data
