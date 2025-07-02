@@ -1,5 +1,21 @@
 # Changelog
 
+# v0.71.0 - 2025-07-02
+
+- [BUGFIX] Add missing opening div tag #621
+- [IMPROVEMENT] Sort the Farm's sources on the Project Detail page #618
+- [IMPROVEMENT] Organize the Project Detail Page with Tabs #617
+- [IMPROVEMENT] Move buttons to Rule Detail page from Rule Update page #619
+- [BUGFIX] Make notifier's filters not editable if 'show_edit' is false #616
+- [SECURITY] Not provide query results when testing Rule #614
+- [BUGFIX] Fix error messages showed when testing a site rule #615
+- [BUGFIX] Remove empty row when registering a new project #613
+- [BUGFIX] Fix shard unchecked when updating a project with an invalid form #612
+- [BUGFIX] Fix the breadcrumb of the Service Update page #611
+- [BUGFIX] Global messages: Use the right CSS class for errors #610
+- [IMPROVEMENT] Python files cleanup #609
+- [IMPROVEMENT] Align the form field with its label #608
+
 # v0.70.0 - 2025-06-04
 
 - [IMPROVEMENT] Make owner fields not nullable #581
