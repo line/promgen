@@ -1,9 +1,12 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+from itertools import chain
 
+from django.db.models import Q
 from django.http import HttpResponse
+from guardian.shortcuts import get_objects_for_user
 from requests.exceptions import HTTPError
-from rest_framework import permissions, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,11 +31,42 @@ class AlertReceiver(APIView):
 
 
 class AllViewSet(viewsets.ViewSet):
-    permission_classes = [permissions.AllowAny]
-
     @action(detail=False, methods=["get"], renderer_classes=[renderers.RuleRenderer])
     def rules(self, request):
-        rules = models.Rule.objects.filter(enabled=True)
+        site_rules = models.Rule.objects.filter(
+            content_type__model="site", content_type__app_label="promgen", enabled=True
+        )
+        service_rules = models.Rule.objects.filter(
+            content_type__model="service", content_type__app_label="promgen", enabled=True
+        )
+        project_rules = models.Rule.objects.filter(
+            content_type__model="project", content_type__app_label="promgen", enabled=True
+        )
+
+        # If the user is not a superuser, we need to filter the rules by the user's permissions
+        if not self.request.user.is_superuser:
+            services = get_objects_for_user(
+                self.request.user,
+                ["service_admin", "service_editor", "service_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Service,
+            )
+            service_rules = service_rules.filter(object_id__in=services)
+
+            projects = get_objects_for_user(
+                self.request.user,
+                ["project_admin", "project_editor", "project_viewer"],
+                any_perm=True,
+                use_groups=False,
+                accept_global_perms=False,
+                klass=models.Project,
+            )
+            projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+            project_rules = project_rules.filter(object_id__in=projects)
+
+        rules = list(chain(site_rules, service_rules, project_rules))
         return Response(
             serializers.AlertRuleSerializer(rules, many=True).data,
             headers={"Content-Disposition": "attachment; filename=alert.rule.yml"},
@@ -40,15 +74,76 @@ class AllViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["get"], renderer_classes=[renderers.renderers.JSONRenderer])
     def targets(self, request):
+        if self.request.user.is_superuser:
+            return HttpResponse(
+                prometheus.render_config(),
+                content_type="application/json",
+            )
+
+        # if the user is not a superuser, we need to filter the targets by the user's permissions
+        services = get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Service,
+        )
+
+        projects = get_objects_for_user(
+            self.request.user,
+            ["project_admin", "project_editor", "project_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Project,
+        )
+        projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+        farms = get_objects_for_user(
+            self.request.user,
+            ["farm_admin", "farm_editor", "farm_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Farm,
+        )
+
         return HttpResponse(
-            prometheus.render_config(),
+            prometheus.render_config(services=services, projects=projects, farms=farms),
             content_type="application/json",
         )
 
     @action(detail=False, methods=["get"], renderer_classes=[renderers.renderers.JSONRenderer])
     def urls(self, request):
+        if self.request.user.is_superuser:
+            return HttpResponse(
+                prometheus.render_urls(),
+                content_type="application/json",
+            )
+
+        # if the user is not a superuser, we need to filter the URLs by the user's permissions
+        services = get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Service,
+        )
+
+        projects = get_objects_for_user(
+            self.request.user,
+            ["project_admin", "project_editor", "project_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=models.Project,
+        )
+        projects = models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
         return HttpResponse(
-            prometheus.render_urls(),
+            prometheus.render_urls(projects=projects),
             content_type="application/json",
         )
 
@@ -115,6 +210,16 @@ class ServiceViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     lookup_value_regex = "[^/]+"
     lookup_field = "name"
 
+    def get_queryset(self):
+        return get_objects_for_user(
+            self.request.user,
+            ["service_admin", "service_editor", "service_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=self.queryset,
+        )
+
     @action(detail=True, methods=["get"])
     def projects(self, request, name):
         service = self.get_object()
@@ -135,6 +240,16 @@ class ProjectViewSet(NotifierMixin, RuleMixin, viewsets.ModelViewSet):
     lookup_value_regex = "[^/]+"
     lookup_field = "name"
 
+    def get_queryset(self):
+        return get_objects_for_user(
+            self.request.user,
+            ["project_admin", "project_editor", "project_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=self.queryset,
+        )
+
     @action(detail=True, methods=["get"])
     def targets(self, request, name):
         return HttpResponse(
@@ -149,6 +264,16 @@ class FarmViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FarmSerializer
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
+
+    def get_queryset(self):
+        return get_objects_for_user(
+            self.request.user,
+            ["farm_admin", "farm_editor", "farm_viewer"],
+            any_perm=True,
+            use_groups=False,
+            accept_global_perms=False,
+            klass=self.queryset,
+        )
 
     def retrieve(self, request, id):
         farm = self.get_object()

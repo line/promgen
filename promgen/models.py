@@ -218,6 +218,11 @@ class Service(models.Model):
 
     class Meta:
         ordering = ["name"]
+        permissions = [
+            ("service_admin", "Admin"),
+            ("service_editor", "Editor"),
+            ("service_viewer", "Viewer"),
+        ]
 
     def get_absolute_url(self):
         return reverse("service-detail", kwargs={"pk": self.pk})
@@ -251,6 +256,11 @@ class Project(models.Model):
 
     class Meta:
         ordering = ["name"]
+        permissions = [
+            ("project_admin", "Admin"),
+            ("project_editor", "Editor"),
+            ("project_viewer", "Viewer"),
+        ]
 
     def get_absolute_url(self):
         return reverse("project-detail", kwargs={"pk": self.pk})
@@ -267,6 +277,11 @@ class Farm(models.Model):
     class Meta:
         ordering = ["name"]
         unique_together = (("name", "source"),)
+        permissions = [
+            ("farm_admin", "Admin"),
+            ("farm_editor", "Editor"),
+            ("farm_viewer", "Viewer"),
+        ]
 
     def get_absolute_url(self):
         return reverse("farm-detail", kwargs={"pk": self.pk})
