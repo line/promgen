@@ -16,3 +16,4 @@ class SilenceError(ValidationErrorEnum):
     GLOBALSILENCE = _("Unable to silence global rules with alertname alone.")
     STARTENDTIME = _("Both start and end are required.")
     STARTENDMISMATCH = _("Start time and end time are mismatched.")
+    NOMATCHER = _("Missing matchers for silence.")
