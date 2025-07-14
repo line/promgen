@@ -1,0 +1,13 @@
+[
+  {
+    "alias": "",
+    "content_type": 11,
+    "enabled": true,
+    "id": 1,
+    "label": "email@example.com",
+    "object_id": 1,
+    "owner": "admin",
+    "sender": "promgen.notification.email",
+    "value": "email@example.com"
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "alias": "",
+    "content_name": "updated-project",
+    "content_type": "project",
+    "enabled": true,
+    "filters": [],
+    "id": 2,
+    "owner": "demo",
+    "sender": "promgen.notification.slack",
+    "value": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+  },
+  {
+    "alias": "",
+    "content_name": "updated-project",
+    "content_type": "project",
+    "enabled": false,
+    "filters": [
+      {
+        "id": 1,
+        "name": "test-name",
+        "value": "test-value"
+      }
+    ],
+    "id": 4,
+    "owner": "demo",
+    "sender": "promgen.notification.slack",
+    "value": "https://test.slack.com"
+  }
+]

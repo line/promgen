@@ -333,3 +333,12 @@ def add_default_project_subscription(instance, created, **kwargs):
             value=instance.owner.username,
             defaults={"owner": instance.owner},
         )
+
+
+@receiver(post_save, sender=models.SiteConfiguration)
+@skip_raw
+def clear_cache(*, sender, instance, **kwargs):
+    # We need to clear our cache when we change our configuration
+    # so that we can pick up the new settings
+    if instance.key == "THROTTLE_RATES":
+        cache.clear()

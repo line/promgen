@@ -1,0 +1,19 @@
+[
+  {
+    "annotations": {
+      "rule": "http://promgen.example.com/rule/2"
+    },
+    "clause": "up != 0",
+    "content_name": "test-project",
+    "content_type": "project",
+    "description": "Test Rule 2 Description",
+    "duration": "1m",
+    "enabled": false,
+    "id": 2,
+    "labels": {
+      "severity": "warning"
+    },
+    "name": "Test Rule 2",
+    "parent": "Test Rule"
+  }
+]

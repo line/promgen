@@ -1,0 +1,13 @@
+{
+  "count": 2,
+  "next": "http://testserver/rest/v2/farms/?page_number=2&page_size=1",
+  "previous": null,
+  "results": [
+    {
+      "id": 2,
+      "name": "other-farm",
+      "source": "external",
+      "owner": "demo"
+    }
+  ]
+}

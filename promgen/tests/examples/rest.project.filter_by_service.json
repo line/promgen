@@ -1,0 +1,16 @@
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "description": "",
+      "farm": "test-farm",
+      "id": 1,
+      "name": "test-project",
+      "owner": "admin",
+      "service": "test-service",
+      "shard": "test-shard"
+    }
+  ]
+}

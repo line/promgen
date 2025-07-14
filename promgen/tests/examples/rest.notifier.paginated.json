@@ -1,0 +1,24 @@
+{
+  "count": 2,
+  "next": "http://testserver/rest/v2/notifiers/?page_number=2&page_size=1",
+  "previous": null,
+  "results": [
+    {
+      "alias": "",
+      "content_name": "test-service",
+      "content_type": "service",
+      "enabled": true,
+      "filters": [
+        {
+          "id": 1,
+          "name": "severity",
+          "value": "critical"
+        }
+      ],
+      "id": 1,
+      "owner": "admin",
+      "sender": "promgen.notification.email",
+      "value": "email@example.com"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 3,
+    "probe": "http_2xx",
+    "project": "updated-project",
+    "url": "http://test-url"
+  },
+  {
+    "id": 1,
+    "probe": "fixture_test",
+    "project": "updated-project",
+    "url": "probe.example.com"
+  }
+]

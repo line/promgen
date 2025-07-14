@@ -1,0 +1,16 @@
+[
+  {
+    "id": 2,
+    "name": "other-farm",
+    "source": "external",
+    "url": "http://promgen.example.com/farm/2",
+    "owner": "demo"
+  },
+  {
+    "id": 1,
+    "name": "test-farm",
+    "source": "promgen",
+    "url": "http://promgen.example.com/farm/1",
+    "owner": "admin"
+  }
+]

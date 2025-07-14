@@ -1,0 +1,34 @@
+[
+  {
+    "alias": "",
+    "content_name": "partial-updated-service",
+    "content_type": "service",
+    "enabled": true,
+    "filters": [
+      {
+        "name": "severity",
+        "value": "critical"
+      }
+    ],
+    "id": 1,
+    "owner": "admin",
+    "sender": "promgen.notification.email",
+    "value": "email@example.com"
+  },
+  {
+    "alias": "",
+    "content_name": "partial-updated-service",
+    "content_type": "service",
+    "enabled": false,
+    "filters": [
+      {
+        "name": "test-name",
+        "value": "test-value"
+      }
+    ],
+    "id": 6,
+    "owner": "demo",
+    "sender": "promgen.notification.slack",
+    "value": "https://test.slack.com"
+  }
+]
