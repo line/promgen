@@ -52,8 +52,8 @@ Promgen / Project / {{ project.name }}
 
 <a
   v-cloak
-  v-if="activeProjectSilences.has('{{project.name}}')"
-  @click="openSilenceListModal({ 'matchers': { 'project': '{{project.name}}' } })"
+  v-if="getActiveSilencesForProject('{{project.name}}', '{{project.service.name}}').length > 0"
+  @click="openSilenceListModal(null, silences=getActiveSilencesForProject('{{project.name}}', '{{project.service.name}}'), 'project')"
   class="btn btn-warning btn-sm mb-4"
   role="button"
 >

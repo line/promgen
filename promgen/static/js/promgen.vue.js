@@ -99,8 +99,8 @@ const app = Vue.createApp({
             this.setSilenceLabels(event.target.dataset);
             this.addSilenceLabel('instance', this.selectedHosts.join('|'));
         },
-        openSilenceListModal(params) {
-            silenceListStore.showModal(params);
+        openSilenceListModal(params, silences, target) {
+            silenceListStore.showModal(params, silences, target);
         },
         fetchSilences: function () {
             fetch('/proxy/v1/silences')
@@ -137,6 +137,17 @@ const app = Vue.createApp({
             let tgt = document.getElementById(target);
             tgt.setAttribute('list', dst + '.' + src);
         },
+        getActiveSilencesForService: function (service) {
+            return getActiveSilences(this.activeSilences, "service", service);
+        },
+        getActiveSilencesForProject: function (project, service) {
+            const silencesMatchProject = getActiveSilences(this.activeSilences, "project", project);
+            const silencesMatchService = getActiveSilences(this.activeSilences, "service", service);
+            return silencesMatchProject.filter(silence =>
+                !silence.matchers.some(matcher => matcher.name === "service") ||
+                silencesMatchService.includes(silence)
+            );
+        },
     },
     computed: {
         activeServiceAlerts: function () {
@@ -147,12 +158,6 @@ const app = Vue.createApp({
         },
         activeRuleAlerts: function () {
             return groupByLabel(this.activeAlerts, 'alertname');
-        },
-        activeServiceSilences: function () {
-            return groupByLabel(this.activeSilences, 'service');
-        },
-        activeProjectSilences: function () {
-            return groupByLabel(this.activeSilences, 'project');
         },
         activeAlerts: function () {
             return this.globalAlerts.filter(alert => alert.status.state === 'active');
@@ -405,7 +410,7 @@ const silenceListStore = Vue.reactive({
             this.state.labels.splice(index, 1);
         }
     },
-    showModal(params=null) {
+    showModal(params=null, silences=null, target=null) {
         // Accept an optional parameter of type object that contains another "matchers" object. This
         // is to allow opening the modal with some matchers already set for filtering.
         //
@@ -420,6 +425,39 @@ const silenceListStore = Vue.reactive({
         ) {
             for (const [label, value] of Object.entries(params.matchers)) {
                 this.addFilterLabel(label, value);
+            }
+        }
+
+        // Accept a list of silences as an optional parameter to show active silences of a specific project
+        // or service, by creating pre-filled matchers based on the matchers with 'project' or 'service' labels
+        // in the input silences.
+        // parameter 'target' must be 'project' or 'service'.
+        if (silences && typeof silences === "object" && Array.isArray(silences)) {
+            for (const silence of silences) {
+                for (const matcher of silence.matchers) {
+                    if ("service" === target) {
+                        if (["service"].includes(matcher.name)) {
+                            this.addFilterLabel(
+                              matcher.name,
+                              matcher.value,
+                              matcher.isEqual
+                              ? matcher.isRegex ? "=~" : "="
+                              : matcher.isRegex ? "!~" : "!="
+                            );
+                        }
+                    }
+                    if ("project" === target) {
+                        if (["project", "service"].includes(matcher.name)) {
+                            this.addFilterLabel(
+                              matcher.name,
+                              matcher.value,
+                              matcher.isEqual
+                              ? matcher.isRegex ? "=~" : "="
+                              : matcher.isRegex ? "!~" : "!="
+                            );
+                        }
+                    }
+                }
             }
         }
 
@@ -460,15 +498,73 @@ app.component('silence-list-modal', {
                 return this.activeSilences;
             }
 
+            // Group matchers in state by label
+            // For example, if we have matchers like:
+            //   [
+            //      {label: 'service', value: 'foo', operator: '='},
+            //      {label: 'service', value: 'bar', operator: '!='},
+            //      {label: 'project', value: 'baz', operator: '=~'},
+            //   ]
+            // We will create a map like:
+            //   {
+            //     'service': [
+            //          {label: 'service', value: 'foo', operator: '='},
+            //          {label: 'service', value: 'bar', operator: '!='},
+            //     ],
+            //     'project': [{label: 'project', value: 'baz', operator: '=~'}]
+            //   }
+            const groups = this.state.labels.reduce((map, item) => {
+                if (item.label) {
+                    if (!map.has(item.label)) {
+                        map.set(item.label, []);
+                    }
+                    map.get(item.label).push(item);
+                }
+                return map;
+            }, new Map());
+
+            // Filter silences based on the matchers in the groups
+            // A silence matches if all of its matchers match at least one of the matchers in
+            // the groups that have the same label.
+            // For example, if we have a groups map like:
+            //   {
+            //     'service': [
+            //          {label: 'service', value: 'foo', operator: '='},
+            //          {label: 'service', value: 'bar', operator: '!='},
+            //     ],
+            //     'project': [{label: 'project', value: 'baz', operator: '=~'}]
+            //   }
+            //
+            // - This silence will match: 'service=foo, project=~baz'
+            // - This silence will match: 'service!=bar, project=~baz'
+            // - This silence will match: 'service=foo'
+            // - This silence will NOT match: 'service=foo, project=~test'
+            //   because the value 'test' for the label 'project' is not in the groups map.
+            // - This silence will NOT match: 'service=test, project=~baz'
+            //   because the value 'test' for the label 'service' is not in the groups map.
+            // - This silence will NOT match: 'service=foo, project!=baz'
+            //   because the operator '!=' for the label 'project' is not in the groups map.
             return this.activeSilences.filter(silence => {
-                return this.state.labels.every(filterLabel => {
-                    return silence.matchers.some(matcher =>
-                        matcher.name === filterLabel.label &&
-                        matcher.value === filterLabel.value &&
-                        matcher.isEqual === ['=', '=~'].includes(filterLabel.operator) &&
-                        matcher.isRegex === ['=~', '!~'].includes(filterLabel.operator)
-                    );
-                });
+                let doesSilenceMatch = false;
+                for (const matcher of silence.matchers) {
+                    const groupsForMatcher = groups.get(matcher.name);
+                    if (groupsForMatcher) {
+                        const matchFound = groupsForMatcher.some(group =>
+                            matcher.name === group.label &&
+                            matcher.value === group.value &&
+                            (
+                                (matcher.isEqual && ["=", "=~"].includes(group.operator)) ||
+                                (!matcher.isEqual && ["!=", "!~"].includes(group.operator))
+                            )
+                        );
+                        if (!matchFound){
+                            return false;
+                        } else {
+                            doesSilenceMatch = true;
+                        }
+                    }
+                }
+                return doesSilenceMatch;
             });
         },
         uniqueLabels() {

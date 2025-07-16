@@ -51,8 +51,8 @@ Promgen / Service / {{ service.name }}
 
 <a
   v-cloak
-  v-if="activeServiceSilences.has('{{service.name}}')"
-  @click="openSilenceListModal({ 'matchers': { 'service': '{{service.name}}' } })"
+  v-if="getActiveSilencesForService('{{service.name}}').length > 0"
+  @click="openSilenceListModal(null, silences=getActiveSilencesForService('{{service.name}}'), 'service')"
   class="btn btn-warning btn-sm mb-4"
   role="button"
 >
