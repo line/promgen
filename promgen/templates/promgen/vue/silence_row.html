@@ -6,7 +6,7 @@
     <ul class="list-inline">
       <li
         v-for="matcher in silence.matchers"
-        :title="`${matcher.name}${operators.get(`${matcher.isEqual}_${matcher.isRegex}`)}${matcher.value}`"
+        :title="`${matcher.name}${getOperator(matcher)}${matcher.value}`"
         class="promgen-silence-matcher-truncate"
         style="color: white"
       >
@@ -20,7 +20,7 @@
           class="label"
           :class="`label-${labelColor}`"
         >
-          [[ matcher.name ]][[ operators.get(`${matcher.isEqual}_${matcher.isRegex}`) ]][[ matcher.value ]]
+          [[ matcher.name ]][[ getOperator(matcher) ]][[ matcher.value ]]
         </a>
       </li>
     </ul>
