@@ -11,12 +11,7 @@
         style="color: white"
       >
         <a
-          @click="$emit(
-            'matcherClick',
-            matcher.name,
-            matcher.value,
-            operators.get(`${matcher.isEqual}_${matcher.isRegex}`),
-          )"
+          @click="$emit('matcherClick', matcher.name, matcher.value, getOperator(matcher))"
           class="label"
           :class="`label-${labelColor}`"
         >
