@@ -127,7 +127,7 @@ class MatcherSerializer(serializers.Serializer):
     name = serializers.CharField()
     value = serializers.CharField()
     isRegex = serializers.BooleanField()
-    isEqual = serializers.BooleanField(required=False)
+    isEqual = serializers.BooleanField(required=False, default=True)
 
 
 class SilenceSerializer(serializers.Serializer):
