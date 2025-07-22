@@ -13,6 +13,10 @@
   <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
   Warning. Renaming or Moving a project will reset all labels in Prometheus
 </div>
+<div class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+  Warning. The owner only can be changed by the current owner. The new owner will have the ADMIN role.
+</div>
 {% else %}
 <div class="page-header">
   <h1>Register new Project</h1>
@@ -38,6 +42,7 @@
           {{form.description}}
         </td>
       </tr>
+      {% if form.owner %}
       <tr>
         <th>{{form.owner.label}}</th>
         <td>
@@ -45,6 +50,7 @@
           {{form.owner}}
         </td>
       </tr>
+      {% endif %}
       {% if project.pk %}
       <tr>
         <th>{{form.service.label}}</th>
