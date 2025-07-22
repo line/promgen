@@ -24,6 +24,7 @@ class UserSplayTest(tests.PromgenTest):
     @mock.patch("promgen.util.post")
     def test_user_splay(self, mock_email, mock_post):
         one = models.Service.objects.get(pk=1)
+        models.Sender.objects.all().delete()
 
         NotificationUser.create(obj=one, value=one.owner.username, owner=self.user)
         NotificationLineNotify.create(obj=one.owner, value="#foo", owner=self.user)
@@ -47,6 +48,11 @@ class UserSplayTest(tests.PromgenTest):
         # The invalid one should be skipped while still letting
         # the valid one pass
         one = models.Service.objects.get(pk=1)
+
+        # Firstly, clear all Sender data in test database to ensure avoiding data conflicts
+        # without having to make too many changes in old tests.
+        models.Sender.objects.all().delete()
+
         NotificationEmail.create(obj=one, value="foo@bar.example", owner=self.user)
         NotificationUser.create(obj=one, value="does not exist", owner=self.user)
 
@@ -62,6 +68,10 @@ class UserSplayTest(tests.PromgenTest):
     @mock.patch("promgen.notification.email.send_mail")
     def test_enabled(self, mock_email):
         one = models.Service.objects.get(pk=1)
+
+        # Firstly, clear all Sender data in test database to ensure avoiding data conflicts
+        # without having to make too many changes in old tests.
+        models.Sender.objects.all().delete()
 
         # This notification is direct and disabled
         NotificationEmail.create(
