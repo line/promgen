@@ -50,18 +50,15 @@ Promgen / Project / {{ project.name }}
   </table>
 </div>
 
-<div id="silence-project-{{ project.name|slugify }}" class="panel panel-warning" v-cloak v-if="activeProjectSilences.has('{{project.name}}')">
-  <div class="panel-heading">
-    <a @click="toggleCollapse('silences-project-{{project.name|slugify}}')" class="btn btn-warning btn-sm" role="button">Silences</a>
-  </div>
-  <table id="silences-project-{{project.name|slugify}}" class="table table-bordered table-condensed collapse">
-    <tbody>
-      <template v-for="silence in activeProjectSilences.get('{{project.name}}')" :key="silence.id">
-        <silence-row :silence="silence" label-color="warning" @matcher-click="addSilenceLabel" />
-      </template>
-    </tbody>
-  </table>
-</div>
+<a
+  v-cloak
+  v-if="activeProjectSilences.has('{{project.name}}')"
+  @click="openSilenceListModal({ 'matchers': { 'project': '{{project.name}}' } })"
+  class="btn btn-warning btn-sm mb-4"
+  role="button"
+>
+  Active silences
+</a>
 
 <div class="panel panel-default">
   <div v-pre class="panel-body">
