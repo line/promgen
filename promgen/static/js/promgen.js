@@ -31,6 +31,35 @@ function update_page(data) {
   }
 }
 
+function doesMatcherMatch(matcher, labelName, labelValue) {
+  if (matcher.name !== labelName) {
+    return false;
+  }
+
+  if (matcher.isRegex) {
+    const regex = new RegExp("^(?:" + matcher.value + ")$");
+    const matches = regex.test(labelValue);
+    return matcher.isEqual ? matches : !matches;
+  } else {
+    return matcher.isEqual ?
+      (matcher.value === labelValue) :
+      (matcher.value !== labelValue);
+  }
+}
+
+function getActiveSilences(items, labelName, labelValue) {
+  const activeSilences = [];
+  for (const item of items) {
+    const matches = item.matchers.some(matcher =>
+      doesMatcherMatch(matcher, labelName, labelValue)
+    );
+    if (matches) {
+      activeSilences.push(item);
+    }
+  }
+  return activeSilences;
+}
+
 // https://blog.bitsrc.io/debounce-understand-and-learn-how-to-use-this-essential-javascript-skill-9db0c9afbfc1
 function debounce(func, delay = 250) {
   let timerId;

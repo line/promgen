@@ -1,10 +1,11 @@
 import collections
 
+from dateutil import parser
 from django.db.models import prefetch_related_objects
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
-from promgen import models, shortcuts
+from promgen import errors, models, shortcuts
 from promgen.shortcuts import resolve_domain
 
 
@@ -120,3 +121,44 @@ class HostSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Host
         exclude = ("id", "farm")
+
+
+class MatcherSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    value = serializers.CharField()
+    isRegex = serializers.BooleanField()
+    isEqual = serializers.BooleanField(default=True)
+
+
+class SilenceSerializer(serializers.Serializer):
+    matchers = MatcherSerializer(many=True)
+    startsAt = serializers.CharField(required=False)
+    endsAt = serializers.CharField(required=False)
+    createdBy = serializers.CharField(default="Promgen")
+    comment = serializers.CharField(default="Silenced from Promgen")
+    duration = serializers.CharField(required=False)
+
+    def validate(self, data):
+        # Validation for matchers
+        if "matchers" not in data or not data["matchers"]:
+            raise errors.SilenceError.NOMATCHER.error()
+
+        # Every silence should include either a service or project matcher
+        if not any(matcher["name"] in ["service", "project"] for matcher in data["matchers"]):
+            raise errors.SilenceError.NOSERVICEORPROJECTMATCHER.error()
+
+        if data.get("duration"):
+            # No further validation is required if only duration is set
+            return data
+
+        # Validate our start/end times
+        start = data.get("startsAt")
+        stop = data.get("endsAt")
+
+        if not all([start, stop]):
+            raise errors.SilenceError.STARTENDTIME.error()
+
+        elif parser.parse(start) > parser.parse(stop):
+            raise errors.SilenceError.STARTENDMISMATCH.error()
+
+        return data

@@ -18,7 +18,7 @@
         </div>
         
         <form @submit.prevent="submit()">
-
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <div class="row mb-4">
             <div class="col-md-4">
               <h5>
@@ -56,10 +56,10 @@
                   <li v-for="(value, label) in state.labels">
                     <div class="promgen-label-target">
                       <span
-                        :title="`${label}:${value}`"
+                        :title="`${label}${value[1]}${value[0]}`"
                         class="promgen-silence-matcher-truncate"
                       >
-                        [[label]]=[[value]]
+                        [[ label ]][[ value[1] ]][[ value[0] ]]
                       </span>
                       <span @click="removeLabel(label)" aria-hidden="true" class="promgen-label-close">&times;</span>
                     </div>
@@ -74,7 +74,12 @@
               <h5>Matcher</h5>
               <div style="display: flex;align-items: center;">
                 <input type="text" placeholder="Label" v-model="form.label" class="form-control">
-                <input type="text" placeholder="=" style="max-width: 50px; text-align: center;" class="form-control ml-2 mr-2"  disabled>
+                <select v-model="form.operator" class="form-control ml-2 mr-2" style="max-width: 70px; text-align: center;">
+                  <option value="=">=</option>
+                  <option value="=~">=~</option>
+                  <option value="!=">!=</option>
+                  <option value="!~">!~</option>
+                </select>
                 <input type="text" placeholder="Value" v-model="form.value" class="form-control">
                 <button type="button" class="btn btn-primary ml-2" @click="addLabel">&plus;</button>
               </div>

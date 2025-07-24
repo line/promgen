@@ -288,16 +288,21 @@ def silence(*, labels, duration=None, **kwargs):
             if timezone.is_naive(dt):
                 dt = timezone.make_aware(dt)
             kwargs[key] = dt.isoformat()
-
-    kwargs["matchers"] = [
-        {
-            "name": name,
-            "value": value,
-            "isEqual": True,  # Right now we only support = and =~
-            "isRegex": True if value.endswith("*") else False,
-        }
-        for name, value in labels.items()
-    ]
+    # If no matchers are provided, it means the method is called from ProxySilences (V1). In this
+    # case, we need to convert labels to matchers.
+    #
+    # Otherwise, the method is called from ProxySilencesV2 and the matchers are already provided in
+    # the right format, so we don't need to touch them.
+    if not "matchers" in kwargs:
+        kwargs["matchers"] = [
+            {
+                "name": name,
+                "value": value,
+                "isEqual": True,  # Only = and =~ are supported in ProxySilences (V1)
+                "isRegex": True if value.endswith("*") else False,
+            }
+            for name, value in labels.items()
+        ]
 
     logger.debug("Sending silence for %s", kwargs)
     url = urljoin(util.setting("alertmanager:url"), "/api/v2/silences")

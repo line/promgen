@@ -27,8 +27,24 @@ const silenceStore = Vue.reactive({
     },
     setLabels(labels) {
         this.state.labels = { ...labels };
+        for (const [key, value] of Object.entries(this.state.labels)) {
+            if (!Array.isArray(value)) {
+                if (value.includes("*")) {
+                    this.state.labels[key] = [value, "=~"];
+                } else {
+                    this.state.labels[key] = [value, "="];
+                }
+            }
+        }
     },
     addLabel(label, value) {
+        if (Array.isArray(value) && value[1] === undefined) {
+            if (value[0].includes("*")) {
+                value[1] = "=~";
+            } else {
+                value[1] = "=";
+            }
+        }
         this.state.labels[label] = value;
     },
     showModal() {
@@ -75,16 +91,16 @@ const app = Vue.createApp({
         setSilenceDataset(event) {
             this.setSilenceLabels(event.target.dataset);
         },
-        addSilenceLabel(label, value) {
-            silenceStore.addLabel(label, value);
+        addSilenceLabel(label, value, operator) {
+            silenceStore.addLabel(label, [value, operator]);
             silenceStore.showModal();
         },
         silenceSelectedHosts(event) {
             this.setSilenceLabels(event.target.dataset);
             this.addSilenceLabel('instance', this.selectedHosts.join('|'));
         },
-        openSilenceListModal(params) {
-            silenceListStore.showModal(params);
+        openSilenceListModal(params, silences, target) {
+            silenceListStore.showModal(params, silences, target);
         },
         fetchSilences: function () {
             fetch('/proxy/v1/silences')
@@ -121,6 +137,17 @@ const app = Vue.createApp({
             let tgt = document.getElementById(target);
             tgt.setAttribute('list', dst + '.' + src);
         },
+        getActiveSilencesForService: function (service) {
+            return getActiveSilences(this.activeSilences, "service", service);
+        },
+        getActiveSilencesForProject: function (project, service) {
+            const silencesMatchProject = getActiveSilences(this.activeSilences, "project", project);
+            const silencesMatchService = getActiveSilences(this.activeSilences, "service", service);
+            return silencesMatchProject.filter(silence =>
+                !silence.matchers.some(matcher => matcher.name === "service") ||
+                silencesMatchService.includes(silence)
+            );
+        },
     },
     computed: {
         activeServiceAlerts: function () {
@@ -131,12 +158,6 @@ const app = Vue.createApp({
         },
         activeRuleAlerts: function () {
             return groupByLabel(this.activeAlerts, 'alertname');
-        },
-        activeServiceSilences: function () {
-            return groupByLabel(this.activeSilences, 'service');
-        },
-        activeProjectSilences: function () {
-            return groupByLabel(this.activeSilences, 'project');
         },
         activeAlerts: function () {
             return this.globalAlerts.filter(alert => alert.status.state === 'active');
@@ -168,6 +189,23 @@ app.component("silence-row", {
             default: "info",
         },
     },
+    methods: {
+        getOperator(matcher) {
+            if (matcher.isEqual) {
+                if (matcher.isRegex) {
+                    return "=~";
+                } else {
+                    return "=";
+                }
+            } else {
+                if (matcher.isRegex) {
+                    return "!~";
+                } else {
+                    return "!=";
+                }
+            }
+        },
+    },
 });
 
 app.component('silence-create-modal', {
@@ -175,7 +213,7 @@ app.component('silence-create-modal', {
     delimiters: ['[[', ']]'],
     data: () => ({
         state: silenceStore.state,
-        form: {}
+        form: {operator: "="}
     }),
     computed: {
         globalMessages() {
@@ -184,18 +222,29 @@ app.component('silence-create-modal', {
     },
     methods: {
         addLabel() {
-            if (this.form.label && this.form.value) {
-                silenceStore.addLabel(this.form.label, this.form.value);
+            if (this.form.label && this.form.value && this.form.operator) {
+                silenceStore.addLabel(this.form.label, [this.form.value, this.form.operator]);
                 this.form.label = '';
                 this.form.value = '';
+                this.form.operator = "=";
             }
         },
         removeLabel(label) {
             delete this.state.labels[label];
         },
         submit() {
+            matchers = [];
+            for (const [label, value] of Object.entries(this.state.labels)) {
+                matchers.push({
+                    name: label,
+                    value: value[0],
+                    isEqual: ["=", "=~"].includes(value[1]),
+                    isRegex: ["=~", "!~"].includes(value[1]),
+                });
+            }
+
             const body = JSON.stringify({
-                labels: this.state.labels,
+                matchers: matchers,
                 startsAt: this.form.startsAt,
                 endsAt: this.form.endsAt,
                 duration: this.form.duration,
@@ -203,7 +252,12 @@ app.component('silence-create-modal', {
                 comment: this.form.comment
             });
 
-            fetch('/proxy/v1/silences', { method: 'POST', body })
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value,
+            };
+
+            fetch('/proxy/v2/silences', {method: 'POST', headers, body})
                 .then(response => {
                     if (response.ok) {
                         location.reload();
@@ -221,7 +275,7 @@ app.component('silence-create-modal', {
             const modal = $('#silenceCreateModal');
             if (modal.length) {
                 globalStore.setMessages([]);
-                this.form = {};
+                this.form = {operator: "="};
                 this.state = silenceStore.state;
                 modal.modal('hide');
             }
@@ -334,19 +388,29 @@ const silenceListStore = Vue.reactive({
         show: false,
         labels: []
     },
-    addFilterLabel(label, value) {
-        const existingLabel = this.state.labels.find(item => item.label === label && item.value === value);
+    addFilterLabel(label, value, operator) {
+        const existingLabel = this.state.labels.find(
+          (item) =>
+            item.label === label &&
+            item.value === value &&
+            item.operator === operator,
+        );
         if (!existingLabel) {
-            this.state.labels.push({ label, value });
+            this.state.labels.push({label, value, operator});
         }
     },
-    removeFilterLabel(label, value) {
-        const index = this.state.labels.findIndex(item => item.label === label && item.value === value);
+    removeFilterLabel(label, value, operator) {
+        const index = this.state.labels.findIndex(
+          (item) =>
+            item.label === label &&
+            item.value === value &&
+            item.operator === operator,
+        );
         if (index > -1) {
             this.state.labels.splice(index, 1);
         }
     },
-    showModal(params=null) {
+    showModal(params=null, silences=null, target=null) {
         // Accept an optional parameter of type object that contains another "matchers" object. This
         // is to allow opening the modal with some matchers already set for filtering.
         //
@@ -361,6 +425,39 @@ const silenceListStore = Vue.reactive({
         ) {
             for (const [label, value] of Object.entries(params.matchers)) {
                 this.addFilterLabel(label, value);
+            }
+        }
+
+        // Accept a list of silences as an optional parameter to show active silences of a specific project
+        // or service, by creating pre-filled matchers based on the matchers with 'project' or 'service' labels
+        // in the input silences.
+        // parameter 'target' must be 'project' or 'service'.
+        if (silences && typeof silences === "object" && Array.isArray(silences)) {
+            for (const silence of silences) {
+                for (const matcher of silence.matchers) {
+                    if ("service" === target) {
+                        if (["service"].includes(matcher.name)) {
+                            this.addFilterLabel(
+                              matcher.name,
+                              matcher.value,
+                              matcher.isEqual
+                              ? matcher.isRegex ? "=~" : "="
+                              : matcher.isRegex ? "!~" : "!="
+                            );
+                        }
+                    }
+                    if ("project" === target) {
+                        if (["project", "service"].includes(matcher.name)) {
+                            this.addFilterLabel(
+                              matcher.name,
+                              matcher.value,
+                              matcher.isEqual
+                              ? matcher.isRegex ? "=~" : "="
+                              : matcher.isRegex ? "!~" : "!="
+                            );
+                        }
+                    }
+                }
             }
         }
 
@@ -380,7 +477,8 @@ app.component('silence-list-modal', {
             state: silenceListStore.state,
             form: {
                 label: '',
-                value: ''
+                value: '',
+                operator: "="
             },
             store: dataStore
         };
@@ -400,13 +498,73 @@ app.component('silence-list-modal', {
                 return this.activeSilences;
             }
 
+            // Group matchers in state by label
+            // For example, if we have matchers like:
+            //   [
+            //      {label: 'service', value: 'foo', operator: '='},
+            //      {label: 'service', value: 'bar', operator: '!='},
+            //      {label: 'project', value: 'baz', operator: '=~'},
+            //   ]
+            // We will create a map like:
+            //   {
+            //     'service': [
+            //          {label: 'service', value: 'foo', operator: '='},
+            //          {label: 'service', value: 'bar', operator: '!='},
+            //     ],
+            //     'project': [{label: 'project', value: 'baz', operator: '=~'}]
+            //   }
+            const groups = this.state.labels.reduce((map, item) => {
+                if (item.label) {
+                    if (!map.has(item.label)) {
+                        map.set(item.label, []);
+                    }
+                    map.get(item.label).push(item);
+                }
+                return map;
+            }, new Map());
+
+            // Filter silences based on the matchers in the groups
+            // A silence matches if all of its matchers match at least one of the matchers in
+            // the groups that have the same label.
+            // For example, if we have a groups map like:
+            //   {
+            //     'service': [
+            //          {label: 'service', value: 'foo', operator: '='},
+            //          {label: 'service', value: 'bar', operator: '!='},
+            //     ],
+            //     'project': [{label: 'project', value: 'baz', operator: '=~'}]
+            //   }
+            //
+            // - This silence will match: 'service=foo, project=~baz'
+            // - This silence will match: 'service!=bar, project=~baz'
+            // - This silence will match: 'service=foo'
+            // - This silence will NOT match: 'service=foo, project=~test'
+            //   because the value 'test' for the label 'project' is not in the groups map.
+            // - This silence will NOT match: 'service=test, project=~baz'
+            //   because the value 'test' for the label 'service' is not in the groups map.
+            // - This silence will NOT match: 'service=foo, project!=baz'
+            //   because the operator '!=' for the label 'project' is not in the groups map.
             return this.activeSilences.filter(silence => {
-                return this.state.labels.every(filterLabel => {
-                    return silence.matchers.some(matcher => 
-                        matcher.name === filterLabel.label &&
-                        matcher.value === filterLabel.value
-                    );
-                });
+                let doesSilenceMatch = false;
+                for (const matcher of silence.matchers) {
+                    const groupsForMatcher = groups.get(matcher.name);
+                    if (groupsForMatcher) {
+                        const matchFound = groupsForMatcher.some(group =>
+                            matcher.name === group.label &&
+                            matcher.value === group.value &&
+                            (
+                                (matcher.isEqual && ["=", "=~"].includes(group.operator)) ||
+                                (!matcher.isEqual && ["!=", "!~"].includes(group.operator))
+                            )
+                        );
+                        if (!matchFound){
+                            return false;
+                        } else {
+                            doesSilenceMatch = true;
+                        }
+                    }
+                }
+                return doesSilenceMatch;
             });
         },
         uniqueLabels() {
@@ -418,12 +576,32 @@ app.component('silence-list-modal', {
             });
             return Array.from(labels).sort();
         },
+        filteredOperators() {
+            if (!this.form.label) return [];
+            const operators = new Set();
+            this.filteredSilences.forEach((silence) => {
+                silence.matchers.forEach((matcher) => {
+                    if (matcher.name === this.form.label) {
+                        const op = matcher.isEqual ?
+                            (matcher.isRegex ? "=~" : "=") : (matcher.isRegex ? "!~" : "!=");
+                        operators.add(op);
+                    }
+                });
+            });
+            return ["=", "=~", "!=", "!~"].filter((op) => operators.has(op));
+        },
         filteredValues() {
             if (!this.form.label) return [];
             const values = new Set();
             this.filteredSilences.forEach(silence => {
                 silence.matchers.forEach(matcher => {
-                    if (matcher.name === this.form.label) {
+                    if (
+                        matcher.name === this.form.label &&
+                        (
+                            (matcher.isEqual === ["=", "=~"].includes(this.form.operator)) &&
+                            (matcher.isRegex === ["=~", "!~"].includes(this.form.operator))
+                        )
+                    ) {
                         values.add(matcher.value);
                     }
                 });
@@ -439,6 +617,7 @@ app.component('silence-list-modal', {
                 silenceListStore.state.labels = [];
                 this.form.label = ''; 
                 this.form.value = '';
+                this.form.operator = "=";
                 modal.modal('hide');
             }
         },
@@ -451,21 +630,41 @@ app.component('silence-list-modal', {
                 modal.modal('show');
             }
         },
-        addFilterLabel(label, value) {
-            if (label && value) {
-                if (!this.state.labels.some(item => item.label === label && item.value === value)) {
-                    silenceListStore.addFilterLabel(label, value);
+        addFilterLabel(label, value, operator) {
+            if (label && value && operator) {
+                if (
+                  !this.state.labels.some(
+                    (item) => item.label === label && item.value === value,
+                  )
+                ) {
+                    silenceListStore.addFilterLabel(label, value, operator);
                 }
-            } else if (this.form.label && this.form.value) {
-                if (!this.state.labels.some(item => item.label === this.form.label && item.value === this.form.value)) {
-                    silenceListStore.addFilterLabel(this.form.label, this.form.value);
+            } else if (this.form.label && this.form.value && this.form.operator) {
+                if (
+                  !this.state.labels.some(
+                    (item) =>
+                      item.label === this.form.label &&
+                      item.value === this.form.value &&
+                      item.value === this.form.operator,
+                  )
+                ) {
+                    silenceListStore.addFilterLabel(
+                      this.form.label,
+                      this.form.value,
+                      this.form.operator,
+                    );
                 }
             }
             this.form.label = '';
             this.form.value = '';
+            this.form.operator = "=";
         },
-        removeFilterLabel(label, value) {
-            silenceListStore.removeFilterLabel(label, value);
+        removeFilterLabel(label, value, operator) {
+            silenceListStore.removeFilterLabel(label, value, operator);
+        },
+        updateOperatorAndValueOptions() {
+            this.updateValueOptions();
+            this.form.operator = this.filteredOperators[0];
         },
         updateValueOptions() {
             this.form.value = '';

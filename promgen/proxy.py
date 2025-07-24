@@ -12,8 +12,10 @@ from django.http import HttpResponse, JsonResponse
 from django.views.generic import View
 from django.views.generic.base import TemplateView
 from requests.exceptions import HTTPError
+from rest_framework import permissions
+from rest_framework.views import APIView
 
-from promgen import forms, models, prometheus, util
+from promgen import forms, models, prometheus, serializers, util
 
 logger = logging.getLogger(__name__)
 
@@ -196,6 +198,45 @@ class ProxySilences(View):
 
         try:
             response = prometheus.silence(**form.cleaned_data)
+        except requests.HTTPError as e:
+            return JsonResponse(
+                {
+                    "messages": [
+                        {"class": "alert alert-danger", "message": e.response.text},
+                    ]
+                },
+                status=e.response.status_code,
+            )
+        except Exception as e:
+            return JsonResponse(
+                {"messages": [{"class": "alert alert-danger", "message": str(e)}]},
+                status=HTTPStatus.UNPROCESSABLE_ENTITY,
+            )
+
+        return HttpResponse(
+            response.text, status=response.status_code, content_type="application/json"
+        )
+
+
+class ProxySilencesV2(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.SilenceSerializer(data=request.data)
+        if not serializer.is_valid():
+            return JsonResponse(
+                {
+                    "messages": [
+                        {"class": "alert alert-warning", "message": m, "label": k}
+                        for k in serializer.errors
+                        for m in serializer.errors[k]
+                    ]
+                },
+                status=HTTPStatus.UNPROCESSABLE_ENTITY,
+            )
+
+        try:
+            response = prometheus.silence(labels=None, **serializer.data)
         except requests.HTTPError as e:
             return JsonResponse(
                 {
