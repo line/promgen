@@ -617,3 +617,12 @@ class Prometheus(models.Model):
         ordering = ["shard", "host"]
         unique_together = (("host", "port"),)
         verbose_name_plural = "prometheis"
+
+
+class SiteConfiguration(models.Model):
+    key = models.CharField(max_length=128, unique=True)
+    value = models.JSONField(default=dict)
+
+    def __str__(self):
+        return f"{self.key}={self.value}"
+
