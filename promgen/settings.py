@@ -50,7 +50,6 @@ if PROMGEN_CONFIG_FILE.exists():
 else:
     PROMGEN = {}
 
-PROMGEN_DEFAULT_GROUP = "Default"
 PROMGEN_SCHEME = env.str("PROMGEN_SCHEME", default="http")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
@@ -65,6 +64,7 @@ INSTALLED_APPS = apps_from_setuptools + [
     "rest_framework.authtoken",
     "rest_framework",
     "social_django",
+    "guardian",
     # Django
     "django.forms",
     "django.contrib.admin",
@@ -193,7 +193,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly",
+        "promgen.permissions.ReadOnlyForAuthenticatedUserOrIsSuperuser",
     ),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
@@ -222,3 +222,8 @@ for k, v in PROMGEN.pop("django", {}).items():
     globals()[k] = v
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "guardian.backends.ObjectPermissionBackend",
+)
