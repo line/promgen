@@ -108,6 +108,21 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// Activate a tab based on the hash value of the URL
+// For example, if the URL is `http://example.com#tab2`, it will activate the tab with id `tab2`.
+function activateTabFromHash() {
+  const hash = window.location.hash;
+  if (hash && $(hash).length) {
+    // Remove active class from all tabs and tab content
+    $(".nav-tabs li").removeClass("active");
+    $(".tab-pane").removeClass("active");
+
+    // Add active class to tab and tab content that matches the hash
+    $('a[href="' + hash + '"]').parent().addClass("active");
+    $(hash).addClass("active");
+  }
+}
+
 $(document).ready(function() {
   $('[data-toggle="popover"]').popover();
   $('[data-toggle="tooltip"]').tooltip();
@@ -136,5 +151,18 @@ $(document).ready(function() {
       // use the third parameter to skip re-firing the change event
       $(this).bootstrapSwitch('state', !state, true);
     }
+  });
+
+  // Activate tab based on hash on page load
+  activateTabFromHash();
+
+  // Update the hash when a tab is clicked
+  $('.nav-tabs a').on('click', function(e) {
+      window.location.hash = this.hash;
+  });
+
+  // Activate tab based on hash changed by back/forward navigation
+  $(window).on('hashchange', function() {
+      activateTabFromHash();
   });
 });
