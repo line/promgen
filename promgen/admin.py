@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 import json
 
+import guardian.admin
 from django import forms
 from django.contrib import admin
 from django.utils.html import format_html
@@ -35,14 +36,14 @@ class ShardAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Service)
-class ServiceAdmin(admin.ModelAdmin):
+class ServiceAdmin(guardian.admin.GuardedModelAdmin):
     list_display = ("name", "owner")
     list_filter = (("owner", admin.RelatedOnlyFieldListFilter),)
     list_select_related = ("owner",)
 
 
 @admin.register(models.Project)
-class ProjectAdmin(admin.ModelAdmin):
+class ProjectAdmin(guardian.admin.GuardedModelAdmin):
     list_display = ("name", "shard", "service", "farm", "owner")
     list_select_related = ("service", "farm", "shard", "owner")
     list_filter = ("shard", ("owner", admin.RelatedOnlyFieldListFilter))
@@ -68,7 +69,7 @@ class SenderAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Farm)
-class FarmAdmin(admin.ModelAdmin):
+class FarmAdmin(guardian.admin.GuardedModelAdmin):
     list_display = ("name", "source")
     list_filter = ("source",)
 

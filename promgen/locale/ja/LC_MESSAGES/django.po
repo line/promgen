@@ -180,3 +180,49 @@ msgstr "Actions"
 #: views.py:1219
 msgid "No search parameters provided."
 msgstr "検索フレーズが指定されていません"
+
+#: templates/promgen/service_detail.html:93
+#: templates/promgen/project_detail.html:101
+#: templates/promgen/farm_detail.html:71
+msgid "This is a transitional release. Even if you are able to assign roles to members, the permission checks are actually disabled. They will be enabled in the next release."
+msgstr "このリリースは移行用のリリースです。ロールをメンバーに割り当てても、権限のチェックは行われません。次のリリースで権限のチェックが有効化されます。"
+
+#: templates/promgen/permission_row.html:28
+msgid "Delete all permissions for user?"
+msgstr "ユーザーから全ての権限を削除しますか？"
+
+#: templates/promgen/permission_row.html:46
+msgid "Remove permissions in child projects"
+msgstr "子 Project の権限も削除する"
+
+#: views.py:1574
+msgid "Cannot assign permission for the owner. The owner must have the ADMIN role."
+msgstr "この権限はオーナーには付与できません。オーナーは ADMIN 権限である必要があります。"
+
+#: views.py:1587
+msgid "Assigned permission: {permission} for user: {username} on: {name}"
+msgstr "ユーザー {username} に、{name} での権限 {permission} を追加しました。"
+
+#: views.py:1610
+msgid "Cannot remove permissions for the owner. Please transfer ownership first."
+msgstr "オーナーから権限を取り除くことは出来ません。まずオーナー権限を別のユーザーに移してください。"
+
+#: views.py:1626
+msgid "Removed all permissions of user: {username} on: {name} and its projects."
+msgstr "ユーザー: {username} が持っている、 {name} および子プロジェクトの権限を削除しました。"
+
+#: views.py:1633
+msgid "Removed all permissions of user: {username} on: {name}."
+msgstr "ユーザー {username} から、{name} での権限を全て削除しました。"
+
+#: templates/promgen/farm_update.html:13
+#: templates/promgen/project_form.html:18
+#: templates/promgen/service_form.html:16
+msgid "Warning. The owner can only be changed by the current owner. The new owner will have the ADMIN role."
+msgstr "警告：オーナーを変更できるのは現在のオーナーだけです。新しいオーナーが ADMIN 権限を取得します。"
+
+#: views.py:532
+#: views.py:830
+#: views.py:846
+msgid _("You do not have permission to change the owner.")
+msgstr "あなたはオーナーを変更する権限を持っていません。"

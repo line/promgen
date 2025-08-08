@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load i18n %}
 {% block content %}
 
 <div class="page-header" v-pre>
@@ -11,6 +12,9 @@
 {% if service %}
 <div class="alert alert-danger" role="alert">
   Warning. Renaming or Moving a service will reset all labels in Prometheus
+</div>
+<div class="alert alert-danger" role="alert">
+  {% trans "Warning. The owner can only be changed by the current owner. The new owner will have the ADMIN role." %}
 </div>
 {% endif %}
 

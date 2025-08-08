@@ -15,6 +15,7 @@ import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, Paginator
 from django.db.models import Count, Q
@@ -28,6 +29,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
+from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
 from rest_framework.authtoken.models import Token
@@ -44,6 +46,7 @@ from promgen import (
     tasks,
     util,
 )
+from promgen.forms import UserPermissionForm
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
@@ -289,6 +292,11 @@ class ServiceDetail(LoginRequiredMixin, DetailView):
         "project_set__notifiers__owner",
     )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
+        return context
+
 
 class ServiceDelete(LoginRequiredMixin, DeleteView):
     model = models.Service
@@ -489,6 +497,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
 
         context["sources"] = sources
         context["url_form"] = forms.URLForm()
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
         return context
 
 
@@ -503,6 +512,11 @@ class FarmList(LoginRequiredMixin, ListView):
 class FarmDetail(LoginRequiredMixin, DetailView):
     model = models.Farm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["permission_form"] = UserPermissionForm(input_object=self.object)
+        return context
+
 
 class FarmUpdate(LoginRequiredMixin, UpdateView):
     model = models.Farm
@@ -511,6 +525,13 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
     form_class = forms.FarmForm
 
     def form_valid(self, form):
+        if "owner" in form.changed_data:
+            if not (
+                self.request.user.is_superuser or self.request.user.id == form.initial["owner"]
+            ):
+                form.add_error("owner", _("You do not have permission to change the owner."))
+                return self.form_invalid(form)
+            assign_perm("farm_admin", form.cleaned_data["owner"], form.instance)
         farm, created = models.Farm.objects.update_or_create(
             id=self.kwargs["pk"],
             defaults=form.clean(),
@@ -765,7 +786,7 @@ class ProjectRegister(LoginRequiredMixin, CreateView):
     fields = ["name", "description", "owner", "shard"]
 
     def get_initial(self):
-        initial = {"owner": self.request.user}
+        initial = {}
         if "shard" in self.request.GET:
             initial["shard"] = get_object_or_404(models.Shard, pk=self.request.GET["shard"])
         return initial
@@ -774,7 +795,15 @@ class ProjectRegister(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context["service"] = get_object_or_404(models.Service, id=self.kwargs["pk"])
         context["shard_list"] = models.Shard.objects.all()
+        if not self.request.user.is_superuser:
+            context["form"].fields.pop("owner", None)
         return context
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            self.request.POST = request.POST.copy()
+            self.request.POST["owner"] = self.request.user.pk
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.service_id = self.kwargs["pk"]
@@ -793,11 +822,31 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
         context["shard_list"] = models.Shard.objects.all()
         return context
 
+    def form_valid(self, form):
+        if "owner" in form.changed_data:
+            if not (
+                self.request.user.is_superuser or self.request.user.id == form.initial["owner"]
+            ):
+                form.add_error("owner", _("You do not have permission to change the owner."))
+                return self.form_invalid(form)
+            assign_perm("project_admin", form.cleaned_data["owner"], form.instance)
+        return super().form_valid(form)
+
 
 class ServiceUpdate(LoginRequiredMixin, UpdateView):
     button_label = _("Update Service")
     form_class = forms.ServiceUpdate
     model = models.Service
+
+    def form_valid(self, form):
+        if "owner" in form.changed_data:
+            if not (
+                self.request.user.is_superuser or self.request.user.id == form.initial["owner"]
+            ):
+                form.add_error("owner", _("You do not have permission to change the owner."))
+                return self.form_invalid(form)
+            assign_perm("service_admin", form.cleaned_data["owner"], form.instance)
+        return super().form_valid(form)
 
 
 class RuleDetail(LoginRequiredMixin, DetailView):
@@ -913,8 +962,17 @@ class ServiceRegister(LoginRequiredMixin, CreateView):
     model = models.Service
     fields = ["name", "description", "owner"]
 
-    def get_initial(self):
-        return {"owner": self.request.user}
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not self.request.user.is_superuser:
+            context["form"].fields.pop("owner", None)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            self.request.POST = request.POST.copy()
+            self.request.POST["owner"] = self.request.user.pk
+        return super().post(request, *args, **kwargs)
 
 
 class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
@@ -926,7 +984,15 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["host_form"] = kwargs.get("host_form", forms.HostForm())
+        if not self.request.user.is_superuser:
+            context["form"].fields.pop("owner", None)
         return context
+
+    def post(self, request, *args, **kwargs):
+        if not self.request.user.is_superuser:
+            self.request.POST = request.POST.copy()
+            self.request.POST["owner"] = self.request.user.pk
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
@@ -1491,3 +1557,92 @@ class ProfileTokenDelete(LoginRequiredMixin, View):
         Token.objects.filter(user=request.user).delete()
         messages.success(request, "API token deleted successfully for " + request.user.username)
         return redirect("profile")
+
+
+class PermissionAssign(LoginRequiredMixin, View):
+    permission_required = ["service_admin", "project_admin", "farm_admin"]
+
+    def post(self, request):
+        user = User.objects.get_by_natural_key(request.POST["username"])
+        permission = request.POST["permission"]
+        obj = self.get_object()
+
+        # Prevent changing permissions for the owner of the object
+        if user == obj.owner and permission not in self.permission_required:
+            messages.warning(
+                request,
+                _("Cannot assign permission for the owner. The owner must have the ADMIN role."),
+            )
+            return redirect(request.POST["next"])
+
+        # User should only have one permission for an object, so we remove all permissions before
+        # assigning a new one.
+        permissions = get_perms(user, obj)
+        for perm in permissions:
+            remove_perm(perm, user, obj)
+
+        assign_perm(permission, user, obj)
+        messages.success(
+            request,
+            _("Assigned permission: {permission} for user: {username} on: {name}").format(
+                permission=permission, username=user.username, name=obj.name
+            ),
+        )
+        return redirect(request.POST["next"])
+
+    def get_object(self):
+        id = self.request.POST["id"]
+        model = self.request.POST["model"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj
+
+
+class PermissionDelete(LoginRequiredMixin, View):
+    def post(self, request):
+        user = User.objects.get_by_natural_key(request.POST["username"])
+        obj = self.get_object()
+
+        # Prevent removing permissions for the owner of the object
+        if user == obj.owner:
+            messages.warning(
+                request,
+                _("Cannot remove permissions for the owner. Please transfer ownership first."),
+            )
+            return redirect(request.POST["next"])
+
+        permissions = get_perms(user, obj)
+        for perm in permissions:
+            remove_perm(perm, user, obj)
+
+        if "on" == request.POST.get("remove_sub_permissions") and isinstance(obj, models.Service):
+            # Remove all permissions for the user on this Service's projects
+            for project in obj.project_set.all():
+                permissions = get_perms(user, project)
+                for perm in permissions:
+                    remove_perm(perm, user, project)
+            messages.success(
+                request,
+                _(
+                    "Removed all permissions of user: {username} on: {name} and its projects."
+                ).format(username=user.username, name=obj.name),
+            )
+        else:
+            messages.success(
+                request,
+                _("Removed all permissions of user: {username} on: {name}.").format(
+                    username=user.username, name=obj.name
+                ),
+            )
+
+        # If the user is removing their own permission, redirect to home
+        if user == self.request.user:
+            return redirect(reverse("home"))
+        return redirect(request.POST["next"])
+
+    def get_object(self):
+        id = self.request.POST["id"]
+        model = self.request.POST["model"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj

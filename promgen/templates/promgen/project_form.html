@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load promgen %}
+{% load i18n %}
 {% block content %}
 
 {% if project %}
@@ -12,6 +13,10 @@
 <div class="alert alert-danger" role="alert">
   <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
   Warning. Renaming or Moving a project will reset all labels in Prometheus
+</div>
+<div class="alert alert-danger" role="alert">
+  <span class="glyphicon glyphicon-alert" aria-hidden="true"></span>
+  {% trans "Warning. The owner can only be changed by the current owner. The new owner will have the ADMIN role." %}
 </div>
 {% else %}
 <div class="page-header">
@@ -38,6 +43,7 @@
           {{form.description}}
         </td>
       </tr>
+      {% if form.owner %}
       <tr>
         <th>{{form.owner.label}}</th>
         <td>
@@ -45,6 +51,7 @@
           {{form.owner}}
         </td>
       </tr>
+      {% endif %}
       {% if project.pk %}
       <tr>
         <th>{{form.service.label}}</th>
