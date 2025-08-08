@@ -362,7 +362,7 @@ class NotifierDelete(LoginRequiredMixin, DeleteView):
         if "next" in self.request.POST:
             return self.request.POST["next"]
         if hasattr(self.object.content_object, "get_absolute_url"):
-            return self.object.content_object.get_absolute_url()
+            return self.object.content_object.get_absolute_url() + "#notifiers"
         return reverse("profile")
 
 
@@ -387,7 +387,7 @@ class ExporterDelete(LoginRequiredMixin, DeleteView):
     model = models.Exporter
 
     def get_success_url(self):
-        return reverse("project-detail", args=[self.object.project_id])
+        return reverse("project-detail", args=[self.object.project_id]) + "#exporters"
 
 
 class ExporterToggle(LoginRequiredMixin, View):
@@ -396,7 +396,7 @@ class ExporterToggle(LoginRequiredMixin, View):
         exporter.enabled = not exporter.enabled
         exporter.save()
         signals.trigger_write_config.send(request)
-        return JsonResponse({"redirect": exporter.project.get_absolute_url()})
+        return JsonResponse({"redirect": exporter.project.get_absolute_url() + "#exporters"})
 
 
 class NotifierToggle(LoginRequiredMixin, View):
@@ -405,7 +405,7 @@ class NotifierToggle(LoginRequiredMixin, View):
         sender.enabled = not sender.enabled
         sender.save()
         # Redirect to current page
-        return JsonResponse({"redirect": ""})
+        return JsonResponse({"redirect": "#notifiers"})
 
 
 class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
@@ -425,7 +425,7 @@ class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
         yield f"{tgt.app_label}.change_{tgt.model_name}"
 
     def get_success_url(self):
-        return self.object.content_object.get_absolute_url()
+        return self.object.content_object.get_absolute_url() + "#rules"
 
 
 class RuleToggle(mixins.PromgenPermissionMixin, SingleObjectMixin, View):
@@ -447,7 +447,7 @@ class RuleToggle(mixins.PromgenPermissionMixin, SingleObjectMixin, View):
     def post(self, request, pk):
         self.object.enabled = not self.object.enabled
         self.object.save()
-        return JsonResponse({"redirect": self.object.content_object.get_absolute_url()})
+        return JsonResponse({"redirect": self.object.content_object.get_absolute_url() + "#rules"})
 
 
 class HostDelete(LoginRequiredMixin, DeleteView):
@@ -539,7 +539,7 @@ class UnlinkFarm(LoginRequiredMixin, View):
             logger.debug("Cleaning up old farm %s", oldfarm)
             oldfarm.delete()
 
-        return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
+        return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#hosts")
 
 
 class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
@@ -587,7 +587,7 @@ class RulesCopy(LoginRequiredMixin, View):
             rule = original.copy_to(**form.clean())
             return HttpResponseRedirect(reverse("rule-edit", args=[rule.id]))
         else:
-            return HttpResponseRedirect(reverse("service-detail", args=[pk]))
+            return HttpResponseRedirect(reverse("service-detail", args=[pk]) + "#rules")
 
 
 class FarmRefresh(LoginRequiredMixin, RedirectView):
@@ -665,7 +665,7 @@ class FarmLink(LoginRequiredMixin, View):
 
         project.farm = farm
         project.save()
-        return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
+        return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#hosts")
 
 
 class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
@@ -676,7 +676,7 @@ class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
         exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
-        return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
+        return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#exporters")
 
 
 class ExporterScrape(LoginRequiredMixin, View):
@@ -740,14 +740,14 @@ class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
         url, _ = models.URL.objects.get_or_create(project=project, **form.clean())
-        return HttpResponseRedirect(reverse("project-detail", args=[project.id]))
+        return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#http-checks")
 
 
 class URLDelete(LoginRequiredMixin, DeleteView):
     model = models.URL
 
     def get_success_url(self):
-        return reverse("project-detail", args=[self.object.project_id])
+        return reverse("project-detail", args=[self.object.project_id]) + "#http-checks"
 
 
 class URLList(LoginRequiredMixin, ListView):
@@ -946,7 +946,7 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
 
         project.farm = farm
         project.save()
-        return HttpResponseRedirect(project.get_absolute_url())
+        return HttpResponseRedirect(project.get_absolute_url() + "#hosts")
 
     def get_initial(self):
         return {"owner": self.request.user}
@@ -965,7 +965,7 @@ class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin)
             defaults={"owner": self.request.user},
         )
         signals.check_user_subscription(models.Sender, sender, created, self.request)
-        return HttpResponseRedirect(project.get_absolute_url())
+        return HttpResponseRedirect(project.get_absolute_url() + "#notifiers")
 
 
 class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin):
@@ -981,7 +981,7 @@ class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin)
             defaults={"owner": self.request.user},
         )
         signals.check_user_subscription(models.Sender, sender, created, self.request)
-        return HttpResponseRedirect(service.get_absolute_url())
+        return HttpResponseRedirect(service.get_absolute_url() + "#notifiers")
 
 
 class SiteDetail(LoginRequiredMixin, TemplateView):

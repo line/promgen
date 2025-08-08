@@ -144,7 +144,12 @@ $(document).ready(function() {
         // Ideally we would directly update things that need to be updated
         // but a page redraw is a bit easier since that also allows us to
         // update our page messages
-        window.location = data.redirect
+        window.location = data.redirect;
+        if (data.redirect.includes('#')) {
+          // If the redirect contains a hash, the browser may not reload the page
+          // so we need to force a reload. Otherwise this code won't be reached.
+          window.location.reload();
+        }
       });
     } else {
       // If we click the cancel button, then we restore the old state and
