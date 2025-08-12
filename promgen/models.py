@@ -585,9 +585,17 @@ class Audit(models.Model):
     object_id = models.PositiveIntegerField(default=0)
     content_object = GenericForeignKey("content_type", "object_id")
 
+    parent_content_type_id = models.PositiveIntegerField(default=0)
+    parent_object_id = models.PositiveIntegerField(default=0)
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, default=None
     )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["parent_content_type_id", "parent_object_id"]),
+        ]
 
     @property
     def highlight(self):
@@ -599,6 +607,15 @@ class Audit(models.Model):
             return "danger"
         return ""
 
+    @staticmethod
+    def get_parent(obj):
+        # The variable's name of the parent object is different depending on the model.
+        for attr in ["content_object", "project", "service", "farm"]:
+            value = getattr(obj, attr, None)
+            if value:
+                return value
+        return None
+
     @classmethod
     def log(cls, body, instance=None, old=None, **kwargs):
         from promgen.middleware import get_current_user
@@ -607,6 +624,7 @@ class Audit(models.Model):
         kwargs["created"] = timezone.now()
         kwargs["user"] = get_current_user()
 
+        parent = None
         if instance:
             kwargs["content_type"] = ContentType.objects.get_for_model(instance)
             kwargs["object_id"] = instance.id
@@ -614,8 +632,26 @@ class Audit(models.Model):
             if isinstance(instance, Sender) and data_dict["alias"]:
                 data_dict["value"] = "********"
             kwargs["data"] = json.dumps(data_dict, sort_keys=True)
+
+            parent = cls.get_parent(instance)
+
         if old:
             kwargs["old"] = json.dumps(model_to_dict(old), sort_keys=True)
+
+            # If the parent was changed, we need an additional audit entry for the old parent.
+            # This is useful for tracking the change of the parent object
+            # when checking the audit logs of both the old and the new parent.
+            old_parent = cls.get_parent(old)
+            if old_parent and old_parent != parent:
+                kwargs_clone = kwargs.copy()
+                kwargs_clone["content_type"] = ContentType.objects.get_for_model(old_parent)
+                kwargs_clone["object_id"] = old_parent.id
+                cls.objects.create(**kwargs_clone)
+
+        # If we have a parent object, we need to set the parent content type and object id
+        if parent:
+            kwargs["parent_content_type_id"] = ContentType.objects.get_for_model(parent).id
+            kwargs["parent_object_id"] = parent.id
 
         return cls.objects.create(**kwargs)
 
