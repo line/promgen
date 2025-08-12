@@ -224,50 +224,19 @@ class AuditList(LoginRequiredMixin, ListView):
 
         for key in self.FILTERS:
             if key in self.request.GET:
-                try:
-                    obj = self.FILTERS[key].objects.get(pk=self.request.GET[key])
-                except self.FILTERS[key].DoesNotExist:
-                    # If we can't find the object (maybe because it was deleted),
-                    # we will search in the audit log by content_type and object_id
-                    # and skip finding the related objects.
-                    queryset = queryset.filter(
-                        object_id=self.request.GET[key],
-                        content_type_id=ContentType.objects.get_for_model(self.FILTERS.get(key)).id,
-                    )
-                    continue
-
                 # Get any log entries for the object itself
                 qset = Q(
-                    object_id=obj.id,
-                    content_type_id=ContentType.objects.get_for_model(obj).id,
+                    object_id=self.request.GET[key],
+                    content_type_id=ContentType.objects.get_for_model(self.FILTERS.get(key)).id,
                 )
+
                 if key in ["project", "service"]:
-                    # Look for any registered notifiers
+                    # Get any log entries for the child objects of the object
                     qset |= Q(
-                        content_type_id=ContentType.objects.get_for_model(models.Sender).id,
-                        object_id__in=obj.notifiers.values_list("id", flat=True),
-                    )
-                    # Look for any registered rules
-                    qset |= Q(
-                        content_type_id=ContentType.objects.get_for_model(models.Rule).id,
-                        object_id__in=obj.rule_set.values_list("id", flat=True),
-                    )
-                if key == "service":
-                    # Only services may have projects
-                    qset |= Q(
-                        content_type_id=ContentType.objects.get_for_model(models.Project).id,
-                        object_id__in=obj.project_set.values_list("id", flat=True),
-                    )
-                if key == "project":
-                    # Only projects may have exporters
-                    qset |= Q(
-                        content_type_id=ContentType.objects.get_for_model(models.Exporter).id,
-                        object_id__in=obj.exporter_set.values_list("id", flat=True),
-                    )
-                    # Only projects may have URLs
-                    qset |= Q(
-                        content_type_id=ContentType.objects.get_for_model(models.URL).id,
-                        object_id__in=obj.url_set.values_list("id", flat=True),
+                        parent_object_id=self.request.GET[key],
+                        parent_content_type_id=ContentType.objects.get_for_model(
+                            self.FILTERS.get(key)
+                        ).id,
                     )
                 queryset = queryset.filter(qset)
         if "user" in self.request.GET:
