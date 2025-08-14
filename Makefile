@@ -87,12 +87,6 @@ demo:
 
 #### Django Commands
 
-.PHONY: test
-test: $(APP_BIN)
-## Django: Run tests
-	$(APP_BIN) collectstatic --noinput
-	$(APP_BIN) test -v 2 --buffer
-
 .PHONY: bootstrap
 ## Django: Bootstrap install
 bootstrap: $(APP_BIN)
@@ -101,9 +95,22 @@ bootstrap: $(APP_BIN)
 	$(APP_BIN) check
 
 .PHONY: check
+check: django-check promgen-test ruff-lint
+
+.PHONY: django-check
 ## Django: Run Django checks
-check: $(APP_BIN)
+django-check: $(APP_BIN)
 	$(APP_BIN) check
+
+.PHONY: promgen-test
+promgen-test: $(APP_BIN)
+## Django: Run tests
+	$(APP_BIN) collectstatic --noinput
+	$(APP_BIN) test -v 2 --buffer
+
+.PHONY: ruff-lint
+ruff-lint: $(RUFF_BIN)
+	$(RUFF_BIN) check promgen
 
 .PHONY: migrate
 ## Django: Run migrations

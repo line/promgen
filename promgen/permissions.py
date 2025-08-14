@@ -9,8 +9,12 @@ class PromgenModelPermissions(BasePermission):
     Custom permission class to check if a user has specific permissions.
 
     This class uses the following parameters:
-        permissions_required: list[str]. Permissions to check in the format "<app_label>.<permission codename>". Required.
-        any_perm: bool. Whether any of the permissions in the sequence is accepted. Default is False.
+        permissions_required: list[str]
+            Permissions to check in the format "<app_label>.<permission codename>".
+            Required.
+        any_perm: bool
+            Whether any of the permissions in the sequence is accepted.
+            Default is False.
 
     Example:
         ```python

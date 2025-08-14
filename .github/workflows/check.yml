@@ -1,4 +1,4 @@
-name: "Promgen Tests"
+name: "Checks"
 
 on:
   push:
@@ -13,8 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  docs:
-    name: Run tests
+  check:
+    name: Run check
     runs-on: ubuntu-24.04
 
     strategy:
@@ -52,8 +52,8 @@ jobs:
           sudo tar -xz -C /usr/local/bin --strip-components=1 prometheus-2.8.1.linux-amd64/promtool
           sudo chmod +x /usr/local/bin/promtool
 
-      - name: Run Unittests
-        run: make test
+      - name: Run check
+        run: make check
         env:
           SYSTEM_PYTHON: python${{ matrix.python-version }}
           SECRET_KEY: abcd

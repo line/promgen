@@ -10,3 +10,5 @@ af2c352786f952d819e69b928bf6c99dcde5954b
 e72aba6d7e5891ac777f533eef6f7520410c9e0b
 # Format and remove unused imports with Ruff
 5b3d0c07b222ed9f01429f330e5f97e9734b1467
+# Fix errors with Ruff
+2c540870b9a7325fa178f019080533b4f475081c
