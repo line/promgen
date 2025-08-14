@@ -95,7 +95,7 @@ bootstrap: $(APP_BIN)
 	$(APP_BIN) check
 
 .PHONY: check
-check: django-check promgen-test
+check: django-check promgen-test ruff-lint
 
 .PHONY: django-check
 ## Django: Run Django checks
@@ -107,6 +107,10 @@ promgen-test: $(APP_BIN)
 ## Django: Run tests
 	$(APP_BIN) collectstatic --noinput
 	$(APP_BIN) test -v 2 --buffer
+
+.PHONY: ruff-lint
+ruff-lint: $(RUFF_BIN)
+	$(RUFF_BIN) check promgen
 
 .PHONY: migrate
 ## Django: Run migrations

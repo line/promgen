@@ -68,7 +68,10 @@ line-length = 100
 [tool.ruff.lint]
 ignore = [
     'E741', # Ambiguous variable name
-    'E501', # We let the formatter fix line length but don't want to be warned
+]
+exclude = [
+    "promgen/migrations/*",
+    "promgen/urls.py",
 ]
 
 select = ["E", "F", 'I']
