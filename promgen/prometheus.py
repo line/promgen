@@ -293,7 +293,7 @@ def silence(*, labels, duration=None, **kwargs):
     #
     # Otherwise, the method is called from ProxySilencesV2 and the matchers are already provided in
     # the right format, so we don't need to touch them.
-    if not "matchers" in kwargs:
+    if "matchers" not in kwargs:
         kwargs["matchers"] = [
             {
                 "name": name,

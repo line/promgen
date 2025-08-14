@@ -16,7 +16,6 @@ class Command(BaseCommand):
             help="Existing Project",
         )
         parser.add_argument("host", help=help_text("name"))
-        # parser.add_argument("--enabled", default=False, action="store_true", help=help_text('enabled'))
 
     def handle(self, project, **kwargs):
         if project.farm is None:
