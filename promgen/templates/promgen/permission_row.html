@@ -22,6 +22,7 @@
     {% endfor %}
   </td>
   <td class="col-xs-3" style="word-break: break-all" v-pre>
+    {% if user.username != object.owner.username %}
     <form
       method="post"
       action="{% url 'permission-delete' %}"
@@ -48,5 +49,6 @@
       </div>
       {% endif %}
     </form>
+    {% endif %}
   </td>
 </tr>
