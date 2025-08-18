@@ -1,5 +1,22 @@
 # Changelog
 
+# v0.72.0 - 2025-08-15
+
+- [IMPROVEMENT] Check ruff format in GitHub Actions #636
+- [IMPROVEMENT] Run ruff lint in GitHub Actions #635
+- [IMPROVEMENT] Support changing member's role on UI #634
+- [IMPROVEMENT] Add audit logs when assigning or removing permissions #633
+- [IMPROVEMENT] Keep parent info in audit logs #632
+- [INTERNAL] Bump actions/checkout from 4.2.2 to 5.0.0 #631
+- [BUGFIX] Perform settings override as a last action #630
+- [IMPROVEMENT] Allow defining members for Service, Project and Farm #626
+- [IMPROVEMENT] Activate a tab based on the hash value of the URL #629
+- [INTERNAL] Bump docker/login-action from 3.4.0 to 3.5.0 #627
+- [INTERNAL] Bump docker/metadata-action from 5.7.0 to 5.8.0 #628
+- [IMPROVEMENT] Support all operators for silences #620
+- [IMPROVEMENT] Using only one UI for showing Active Silences #624
+- [IMPROVEMENT] Add Edit button when showing the rule list #623
+
 # v0.71.0 - 2025-07-02
 
 - [BUGFIX] Add missing opening div tag #621
