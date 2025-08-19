@@ -284,7 +284,7 @@ class UserPermissionForm(forms.Form):
 
     def get_user_choices(self):
         for u in (
-            User.objects.filter(is_active=True, is_superuser=False)
+            User.objects.filter(is_active=True)
             .exclude(username=ANONYMOUS_USER_NAME)
             .order_by("username")
         ):
