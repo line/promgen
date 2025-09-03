@@ -108,6 +108,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+function initSelect2() {
+  const selectors = 'select[name="username"],select[name="owner"]';
+  $(selectors).select2({
+    placeholder: "Select an option"
+  });
+}
+
 // Activate a tab based on the hash value of the URL
 // For example, if the URL is `http://example.com#tab2`, it will activate the tab with id `tab2`.
 function activateTabFromHash() {
@@ -120,6 +127,12 @@ function activateTabFromHash() {
     // Add active class to tab and tab content that matches the hash
     $('a[href="' + hash + '"]').parent().addClass("active");
     $(hash).addClass("active");
+
+    // The Select2 constructor relies on being able to read the dimensions of the input element,
+    // which cannot be done when it's not part of the DOM yet, or hidden.
+    // To fix this, instantiate the Select2 again when the tab becomes visible.
+    // Ref: https://stackoverflow.com/questions/55277454/select2-not-working-inside-a-bootstrap-tab
+    initSelect2();
   }
 }
 
@@ -170,4 +183,7 @@ $(document).ready(function() {
   $(window).on('hashchange', function() {
       activateTabFromHash();
   });
+
+  // Initialize Select2 for the select elements
+  initSelect2();
 });

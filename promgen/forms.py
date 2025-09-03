@@ -283,6 +283,9 @@ class UserPermissionForm(forms.Form):
             yield (permission.codename, permission.name)
 
     def get_user_choices(self):
+        # Add an empty choice to trigger the Select2 placeholder
+        yield ("", "")
+
         for u in (
             User.objects.filter(is_active=True)
             .exclude(username=ANONYMOUS_USER_NAME)
