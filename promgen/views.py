@@ -46,7 +46,7 @@ from promgen import (
     tasks,
     util,
 )
-from promgen.forms import UserPermissionForm
+from promgen.forms import GroupMemberForm, UserPermissionForm
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
@@ -1615,3 +1615,147 @@ class PermissionDelete(LoginRequiredMixin, View):
         models = ContentType.objects.get(app_label="promgen", model=model)
         obj = models.get_object_for_this_type(pk=id)
         return obj
+
+
+class GroupList(LoginRequiredMixin, ListView):
+    paginate_by = 20
+    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP).order_by("name")
+
+
+class GroupDetail(LoginRequiredMixin, DetailView):
+    queryset = models.Group.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["group_member_form"] = GroupMemberForm(input_object=self.object)
+        return context
+
+
+class GroupAddMember(LoginRequiredMixin, SingleObjectMixin, View):
+    model = models.Group
+
+    def post(self, request, *args, **kwargs):
+        group = self.get_object()
+        already_members = User.objects.filter(
+            Q(username__in=request.POST.getlist("users"))
+            & Q(username__in=group.user_set.values_list("username", flat=True))
+        )
+        new_members = User.objects.filter(username__in=request.POST.getlist("users")).exclude(
+            username__in=group.user_set.values_list("username", flat=True)
+        )
+
+        if already_members.exists():
+            messages.warning(
+                request,
+                _("Users are already members of Group {group}: {users}").format(
+                    group=group.name,
+                    users=[user.username for user in already_members],
+                ),
+            )
+
+        if new_members.exists():
+            for user in new_members:
+                group.user_set.add(user)
+                assign_perm(request.POST["permission"], user, group)
+            messages.success(
+                request,
+                _("Added {users} to Group {group} with permission {permission}").format(
+                    users=[user.username for user in new_members],
+                    group=group.name,
+                    permission=request.POST["permission"],
+                ),
+            )
+
+        return redirect("group-detail", pk=group.pk)
+
+
+class GroupUpdateMember(LoginRequiredMixin, SingleObjectMixin, View):
+    model = models.Group
+
+    def post(self, request, *args, **kwargs):
+        group = self.get_object()
+        user = User.objects.get_by_natural_key(request.POST["username"])
+
+        if group.user_set.filter(pk=user.pk).exists():
+            permissions = get_perms(user, group)
+            for perm in permissions:
+                remove_perm(perm, user, group)
+            assign_perm(request.POST["permission"], user, group)
+            messages.success(
+                request,
+                _("Updated permission to {permission} for {user} on Group {group}").format(
+                    permission=request.POST["permission"], user=user.username, group=group.name
+                ),
+            )
+        else:
+            messages.error(
+                request,
+                _("User {user} is not a member of Group {group}").format(
+                    user=user.username, group=group.name
+                ),
+            )
+
+        return redirect("group-detail", pk=group.pk)
+
+
+class GroupRemoveMember(LoginRequiredMixin, SingleObjectMixin, View):
+    model = models.Group
+
+    def post(self, request, *args, **kwargs):
+        group = self.get_object()
+        user = User.objects.get_by_natural_key(request.POST["username"])
+
+        if group.user_set.filter(pk=user.pk).exists():
+            permissions = get_perms(user, group)
+            for perm in permissions:
+                remove_perm(perm, user, group)
+            group.user_set.remove(user)
+            messages.success(
+                request,
+                _("Removed {user} from Group {group}").format(user=user.username, group=group.name),
+            )
+        else:
+            messages.error(
+                request,
+                _("User {user} is not a member of Group {group}").format(
+                    user=user.username, group=group.name
+                ),
+            )
+
+        return redirect("group-detail", pk=group.pk)
+
+
+class GroupRegister(LoginRequiredMixin, CreateView):
+    button_label = _("Register Group")
+    model = models.Group
+    fields = ["name"]
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        group = self.object
+        group.user_set.add(self.request.user)
+        assign_perm("group_admin", self.request.user, group)
+        return response
+
+    def get_success_url(self):
+        if self.request.GET.get("next"):
+            messages.success(
+                self.request,
+                _("Group {group} created successfully.").format(group=self.object.name),
+            )
+            return self.request.GET["next"]
+        return super().get_success_url()
+
+
+class GroupUpdate(LoginRequiredMixin, UpdateView):
+    button_label = _("Update Group")
+    model = models.Group
+    fields = ["name"]
+
+
+class GroupDelete(LoginRequiredMixin, DeleteView):
+    button_label = _("Delete Group")
+    model = models.Group
+
+    def get_success_url(self):
+        return reverse("group-list")

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load promgen %}
+{% block content %}
+
+<div class="page-header">
+  <h1>{% trans 'Groups' %}</h1>
+  <a
+    href="{% url 'group-register' %}"
+    class="btn btn-primary btn-sm float-right"
+  >
+    {% trans "Register Group" %}
+  </a>
+</div>
+
+{% breadcrumb label="Groups" %}
+{% include "promgen/pagination_short.html" %}
+<div class="service-grid">
+  {% for group in group_list %}
+  <div>
+    <h2 v-pre>
+      <a href="{% url 'group-detail' group.id %}">{{ group.name }}</a>
+    </h2>
+    <hr />
+    <div class="panel panel-default">
+      <div class="panel-body">
+        {% for user in group.user_set.all %}
+        <span class="label label-info">{{ user.username }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% include "promgen/pagination_short.html" %}
+{% endblock %}

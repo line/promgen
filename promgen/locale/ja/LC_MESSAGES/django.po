@@ -226,3 +226,28 @@ msgstr "警告：オーナーを変更できるのは現在のオーナーだけ
 #: views.py:846
 msgid "You do not have permission to change the owner."
 msgstr "あなたはオーナーを変更する権限を持っていません。"
+
+#: views.py:1650
+msgid "Users are already members of Group {group}: {users}"
+msgstr "ユーザーはすでにグループ{group}のメンバーです：{users}"
+
+#: views.py:1662
+msgid "Added {users} to Group {group} with permission {permission}"
+msgstr "{users}を許可{permission}付きでグループ{group}に追加しました。"
+
+#: views.py:1686
+msgid "Updated permission to {permission} for {user} on Group {group}"
+msgstr "{user}のグループ{group}における権限を{permission}に更新しました。"
+
+#: views.py:1693
+#: views.py:1720
+msgid "User {user} is not a member of Group {group}"
+msgstr "ユーザーの{user}はグループ{group}のメンバーではありません。"
+
+#: views.py:1715
+msgid "Removed {user} from Group {group}"
+msgstr "{user}をグループ{group}から削除しました。"
+
+#: views.py:1744
+msgid "Group {group} created successfully."
+msgstr "グループ{group}が正常に作成されました。"

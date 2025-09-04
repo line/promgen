@@ -113,6 +113,10 @@ function initSelect2() {
   $(selectors).select2({
     placeholder: "Select an option"
   });
+  $('select[name="users"]').select2({
+    multiple: "multiple",
+    placeholder: "Select users",
+  });
 }
 
 // Activate a tab based on the hash value of the URL

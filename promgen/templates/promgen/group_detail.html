@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load promgen %}
+{% block title %}
+Promgen / Group / {{ group.name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header promgen-flex-space-between-center" v-pre>
+  <div>
+    <h1>Group: {{ group.name }}</h1>
+  </div>
+  <div>
+    <a href="{% urlqs 'audit-list' group=group.id %}" class="btn btn-primary btn-sm">
+      {% translate "View Edit History" %}
+    </a>
+    <a href="{% url 'group-update' group.id %}" class="btn btn-warning btn-sm">
+      {% translate "Edit Group" %}
+    </a>
+    <form
+      method="post"
+      action="{% url 'group-delete' group.id %}"
+      onsubmit="return confirm('Delete this group?')"
+      style="display: inline"
+    >
+      {% csrf_token %}
+      <button class="btn btn-danger btn-sm">Delete Group</button>
+    </form>
+  </div>
+</div>
+
+{% breadcrumb group %}
+
+{% include "promgen/group_detail_members.html" with object=group %}
+
+{% endblock %}

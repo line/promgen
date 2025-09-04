@@ -1,0 +1,65 @@
+{% load i18n %}
+{% load promgen %}
+<tr>
+  <td class="col-xs-3" v-pre>
+    {{ user.username }} {% if user.username == object.owner.username %}
+    <span class="label label-primary">OWNER</span>
+    {% endif %}
+  </td>
+  <td class="col-xs-3" v-pre>{{ user.email }}</td>
+  <td class="col-xs-3" style="word-break: break-all" v-pre>
+    {% for perm in perms %}
+    <span
+      class="label {% if perm == 'Admin' %} label-danger {% else %} label-default {% endif %}"
+    >
+      {{ perm|upper }}
+    </span>
+    {% endfor %}
+
+    <button
+      style="background: none"
+      class="btn btn-xs"
+      data-toggle="collapse"
+      data-target="#user{{user.id}}"
+    >
+      <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
+    </button>
+    <div class="collapse" id="user{{user.id}}">
+      <form
+        method="post"
+        action="{% url 'group-update-member' group.id %}"
+        style="display: inline"
+      >
+        {% csrf_token %}
+        <input
+          name="next"
+          type="hidden"
+          value="{{ request.get_full_path }}#members"
+        />
+        <input name="model" type="hidden" value="{{ object | klass }}" />
+        <input name="id" type="hidden" value="{{ object.id }}" />
+        <input name="username" type="hidden" value="{{ user.username }}" />
+        {{ group_member_form.permission }}
+        <button class="btn btn-primary btn-xs">Change</button>
+      </form>
+    </div>
+  </td>
+  <td class="col-xs-3" style="word-break: break-all" v-pre>
+    <form
+      method="post"
+      action="{% url 'group-remove-member' group.id %}"
+      onsubmit="return confirm('{% trans 'Delete member?' %}')"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="username" value="{{ user.username }}" />
+      <input
+        name="next"
+        type="hidden"
+        value="{{ request.get_full_path }}#members"
+      />
+      <input name="model" type="hidden" value="{{ object | klass }}" />
+      <input name="id" type="hidden" value="{{ object.id }}" />
+      <button type="submit" class="btn btn-danger btn-xs">Delete</button>
+    </form>
+  </td>
+</tr>

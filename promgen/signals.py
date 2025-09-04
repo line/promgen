@@ -136,6 +136,7 @@ pre_save.connect(update_log, sender=models.Rule)
 pre_save.connect(update_log, sender=models.Sender)
 pre_save.connect(update_log, sender=models.Service)
 pre_save.connect(update_log, sender=models.URL)
+pre_save.connect(update_log, sender=models.Group)
 
 
 @skip_raw
@@ -156,6 +157,7 @@ post_save.connect(create_log, sender=models.Sender)
 post_save.connect(create_log, sender=models.Service)
 post_save.connect(create_log, sender=models.URL)
 post_save.connect(create_log, sender=UserObjectPermission)
+post_save.connect(create_log, sender=models.Group)
 
 
 def delete_log(sender, instance, **kwargs):
@@ -171,6 +173,7 @@ post_delete.connect(delete_log, sender=models.Sender)
 post_delete.connect(delete_log, sender=models.Service)
 post_delete.connect(delete_log, sender=models.URL)
 post_delete.connect(delete_log, sender=UserObjectPermission)
+post_delete.connect(delete_log, sender=models.Group)
 
 
 @receiver(post_save, sender=models.Rule)
@@ -363,3 +366,4 @@ def remove_obj_perms_connected_with_user(sender, instance, **kwargs):
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Service)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Project)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Farm)
+post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Group)

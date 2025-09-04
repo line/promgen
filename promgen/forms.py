@@ -259,6 +259,29 @@ class HostForm(forms.Form):
         self.cleaned_data["hosts"] = list(hosts)
 
 
+def get_permission_choices(input_object):
+    permissions = get_perms_for_model(input_object)
+    for permission in permissions.filter(name__in=["Admin", "Editor", "Viewer", "Member"]):
+        yield (permission.codename, permission.name)
+
+
+def get_user_choices():
+    # Add an empty choice to trigger the Select2 placeholder
+    yield ("", "")
+
+    for u in (
+        User.objects.filter(is_active=True)
+        .exclude(username=ANONYMOUS_USER_NAME)
+        .order_by("username")
+    ):
+        if u.first_name:
+            yield (u.username, f"{u.username} ({u.first_name} {u.last_name})")
+        elif u.email:
+            yield (u.username, f"{u.username} ({u.email})")
+        else:
+            yield (u.username, u.username)
+
+
 class UserPermissionForm(forms.Form):
     permission = forms.ChoiceField(
         required=True,
@@ -274,26 +297,24 @@ class UserPermissionForm(forms.Form):
         input_object = kwargs.pop("input_object", None)
         super(UserPermissionForm, self).__init__(*args, **kwargs)
         if input_object:
-            self.fields["permission"].choices = self.get_permission_choices(input_object)
-        self.fields["username"].choices = self.get_user_choices()
+            self.fields["permission"].choices = get_permission_choices(input_object)
+        self.fields["username"].choices = get_user_choices()
 
-    def get_permission_choices(self, input_object):
-        permissions = get_perms_for_model(input_object)
-        for permission in permissions.filter(name__in=["Admin", "Editor", "Viewer"]):
-            yield (permission.codename, permission.name)
 
-    def get_user_choices(self):
-        # Add an empty choice to trigger the Select2 placeholder
-        yield ("", "")
+class GroupMemberForm(forms.Form):
+    permission = forms.ChoiceField(
+        required=True,
+        label="Role",
+    )
 
-        for u in (
-            User.objects.filter(is_active=True)
-            .exclude(username=ANONYMOUS_USER_NAME)
-            .order_by("username")
-        ):
-            if u.first_name:
-                yield (u.username, f"{u.username} ({u.first_name} {u.last_name})")
-            elif u.email:
-                yield (u.username, f"{u.username} ({u.email})")
-            else:
-                yield (u.username, u.username)
+    users = forms.MultipleChoiceField(
+        required=True,
+        label="Users",
+    )
+
+    def __init__(self, *args, **kwargs):
+        input_object = kwargs.pop("input_object", None)
+        super(GroupMemberForm, self).__init__(*args, **kwargs)
+        if input_object:
+            self.fields["permission"].choices = get_permission_choices(input_object)
+        self.fields["users"].choices = get_user_choices()
