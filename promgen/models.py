@@ -6,6 +6,7 @@ import logging
 
 import django.contrib.sites.models
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
@@ -32,6 +33,15 @@ class Site(django.contrib.sites.models.Site):
 
     class Meta:
         proxy = True
+
+
+class Group(Group):
+    def get_absolute_url(self):
+        return reverse("group-detail", kwargs={"pk": self.pk})
+
+    class Meta:
+        proxy = True
+        ordering = ["name"]
 
 
 class ObjectFilterManager(models.Manager):
