@@ -224,5 +224,5 @@ msgstr "警告：オーナーを変更できるのは現在のオーナーだけ
 #: views.py:532
 #: views.py:830
 #: views.py:846
-msgid _("You do not have permission to change the owner.")
+msgid "You do not have permission to change the owner."
 msgstr "あなたはオーナーを変更する権限を持っていません。"
