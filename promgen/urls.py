@@ -90,6 +90,15 @@ urlpatterns = [
     # Permissions
     path("permission/assign", views.PermissionAssign.as_view(), name="permission-assign"),
     path("permission/delete", views.PermissionDelete.as_view(), name="permission-delete"),
+    # Groups
+    path("group", views.GroupList.as_view(), name="group-list"),
+    path("group/new", views.GroupRegister.as_view(), name="group-register"),
+    path("group/<int:pk>", views.GroupDetail.as_view(), name="group-detail"),
+    path("group/<int:pk>/add-member", views.GroupAddMember.as_view(), name="group-add-member"),
+    path("group/<int:pk>/update-member", views.GroupUpdateMember.as_view(), name="group-update-member"),
+    path("group/<int:pk>/remove-member", views.GroupRemoveMember.as_view(), name="group-remove-member"),
+    path("group/<int:pk>/update", views.GroupUpdate.as_view(), name="group-update"),
+    path("group/<int:pk>/delete", views.GroupDelete.as_view(), name="group-delete"),
     # Generic Rules
     path("<content_type>/<object_id>/rule", views.AlertRuleRegister.as_view(), name="rule-new"),
     # Other miscellaneous

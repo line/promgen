@@ -161,6 +161,10 @@ def breadcrumb(instance=None, label=None):
         yield reverse("farm-list"), _("Farms")
         yield obj.get_absolute_url(), obj.name
 
+    def group(obj):
+        yield reverse("group-list"), _("Groups")
+        yield reverse("group-detail", kwargs={"pk": obj.pk}), obj.name
+
     def generator():
         yield reverse("home"), _("Home")
         if isinstance(instance, models.Sender):
@@ -177,6 +181,8 @@ def breadcrumb(instance=None, label=None):
             yield from alert(instance)
         if isinstance(instance, models.Farm):
             yield from farm(instance)
+        if isinstance(instance, models.Group):
+            yield from group(instance)
 
     def to_tag():
         yield '<ol class="breadcrumb" v-pre>'
@@ -242,6 +248,8 @@ def get_users_roles(object):
             "farm_admin",
             "farm_editor",
             "farm_viewer",
+            "group_admin",
+            "group_member",
         ],
     ).items()
     return {
