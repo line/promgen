@@ -215,6 +215,7 @@ class AuditList(LoginRequiredMixin, ListView):
         "project": models.Project,
         "service": models.Service,
         "rule": models.Rule,
+        "group": models.Group,
     }
 
     def get_queryset(self):
@@ -230,7 +231,7 @@ class AuditList(LoginRequiredMixin, ListView):
                     content_type_id=ContentType.objects.get_for_model(self.FILTERS.get(key)).id,
                 )
 
-                if key in ["project", "service"]:
+                if key in ["project", "service", "group"]:
                     # Get any log entries for the child objects of the object
                     qset |= Q(
                         parent_object_id=self.request.GET[key],
