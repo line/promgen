@@ -32,6 +32,25 @@ Promgen / Group / {{ group.name }}
 
 {% breadcrumb group %}
 
-{% include "promgen/group_detail_members.html" with object=group %}
+<ul class="nav nav-tabs mb-5" role="tablist">
+  <li role="presentation" class="active"><a href="#members" data-toggle="tab">Members</a></li>
+  <li role="presentation"><a href="#resources" data-toggle="tab">Assigned Resources</a></li>
+</ul>
+
+<div class="well">
+
+  <div class="tab-content">
+
+    <div role="tabpanel" class="tab-pane active" id="members">
+      {% include "promgen/group_detail_members.html" with object=group %}
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="resources">
+      {% include "promgen/group_detail_assigned_resources.html" %}
+    </div>
+
+  </div>
+
+</div>
 
 {% endblock %}
