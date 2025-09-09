@@ -1253,6 +1253,11 @@ class Search(LoginRequiredMixin, View):
                 "prefetch": ("project_set", "host_set"),
                 "query": ("search", "var-farm"),
             },
+            "group_list": {
+                "field": ("name__icontains",),
+                "model": models.Group,
+                "query": ("search",),
+            },
             "host_list": {
                 "field": ("name__icontains",),
                 "model": models.Host,
