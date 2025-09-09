@@ -10,6 +10,23 @@
 {% breadcrumb label="Search" %}
 
 {% include "promgen/pagination_short.html" %}
+
+{% if group_list %}
+<div class="panel panel-default">
+  <div class="panel-heading">Groups</div>
+  <table class="table table-bordered table-condensed">
+    <tr>
+      <th>Name</th>
+    </tr>
+    {% for group in group_list %}
+    <tr>
+      <td><a href="{% url 'group-detail' group.pk %}" v-pre>{{ group.name }}</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
 {% if service_list %}
 <div class="panel panel-default">
   <div class="panel-heading">Services</div>
