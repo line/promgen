@@ -1,0 +1,80 @@
+{% load i18n %}
+{% load promgen %}
+<div>
+  <form method="post" action="{% url 'permission-assign' %}">
+    {% csrf_token %}
+    <input
+      name="next"
+      type="hidden"
+      value="{{ request.get_full_path }}#members"
+    />
+    <input name="model" type="hidden" value="{{ object | klass }}" />
+    <input name="id" type="hidden" value="{{ object.id }}" />
+    <input name="permission" type="hidden" value="{{ object.id }}" />
+    <table class="table">
+      <tr>
+        <th class="col-md-2">{{ permission_form.permission.label }}</th>
+        <td>{{ permission_form.permission }}</td>
+      </tr>
+      <tr>
+        <th>Permission Type</th>
+        <td>
+          <div class="radio-buttons">
+            <label class="form-check-label">
+              <input
+                type="radio"
+                name="perm-type"
+                data-target="#user"
+                value="user"
+                checked
+              />
+              User
+            </label>
+            <label class="form-check-label">
+              <input
+                type="radio"
+                name="perm-type"
+                data-target="#group"
+                value="group"
+              />
+              Group
+            </label>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>
+          <div class="tab-content">
+            <div id="user-label" class="perm-tab-pane tab-pane fade active in">
+              {{ permission_form.username.label }}
+            </div>
+            <div id="group-label" class="perm-tab-pane tab-pane fade">
+              {{ permission_form.group.label }}
+            </div>
+          </div>
+        </th>
+        <td>
+          <div class="tab-content">
+            <div id="user-select" class="perm-tab-pane tab-pane fade active in">
+              {{ permission_form.username }}
+            </div>
+            <div id="group-select" class="perm-tab-pane tab-pane fade">
+              {{ permission_form.group }}
+              <small>
+                <em>{% trans "Don't have a Group yet?" %}</em>
+                <a
+                  href="{% url 'group-register' %}?next={{ request.get_full_path }}#members"
+                >
+                  {% trans "Register a new Group" %}
+                </a>
+              </small>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <div>
+      <button class="btn btn-primary">Assign</button>
+    </div>
+  </form>
+</div>

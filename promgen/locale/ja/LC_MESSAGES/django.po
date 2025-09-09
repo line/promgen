@@ -251,3 +251,28 @@ msgstr "{user}をグループ{group}から削除しました。"
 #: views.py:1744
 msgid "Group {group} created successfully."
 msgstr "グループ{group}が正常に作成されました。"
+
+#: templates/promgen/permission_form.html:64
+msgid "Don't have a Group yet?"
+msgstr "まだグループを持っていませんか？"
+
+#: templates/promgen/permission_form.html:68
+msgid "Register a new Group"
+msgstr "新しいグループを登録する"
+
+#: views.py:1572
+msgid "Assigned permission: {permission} for group: {group_name} on: {name}"
+msgstr "{group_name} に対して {name} で {permission} の権限を割り当てました"
+
+#: views.py:1627
+msgid "Removed all permissions of group: {group_name} on: {name}."
+msgstr "{group_name} のすべての権限を {name} から削除しました"
+
+#: views.py:1627
+#: views.py:1666
+msgid "Removed all permissions of group: {group_name} on: {name} and its projects."
+msgstr "{group_name} のすべての権限を {name} およびそのプロジェクトから削除しました"
+
+#: templates/promgen/permission_group_row.html:51
+msgid "Delete all permissions for group?"
+msgstr "グループのすべての権限を削除しますか？"

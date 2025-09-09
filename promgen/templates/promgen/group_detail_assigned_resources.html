@@ -1,0 +1,32 @@
+{% load i18n %}
+{% load promgen %}
+<div class="panel-group">
+  <div class="panel panel-default">
+    <div class="panel-body">
+      <table class="table table-bordered">
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Role</th>
+        </tr>
+        {% for obj in assigned_resources %}
+        <tr>
+          <td>
+            <a href="{{ obj.content_object.get_absolute_url }}#members">
+              {{ obj.content_object.name }}
+            </a>
+          </td>
+          <td>{{ obj.content_object|klass|upper }}</td>
+          <td>
+            <span
+              class="label {% if obj.permission.name == 'Admin' %} label-danger {% elif obj.permission.name == 'Editor' %} label-info {% else %} label-success {% endif %}"
+            >
+              {{ obj.permission.name|upper }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</div>

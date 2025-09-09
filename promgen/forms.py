@@ -6,6 +6,7 @@ from functools import partial
 
 from dateutil import parser
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from guardian.conf.settings import ANONYMOUS_USER_NAME
@@ -265,6 +266,12 @@ def get_permission_choices(input_object):
         yield (permission.codename, permission.name)
 
 
+def get_group_choices():
+    yield ("", "")
+    for g in models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP).order_by("name"):
+        yield (g.name, g.name)
+
+
 def get_user_choices():
     # Add an empty choice to trigger the Select2 placeholder
     yield ("", "")
@@ -289,8 +296,13 @@ class UserPermissionForm(forms.Form):
     )
 
     username = forms.ChoiceField(
-        required=True,
+        required=False,
         label="Username",
+    )
+
+    group = forms.ChoiceField(
+        required=False,
+        label="Group",
     )
 
     def __init__(self, *args, **kwargs):
@@ -299,6 +311,7 @@ class UserPermissionForm(forms.Form):
         if input_object:
             self.fields["permission"].choices = get_permission_choices(input_object)
         self.fields["username"].choices = get_user_choices()
+        self.fields["group"].choices = get_group_choices()
 
 
 class GroupMemberForm(forms.Form):

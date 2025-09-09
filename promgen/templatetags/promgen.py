@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from guardian.shortcuts import get_users_with_perms
+from guardian.shortcuts import get_groups_with_perms, get_users_with_perms
 
 register = template.Library()
 
@@ -255,4 +255,16 @@ def get_users_roles(object):
     return {
         user: [Permission.objects.get(codename=perm).name for perm in perms]
         for user, perms in sorted(users_with_perms, key=lambda item: item[0].username)
+    }.items()
+
+
+@register.filter()
+def get_groups_roles(object):
+    groups_with_perms = get_groups_with_perms(
+        object,
+        attach_perms=True,
+    ).items()
+    return {
+        group: [Permission.objects.get(codename=perm).name for perm in perms]
+        for group, perms in sorted(groups_with_perms, key=lambda item: item[0].name)
     }.items()

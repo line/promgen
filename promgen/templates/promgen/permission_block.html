@@ -1,30 +1,47 @@
 {% load i18n %}
 {% load promgen %}
-<table class="table table-bordered table-condensed">
-  <tr>
-    <th>User</th>
-    <th>Email</th>
-    <th>Role</th>
-    <th>Actions</th>
-  </tr>
-  {% for user,perms in object|get_users_roles %}
-    {% include "promgen/permission_row.html" %}
-  {% endfor %}
-</table>
-<div class="panel-footer">
-  <form
-    method="post"
-    action="{% url 'permission-assign' %}"
-  >
-    {% csrf_token %}
-    <input name="next" type="hidden" value="{{ request.get_full_path }}#members" />
-    <input name="model" type="hidden" value="{{ object | klass }}" />
-    <input name="id" type="hidden" value="{{ object.id }}" />
-    <table class="table">
-      {{ permission_form.as_table }}
-    </table>
-    <div>
-      <button class="btn btn-primary">Assign</button>
+<div class="panel-group">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h5>Users</h5>
     </div>
-  </form>
+    <div class="panel-body">
+      <table class="table table-bordered">
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+        {% for user,perms in object|get_users_roles %}
+          {% include "promgen/permission_user_row.html" %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h5>Groups</h5>
+    </div>
+    <div class="panel-body">
+      <table class="table table-bordered">
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+        {% for group,perms in object|get_groups_roles %}
+          {% include "promgen/permission_group_row.html" %}
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div class="panel panel-footer">
+    <div class="panel-heading">
+      <h4>Grant Permissions</h4>
+    </div>
+    <div class="panel-body">{% include "promgen/permission_form.html" %}</div>
+  </div>
 </div>

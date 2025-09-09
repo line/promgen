@@ -109,9 +109,12 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function initSelect2() {
-  const selectors = 'select[name="username"],select[name="owner"]';
+  const selectors = ["username", "owner", "group"]
+    .map(name => `select[name="${name}"]`)
+    .join(",");
   $(selectors).select2({
-    placeholder: "Select an option"
+    placeholder: "Select an option",
+    width: "25%",
   });
   $('select[name="users"]').select2({
     multiple: "multiple",
@@ -126,7 +129,7 @@ function activateTabFromHash() {
   if (hash && $(hash).length) {
     // Remove active class from all tabs and tab content
     $(".nav-tabs li").removeClass("active");
-    $(".tab-pane").removeClass("active");
+    $(".tab-pane:not(.perm-tab-pane)").removeClass("active");
 
     // Add active class to tab and tab content that matches the hash
     $('a[href="' + hash + '"]').parent().addClass("active");
@@ -186,6 +189,14 @@ $(document).ready(function() {
   // Activate tab based on hash changed by back/forward navigation
   $(window).on('hashchange', function() {
       activateTabFromHash();
+  });
+
+  $('input[type="radio"][name="perm-type"]').change(function () {
+    const target = $(this).data("target");
+    $(".perm-tab-pane").removeClass("active in");
+    $(target + "-label").addClass("active in");
+    $(target + "-select").addClass("active in");
+    initSelect2();
   });
 
   // Initialize Select2 for the select elements
