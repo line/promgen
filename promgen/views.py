@@ -29,6 +29,7 @@ from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, FormView
+from guardian.models import GroupObjectPermission
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
 from prometheus_client.parser import text_string_to_metric_families
@@ -1533,32 +1534,53 @@ class PermissionAssign(LoginRequiredMixin, View):
     permission_required = ["service_admin", "project_admin", "farm_admin"]
 
     def post(self, request):
-        user = User.objects.get_by_natural_key(request.POST["username"])
-        permission = request.POST["permission"]
         obj = self.get_object()
+        permission_type = request.POST["perm-type"]
+        permission = request.POST["permission"]
 
-        # Prevent changing permissions for the owner of the object
-        if user == obj.owner and permission not in self.permission_required:
-            messages.warning(
+        if "user" == permission_type:
+            user = User.objects.get_by_natural_key(request.POST["username"])
+
+            # Prevent changing permissions for the owner of the object
+            if user == obj.owner and request.POST["permission"] not in self.permission_required:
+                messages.warning(
+                    request,
+                    _(
+                        "Cannot assign permission for the owner. "
+                        "The owner must have the ADMIN role."
+                    ),
+                )
+                return redirect(request.POST["next"])
+
+            self.assign_perm(user)
+            messages.success(
                 request,
-                _("Cannot assign permission for the owner. The owner must have the ADMIN role."),
+                _("Assigned permission: {permission} for user: {username} on: {name}").format(
+                    permission=permission, username=user.username, name=obj.name
+                ),
             )
-            return redirect(request.POST["next"])
+        elif "group" == permission_type:
+            group = models.Group.objects.get_by_natural_key(name=request.POST["group"])
+            self.assign_perm(group)
+            messages.success(
+                request,
+                _("Assigned permission: {permission} for group: {group_name} on: {name}").format(
+                    permission=permission, group_name=group.name, name=obj.name
+                ),
+            )
+        else:
+            messages.error(request, _("Invalid permission type."))
 
-        # User should only have one permission for an object, so we remove all permissions before
-        # assigning a new one.
-        permissions = get_perms(user, obj)
-        for perm in permissions:
-            remove_perm(perm, user, obj)
-
-        assign_perm(permission, user, obj)
-        messages.success(
-            request,
-            _("Assigned permission: {permission} for user: {username} on: {name}").format(
-                permission=permission, username=user.username, name=obj.name
-            ),
-        )
         return redirect(request.POST["next"])
+
+    def assign_perm(self, user_or_group):
+        obj = self.get_object()
+        # User or Group should only have one permission for an object, so we remove all permissions
+        # before assigning a new one.
+        permissions = get_perms(user_or_group, obj)
+        for perm in permissions:
+            remove_perm(perm, user_or_group, obj)
+        assign_perm(self.request.POST["permission"], user_or_group, obj)
 
     def get_object(self):
         id = self.request.POST["id"]
@@ -1570,45 +1592,60 @@ class PermissionAssign(LoginRequiredMixin, View):
 
 class PermissionDelete(LoginRequiredMixin, View):
     def post(self, request):
-        user = User.objects.get_by_natural_key(request.POST["username"])
         obj = self.get_object()
+        permission_type = request.POST["perm-type"]
 
-        # Prevent removing permissions for the owner of the object
-        if user == obj.owner:
-            messages.warning(
-                request,
-                _("Cannot remove permissions for the owner. Please transfer ownership first."),
-            )
-            return redirect(request.POST["next"])
+        if "user" == permission_type:
+            user = User.objects.get_by_natural_key(request.POST["username"])
 
-        permissions = get_perms(user, obj)
-        for perm in permissions:
-            remove_perm(perm, user, obj)
+            # Prevent removing permissions for the owner of the object
+            if user == obj.owner:
+                messages.warning(
+                    request,
+                    _("Cannot remove permissions for the owner. Please transfer ownership first."),
+                )
+                return redirect(request.POST["next"])
 
-        if "on" == request.POST.get("remove_sub_permissions") and isinstance(obj, models.Service):
-            # Remove all permissions for the user on this Service's projects
-            for project in obj.project_set.all():
-                permissions = get_perms(user, project)
-                for perm in permissions:
-                    remove_perm(perm, user, project)
+            self.delete_perm(user)
             messages.success(
                 request,
-                _(
-                    "Removed all permissions of user: {username} on: {name} and its projects."
+                self.build_success_message(
+                    "Removed all permissions of user: {username} on: {name}"
                 ).format(username=user.username, name=obj.name),
             )
-        else:
+        elif "group" == permission_type:
+            group = models.Group.objects.get_by_natural_key(name=request.POST["group"])
+            self.delete_perm(group)
             messages.success(
                 request,
-                _("Removed all permissions of user: {username} on: {name}.").format(
-                    username=user.username, name=obj.name
-                ),
+                self.build_success_message(
+                    "Removed all permissions of group: {group_name} on: {name}"
+                ).format(group_name=group.name, name=obj.name),
             )
+        else:
+            messages.error(request, _("Invalid permission type."))
+            return redirect(request.POST["next"])
 
         # If the user is removing their own permission, redirect to home
-        if user == self.request.user:
+        if not get_perms(self.request.user, obj):
             return redirect(reverse("home"))
+
         return redirect(request.POST["next"])
+
+    def delete_perm(self, user_or_group):
+        obj = self.get_object()
+        permissions = get_perms(user_or_group, obj)
+        for perm in permissions:
+            remove_perm(perm, user_or_group, obj)
+
+        if "on" == self.request.POST.get("remove_sub_permissions") and isinstance(
+            obj, models.Service
+        ):
+            # Remove all permissions for the user on this Service's projects
+            for project in obj.project_set.all():
+                permissions = get_perms(user_or_group, project)
+                for perm in permissions:
+                    remove_perm(perm, user_or_group, project)
 
     def get_object(self):
         id = self.request.POST["id"]
@@ -1616,6 +1653,13 @@ class PermissionDelete(LoginRequiredMixin, View):
         models = ContentType.objects.get(app_label="promgen", model=model)
         obj = models.get_object_for_this_type(pk=id)
         return obj
+
+    def build_success_message(self, message):
+        if "on" == self.request.POST.get("remove_sub_permissions") and isinstance(
+            self.get_object(), models.Service
+        ):
+            return _(message + " and its projects.")
+        return _(message + ".")
 
 
 class GroupList(LoginRequiredMixin, ListView):
@@ -1629,6 +1673,7 @@ class GroupDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["group_member_form"] = GroupMemberForm(input_object=self.object)
+        context["assigned_resources"] = GroupObjectPermission.objects.filter(group=self.object)
         return context
 
 
