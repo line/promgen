@@ -1275,6 +1275,11 @@ class Search(LoginRequiredMixin, View):
                 "prefetch": ("project_set", "rule_set", "notifiers", "notifiers__owner"),
                 "query": ("search", "var-service"),
             },
+            "group_list": {
+                "field": ("name__icontains",),
+                "model": models.Group,
+                "query": ("search",),
+            },
         }
 
         # To avoid searching all object, remove empty search parameters
