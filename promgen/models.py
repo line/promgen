@@ -286,11 +286,6 @@ class Farm(models.Model):
 
     class Meta:
         ordering = ["name"]
-        permissions = [
-            ("farm_admin", "Admin"),
-            ("farm_editor", "Editor"),
-            ("farm_viewer", "Viewer"),
-        ]
 
     def get_absolute_url(self):
         return reverse("farm-detail", kwargs={"pk": self.pk})

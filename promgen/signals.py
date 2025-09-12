@@ -353,7 +353,6 @@ def assign_admin_to_owner(sender, instance, created, **kwargs):
 
 post_save.connect(assign_admin_to_owner, sender=models.Service)
 post_save.connect(assign_admin_to_owner, sender=models.Project)
-post_save.connect(assign_admin_to_owner, sender=models.Farm)
 
 
 @skip_raw
