@@ -286,7 +286,6 @@ class Farm(models.Model):
 
     class Meta:
         ordering = ["name"]
-        unique_together = (("name", "source"),)
         permissions = [
             ("farm_admin", "Admin"),
             ("farm_editor", "Editor"),
