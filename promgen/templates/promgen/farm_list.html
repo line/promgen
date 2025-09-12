@@ -40,11 +40,9 @@
         </ul>
       </td>
       <td>
-        <ul>
           {% for project in farm.project_set.all %}
-          <li><a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></li>
+          <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a>
           {% endfor %}
-        </ul>
       </td>
       <td>
         {% if farm.driver.remote %}

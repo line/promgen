@@ -158,7 +158,7 @@ def breadcrumb(instance=None, label=None):
             yield from project(obj.content_object)
 
     def farm(obj):
-        yield reverse("farm-list"), _("Farms")
+        yield from project(obj.project_set.first())
         yield obj.get_absolute_url(), obj.name
 
     def group(obj):
@@ -245,9 +245,6 @@ def get_users_roles(object):
             "project_admin",
             "project_editor",
             "project_viewer",
-            "farm_admin",
-            "farm_editor",
-            "farm_viewer",
             "group_admin",
             "group_member",
         ],

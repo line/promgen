@@ -452,19 +452,10 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         sources = models.Farm.driver_set()
 
-        # Sort sources to ensure local ones appear first on the UI.
-        #
-        # - Local sources have the `remote` attribute set to False.
-        # - In Python, "False < True" returns "True".
-        # - The sorted function uses the < operator to compare items.
-        # - When comparing tuples, it first compares the first element of the tuple, after that
-        #   the second one, and so on so forth.
-        #
-        # Based on those four premises, by setting the comparison key as a tuple where the first
-        # element is the remote attribute, we ensure all the local farms are in the first positions,
-        # and by having the source name as the second element, we ensure that they are also sorted
-        # alphabetically.
-        sources = sorted(sources, key=lambda source: (source[1].remote, source[0]))
+        # Filter out any non-remote sources because we don't support linking local farm
+        sources = [source for source in sources if source[1].remote]
+        # Sort the farm sources by name alphabetically
+        sources = sorted(sources, key=lambda source: (source[0]))
 
         context["sources"] = sources
         context["url_form"] = forms.URLForm()
@@ -502,7 +493,6 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
             ):
                 form.add_error("owner", _("You do not have permission to change the owner."))
                 return self.form_invalid(form)
-            assign_perm("farm_admin", form.cleaned_data["owner"], form.instance)
         farm, created = models.Farm.objects.update_or_create(
             id=self.kwargs["pk"],
             defaults=form.clean(),
@@ -527,9 +517,7 @@ class UnlinkFarm(LoginRequiredMixin, View):
         project.save()
         signals.trigger_write_config.send(request)
 
-        if oldfarm.project_set.count() == 0 and oldfarm.editable is False:
-            logger.debug("Cleaning up old farm %s", oldfarm)
-            oldfarm.delete()
+        oldfarm.delete()
 
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#hosts")
 
@@ -626,6 +614,10 @@ class FarmConvert(LoginRequiredMixin, RedirectView):
 
 class FarmLink(LoginRequiredMixin, View):
     def get(self, request, pk, source):
+        if source == discovery.FARM_DEFAULT:
+            messages.error(request, "Cannot link to local farm")
+            return HttpResponseRedirect(reverse("project-detail", args=[pk]) + "#hosts")
+
         context = {
             "source": source,
             "project": get_object_or_404(models.Project, id=pk),
@@ -634,26 +626,20 @@ class FarmLink(LoginRequiredMixin, View):
         return render(request, "promgen/link_farm.html", context)
 
     def post(self, request, pk, source):
+        if source == discovery.FARM_DEFAULT:
+            messages.error(request, "Cannot link to local farm")
+            return HttpResponseRedirect(reverse("project-detail", args=[pk]) + "#hosts")
+
         project = get_object_or_404(models.Project, id=pk)
 
-        try:
-            farm = models.Farm.objects.get(
-                name=request.POST["farm"],
-                source=source,
-            )
-            created = False
-        except models.Farm.DoesNotExist:
-            farm = models.Farm.objects.create(
-                name=request.POST["farm"],
-                source=source,
-                owner=self.request.user,
-            )
-            created = True
+        farm = models.Farm.objects.create(
+            name=request.POST["farm"],
+            source=source,
+        )
 
-        if created:
-            logger.info("Importing %s from %s", farm.name, source)
-            farm.refresh()
-            messages.info(request, "Refreshed hosts")
+        logger.info("Importing %s from %s", farm.name, source)
+        farm.refresh()
+        messages.info(request, "Refreshed hosts")
 
         project.farm = farm
         project.save()
@@ -955,15 +941,7 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["host_form"] = kwargs.get("host_form", forms.HostForm())
-        if not self.request.user.is_superuser:
-            context["form"].fields.pop("owner", None)
         return context
-
-    def post(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            self.request.POST = request.POST.copy()
-            self.request.POST["owner"] = self.request.user.pk
-        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
@@ -975,18 +953,14 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         for hostname in host_form.cleaned_data["hosts"]:
             hostnames.add(hostname)
 
-        farm, _ = models.Farm.objects.get_or_create(source=discovery.FARM_DEFAULT, **form.clean())
+        farm = models.Farm.objects.create(source=discovery.FARM_DEFAULT, **form.clean())
         for hostname in hostnames:
-            host, created = models.Host.objects.get_or_create(name=hostname, farm_id=farm.id)
-            if created:
-                logger.debug("Added %s to %s", host.name, farm.name)
+            host = models.Host.objects.create(name=hostname, farm_id=farm.id)
+            logger.debug("Added %s to %s", host.name, farm.name)
 
         project.farm = farm
         project.save()
         return HttpResponseRedirect(project.get_absolute_url() + "#hosts")
-
-    def get_initial(self):
-        return {"owner": self.request.user}
 
 
 class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
@@ -1536,7 +1510,7 @@ class ProfileTokenDelete(LoginRequiredMixin, View):
 
 
 class PermissionAssign(LoginRequiredMixin, View):
-    permission_required = ["service_admin", "project_admin", "farm_admin"]
+    permission_required = ["service_admin", "project_admin"]
 
     def post(self, request):
         obj = self.get_object()
