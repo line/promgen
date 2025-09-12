@@ -367,3 +367,9 @@ post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Service)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Project)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Farm)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Group)
+
+
+@receiver(post_delete, sender=models.Project)
+def delete_farm_when_deleting_project(sender, instance, **kwargs):
+    if instance.farm and not instance.farm.project_set.exists():
+        instance.farm.delete()

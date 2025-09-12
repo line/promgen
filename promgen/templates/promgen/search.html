@@ -100,12 +100,16 @@
 {% for host in farm.host_set.all %}
           <li>
             <a href="{% url 'host-detail' host.name %}" v-pre>{{ host.name }}</a>
+            {% if farm.project_set.first %}
             <a
             @click="setSilenceDataset"
             class="btn btn-warning btn-xs"
             data-instance="{{host.name}}:[0-9]*"
+            data-project="{{farm.project_set.first.name}}"
+            data-service="{{host.farm.project_set.first.service.name}}"
             style="display: inline-block;"
           >{% trans "Silence" %}</a></li>
+          {% endif %}
 {% endfor %}
         </ul>
       </td>
@@ -119,15 +123,38 @@
 <div class="panel panel-default">
   <div class="panel-heading">Hosts</div>
   <table class="table">
+    <tr>
+      <th>Name</th>
+      <th>Farm</th>
+      <th>Project</th>
+      <th>Actions</th>
+    </tr>
     {% for host in host_list %}
       <tr>
         <td><a href="{% url 'host-detail' host.name %}" v-pre>{{ host.name }}</a></td>
-        <td><a
-          @click="setSilenceDataset"
-          class="btn btn-warning btn-xs"
-          data-instance="{{host.name}}:[0-9]*"
-          style="display: inline-block;"
-        >{% trans "Silence" %}</a></td>
+        <td><a href="{% url 'farm-detail' host.farm.id %}" v-pre>{{ host.farm.name }}</a></td>
+        {% if host.farm.project_set.first %}
+        <td>
+          <a href="{{ host.farm.project_set.first.get_absolute_url }}" v-pre>
+            {{ host.farm.project_set.first }}
+          </a>
+        </td>
+        <td>
+          <a
+            @click="setSilenceDataset"
+            class="btn btn-warning btn-xs"
+            data-instance="{{host.name}}:[0-9]*"
+            data-project="{{host.farm.project_set.first.name}}"
+            data-service="{{host.farm.project_set.first.service.name}}"
+            style="display: inline-block;"
+          >
+          {% trans "Silence" %}
+          </a>
+        </td>
+        {% else %}
+        <td></td>
+        <td></td>
+        {% endif %}
       </tr>
     {% endfor %}
   </table>

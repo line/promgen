@@ -60,7 +60,6 @@
         </form>
       </li>
       <hr />
-      {% endif %}
       <li>
         <form
           method="post"
@@ -70,15 +69,25 @@
         >
           {% csrf_token %}
           <button type="submit" style="color: #d9534f">
-            {% if source.remote %}
-            <span
-              class="glyphicon glyphicon-cloud-download"
-              aria-hidden="true"
-            ></span>
-            {% endif %} {% trans "Unlink Farm" %}
+            {% trans "Unlink Farm" %}
           </button>
         </form>
       </li>
+      {% else %}
+      <li>
+        <form
+          method="post"
+          action="{% url 'farm-unlink' project.id %}"
+          onsubmit="return confirm('{% trans 'Are you sure you want to delete this farm? This action is permanent and cannot be undone.' %}')"
+          style="display: inline"
+        >
+          {% csrf_token %}
+          <button type="submit" style="color: #d9534f">
+            {% trans "Delete Farm" %}
+          </button>
+        </form>
+      </li>
+      {% endif %}
     </ul>
     {% else %}
     <button
