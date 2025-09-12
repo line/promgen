@@ -50,12 +50,6 @@
 {% endif %}
 </div>
 
-<div class="alert alert-warning" role="alert">
-  {% trans "This is a transitional release. Even if you are able to assign roles to members, the permission checks are actually disabled. They will be enabled in the next release." %}
-</div>
-<div class="panel panel-default">
-  <div class="panel-heading">Members</div>
-  {% include "promgen/permission_block.html" with object=farm %}
 </div>
 
 {% endblock %}

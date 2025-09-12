@@ -493,7 +493,6 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
             ):
                 form.add_error("owner", _("You do not have permission to change the owner."))
                 return self.form_invalid(form)
-            assign_perm("farm_admin", form.cleaned_data["owner"], form.instance)
         farm, created = models.Farm.objects.update_or_create(
             id=self.kwargs["pk"],
             defaults=form.clean(),
@@ -1522,7 +1521,7 @@ class ProfileTokenDelete(LoginRequiredMixin, View):
 
 
 class PermissionAssign(LoginRequiredMixin, View):
-    permission_required = ["service_admin", "project_admin", "farm_admin"]
+    permission_required = ["service_admin", "project_admin"]
 
     def post(self, request):
         obj = self.get_object()
