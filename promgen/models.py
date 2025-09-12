@@ -282,7 +282,6 @@ class Project(models.Model):
 class Farm(models.Model):
     name = models.CharField(max_length=128, validators=[validators.labelvalue])
     source = models.CharField(max_length=128)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     class Meta:
         ordering = ["name"]

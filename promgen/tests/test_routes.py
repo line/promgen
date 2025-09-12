@@ -60,7 +60,7 @@ class RouteTests(tests.PromgenTest):
     def test_scrape(self, mock_get):
         shard = models.Shard.objects.create(name="test_scrape_shard")
         service = models.Service.objects.create(name="test_scrape_service", owner=self.user)
-        farm = models.Farm.objects.create(name="test_scrape_farm", owner=self.user)
+        farm = models.Farm.objects.create(name="test_scrape_farm")
         farm.host_set.create(name="example.com")
         project = models.Project.objects.create(
             name="test_scrape_project", service=service, shard=shard, farm=farm, owner=self.user
