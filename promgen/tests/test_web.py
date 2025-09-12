@@ -15,7 +15,6 @@ class WebTests(tests.PromgenTest):
         ("service-list", views.ServiceList, {}),
         ("service-detail", views.ServiceDetail, {"pk": 1}),
         ("project-detail", views.ProjectDetail, {"pk": 1}),
-        ("farm-link", views.FarmLink, {"pk": 1, "source": "promgen"}),
         ("project-exporter", views.ExporterRegister, {"pk": 1}),
         ("project-notifier", views.ProjectNotifierRegister, {"pk": 1}),
         ("url-list", views.URLList, {}),

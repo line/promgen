@@ -3,7 +3,6 @@
   "url": "http://promgen.example.com/farm/1",
   "name": "test-farm",
   "source": "promgen",
-  "owner": "admin",
   "hosts": [
     {
       "name": "host.example.com",

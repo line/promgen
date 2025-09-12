@@ -14,7 +14,7 @@ class SignalTest(tests.PromgenTest):
     @mock.patch("promgen.signals.trigger_write_config.send")
     def test_write_signal(self, write_mock, log_mock):
         # Create a test farm
-        farm = models.Farm.objects.create(name="farm", owner=self.user)
+        farm = models.Farm.objects.create(name="farm")
         models.Host.objects.create(name="Host", farm=farm)
         # Create a new project or testing
         project = models.Project.objects.create(
@@ -40,7 +40,7 @@ class SignalTest(tests.PromgenTest):
     @mock.patch("promgen.signals.trigger_write_config.send")
     def test_write_and_delete(self, write_mock, log_mock):
         # Create a test farm
-        farm = models.Farm.objects.create(name="farm", owner=self.user)
+        farm = models.Farm.objects.create(name="farm")
         models.Host.objects.create(name="Host", farm=farm)
 
         project = models.Project.objects.create(

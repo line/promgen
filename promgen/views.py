@@ -941,15 +941,7 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["host_form"] = kwargs.get("host_form", forms.HostForm())
-        if not self.request.user.is_superuser:
-            context["form"].fields.pop("owner", None)
         return context
-
-    def post(self, request, *args, **kwargs):
-        if not self.request.user.is_superuser:
-            self.request.POST = request.POST.copy()
-            self.request.POST["owner"] = self.request.user.pk
-        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
@@ -969,9 +961,6 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         project.farm = farm
         project.save()
         return HttpResponseRedirect(project.get_absolute_url() + "#hosts")
-
-    def get_initial(self):
-        return {"owner": self.request.user}
 
 
 class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
