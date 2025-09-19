@@ -213,7 +213,6 @@ def import_config(config, user, replace_shard=None):
         farm, created = models.Farm.objects.get_or_create(
             name=entry["labels"]["farm"],
             defaults={"source": entry["labels"].get("__farm_source", "pmc")},
-            owner=user,
         )
         if created:
             logger.debug("Created farm %s", farm)

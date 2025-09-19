@@ -112,6 +112,10 @@ msgstr "Farmを登録"
 msgid "Link Farm"
 msgstr "FarmをLink"
 
+#: templates/promgen/project_detail_hosts_action_button_group.html:86
+msgid "Delete Farm"
+msgstr "Farmを削除"
+
 #: templates/promgen/project_detail_notifiers.html:7
 #: templates/promgen/service_block.html:17
 msgid "Register Notifier"
@@ -276,3 +280,7 @@ msgstr "{group_name} のすべての権限を {name} およびそのプロジェ
 #: templates/promgen/permission_group_row.html:51
 msgid "Delete all permissions for group?"
 msgstr "グループのすべての権限を削除しますか？"
+
+#: templates/promgen/project_detail_hosts_action_button_group.html:81
+msgid "Are you sure you want to delete this farm? This action is permanent and cannot be undone."
+msgstr "このFarmを削除してもよろしいですか？この操作は取り消せません。永久に削除されます。"

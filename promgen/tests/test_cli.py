@@ -50,7 +50,7 @@ class CLITests(PromgenTest):
             management.call_command("register-host", "cli-project", "cli.example.com")
 
         # Register farm and finally register host
-        project.farm = models.Farm.objects.create(name="cli-farm", owner=self.user)
+        project.farm = models.Farm.objects.create(name="cli-farm")
         project.save()
         management.call_command("register-host", "cli-project", "cli.example.com")
         self.assertCount(models.Host, 2, "Should be a new host registered (1 host from fixture)")

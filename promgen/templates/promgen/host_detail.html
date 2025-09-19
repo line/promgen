@@ -15,45 +15,44 @@
 </div>
 
 <div class="panel panel-primary">
-  <div class="panel-body">
-    <a
-    @click="setSilenceDataset"
-    class="btn btn-warning"
-    data-instance="{{slug}}:[0-9]*"
-    style="display: inline-block;"
-  >{% trans "Silence" %}</a>
-  </div>
-</div>
-
-<div class="row">
-
-<div class="col-sm-6"><div class="panel panel-primary" v-pre>
   <div class="panel-heading">Farm</div>
   <table class="table">
     <tr>
-      <th>Farm</th>
+      <th>Name</th>
+      <th>Project</th>
+      <th>Actions</th>
     </tr>
 {% for farm in farm_list %}
     <tr>
-      <td><a href="{{ farm.get_absolute_url }}">{{ farm.name }}</a></td>
+      <td><a href="{{ farm.get_absolute_url }}" v-pre>{{ farm.name }} ({{ farm.source }})</a></td>
+      {% if farm.project_set.first %}
+      <td>
+        <a href="{{ farm.project_set.first.get_absolute_url }}" v-pre>
+          {{ farm.project_set.first }}
+        </a>
+      </td>
+      <td>
+        <a
+          @click="setSilenceDataset"
+          class="btn btn-warning"
+          data-instance="{{slug}}:[0-9]*"
+          data-project="{{farm.project_set.first.name}}"
+          data-service="{{farm.project_set.first.service.name}}"
+          style="display: inline-block;"
+        >
+        {% trans "Silence" %}
+        </a>
+      </td>
+      {% else %}
+      <td></td>
+      <td></td>
+      {% endif %}
     </tr>
 {% endfor %}
   </table>
-</div></div>
+</div>
 
-<div class="col-sm-6"><div class="panel panel-primary" v-pre>
-  <div class="panel-heading">Project</div>
-  <table class="table">
-    <tr>
-      <th>Project</th>
-    </tr>
-{% for project in project_list %}
-    <tr>
-      <td><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></td>
-    </tr>
-{% endfor %}
-  </table>
-</div></div>
+<div class="row">
 
 <div class="col-sm-6"><div class="panel panel-primary" v-pre>
   <div class="panel-heading">Exporters</div>
