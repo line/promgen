@@ -259,7 +259,6 @@ class Project(models.Model):
 
     service = models.ForeignKey("promgen.Service", on_delete=models.CASCADE)
     shard = models.ForeignKey("promgen.Shard", on_delete=models.CASCADE)
-    farm = models.ForeignKey("promgen.Farm", blank=True, null=True, on_delete=models.SET_NULL, related_name="+")
 
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation("Rule")
@@ -282,7 +281,7 @@ class Project(models.Model):
 class Farm(models.Model):
     name = models.CharField(max_length=128, validators=[validators.labelvalue])
     source = models.CharField(max_length=128)
-    project = models.OneToOneField("promgen.Project", null=True, on_delete=models.CASCADE, related_name="+")
+    project = models.OneToOneField("promgen.Project", null=True, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["name"]
