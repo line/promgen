@@ -281,7 +281,7 @@ class Project(models.Model):
 class Farm(models.Model):
     name = models.CharField(max_length=128, validators=[validators.labelvalue])
     source = models.CharField(max_length=128)
-    project = models.OneToOneField("promgen.Project", null=True, on_delete=models.CASCADE)
+    project = models.OneToOneField("promgen.Project", on_delete=models.CASCADE)
 
     class Meta:
         ordering = ["name"]

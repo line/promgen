@@ -41,6 +41,7 @@
   fields:
     name: test-farm
     source: promgen
+    project: 1
 - model: promgen.project
   pk: 1
   fields:
@@ -48,7 +49,6 @@
     owner: 1
     service: 1
     shard: 1
-    farm: 1
 - model: promgen.project
   pk: 2
   fields:
@@ -56,7 +56,6 @@
     owner: 1
     service: 1
     shard: 1
-    farm: 1
 - model: promgen.exporter
   pk: 1
   fields:

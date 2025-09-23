@@ -223,7 +223,7 @@ class RuleCopyForm(forms.Form):
 class FarmForm(forms.ModelForm):
     class Meta:
         model = models.Farm
-        exclude = ["source"]
+        exclude = ["source", "project"]
 
 
 class SenderForm(forms.ModelForm):

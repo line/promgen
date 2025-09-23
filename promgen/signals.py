@@ -203,47 +203,52 @@ def delete_url(sender, instance, **kwargs):
 @skip_raw
 def save_host(sender, instance, **kwargs):
     """Only trigger write if parent project also has exporters"""
-    for project in instance.farm.project_set.all():
-        if project.exporter_set:
-            trigger_write_config.send(instance)
+    if instance.farm.project.exporter_set.exists():
+        trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Host)
 def delete_host(sender, instance, **kwargs):
     """Only trigger write if parent project also has exporters"""
-    for project in instance.farm.project_set.all():
-        if project.exporter_set.exists():
-            trigger_write_config.send(instance)
+    if instance.farm.project.exporter_set.exists():
+        trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Farm)
 def delete_farm(sender, instance, **kwargs):
     """Only trigger write if parent project also has exporters"""
-    for project in instance.project_set.all():
-        trigger_write_config.send(instance)
+    trigger_write_config.send(instance)
 
 
 @receiver(post_save, sender=models.Exporter)
 @skip_raw
 def save_exporter(sender, instance, **kwargs):
     """Only trigger write if parent project also has hosts"""
-    if instance.project.farm:
-        if instance.project.farm.host_set.exists():
-            trigger_write_config.send(instance)
+    if (
+        getattr(instance.project, "farm", None) is not None
+        and instance.project.farm.host_set.exists()
+    ):
+        trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Exporter)
 def delete_exporter(sender, instance, **kwargs):
     """Only trigger write if parent project also has hosts"""
-    if instance.project.farm:
-        if instance.project.farm.host_set.exists():
-            trigger_write_config.send(instance)
+    if (
+        getattr(instance.project, "farm", None) is not None
+        and instance.project.farm.host_set.exists()
+    ):
+        trigger_write_config.send(instance)
 
 
 @receiver(post_save, sender=models.Project)
 @skip_raw
 def save_project(instance, **kwargs):
-    if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
+    if (
+        getattr(instance, "farm", None) is not None
+        and instance.farm.host_set.exists()
+        and instance.exporter_set.exists()
+    ):
         trigger_write_config.send(instance)
         return True
 
@@ -366,9 +371,3 @@ post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Service)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Project)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Farm)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Group)
-
-
-@receiver(post_delete, sender=models.Project)
-def delete_farm_when_deleting_project(sender, instance, **kwargs):
-    if instance.farm and not instance.farm.project_set.exists():
-        instance.farm.delete()

@@ -90,9 +90,7 @@
       <td><a href="{% url 'farm-detail' farm.id %}" v-pre>{{ farm.name }}</a></td>
       <td>
         <ul class="list-unstyled">
-{% for project in farm.project_set.all %}
-          <li><a href="{% url 'project-detail' project.id %}" v-pre>{{ project.name }}</a></li>
-{% endfor %}
+          <li><a href="{% url 'project-detail' farm.project.id %}" v-pre>{{ farm.project.name }}</a></li>
         </ul>
       </td>
       <td>
@@ -100,16 +98,14 @@
 {% for host in farm.host_set.all %}
           <li>
             <a href="{% url 'host-detail' host.name %}" v-pre>{{ host.name }}</a>
-            {% if farm.project_set.first %}
             <a
             @click="setSilenceDataset"
             class="btn btn-warning btn-xs"
             data-instance="{{host.name}}:[0-9]*"
-            data-project="{{farm.project_set.first.name}}"
-            data-service="{{host.farm.project_set.first.service.name}}"
+            data-project="{{farm.project.name}}"
+            data-service="{{host.farm.project.service.name}}"
             style="display: inline-block;"
           >{% trans "Silence" %}</a></li>
-          {% endif %}
 {% endfor %}
         </ul>
       </td>
@@ -133,10 +129,10 @@
       <tr>
         <td><a href="{% url 'host-detail' host.name %}" v-pre>{{ host.name }}</a></td>
         <td><a href="{% url 'farm-detail' host.farm.id %}" v-pre>{{ host.farm.name }}</a></td>
-        {% if host.farm.project_set.first %}
+        {% if host.farm.project %}
         <td>
-          <a href="{{ host.farm.project_set.first.get_absolute_url }}" v-pre>
-            {{ host.farm.project_set.first }}
+          <a href="{{ host.farm.project.get_absolute_url }}" v-pre>
+            {{ host.farm.project }}
           </a>
         </td>
         <td>
@@ -144,8 +140,8 @@
             @click="setSilenceDataset"
             class="btn btn-warning btn-xs"
             data-instance="{{host.name}}:[0-9]*"
-            data-project="{{host.farm.project_set.first.name}}"
-            data-service="{{host.farm.project_set.first.service.name}}"
+            data-project="{{host.farm.project.name}}"
+            data-service="{{host.farm.project.service.name}}"
             style="display: inline-block;"
           >
           {% trans "Silence" %}

@@ -1,12 +1,11 @@
 <div class="row" v-pre>
 
-{% for project in host.farm.project_set.all %}
 <div class="col-md-6">
   <div class="panel panel-default">
-    <div class="panel-heading">Exporters from <a href="{% url 'project-detail' project.id %}">{{ project.name }}</a></div>
+    <div class="panel-heading">Exporters from <a href="{% url 'project-detail' project.id %}">{{ host.farm.project.name }}</a></div>
     <div>
       <table class="table">
-{% for exporter in project.exporter_set.all %}
+{% for exporter in host.farm.project.exporter_set.all %}
         <tr>
           <td>{{ exporter.job }}</td>
           <td>{{ exporter.port }}</td>
@@ -49,6 +48,5 @@
     </div>
   </div>
 </div>
-{% endfor %}
 
 </div>

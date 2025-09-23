@@ -25,10 +25,9 @@
 {% for farm in farm_list %}
     <tr>
       <td><a href="{{ farm.get_absolute_url }}" v-pre>{{ farm.name }} ({{ farm.source }})</a></td>
-      {% if farm.project_set.first %}
       <td>
-        <a href="{{ farm.project_set.first.get_absolute_url }}" v-pre>
-          {{ farm.project_set.first }}
+        <a href="{{ farm.project.get_absolute_url }}" v-pre>
+          {{ farm.project }}
         </a>
       </td>
       <td>
@@ -36,17 +35,13 @@
           @click="setSilenceDataset"
           class="btn btn-warning"
           data-instance="{{slug}}:[0-9]*"
-          data-project="{{farm.project_set.first.name}}"
-          data-service="{{farm.project_set.first.service.name}}"
+          data-project="{{farm.project.name}}"
+          data-service="{{farm.project.service.name}}"
           style="display: inline-block;"
         >
         {% trans "Silence" %}
         </a>
       </td>
-      {% else %}
-      <td></td>
-      <td></td>
-      {% endif %}
     </tr>
 {% endfor %}
   </table>
