@@ -1296,6 +1296,14 @@ class Search(LoginRequiredMixin, View):
                         filters |= Q(**{field: query_dict[var]})
                     else:
                         filters = Q(**{field: query_dict[var]})
+
+            # For groups, we want to exclude the default group from search results
+            if obj["model"] == models.Group:
+                if filters:
+                    filters &= ~Q(name=settings.PROMGEN_DEFAULT_GROUP)
+                else:
+                    filters = ~Q(name=settings.PROMGEN_DEFAULT_GROUP)
+
             logger.info("filtering %s by %s", target, filters)
 
             qs = qs.filter(filters)
@@ -1647,7 +1655,7 @@ class GroupList(LoginRequiredMixin, ListView):
 
 
 class GroupDetail(LoginRequiredMixin, DetailView):
-    queryset = models.Group.objects.all()
+    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1657,7 +1665,7 @@ class GroupDetail(LoginRequiredMixin, DetailView):
 
 
 class GroupAddMember(LoginRequiredMixin, SingleObjectMixin, View):
-    model = models.Group
+    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1695,7 +1703,7 @@ class GroupAddMember(LoginRequiredMixin, SingleObjectMixin, View):
 
 
 class GroupUpdateMember(LoginRequiredMixin, SingleObjectMixin, View):
-    model = models.Group
+    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1724,7 +1732,7 @@ class GroupUpdateMember(LoginRequiredMixin, SingleObjectMixin, View):
 
 
 class GroupRemoveMember(LoginRequiredMixin, SingleObjectMixin, View):
-    model = models.Group
+    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1774,13 +1782,13 @@ class GroupRegister(LoginRequiredMixin, CreateView):
 
 class GroupUpdate(LoginRequiredMixin, UpdateView):
     button_label = _("Update Group")
-    model = models.Group
+    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
     fields = ["name"]
 
 
 class GroupDelete(LoginRequiredMixin, DeleteView):
     button_label = _("Delete Group")
-    model = models.Group
+    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
 
     def get_success_url(self):
         return reverse("group-list")
