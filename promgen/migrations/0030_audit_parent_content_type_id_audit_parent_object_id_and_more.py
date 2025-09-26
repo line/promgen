@@ -4,10 +4,12 @@ import json
 from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
 
-from promgen.models import Farm, Project, Service
-
 
 def extract_data_and_populate_parent_object(apps, schema_editor):
+    Farm = apps.get_model("promgen", "Farm")
+    Service = apps.get_model("promgen", "Service")
+    Project = apps.get_model("promgen", "Project")
+
     CONTENT_TYPES = {
         "project": ContentType.objects.get_for_model(Project),
         "service": ContentType.objects.get_for_model(Service),
