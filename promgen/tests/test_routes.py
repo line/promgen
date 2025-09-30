@@ -52,7 +52,7 @@ class RouteTests(tests.PromgenTest):
         self.assertCount(models.Project, 4, "Import two projects (Fixture has 2 projectsa)")
         self.assertCount(models.Exporter, 4, "Import two more exporters")
         self.assertCount(
-            models.Farm, 4, "Original two farms and one new farm (fixture has one farm)"
+            models.Farm, 3, "Original one farm and one updated farm (fixture has one farm)"
         )
         self.assertCount(models.Host, 5, "Original 3 hosts and two new ones")
 
@@ -60,11 +60,11 @@ class RouteTests(tests.PromgenTest):
     def test_scrape(self, mock_get):
         shard = models.Shard.objects.create(name="test_scrape_shard")
         service = models.Service.objects.create(name="test_scrape_service", owner=self.user)
-        farm = models.Farm.objects.create(name="test_scrape_farm")
-        farm.host_set.create(name="example.com")
         project = models.Project.objects.create(
-            name="test_scrape_project", service=service, shard=shard, farm=farm, owner=self.user
+            name="test_scrape_project", service=service, shard=shard, owner=self.user
         )
+        farm = models.Farm.objects.create(name="test_scrape_farm", project=project)
+        farm.host_set.create(name="example.com")
 
         # Uses the scrape target as the key, and the POST body that should
         # result in that URL

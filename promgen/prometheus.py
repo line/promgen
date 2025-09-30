@@ -107,7 +107,7 @@ def render_config(service=None, project=None):
         "project__shard",
         "project",
     ):
-        if not exporter.project.farm:
+        if getattr(exporter.project, "farm", None) is None:
             continue
         if service and exporter.project.service.name != service.name:
             continue
@@ -210,30 +210,35 @@ def import_config(config, user, replace_shard=None):
         else:
             skipped["Service"].append(service)
 
-        farm, created = models.Farm.objects.get_or_create(
-            name=entry["labels"]["farm"],
-            defaults={"source": entry["labels"].get("__farm_source", "pmc")},
-        )
-        if created:
-            logger.debug("Created farm %s", farm)
-            counters["Farm"].append(farm)
-        else:
-            skipped["Farm"].append(farm)
-
         project, created = models.Project.objects.get_or_create(
             name=entry["labels"]["project"],
             service=service,
             shard=shard,
-            defaults={"farm": farm},
             owner=user,
         )
         if created:
             logger.debug("Created project %s", project)
             counters["Project"].append(project)
-        elif project.farm != farm:
-            logger.debug("Linking farm [%s] with [%s]", farm, project)
-            project.farm = farm
-            project.save()
+
+        farm = models.Farm.objects.filter(project=project).first()
+        created = False
+        if farm:
+            farm.name = entry["labels"]["farm"]
+            farm.source = entry["labels"].get("__farm_source", "pmc")
+            farm.save()
+        else:
+            farm = models.Farm.objects.create(
+                name=entry["labels"]["farm"],
+                source=entry["labels"].get("__farm_source", "pmc"),
+                project=project,
+            )
+            created = True
+
+        if created:
+            logger.debug("Created farm %s", farm)
+            counters["Farm"].append(farm)
+        else:
+            skipped["Farm"].append(farm)
 
         for target in entry["targets"]:
             target, port = target.split(":")

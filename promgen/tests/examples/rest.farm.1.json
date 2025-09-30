@@ -8,5 +8,6 @@
       "name": "host.example.com",
       "url": "http://promgen.example.com/host/host.example.com"
     }
-  ]
+  ],
+  "project": 1
 }

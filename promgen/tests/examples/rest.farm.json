@@ -3,6 +3,7 @@
     "id": 1,
     "url": "http://promgen.example.com/farm/1",
     "name": "test-farm",
-    "source":"promgen"
+    "source":"promgen",
+    "project": 1
   }
 ]

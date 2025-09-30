@@ -140,8 +140,8 @@ class HomeList(LoginRequiredMixin, ListView):
 class HostList(LoginRequiredMixin, ListView):
     queryset = models.Host.objects.prefetch_related(
         "farm",
-        "farm__project_set",
-        "farm__project_set__service",
+        "farm__project",
+        "farm__project__service",
     )
 
     def get_context_data(self, **kwargs):
@@ -466,7 +466,7 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
 class FarmList(LoginRequiredMixin, ListView):
     paginate_by = 50
     queryset = models.Farm.objects.prefetch_related(
-        "project_set",
+        "project",
         "host_set",
     )
 
@@ -635,14 +635,12 @@ class FarmLink(LoginRequiredMixin, View):
         farm = models.Farm.objects.create(
             name=request.POST["farm"],
             source=source,
+            project=project,
         )
 
         logger.info("Importing %s from %s", farm.name, source)
         farm.refresh()
         messages.info(request, "Refreshed hosts")
-
-        project.farm = farm
-        project.save()
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#hosts")
 
 
@@ -661,7 +659,8 @@ class ExporterScrape(LoginRequiredMixin, View):
     # TODO: Move to /rest/project/<slug>/scrape
     def post(self, request, pk):
         # Lookup our farm for testing
-        farm = get_object_or_404(models.Project, pk=pk).farm
+        project = get_object_or_404(models.Project, pk=pk)
+        farm = getattr(project, "farm", None)
 
         # So we have a mutable dictionary
         data = request.POST.dict()
@@ -953,13 +952,13 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         for hostname in host_form.cleaned_data["hosts"]:
             hostnames.add(hostname)
 
-        farm = models.Farm.objects.create(source=discovery.FARM_DEFAULT, **form.clean())
+        farm = models.Farm.objects.create(
+            source=discovery.FARM_DEFAULT, project=project, **form.clean()
+        )
         for hostname in hostnames:
             host = models.Host.objects.create(name=hostname, farm_id=farm.id)
             logger.debug("Added %s to %s", host.name, farm.name)
 
-        project.farm = farm
-        project.save()
         return HttpResponseRedirect(project.get_absolute_url() + "#hosts")
 
 
@@ -1224,7 +1223,7 @@ class Search(LoginRequiredMixin, View):
             "farm_list": {
                 "field": ("name__icontains",),
                 "model": models.Farm,
-                "prefetch": ("project_set", "host_set"),
+                "prefetch": ("project", "host_set"),
                 "query": ("search", "var-farm"),
             },
             "group_list": {

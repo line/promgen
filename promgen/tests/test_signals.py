@@ -13,13 +13,15 @@ class SignalTest(tests.PromgenTest):
     @mock.patch("promgen.models.Audit.log")
     @mock.patch("promgen.signals.trigger_write_config.send")
     def test_write_signal(self, write_mock, log_mock):
-        # Create a test farm
-        farm = models.Farm.objects.create(name="farm")
-        models.Host.objects.create(name="Host", farm=farm)
         # Create a new project or testing
         project = models.Project.objects.create(
-            name="Project", service_id=1, farm=farm, shard_id=1, owner=self.user
+            name="Project", service_id=1, shard_id=1, owner=self.user
         )
+
+        # Create a test farm
+        farm = models.Farm.objects.create(name="farm", project=project)
+        models.Host.objects.create(name="Host", farm=farm)
+
         e1 = models.Exporter.objects.create(
             job="Exporter 1",
             port=1234,
@@ -39,13 +41,14 @@ class SignalTest(tests.PromgenTest):
     @mock.patch("promgen.models.Audit.log")
     @mock.patch("promgen.signals.trigger_write_config.send")
     def test_write_and_delete(self, write_mock, log_mock):
+        project = models.Project.objects.create(
+            name="Project", service_id=1, shard_id=1, owner=self.user
+        )
+
         # Create a test farm
-        farm = models.Farm.objects.create(name="farm")
+        farm = models.Farm.objects.create(name="farm", project=project)
         models.Host.objects.create(name="Host", farm=farm)
 
-        project = models.Project.objects.create(
-            name="Project", service_id=1, farm=farm, shard_id=1, owner=self.user
-        )
         # Farm but no exporters so no call
         self.assertEqual(write_mock.call_count, 0, "Should not be called without exporters")
 

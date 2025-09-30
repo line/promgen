@@ -18,7 +18,7 @@ class Command(BaseCommand):
         parser.add_argument("host", help=help_text("name"))
 
     def handle(self, project, **kwargs):
-        if project.farm is None:
+        if getattr(project, "farm", None) is None:
             raise CommandError("Project currently not associated with a farm :%s" % project)
 
         host, created = project.farm.host_set.get_or_create(name=kwargs["host"])
