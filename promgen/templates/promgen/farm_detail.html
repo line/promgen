@@ -13,9 +13,14 @@
   {% if farm.editable %}
     <div>
       <a href="{% url 'farm-update' farm.id %}" class="btn btn-warning btn-sm">{% translate "Edit Farm" %}</a>
-      <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
+      <form
+        method="post"
+        action="{% url 'farm-delete' farm.id %}"
+        onsubmit="return confirm('{% trans 'Are you sure you want to delete this farm? This action is permanent and cannot be undone.' %}')"
+        style="display: inline"
+      >
         {% csrf_token %}
-        <button class="btn btn-danger btn-sm">Delete Farm</button>
+        <button class="btn btn-danger btn-sm">{% trans "Delete Farm" %}</button>
       </form>
     </div>
   {% endif %}
