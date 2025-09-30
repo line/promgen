@@ -2033,7 +2033,9 @@ class PermissionDelete(PromgenGuardianPermissionMixin, View):
 
 class GroupList(LoginRequiredMixin, ListView):
     paginate_by = 20
-    queryset = models.Group.objects.order_by("name")
+
+    def get_queryset(self):
+        return permissions.get_accessible_groups_for_user(self.request.user).order_by("name")
 
 
 class GroupDetail(PromgenGuardianPermissionMixin, DetailView):
