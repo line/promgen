@@ -1,5 +1,26 @@
 # Changelog
 
+# v0.72.1 - 2025-10-01
+
+- [BUGFIX] Remove excluded "farm" field from ProjectSerializer #657
+- [IMPROVEMENT] Always use same confirmation question to delete Farm #655
+- [INTERNAL] Bump docker/login-action from 3.5.0 to 3.6.0 #654
+- [IMPROVEMENT] Use One-To-One relationship between Farm and Project #652
+- [IMPROVEMENT] Prevent users from accessing the default group #653
+- [IMPROVEMENT] Prevent future errors in migration files #651
+- [IMPROVEMENT] Clean up orphan farms #650
+- [IMPROVEMENT] Prevent future problems with remove_farm_perms migration #649
+- [IMPROVEMENT] Make farm a child of project #648
+- [IMPROVEMENT] Support searching for Groups #647
+- [INTERNAL] Bump actions/setup-python from 5.6.0 to 6.0.0 #645
+- [IMPROVEMENT] Integrate per-object-permission with the Group model #644
+- [BUGFIX] Allow filtering Group in Audit Logs #643
+- [IMPROVEMENT] Add organizing users in groups #641
+- [BUGFIX] Fix wrong formatted string in locale file #642
+- [IMPROVEMENT] Add auto-complete box for choosing user #639
+- [INTERNAL] Bump actions/upload-pages-artifact from 3.0.1 to 4.0.0 #638
+- [BUGFIX] Add superusers to UserPermissionForm's choices #640
+
 # v0.72.0 - 2025-08-15
 
 - [IMPROVEMENT] Check ruff format in GitHub Actions #636
