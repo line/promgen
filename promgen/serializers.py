@@ -46,7 +46,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
         lookup_field = "name"
-        exclude = ("id", "farm")
+        exclude = ("id",)
 
 
 class SenderSerializer(serializers.ModelSerializer):
