@@ -1,7 +1,13 @@
 # Copyright (c) 2025 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+from django.contrib.auth.models import User
+from django.db.models import Q
 from django.utils.itercompat import is_iterable
+from guardian.shortcuts import get_objects_for_user
+from rest_framework import permissions
 from rest_framework.permissions import BasePermission
+
+from promgen import models
 
 
 class PromgenModelPermissions(BasePermission):
@@ -41,3 +47,54 @@ class PromgenModelPermissions(BasePermission):
             return any(request.user.has_perm(perm) for perm in perm_list)
         else:
             return all(request.user.has_perm(perm) for perm in perm_list)
+
+
+class ReadOnlyForAuthenticatedUserOrIsSuperuser(BasePermission):
+    """
+    Custom permission to only allow read-only access for authenticated users
+    and full access for superusers.
+    """
+
+    def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.method in permissions.SAFE_METHODS
+        )
+
+
+def get_accessible_services_for_user(user: User):
+    return get_objects_for_user(
+        user,
+        ["service_admin", "service_editor", "service_viewer"],
+        any_perm=True,
+        use_groups=True,
+        accept_global_perms=False,
+        klass=models.Service,
+    )
+
+
+def get_accessible_projects_for_user(user: User):
+    services = get_accessible_services_for_user(user)
+    projects = get_objects_for_user(
+        user,
+        ["project_admin", "project_editor", "project_viewer"],
+        any_perm=True,
+        use_groups=True,
+        accept_global_perms=False,
+        klass=models.Project,
+    )
+    return models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+
+def get_accessible_groups_for_user(user: User):
+    return get_objects_for_user(
+        user,
+        ["group_admin", "group_member"],
+        any_perm=True,
+        use_groups=False,
+        accept_global_perms=False,
+        klass=models.Group,
+    )
