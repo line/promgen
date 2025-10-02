@@ -6,7 +6,6 @@ from functools import partial
 
 from dateutil import parser
 from django import forms
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from guardian.conf.settings import ANONYMOUS_USER_NAME
