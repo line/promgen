@@ -89,9 +89,6 @@ Promgen / Service / {{ service.name }}
     </div>
 
     <div role="tabpanel" class="tab-pane" id="members">
-      <div class="alert alert-warning" role="alert">
-        {% trans "This is a transitional release. Even if you are able to assign roles to members, the permission checks are actually disabled. They will be enabled in the next release." %}
-      </div>
       {% include "promgen/permission_block.html" with object=service %}
     </div>
 

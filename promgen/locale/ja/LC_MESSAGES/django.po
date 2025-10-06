@@ -185,12 +185,6 @@ msgstr "Actions"
 msgid "No search parameters provided."
 msgstr "検索フレーズが指定されていません"
 
-#: templates/promgen/service_detail.html:93
-#: templates/promgen/project_detail.html:101
-#: templates/promgen/farm_detail.html:71
-msgid "This is a transitional release. Even if you are able to assign roles to members, the permission checks are actually disabled. They will be enabled in the next release."
-msgstr "このリリースは移行用のリリースです。ロールをメンバーに割り当てても、権限のチェックは行われません。次のリリースで権限のチェックが有効化されます。"
-
 #: templates/promgen/permission_row.html:28
 msgid "Delete all permissions for user?"
 msgstr "ユーザーから全ての権限を削除しますか？"
