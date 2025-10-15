@@ -2,7 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 from django.urls import reverse
 
-from promgen import tests, views
+from promgen import models, tests, views
 
 
 class WebTests(tests.PromgenTest):
@@ -48,3 +48,23 @@ class WebTests(tests.PromgenTest):
             with self.subTest(viewname=viewname, params=params):
                 response = self.client.get(reverse(viewname, kwargs=params))
                 self.assertRoute(response, viewclass, status_code)
+
+    def test_delete_project_without_farm(self):
+        # Create a project without associating it with a farm
+        shard = models.Shard.objects.get(pk=1)
+        service = models.Service.objects.get(pk=1)
+        project = models.Project.objects.create(
+            name="test delete project",
+            owner=self.user,
+            service=service,
+            shard=shard,
+        )
+
+        self.assertFalse(hasattr(project, "farm"))
+
+        # Attempt to delete the project
+        response = self.client.post(reverse("project-delete", kwargs={"pk": project.pk}))
+
+        # Assert the project is deleted successfully
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(models.Project.objects.filter(pk=project.pk).exists())
