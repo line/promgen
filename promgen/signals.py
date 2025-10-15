@@ -255,7 +255,11 @@ def save_project(instance, **kwargs):
 
 @receiver(pre_delete, sender=models.Project)
 def delete_project(sender, instance, **kwargs):
-    if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
+    if (
+        hasattr(instance, "farm")
+        and instance.farm.host_set.exists()
+        and instance.exporter_set.exists()
+    ):
         trigger_write_config.send(instance)
 
 
