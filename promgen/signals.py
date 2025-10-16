@@ -224,20 +224,14 @@ def delete_farm(sender, instance, **kwargs):
 @skip_raw
 def save_exporter(sender, instance, **kwargs):
     """Only trigger write if parent project also has hosts"""
-    if (
-        getattr(instance.project, "farm", None) is not None
-        and instance.project.farm.host_set.exists()
-    ):
+    if hasattr(instance.project, "farm") and instance.project.farm.host_set.exists():
         trigger_write_config.send(instance)
 
 
 @receiver(pre_delete, sender=models.Exporter)
 def delete_exporter(sender, instance, **kwargs):
     """Only trigger write if parent project also has hosts"""
-    if (
-        getattr(instance.project, "farm", None) is not None
-        and instance.project.farm.host_set.exists()
-    ):
+    if hasattr(instance.project, "farm") and instance.project.farm.host_set.exists():
         trigger_write_config.send(instance)
 
 
@@ -245,7 +239,7 @@ def delete_exporter(sender, instance, **kwargs):
 @skip_raw
 def save_project(instance, **kwargs):
     if (
-        getattr(instance, "farm", None) is not None
+        hasattr(instance, "farm")
         and instance.farm.host_set.exists()
         and instance.exporter_set.exists()
     ):
@@ -255,7 +249,11 @@ def save_project(instance, **kwargs):
 
 @receiver(pre_delete, sender=models.Project)
 def delete_project(sender, instance, **kwargs):
-    if instance.farm and instance.farm.host_set.exists() and instance.exporter_set.exists():
+    if (
+        hasattr(instance, "farm")
+        and instance.farm.host_set.exists()
+        and instance.exporter_set.exists()
+    ):
         trigger_write_config.send(instance)
 
 

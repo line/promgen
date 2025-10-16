@@ -107,7 +107,7 @@ def render_config(service=None, project=None):
         "project__shard",
         "project",
     ):
-        if getattr(exporter.project, "farm", None) is None:
+        if not hasattr(exporter.project, "farm"):
             continue
         if service and exporter.project.service.name != service.name:
             continue
