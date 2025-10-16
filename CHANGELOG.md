@@ -1,5 +1,9 @@
 # Changelog
 
+# v0.72.2 - 2025-10-16
+
+- [BUGFIX] Fix deleting projects without farm #659
+
 # v0.72.1 - 2025-10-01
 
 - [BUGFIX] Remove excluded "farm" field from ProjectSerializer #657
