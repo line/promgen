@@ -284,3 +284,7 @@ msgstr "グループのすべての権限を削除しますか？"
 #: templates/promgen/project_detail_hosts_action_button_group.html:81
 msgid "Are you sure you want to delete this farm? This action is permanent and cannot be undone."
 msgstr "このFarmを削除してもよろしいですか？この操作は取り消せません。永久に削除されます。"
+
+#: views.py:1686
+msgid "Transferred ownership of these projects to the parent service's owner ({owner}):{projects}The previous owner ({previous_owner}) had its permissions removed."
+msgstr "これらのプロジェクトの所有権を親サービスの所有者（{owner}）に移譲しました:{projects}以前の所有者（{previous_owner}）の権限が削除されました。"
