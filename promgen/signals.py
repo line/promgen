@@ -13,7 +13,7 @@ from django.db.models import Q
 from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
 from guardian.models import GroupObjectPermission, UserObjectPermission
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_perms, remove_perm
 
 from promgen import models, prometheus, tasks
 
@@ -371,3 +371,20 @@ post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Service)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Project)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Farm)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Group)
+
+
+def remove_existing_perms(sender, instance, **kwargs):
+    if sender == UserObjectPermission:
+        permissions = get_perms(instance.user, instance.content_object)
+        for perm in permissions:
+            remove_perm(perm, instance.user, instance.content_object)
+    elif sender == GroupObjectPermission:
+        permissions = get_perms(instance.group, instance.content_object)
+        for perm in permissions:
+            remove_perm(perm, instance.group, instance.content_object)
+
+
+# User or Group should only have one permission for an object, so we remove all permissions
+# before assigning a new one.
+pre_save.connect(remove_existing_perms, sender=UserObjectPermission)
+pre_save.connect(remove_existing_perms, sender=GroupObjectPermission)
