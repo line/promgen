@@ -10,6 +10,7 @@ import promgen.signals
 def remove_farm_perms(apps, schema_editor):
     # In this scenario, Promgen removes permissions automatically, so Audit Logs are not needed.
     post_delete.disconnect(promgen.signals.delete_log, sender=UserObjectPermission)
+    post_delete.disconnect(promgen.signals.delete_log, sender=GroupObjectPermission)
 
     farm_perms = Permission.objects.filter(
         codename__in=["farm_admin", "farm_editor", "farm_viewer"]
@@ -20,6 +21,7 @@ def remove_farm_perms(apps, schema_editor):
 
     # Re-connected after running the migration
     post_delete.connect(promgen.signals.delete_log, sender=UserObjectPermission)
+    post_delete.connect(promgen.signals.delete_log, sender=GroupObjectPermission)
 
 
 class Migration(migrations.Migration):

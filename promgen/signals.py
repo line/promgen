@@ -157,6 +157,7 @@ post_save.connect(create_log, sender=models.Sender)
 post_save.connect(create_log, sender=models.Service)
 post_save.connect(create_log, sender=models.URL)
 post_save.connect(create_log, sender=UserObjectPermission)
+post_save.connect(create_log, sender=GroupObjectPermission)
 post_save.connect(create_log, sender=models.Group)
 
 
@@ -173,6 +174,7 @@ post_delete.connect(delete_log, sender=models.Sender)
 post_delete.connect(delete_log, sender=models.Service)
 post_delete.connect(delete_log, sender=models.URL)
 post_delete.connect(delete_log, sender=UserObjectPermission)
+post_delete.connect(delete_log, sender=GroupObjectPermission)
 post_delete.connect(delete_log, sender=models.Group)
 
 
