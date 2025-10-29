@@ -24,6 +24,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.generic import DetailView, ListView, UpdateView, View
 from django.views.generic.base import RedirectView, TemplateView
@@ -1627,11 +1628,31 @@ class PermissionDelete(LoginRequiredMixin, View):
         if "on" == self.request.POST.get("remove_sub_permissions") and isinstance(
             obj, models.Service
         ):
+            is_owner_transferred = False
+            transferred_projects = []
             # Remove all permissions for the user on this Service's projects
             for project in obj.project_set.all():
                 permissions = get_perms(user_or_group, project)
                 for perm in permissions:
                     remove_perm(perm, user_or_group, project)
+
+                # If the removed user is the owner of the Project, we need to transfer the ownership
+                # to the Service's owner and assign admin permission for them.
+                if isinstance(user_or_group, User) and user_or_group == project.owner:
+                    permissions = get_perms(obj.owner, project)
+                    for perm in permissions:
+                        remove_perm(perm, obj.owner, project)
+                    assign_perm("project_admin", obj.owner, project)
+                    project.owner = obj.owner
+                    project.save()
+                    is_owner_transferred = True
+                    transferred_projects.append(project.name)
+
+            if is_owner_transferred:
+                messages.warning(
+                    self.request,
+                    self.build_warning_message(transferred_projects, user_or_group.username),
+                )
 
     def get_object(self):
         id = self.request.POST["id"]
@@ -1646,6 +1667,31 @@ class PermissionDelete(LoginRequiredMixin, View):
         ):
             return _(message + " and its projects.")
         return _(message + ".")
+
+    def build_warning_message(self, projects, previous_owner):
+        """
+        Builds a warning message for transferred project ownership.
+
+        Example output:
+            Transferred ownership of these projects to the parent service's owner (John Doe):
+              - project A
+              - project B
+              - ...
+              - project Z
+            The previous owner (John Smith) had its permissions removed.
+        """
+
+        projects = "<ul v-pre>" + "".join(f"<li>{p}</li>" for p in projects) + "</ul>"
+        msg = _(
+            "Transferred ownership of these projects to the parent service's owner ({owner}):"
+            + "{projects}"
+            + "The previous owner ({previous_owner}) had its permissions removed."
+        ).format(
+            owner=self.get_object().owner.username,
+            projects=projects,
+            previous_owner=previous_owner,
+        )
+        return mark_safe(msg)
 
 
 class GroupList(LoginRequiredMixin, ListView):
