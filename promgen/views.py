@@ -1539,7 +1539,7 @@ class PermissionAssign(LoginRequiredMixin, View):
                 )
                 return redirect(request.POST["next"])
 
-            self.assign_perm(user)
+            assign_perm(permission, user, obj)
             messages.success(
                 request,
                 _("Assigned permission: {permission} for user: {username} on: {name}").format(
@@ -1548,7 +1548,7 @@ class PermissionAssign(LoginRequiredMixin, View):
             )
         elif "group" == permission_type:
             group = models.Group.objects.get_by_natural_key(name=request.POST["group"])
-            self.assign_perm(group)
+            assign_perm(permission, group, obj)
             messages.success(
                 request,
                 _("Assigned permission: {permission} for group: {group_name} on: {name}").format(
@@ -1559,15 +1559,6 @@ class PermissionAssign(LoginRequiredMixin, View):
             messages.error(request, _("Invalid permission type."))
 
         return redirect(request.POST["next"])
-
-    def assign_perm(self, user_or_group):
-        obj = self.get_object()
-        # User or Group should only have one permission for an object, so we remove all permissions
-        # before assigning a new one.
-        permissions = get_perms(user_or_group, obj)
-        for perm in permissions:
-            remove_perm(perm, user_or_group, obj)
-        assign_perm(self.request.POST["permission"], user_or_group, obj)
 
     def get_object(self):
         id = self.request.POST["id"]
@@ -1639,9 +1630,6 @@ class PermissionDelete(LoginRequiredMixin, View):
                 # If the removed user is the owner of the Project, we need to transfer the ownership
                 # to the Service's owner and assign admin permission for them.
                 if isinstance(user_or_group, User) and user_or_group == project.owner:
-                    permissions = get_perms(obj.owner, project)
-                    for perm in permissions:
-                        remove_perm(perm, obj.owner, project)
                     assign_perm("project_admin", obj.owner, project)
                     project.owner = obj.owner
                     project.save()
@@ -1755,9 +1743,6 @@ class GroupUpdateMember(LoginRequiredMixin, SingleObjectMixin, View):
         user = User.objects.get_by_natural_key(request.POST["username"])
 
         if group.user_set.filter(pk=user.pk).exists():
-            permissions = get_perms(user, group)
-            for perm in permissions:
-                remove_perm(perm, user, group)
             assign_perm(request.POST["permission"], user, group)
             messages.success(
                 request,
