@@ -9,12 +9,13 @@ from urllib.parse import urlencode
 
 import yaml
 from django import template
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Group, Permission
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from guardian.models import GroupObjectPermission, UserObjectPermission
 from guardian.shortcuts import get_groups_with_perms, get_users_with_perms
 
 register = template.Library()
@@ -265,3 +266,49 @@ def get_groups_roles(object):
         group: [Permission.objects.get(codename=perm).name for perm in perms]
         for group, perms in sorted(groups_with_perms, key=lambda item: item[0].name)
     }.items()
+
+
+@register.simple_tag
+def audit_log_link(log):
+    """
+    Generate link to object from audit log.
+    If the object has been deleted, try to link to the parent object.
+    """
+    from django.contrib.contenttypes.models import ContentType
+
+    from promgen import models
+
+    def generate_link(obj):
+        if (
+            isinstance(obj, models.Service)
+            or isinstance(obj, models.Project)
+            or isinstance(obj, models.Group)
+            or isinstance(obj, models.Farm)
+            or isinstance(obj, models.Host)
+            or isinstance(obj, models.Rule)
+            or isinstance(obj, models.Sender)
+        ):
+            return obj.get_absolute_url()
+        if isinstance(obj, models.Exporter):
+            return obj.project.get_absolute_url() + "#exporters"
+        if isinstance(obj, models.URL):
+            return obj.project.get_absolute_url() + "#urls"
+        if isinstance(obj, UserObjectPermission) or isinstance(obj, GroupObjectPermission):
+            return generate_link(obj.content_object) + "#members"
+        if isinstance(obj, Group):
+            return reverse("group-detail", kwargs={"pk": obj.pk})
+        return ""
+
+    obj = None
+    if log.content_object:
+        obj = log.content_object
+    else:
+        try:
+            model_class = ContentType.objects.get(id=log.parent_content_type_id).model_class()
+            obj = model_class.objects.get(pk=log.parent_object_id)
+        except Exception:
+            pass
+
+    if obj:
+        return format_html('<a href="{}">{}</a>', mark_safe(generate_link(obj)), obj)
+    return ""
