@@ -168,6 +168,9 @@ class Sender(models.Model):
         # If none of our filters match, then we blacklist this sender
         return True
 
+    def get_absolute_url(self):
+        return reverse("notifier-edit", kwargs={"pk": self.pk})
+
 
 class Filter(models.Model):
     sender = models.ForeignKey("Sender", on_delete=models.CASCADE)
