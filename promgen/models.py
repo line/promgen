@@ -6,7 +6,7 @@ import logging
 
 import django.contrib.sites.models
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
@@ -98,6 +98,11 @@ class Sender(models.Model):
     def show_value(self):
         if self.alias:
             return self.alias
+        if self.sender == "promgen.notification.user":
+            try:
+                return User.objects.get(pk=self.value).username
+            except User.DoesNotExist:
+                return None
         return self.value
 
     show_value.short_description = "Value"

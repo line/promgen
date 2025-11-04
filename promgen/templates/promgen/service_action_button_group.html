@@ -11,7 +11,7 @@
       <li>
         <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post" v-pre>{% csrf_token %}
           <input type="hidden" name="sender" value="promgen.notification.user">
-          <input type="hidden" name="value" value="{{request.user.username}}" />
+          <input type="hidden" name="value" value="{{request.user.pk}}" />
           <button>{% translate "Subscribe to Notifications" %}</button>
         </form>
       </li>

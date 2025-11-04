@@ -116,7 +116,7 @@ class HomeList(LoginRequiredMixin, ListView):
         # TODO: Support showing subscribed projects as well
         # Get the list of senders that a user is currently subscribed to
         senders = models.Sender.objects.filter(
-            value=self.request.user.username,
+            value=str(self.request.user.pk),
             sender="promgen.notification.user",
             content_type=ContentType.objects.get_for_model(models.Service),
         ).values_list("object_id")
@@ -1017,7 +1017,7 @@ class Profile(LoginRequiredMixin, FormView):
         context["notifier_plugins"] = [entry for entry in plugins.notifications()]
         context["notifiers"] = {"notifiers": models.Sender.objects.filter(obj=self.request.user)}
         context["subscriptions"] = models.Sender.objects.filter(
-            sender="promgen.notification.user", value=self.request.user.username
+            sender="promgen.notification.user", value=str(self.request.user.pk)
         )
         context["api_token"] = Token.objects.filter(user=self.request.user).first()
         return context

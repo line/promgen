@@ -26,7 +26,7 @@
             name="sender"
             value="promgen.notification.user"
           />
-          <input type="hidden" name="value" value="{{request.user.username}}" />
+          <input type="hidden" name="value" value="{{request.user.pk}}" />
           <button>{% translate "Subscribe to Notifications" %}</button>
         </form>
       </li>
