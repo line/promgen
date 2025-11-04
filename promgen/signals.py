@@ -332,7 +332,7 @@ def add_default_service_subscription(instance, created, **kwargs):
         sender, new_notifier = models.Sender.objects.get_or_create(
             obj=instance,
             sender="promgen.notification.user",
-            value=instance.owner.username,
+            value=str(instance.owner.pk),
             defaults={"owner": instance.owner},
         )
 
@@ -344,7 +344,7 @@ def add_default_project_subscription(instance, created, **kwargs):
         sender, new_notifier = models.Sender.objects.get_or_create(
             obj=instance,
             sender="promgen.notification.user",
-            value=instance.owner.username,
+            value=str(instance.owner.pk),
             defaults={"owner": instance.owner},
         )
 

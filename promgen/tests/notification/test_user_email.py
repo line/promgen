@@ -25,7 +25,7 @@ class UserSplayTest(tests.PromgenTest):
     def test_user_splay(self, mock_email, mock_post):
         one = models.Service.objects.get(pk=1)
 
-        NotificationUser.create(obj=one, value=one.owner.username, owner=self.user)
+        NotificationUser.create(obj=one, value=str(one.owner.pk), owner=self.user)
         NotificationLineNotify.create(obj=one.owner, value="#foo", owner=self.user)
         NotificationEmail.create(obj=one.owner, value="foo@bar.example", owner=self.user)
 
@@ -48,7 +48,7 @@ class UserSplayTest(tests.PromgenTest):
         # the valid one pass
         one = models.Service.objects.get(pk=1)
         NotificationEmail.create(obj=one, value="foo@bar.example", owner=self.user)
-        NotificationUser.create(obj=one, value="does not exist", owner=self.user)
+        NotificationUser.create(obj=one, value="0", owner=self.user)
 
         response = self.fireAlert()
         self.assertRoute(response, rest.AlertReceiver, 202)
@@ -68,7 +68,7 @@ class UserSplayTest(tests.PromgenTest):
             obj=one, value="disabled.example@example.com", enabled=False, owner=self.user
         )
         # Our parent notification is enabled
-        NotificationUser.create(obj=one, value=one.owner.username, owner=self.user)
+        NotificationUser.create(obj=one, value=str(one.owner.pk), owner=self.user)
         # But the child notifier is disabled and shouldn't fire
         NotificationEmail.create(
             obj=one.owner, value="enabled.example@example.com", enabled=False, owner=self.user
