@@ -875,6 +875,18 @@ class ExporterScrape(LoginRequiredMixin, View):
     def post(self, request, pk):
         # Lookup our farm for testing
         project = get_object_or_404(models.Project, pk=pk)
+
+        # Check per-object permissions
+        has_perm = any(
+            self.request.user.has_perm(perm, project)
+            for perm in ["project_viewer", "project_editor", "project_admin"]
+        ) or any(
+            self.request.user.has_perm(perm, project.service)
+            for perm in ["service_viewer", "service_editor", "service_admin"]
+        )
+        if not has_perm:
+            return JsonResponse({"error": "You do not have permission to perform this action."})
+
         farm = getattr(project, "farm", None)
 
         # So we have a mutable dictionary
