@@ -8,4 +8,5 @@ Using Promgen
   /user/notifications
   /user/admin
   /user/api
+  /user/permissions
   /user/terms

@@ -58,6 +58,7 @@ These are URLs that are monitored via `blackbox_exporter`_
 .. _Prometheus exporters:  https://prometheus.io/docs/instrumenting/exporters/
 .. _blackbox_exporter:  https://github.com/prometheus/blackbox_exporter
 
+.. _group:
 Group
 -----
 
