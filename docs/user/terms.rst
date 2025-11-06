@@ -57,3 +57,14 @@ These are URLs that are monitored via `blackbox_exporter`_
 
 .. _Prometheus exporters:  https://prometheus.io/docs/instrumenting/exporters/
 .. _blackbox_exporter:  https://github.com/prometheus/blackbox_exporter
+
+Group
+-----
+
+Promgen's users can be organized in Groups.
+Groups can be added as members of Services and Projects.
+
+A user can be a **Member** or an **Administrator** for a given Group.
+Group **Administrators** can add users to the group and update its settings, such as the group name,
+group's members and their group roles.
+Group **Members** can only view the group information.
