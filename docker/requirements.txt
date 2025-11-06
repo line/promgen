@@ -47,6 +47,7 @@ defusedxml==0.7.1
 django==4.2.11
     # via
     #   django-filter
+    #   django-guardian
     #   djangorestframework
     #   promgen (pyproject.toml)
     #   social-auth-app-django
