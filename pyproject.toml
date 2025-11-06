@@ -20,7 +20,7 @@ classifiers = [
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
 dependencies = [
-    "Django~=4.2",
+    "Django==4.2.26",
     "atomicwrites",
     "celery",
     "django-environ",
