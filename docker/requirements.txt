@@ -44,9 +44,10 @@ defusedxml==0.7.1
     # via
     #   python3-openid
     #   social-auth-core
-django==4.2.11
+django==4.2.26
     # via
     #   django-filter
+    #   django-guardian
     #   djangorestframework
     #   promgen (pyproject.toml)
     #   social-auth-app-django
