@@ -1,5 +1,15 @@
 # Changelog
 
+# v0.72.3 - 2025-11-07
+
+- [IMPROVEMENT] Document permission system #668
+- [SECURITY] Update django to 4.2.26 #667
+- [BUGFIX] User notifier stops working after changing username #665
+- [BUGFIX] Some links from audit logs don't work #664
+- [BUGFIX] User may end up with two different permissions  #663
+- [BUGFIX] Project owner without admin permission #661
+- [IMPROVEMENT] Add Audit Logs when assigning or removing permission for a Group #662
+
 # v0.72.2 - 2025-10-16
 
 - [BUGFIX] Fix deleting projects without farm #659
