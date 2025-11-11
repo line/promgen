@@ -8,7 +8,7 @@
     </tr>
     {% for url in project.url_set.all %}
     <tr>
-      <td v-pre>{{ url.url }}</td>
+      <td style="word-break: break-all" v-pre>{{ url.url }}</td>
       <td title="{{ url.probe.description }}" v-pre>{{ url.probe.module }}</td>
       <td>
         <a @click="setSilenceDataset"
