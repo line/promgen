@@ -34,8 +34,8 @@ be more specific with certain services
 .. code-block:: none
     :caption: Expanded Rules
 
-    node_filesystem_free{service=~"A|B"}
-        / node_filesystem_size{service=~"A|B"} < 0.20
+    node_filesystem_free{service!~"A|B"}
+        / node_filesystem_size{service!~"A|B"} < 0.20
     node_filesystem_free{service="A",}
         / node_filesystem_size{service="A",} < 0.10
     node_filesystem_free{service="B"}
