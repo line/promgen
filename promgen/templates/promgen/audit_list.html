@@ -35,7 +35,7 @@
         <td>
           <a href="{% url 'audit-list' %}?{% qs_replace 'user' entry.user.id %}">{{ entry.user }}</a>
         </td>
-        <td>
+        <td style="word-break: break-all">
           {{ entry.body }}
 
           {% if entry.data %}
@@ -52,7 +52,7 @@
           </div>
           {% endif %}
         </td>
-        <td>{% audit_log_link entry %}</td>
+        <td style="word-break: break-all">{% audit_log_link entry %}</td>
       </tr>
 {% endfor %}
     </table>
