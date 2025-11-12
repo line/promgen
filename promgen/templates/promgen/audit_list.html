@@ -20,13 +20,13 @@
 {% endif %}
 
 <div class="panel panel-default" v-pre>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-bordered table-condensed" style="table-layout: fixed;">
       <thead>
         <tr>
-          <th>Timestamp</th>
-          <th>User</th>
-          <th>Body</th>
-          <th>Link</th>
+          <th class="col-md-2">Timestamp</th>
+          <th class="col-md-1">User</th>
+          <th class="col-md-6">Body</th>
+          <th class="col-md-3">Link</th>
         </tr>
       </thead>
 {% for entry in audit_list %}
