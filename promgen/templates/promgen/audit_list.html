@@ -23,7 +23,7 @@
     <table class="table table-bordered table-condensed" style="table-layout: fixed;">
       <thead>
         <tr>
-          <th class="col-md-2">Timestamp</th>
+          <th class="col-md-1">Timestamp</th>
           <th class="col-md-1">User</th>
           <th class="col-md-6">Body</th>
           <th class="col-md-3">Link</th>
@@ -32,7 +32,7 @@
 {% for entry in audit_list %}
       <tr class="{{ entry.highlight }}">
         <td>{{ entry.created|timezone:TIMEZONE }}</td>
-        <td>
+        <td style="word-break: break-word">
           <a href="{% url 'audit-list' %}?{% qs_replace 'user' entry.user.id %}">{{ entry.user }}</a>
         </td>
         <td style="word-break: break-all">
