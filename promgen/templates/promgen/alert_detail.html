@@ -78,8 +78,17 @@
     {% endfor %}
 </table>
 
-<details>
-    <summary>Raw Data</summary>
-    <pre v-pre>{{alert.json|pretty_json}}</pre>
-</details>
+<a data-toggle="modal" href="#raw-data">
+    Raw Data
+    <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>
+</a>
+<div class="modal fade" role="dialog" id="raw-data">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <pre v-pre>{{alert.json|pretty_json}}</pre>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
