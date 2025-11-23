@@ -6,7 +6,6 @@ from functools import partial
 
 from dateutil import parser
 from django import forms
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from guardian.conf.settings import ANONYMOUS_USER_NAME
@@ -268,7 +267,7 @@ def get_permission_choices(input_object):
 
 def get_group_choices():
     yield ("", "")
-    for g in models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP).order_by("name"):
+    for g in models.Group.objects.order_by("name"):
         yield (g.name, g.name)
 
 
