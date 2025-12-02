@@ -208,6 +208,7 @@ try:
 except Exception:
     CELERY_TASK_ALWAYS_EAGER = True
 
+CELERY_TASK_SOFT_TIME_LIMIT = env.int("CELERY_TASK_SOFT_TIME_LIMIT", default=30)
 
 try:
     # If debug_toolbar is not available, we will remove it from our middleware
