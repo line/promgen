@@ -5,6 +5,8 @@ import json
 import guardian.admin
 from django import forms
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 from django.utils.html import format_html
 
 from promgen import actions, models, plugins
@@ -173,3 +175,11 @@ class AlertAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+
+class PromgenUserAdmin(UserAdmin):
+    actions = [actions.merge_users_action]
+
+
+admin.site.unregister(User)
+admin.site.register(User, PromgenUserAdmin)

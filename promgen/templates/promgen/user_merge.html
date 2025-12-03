@@ -1,0 +1,36 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+{% load admin_urls %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% translate "Home" %}</a>
+    &rsaquo; <a href="{% url 'admin:auth_user_changelist' %}">{% translate "Users" %}</a>
+    &rsaquo; {% translate "Merge users" %}
+</div>
+{% endblock %}
+{% block content %}
+<h2>The following changes will be applied:</h2>
+<ul>— Social Auth accounts will be linked to the kept user.</ul>
+<ul>— All ownerships of existing objects will be transferred to the kept user.</ul>
+<ul>— All memberships in groups will be transferred to the kept user.</ul>
+<ul>— Permissions will be transferred to the kept user.
+    If there are many users with different permissions on the same object,
+    the kept user will get the highest level of permission.
+</ul>
+<ul>— Other users will be deleted.</ul>
+
+<h2>Please choose the user that you want to keep:</h2>
+<form method="post">{% csrf_token %}
+    <input type="hidden" name="action" value="merge_users_action">
+    {% for user in users %}
+    <label>
+        <input type="hidden" name="_selected_action" value="{{ user.id }}">
+        <input type="radio" name="new_user_id" value="{{ user.id }}">
+        {{ user.username }}
+    </label>
+    <br>
+    {% endfor %}
+    <input type="submit" name="apply" value="Merge">
+    <a href="{% url 'admin:auth_user_changelist' %}">Cancel</a>
+</form>
+{% endblock %}
