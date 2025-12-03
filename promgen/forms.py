@@ -9,6 +9,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 from guardian.conf.settings import ANONYMOUS_USER_NAME
 from guardian.shortcuts import get_perms_for_model
 
@@ -331,3 +332,31 @@ class GroupMemberForm(forms.Form):
         if input_object:
             self.fields["permission"].choices = get_permission_choices(input_object)
         self.fields["users"].choices = get_user_choices()
+
+
+class UserMergeForm(forms.Form):
+    user_to_merge_from = forms.ChoiceField(required=True)
+    user_to_merge_into = forms.ChoiceField(required=True)
+
+    def __init__(self, *args, **kwargs):
+        super(UserMergeForm, self).__init__(*args, **kwargs)
+        self.fields["user_to_merge_from"].choices = get_user_choices()
+        self.fields["user_to_merge_from"].label = _(
+            "User to merge from (This account will be deleted)"
+        )
+        self.fields["user_to_merge_into"].choices = get_user_choices()
+        self.fields["user_to_merge_into"].label = _(
+            "User to merge into (This account will be kept)"
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        user_to_merge_from = cleaned_data.get("user_to_merge_from")
+        user_to_merge_into = cleaned_data.get("user_to_merge_into")
+
+        if user_to_merge_from == user_to_merge_into:
+            raise ValidationError(
+                _("The user to merge from and the user to merge into must be different.")
+            )
+
+        return cleaned_data
