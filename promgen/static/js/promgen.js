@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function initSelect2() {
-  const selectors = ["username", "owner", "group"]
+  const selectors = ["username", "owner", "group", "user_to_merge_from", "user_to_merge_into"]
     .map(name => `select[name="${name}"]`)
     .join(",");
   $(selectors).select2({

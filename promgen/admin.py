@@ -5,9 +5,12 @@ import json
 import guardian.admin
 from django import forms
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+from django.urls import path
 from django.utils.html import format_html
 
-from promgen import actions, models, plugins
+from promgen import actions, models, plugins, views
 
 
 class PrometheusInline(admin.TabularInline):
@@ -173,3 +176,20 @@ class AlertAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+
+class PromgenUserAdmin(UserAdmin):
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "merge/",
+                self.admin_site.admin_view(views.UserMergeView.as_view()),
+                name="user-merge",
+            ),
+        ]
+        return custom_urls + urls
+
+
+admin.site.unregister(User)
+admin.site.register(User, PromgenUserAdmin)

@@ -331,3 +331,30 @@ class GroupMemberForm(forms.Form):
         if input_object:
             self.fields["permission"].choices = get_permission_choices(input_object)
         self.fields["users"].choices = get_user_choices()
+
+
+class UserMergeForm(forms.Form):
+    user_to_merge_from = forms.ChoiceField(
+        required=True,
+        label="User to merge from (This account will be deleted)",
+    )
+
+    user_to_merge_into = forms.ChoiceField(
+        required=True,
+        label="User to merge into (This account will be kept)",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(UserMergeForm, self).__init__(*args, **kwargs)
+        self.fields["user_to_merge_from"].choices = get_user_choices()
+        self.fields["user_to_merge_into"].choices = get_user_choices()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        user_to_merge_from = cleaned_data.get("user_to_merge_from")
+        user_to_merge_into = cleaned_data.get("user_to_merge_into")
+
+        if user_to_merge_from == user_to_merge_into:
+            raise ValidationError("User_to_merge_from and User_to_merge_into must be different.")
+
+        return cleaned_data
