@@ -21,12 +21,22 @@ class BaseTaskWithRetry(Task):
 
     Retry backoff have a fixed value of 5 seconds and no jitter, so that the retry delay time will
     be consistent and increased following the Exponential backoff algorithm after multiple retries.
+
+    Celery does not natively support dead-letter queues (DLQs) when using Redis as a broker, so we
+    implemented a custom solution within our Promgen tasks to handle retried tasks. When enabled,
+    retried tasks will be routed to a queue named "promgen_dlq" for further inspection and handling.
+    Otherwise, retried tasks will be sent back to the original queue. By default, this feature is
+    disabled. To handle retried tasks in the DLQ, you can set up a separate worker that listens to
+    the "promgen_dlq" queue by using the following command:
+        celery -A promgen worker -l info --queues promgen_dlq
     """
 
     autoretry_for = (SoftTimeLimitExceeded,)
     max_retries = None  # Retry indefinitely
     retry_backoff = 5
     retry_jitter = False
+    if getattr(settings, "CELERY_ENABLE_PROMGEN_DEAD_LETTER_QUEUE", False):
+        retry_kwargs = {"queue": "promgen_dlq"}
 
 
 @shared_task(base=BaseTaskWithRetry)
