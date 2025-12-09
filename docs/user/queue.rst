@@ -21,3 +21,20 @@ by modifying the `CELERY_TASK_SOFT_TIME_LIMIT` setting in the Promgen configurat
 Tasks that time out will be retried indefinitely until they succeed. This ensures that
 important tasks, such as sending alert notifications, are not lost due to temporary issues.
 The delay between retries increases exponentially to avoid overwhelming the system.
+
+The Dead-letter Queue
+-----------------------
+
+By default, too many retried tasks can lead to a backlog of tasks in the queue, which can
+cause delays in processing new tasks. To mitigate this, Promgen implements a dead-letter queue
+mechanism. If the `CELERY_ENABLE_PROMGEN_DEAD_LETTER_QUEUE` setting is enabled, retried tasks
+will be moved to a separate dead-letter queue named "promgen_dlq" instead of sending them back to
+the original queue. This allows administrators to inspect and handle failed tasks separately without
+affecting the processing of new tasks.
+
+By default, this setting is disabled. After you enable it, you can set up a separate worker that
+listens to the "promgen_dlq" queue to handle retried tasks by using the following command:
+
+.. code-block:: none
+
+    celery -A promgen -l info --queues promgen_dlq
