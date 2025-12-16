@@ -5,6 +5,8 @@ One of Promgen's primary roles is to manage a list of targets for Prometheus to 
 For high availability, it is generally preferred to have multiple Prometheus servers running together.
 There are multiple ways to deploy these targets to a Prometheus server.
 
+.. _worker_model:
+
 Worker Model (Push)
 -------------------
 

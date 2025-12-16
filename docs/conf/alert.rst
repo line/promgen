@@ -1,3 +1,5 @@
+.. _alert_worker:
+
 Alert Worker
 ============
 
