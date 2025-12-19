@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% load admin_urls %}
+
+{% block title %}
+Promgen / Admin / Merge users
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1>{% translate "Merge users" %}</h1>
+    </div>
+</div>
+
+<ol class="breadcrumb">
+    <li><a href="{% url 'admin:index' %}">{% translate "Admin" %}</a></li>
+    <li><a href="{% url 'admin:app_list' 'auth' %}">{% translate "Authentication and Authorization" %}</a></li>
+    <li><a href="{% url 'admin:auth_user_changelist' %}">{% translate "Users" %}</a></li>
+    <li> {% translate "Merge users" %}</li>
+</ol>
+
+<h3>{% translate "The following will be inherited:" %}</h3>
+<ul>
+  <li>{% translate "User Social Auth credentials" %}</li>
+  <li>{% translate "Ownerships" %}</li>
+  <li>{% translate "Permissions (if there are different permissions on the same object, the highest will prevail)" %}</li>
+  <li>{% translate "Group memberships (If there are different roles on the same Group, the highest will prevail)" %}</li>
+</ul>
+<h3>{% translate "Merge users" %}</h3>
+<form action="" method="post" onsubmit="return confirm('Are you sure?')">
+    {% csrf_token %}
+    <table class="table">
+        {{ form.as_table }}
+    </table>
+    <input type="submit" name="apply" value="{% trans 'Merge' %}" class="btn btn-primary">
+    <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

@@ -288,3 +288,52 @@ msgstr "このFarmを削除してもよろしいですか？この操作は取�
 #: views.py:1686
 msgid "Transferred ownership of these projects to the parent service's owner ({owner}):{projects}The previous owner ({previous_owner}) had its permissions removed."
 msgstr "これらのプロジェクトの所有権を親サービスの所有者（{owner}）に移譲しました:{projects}以前の所有者（{previous_owner}）の権限が削除されました。"
+
+#: templates/promgen/user_merge.html:12
+#: templates/promgen/user_merge.html:20
+msgid "Merge users"
+msgstr "ユーザーの統合"
+
+#: templates/promgen/user_merge.html:23
+msgid "The following will be inherited:"
+msgstr "以下の項目が統合されます"
+
+#: templates/promgen/user_merge.html:25
+msgid "User Social Auth credentials"
+msgstr "認証情報"
+
+#: templates/promgen/user_merge.html:26
+msgid "Ownerships"
+msgstr "サービスなどのオーナー情報"
+
+#: templates/promgen/user_merge.html:27
+msgid "Permissions (if there are different permissions on the same object, the highest will prevail)"
+msgstr "各種権限(あるオブジェクトに対して複数の権限がある場合、上位の権限が適用されます)"
+
+#: templates/promgen/user_merge.html:28
+msgid "Group memberships (If there are different roles on the same Group, the highest will prevail)"
+msgstr "グループ参加状態(同一グループ内で複数の権限がある場合、上位の権限が適用されます)"
+
+#: promgen/forms.py:340
+msgid "User to merge from (This account will be deleted)"
+msgstr "統合元アカウント(このアカウントは削除されます)"
+
+#: promgen/forms.py:345
+msgid "User to merge into (This account will be kept)"
+msgstr "統合先アカウント(このアカウントが保持されます)"
+
+#: templates/promgen/user_merge.html:36
+msgid "Merge"
+msgstr "ユーザー統合"
+
+#: promgen/forms.py:359
+msgid "The user to merge from and the user to merge into must be different."
+msgstr "統合元アカウントと統合先アカウントは、別のアカウントである必要があります。"
+
+#: views.py:1915
+msgid "Merged {from_user} into {to_user}."
+msgstr "{from_user}は{to_user}に統合されました。"
+
+# : templates/admin/auth/user/change_list.html:7
+msgid "Merge user"
+msgstr "ユーザー統合"

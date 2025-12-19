@@ -1822,3 +1822,99 @@ class GroupDelete(LoginRequiredMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("group-list")
+
+
+class UserMergeView(LoginRequiredMixin, FormView):
+    template_name = "promgen/user_merge.html"
+    form_class = forms.UserMergeForm
+
+    def form_valid(self, form):
+        user_to_merge_into = User.objects.get_by_natural_key(
+            form.cleaned_data["user_to_merge_into"]
+        )
+        user_to_merge_from = User.objects.get_by_natural_key(
+            form.cleaned_data["user_to_merge_from"]
+        )
+
+        from guardian.models import UserObjectPermission
+        from social_django.models import UserSocialAuth
+
+        from promgen.notification.user import NotificationUser
+
+        # Merge social auth accounts
+        UserSocialAuth.objects.filter(user=user_to_merge_from).update(user=user_to_merge_into)
+
+        # Update owner fields
+        models.Sender.objects.filter(owner=user_to_merge_from).update(owner=user_to_merge_into)
+        models.Project.objects.filter(owner=user_to_merge_from).update(owner=user_to_merge_into)
+        models.Service.objects.filter(owner=user_to_merge_from).update(owner=user_to_merge_into)
+
+        # Update sender value fields for notification.user type
+        models.Sender.objects.filter(
+            sender=NotificationUser.__module__, value=str(user_to_merge_from.pk)
+        ).update(value=str(user_to_merge_into.pk))
+
+        # Copy group memberships and user permissions
+        for group in user_to_merge_from.groups.all():
+            user_to_merge_into.groups.add(group)
+        for perm in user_to_merge_from.user_permissions.all():
+            user_to_merge_into.user_permissions.add(perm)
+
+        # Update object permissions. If both users have different permissions on the same object,
+        # we want to keep the highest level of permission to the new user.
+        def map_obj_perm_by_perm_rank(user_obj_perms, perm_rank):
+            permission_map = {}
+            for perm in user_obj_perms:
+                obj_id = perm["object_pk"]
+                codename = perm["permission__codename"]
+                if permission_map.get(obj_id, None):
+                    current_rank = perm_rank[permission_map[obj_id]]
+                    new_rank = perm_rank[codename]
+                    if new_rank > current_rank:
+                        permission_map[obj_id] = codename
+                else:
+                    permission_map[obj_id] = codename
+            return permission_map
+
+        user_ids = [user_to_merge_from.id] + [user_to_merge_into.id]
+
+        service_perms = UserObjectPermission.objects.filter(
+            user_id__in=user_ids, content_type__app_label="promgen", content_type__model="service"
+        ).values("object_pk", "permission__codename")
+        service_perm_map = map_obj_perm_by_perm_rank(
+            service_perms,
+            {"service_admin": 3, "service_editor": 2, "service_viewer": 1},
+        )
+        for service_id, codename in service_perm_map.items():
+            assign_perm(codename, user_to_merge_into, models.Service.objects.get(pk=service_id))
+
+        project_perms = UserObjectPermission.objects.filter(
+            user_id__in=user_ids, content_type__app_label="promgen", content_type__model="project"
+        ).values("object_pk", "permission__codename")
+        project_perm_map = map_obj_perm_by_perm_rank(
+            project_perms,
+            {"project_admin": 3, "project_editor": 2, "project_viewer": 1},
+        )
+        for project_id, codename in project_perm_map.items():
+            assign_perm(codename, user_to_merge_into, models.Project.objects.get(pk=project_id))
+
+        group_perms = UserObjectPermission.objects.filter(
+            user_id__in=user_ids, content_type__app_label="auth", content_type__model="group"
+        ).values("object_pk", "permission__codename")
+        group_perm_map = map_obj_perm_by_perm_rank(
+            group_perms,
+            {"group_admin": 2, "group_member": 1},
+        )
+        for group_id, codename in group_perm_map.items():
+            assign_perm(codename, user_to_merge_into, models.Group.objects.get(pk=group_id))
+
+        # Delete the old user, related objects will be cascade deleted
+        user_to_merge_from.delete()
+
+        messages.success(
+            self.request,
+            _("Merged {from_user} into {to_user}.").format(
+                from_user=user_to_merge_from.username, to_user=user_to_merge_into.username
+            ),
+        )
+        return redirect("admin:auth_user_changelist")
