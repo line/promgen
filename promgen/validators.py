@@ -46,6 +46,13 @@ hostname = RegexValidator(
     flags=re.IGNORECASE,
 )
 
+# The default URLValidator would consider following schemas valid: ['http', 'https', 'ftp', 'ftps'].
+# However, we only want to allow http and https URLs to be scraped, since Prometheus cannot directly
+# scrape ftp target.
+scraped_url = URLValidator(
+    schemes=["http", "https"],
+)
+
 
 def datetime(value):
     try:

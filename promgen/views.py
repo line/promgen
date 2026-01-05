@@ -720,6 +720,11 @@ class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         url, _ = models.URL.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#http-checks")
 
+    def form_invalid(self, form):
+        messages.error(self.request, form.errors.as_text())
+        project = get_object_or_404(models.Project, id=self.kwargs["pk"])
+        return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#http-checks")
+
 
 class URLDelete(LoginRequiredMixin, DeleteView):
     model = models.URL

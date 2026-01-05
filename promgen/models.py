@@ -405,7 +405,7 @@ class Probe(models.Model):
 
 
 class URL(models.Model):
-    url = models.URLField(max_length=256)
+    url = models.URLField(max_length=256, validators=[validators.scraped_url])
     project = models.ForeignKey("Project", on_delete=models.CASCADE)
     probe = models.ForeignKey("promgen.Probe", on_delete=models.CASCADE)
 
