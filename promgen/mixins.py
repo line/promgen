@@ -7,8 +7,9 @@ from django.contrib.auth.views import redirect_to_login
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import ContextMixin
+from django.views.generic.edit import FormView
 
-from promgen import models
+from promgen import forms, models, notification
 
 
 class ContentTypeMixin:
@@ -78,3 +79,20 @@ class ServiceMixin(ContextMixin):
                 models.Service, id=self.kwargs["pk"]
             )
         return context
+
+
+class NotifierFormMixin(FormView):
+    model = models.Sender
+    form_class = forms.SenderForm
+
+    def post(self, request, *args, **kwargs):
+        notifier_form = notification.load(request.POST["sender"]).form(request.POST)
+        if notifier_form.is_valid():
+            data = request.POST.copy()
+            data.update(notifier_form.cleaned_data)
+            sender_form = self.form_class(data)
+            if sender_form.is_valid():
+                return self.form_valid(sender_form)
+            else:
+                return self.form_invalid(sender_form)
+        return self.form_invalid(notifier_form)
