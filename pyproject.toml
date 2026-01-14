@@ -61,6 +61,7 @@ linenotify = "promgen.notification.linenotify:NotificationLineNotify"
 slack = "promgen.notification.slack:NotificationSlack"
 user = "promgen.notification.user:NotificationUser"
 webhook = "promgen.notification.webhook:NotificationWebhook"
+pagerduty = "promgen.notification.pagerduty:NotificationPagerDuty"
 
 [tool.ruff]
 line-length = 100

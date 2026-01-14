@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import argparse
+import hashlib
 from urllib.parse import urlsplit
 
 import requests
@@ -137,6 +138,15 @@ def proxy_error(response: requests.Response) -> HttpResponse:
     )
     r.setdefault("X-PROMGEN-PROXY", response.url)
     return r
+
+
+def fingerprint(body):
+    buff = ""
+    for k, v in sorted(body.get("groupLabels", {}).items()):
+        buff += k
+        buff += v
+
+    return hashlib.sha1(buff.encode("utf8")).hexdigest()
 
 
 # Comment wrappers to get the docstrings from the upstream functions
