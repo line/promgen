@@ -58,10 +58,10 @@ promgen = "promgen.discovery.default:DiscoveryPromgen"
 [project.entry-points."promgen.notification"]
 email = "promgen.notification.email:NotificationEmail"
 linenotify = "promgen.notification.linenotify:NotificationLineNotify"
+pagerduty = "promgen.notification.pagerduty:NotificationPagerDuty"
 slack = "promgen.notification.slack:NotificationSlack"
 user = "promgen.notification.user:NotificationUser"
 webhook = "promgen.notification.webhook:NotificationWebhook"
-pagerduty = "promgen.notification.pagerduty:NotificationPagerDuty"
 
 [tool.ruff]
 line-length = 100
