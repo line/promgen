@@ -968,10 +968,8 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         return HttpResponseRedirect(project.get_absolute_url() + "#hosts")
 
 
-class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
-    model = models.Sender
+class ProjectNotifierRegister(LoginRequiredMixin, mixins.NotifierFormMixin, mixins.ProjectMixin):
     template_name = "promgen/notifier_form.html"
-    form_class = forms.SenderForm
 
     def form_valid(self, form):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
@@ -983,11 +981,13 @@ class ProjectNotifierRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin)
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(project.get_absolute_url() + "#notifiers")
 
+    def form_invalid(self, form):
+        messages.error(self.request, "Error creating notifier: %s" % form.errors.as_text())
+        return super().form_invalid(form)
 
-class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin):
-    model = models.Sender
+
+class ServiceNotifierRegister(LoginRequiredMixin, mixins.NotifierFormMixin, mixins.ServiceMixin):
     template_name = "promgen/notifier_form.html"
-    form_class = forms.SenderForm
 
     def form_valid(self, form):
         service = get_object_or_404(models.Service, id=self.kwargs["pk"])
@@ -998,6 +998,10 @@ class ServiceNotifierRegister(LoginRequiredMixin, FormView, mixins.ServiceMixin)
         )
         signals.check_user_subscription(models.Sender, sender, created, self.request)
         return HttpResponseRedirect(service.get_absolute_url() + "#notifiers")
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Error creating notifier: %s" % form.errors.as_text())
+        return super().form_invalid(form)
 
 
 class SiteDetail(LoginRequiredMixin, TemplateView):
@@ -1011,9 +1015,7 @@ class SiteDetail(LoginRequiredMixin, TemplateView):
         return context
 
 
-class Profile(LoginRequiredMixin, FormView):
-    form_class = forms.SenderForm
-    model = models.Sender
+class Profile(LoginRequiredMixin, mixins.NotifierFormMixin):
     template_name = "promgen/profile.html"
 
     def get_context_data(self, **kwargs):
@@ -1032,6 +1034,10 @@ class Profile(LoginRequiredMixin, FormView):
             obj=self.request.user, owner=self.request.user, **form.clean()
         )
         return redirect("profile")
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Error creating notifier: %s" % form.errors.as_text())
+        return super().form_invalid(form)
 
 
 class HostRegister(LoginRequiredMixin, FormView):

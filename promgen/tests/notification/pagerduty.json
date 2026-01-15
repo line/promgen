@@ -1,0 +1,19 @@
+{
+  "routing_key" : "integration_key_test",
+  "client" : "Promgen",
+  "client_url" : "http://promgen.example.com/",
+  "event_action" : "trigger",
+  "dedup_key" : "Promgen/0bb9bd7951ad3ef749586f77f98177427df4af00",
+  "links" : [ {
+    "href" : "http://promgen.example.com/alert/1",
+    "text" : "View alert in Promgen"
+  } ],
+  "payload" : {
+    "source" : "Promgen",
+    "severity" : "error",
+    "summary" : "test-alert",
+    "custom_details" : {
+      "firing" : "Labels:\n - alertname = test-alert\n - project = test-project\n - service = test-service\n - severity = major\nAnnotations:\n - grafana = http://grafana.example.com/dashboard/db/overview?var-service=test-service&var-project=test-project\n - project = http://promgen.example.com/project/1\n - service = http://promgen.example.com/service/1 \n"
+    }
+  }
+}

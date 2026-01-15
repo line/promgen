@@ -53,6 +53,12 @@ scraped_url = URLValidator(
     schemes=["http", "https"],
 )
 
+# https://support.pagerduty.com/main/docs/api-access-keys
+integration_key = RegexValidator(
+    regex=r"^[a-zA-Z0-9]{32}$",
+    message="Integration Key must be 32 alphanumeric characters.",
+)
+
 
 def datetime(value):
     try:
