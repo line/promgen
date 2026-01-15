@@ -36,11 +36,12 @@ class FormPagerDuty(forms.Form):
         label="Integration Key",
         help_text="The Integration Key (a.k.a. Routing Key) provided by PagerDuty.",
         validators=[validators.integration_key],
+        widget=forms.PasswordInput(),
     )
     alias = forms.CharField(
-        required=True,
         label="Alias",
-        help_text="Your Integration Key should be hidden. Please input the alias.",
+        help_text="Description for identifying this PagerDuty integration.",
+        required=True,
     )
 
     def clean(self):
