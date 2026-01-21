@@ -679,3 +679,52 @@ class Prometheus(models.Model):
         ordering = ["shard", "host"]
         unique_together = (("host", "port"),)
         verbose_name_plural = "prometheis"
+
+
+class Metric(models.Model):
+    name = models.CharField(max_length=128, unique=True, validators=[validators.metricname])
+    type = models.CharField(max_length=32)
+    description = models.TextField(blank=True)
+    labels = models.JSONField(default=list)
+
+    def to_metric_family(self):
+        from prometheus_client.core import CounterMetricFamily, HistogramMetricFamily
+
+        if self.type == "counter":
+            family = CounterMetricFamily(
+                self.name,
+                self.description,
+                labels=self.labels,
+            )
+            for item in self.samples.all():
+                family.add_metric(item.labels.split(","), item.data["value"])
+            return family
+        elif self.type == "histogram":
+            family = HistogramMetricFamily(
+                self.name,
+                self.description,
+                labels=self.labels,
+            )
+            for item in self.samples.all():
+                # Convert list of dicts to list of tuples
+                buckets = [(key, value) for d in item.data["buckets"] for key, value in d.items()]
+
+                family.add_metric(
+                    item.labels.split(","),
+                    buckets,
+                    item.data["sum_value"],
+                )
+            return family
+        else:
+            raise NotImplementedError(f"Metric type {self.type} not implemented")
+
+
+class MetricSample(models.Model):
+    metric = models.ForeignKey("Metric", on_delete=models.CASCADE, related_name="samples")
+    labels = models.CharField(
+        max_length=512, help_text="List of label values", blank=False, null=False
+    )
+    data = models.JSONField(default=dict)
+
+    class Meta:
+        unique_together = (("metric", "labels"),)
