@@ -3,6 +3,8 @@
 import collections
 import logging
 import os
+import socket
+from datetime import datetime
 from urllib.parse import urljoin
 
 from atomicwrites import atomic_write
@@ -10,7 +12,7 @@ from billiard.exceptions import SoftTimeLimitExceeded
 from celery import Task, shared_task
 from requests.exceptions import RequestException
 
-from promgen import models, notification, prometheus, settings, util
+from promgen import metrics, models, notification, prometheus, settings, util
 
 logger = logging.getLogger(__name__)
 
@@ -129,9 +131,13 @@ def send_notification(*args, alert_pk, **kwargs):
     This wraps send_alert, but wraps it so that we can keep track
     of the number of sent and error counts
     """
+    started_time = models.Alert.objects.get(pk=alert_pk).created
+    error = None
+
     try:
         send_alert(*args, **kwargs)
     except Exception as e:
+        error = e
         util.inc_for_pk(models.Alert, pk=alert_pk, error_count=1)
         models.AlertError.objects.create(alert_id=alert_pk, message=str(e))
         if isinstance(e, SoftTimeLimitExceeded):
@@ -139,6 +145,39 @@ def send_notification(*args, alert_pk, **kwargs):
             raise
     else:
         util.inc_for_pk(models.Alert, pk=alert_pk, sent_count=1)
+
+    finished_time = datetime.now(started_time.tzinfo)
+
+    # Instrumentation metrics for alert notifications
+    metrics.observe(
+        name="promgen_alert_notifications_total",
+        label_values={
+            "sender_type": args[0],
+            "hostname": socket.gethostname(),
+        },
+        value=1,
+    )
+
+    metrics.observe(
+        name="promgen_alert_notification_duration_seconds",
+        label_values={
+            "status": "success" if not error else "fail",
+            "sender_type": args[0],
+            "hostname": socket.gethostname(),
+        },
+        value=(finished_time - started_time).total_seconds(),
+    )
+
+    if error:
+        metrics.observe(
+            name="promgen_alert_notifications_error_total",
+            label_values={
+                "error_type": util.categorize_error(error),
+                "sender_type": args[0],
+                "hostname": socket.gethostname(),
+            },
+            value=1,
+        )
 
 
 @shared_task(base=BaseTaskWithRetry)
