@@ -181,7 +181,7 @@ class ProxySilences(View):
     def post(self, request):
         body = json.loads(request.body.decode("utf-8"))
         body.setdefault("comment", "Silenced from Promgen")
-        body.setdefault("createdBy", request.user.email)
+        body.setdefault("createdBy", request.user.username)
 
         form = forms.SilenceForm(body)
         if not form.is_valid():
@@ -222,7 +222,9 @@ class ProxySilencesV2(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
-        serializer = serializers.SilenceSerializer(data=request.data)
+        serializer = serializers.SilenceSerializer(
+            data={**request.data, "createdBy": request.user.username}
+        )
         if not serializer.is_valid():
             return JsonResponse(
                 {
