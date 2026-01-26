@@ -64,20 +64,32 @@ class SilenceTest(tests.PromgenTest):
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     def test_site_silence_errors(self):
-        form = forms.SilenceForm(data={"labels": {}, "duration": "1m"})
+        form = forms.SilenceForm(
+            data={"labels": {}, "duration": "1m", "createdBy": self.user.username}
+        )
         self.assertEqual(
             form.errors.as_data(),
             {"__all__": [errors.SilenceError.NOLABEL.error()]},
         )
 
-        form = forms.SilenceForm(data={"labels": {"alertname": "example-rule"}, "duration": "1m"})
+        form = forms.SilenceForm(
+            data={
+                "labels": {"alertname": "example-rule"},
+                "duration": "1m",
+                "createdBy": self.user.username,
+            }
+        )
         self.assertEqual(
             form.errors.as_data(),
             {"__all__": [errors.SilenceError.GLOBALSILENCE.error()]},
         )
 
         form = forms.SilenceForm(
-            data={"labels": {"alertname": "example-rule", "foo": "bar"}, "duration": "1m"}
+            data={
+                "labels": {"alertname": "example-rule", "foo": "bar"},
+                "duration": "1m",
+                "createdBy": self.user.username,
+            }
         )
         self.assertEqual(
             form.errors.as_data(),
@@ -85,14 +97,18 @@ class SilenceTest(tests.PromgenTest):
         )
 
         form = forms.SilenceForm(
-            data={"labels": {"alertname": "example-rule", "service": "foo"}, "duration": "1m"}
+            data={
+                "labels": {"alertname": "example-rule", "service": "foo"},
+                "duration": "1m",
+                "createdBy": self.user.username,
+            }
         )
         self.assertEqual(form.errors, {}, "Expected no errors")
         self.assertEqual(
             form.cleaned_data,
             {
                 "comment": "Silenced from Promgen",
-                "createdBy": "Promgen",
+                "createdBy": "demo",
                 "duration": "1m",
                 "endsAt": "",
                 "labels": {"alertname": "example-rule", "service": "foo"},

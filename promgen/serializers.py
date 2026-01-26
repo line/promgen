@@ -133,7 +133,7 @@ class SilenceSerializer(serializers.Serializer):
     matchers = MatcherSerializer(many=True)
     startsAt = serializers.CharField(required=False)
     endsAt = serializers.CharField(required=False)
-    createdBy = serializers.CharField(default="Promgen")
+    createdBy = serializers.CharField()
     comment = serializers.CharField(default="Silenced from Promgen")
     duration = serializers.CharField(required=False)
 
