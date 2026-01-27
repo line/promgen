@@ -6,10 +6,11 @@ from functools import wraps
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import Signal, receiver
 from guardian.models import GroupObjectPermission, UserObjectPermission
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
@@ -373,3 +374,60 @@ def remove_existing_perms(sender, instance, **kwargs):
 # before assigning a new one.
 pre_save.connect(remove_existing_perms, sender=UserObjectPermission)
 pre_save.connect(remove_existing_perms, sender=GroupObjectPermission)
+
+
+def check_and_unsubscribe(user, object):
+    # Only Service and Project can subscribe to notifications
+    if not isinstance(object, (models.Service, models.Project)):
+        return
+
+    # To be cautious, we check if the user still has any permissions on the object or its parent
+    if any(user.has_perm(perm[0], object) for perm in object.__class__._meta.permissions):
+        return
+    if isinstance(object, models.Project):
+        if any(
+            user.has_perm(perm[0], object.service)
+            for perm in object.service.__class__._meta.permissions
+        ):
+            return
+
+    models.Sender.objects.filter(
+        sender="promgen.notification.user", value=str(user.pk), obj=object
+    ).delete()
+
+    # In case that user subscribed to Project while they only had permissions on Service,
+    # we also unsubscribe them from the child Projects when removing permissions from Service.
+    if isinstance(object, models.Service):
+        for project in object.project_set.all():
+            check_and_unsubscribe(user, project)
+
+
+@skip_raw
+def unsubscribe_when_removing_permission(sender, instance, **kwargs):
+    if sender == UserObjectPermission:
+        check_and_unsubscribe(instance.user, instance.content_object)
+
+    elif sender == GroupObjectPermission:
+        for user in instance.group.user_set.all():
+            check_and_unsubscribe(user, instance.content_object)
+
+
+post_delete.connect(unsubscribe_when_removing_permission, sender=UserObjectPermission)
+post_delete.connect(unsubscribe_when_removing_permission, sender=GroupObjectPermission)
+
+
+@receiver(m2m_changed, sender=Group.user_set.through)
+def unsubscribe_when_user_removed_from_group(sender, instance, action, pk_set, **kwargs):
+    if action == "post_remove":
+        for user_pk in pk_set:
+            user = instance.user_set.model.objects.get(pk=user_pk)
+            for groupObjectPermission in GroupObjectPermission.objects.filter(group=instance):
+                check_and_unsubscribe(user, groupObjectPermission.content_object)
+
+
+@receiver(post_save, sender=models.Project)
+def unsubscribe_when_project_change_service(sender, instance, created, **kwargs):
+    if not created:
+        for notifier in instance.notifiers.filter(sender="promgen.notification.user"):
+            user = models.User.objects.get(pk=int(notifier.value))
+            check_and_unsubscribe(user, instance)
