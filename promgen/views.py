@@ -1053,13 +1053,45 @@ class RuleDetail(PromgenGuardianPermissionMixin, DetailView):
         "project_editor",
         "project_viewer",
     ]
-    queryset = models.Rule.objects.prefetch_related(
-        "content_object",
-        "content_type",
-        "overrides",
-        "overrides__content_object",
-        "overrides__content_type",
-    )
+
+    def get_queryset(self):
+        overrides = models.Rule.objects.filter(parent_id=self.kwargs["pk"])
+
+        # If the user is not a superuser, we need to filter child rules by the user's permissions
+        if not self.request.user.is_superuser:
+            accessible_services = permissions.get_accessible_services_for_user(self.request.user)
+            accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+            overrides = overrides.filter(
+                Q(content_type__model="service", object_id__in=accessible_services)
+                | Q(content_type__model="project", object_id__in=accessible_projects)
+                | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
+            )
+
+        queryset = models.Rule.objects.prefetch_related(
+            "content_object",
+            "content_type",
+            Prefetch("overrides", queryset=overrides),
+            "overrides__content_object",
+            "overrides__content_type",
+        )
+
+        return queryset
+
+    def get_object(self, queryset=None):
+        object = super().get_object()
+
+        # Check if we have a parent rule to show
+        if object.parent:
+            # Always show the parent rule if it's a Site rule
+            if isinstance(object.parent.content_object, models.Site):
+                return object
+
+            # Otherwise, check if the user has permission to view the parent rule
+            if not permissions.has_perm(self.request.user, self.permission_required, object.parent):
+                object.parent = None
+
+        return object
 
 
 class RuleUpdate(PromgenGuardianPermissionMixin, UpdateView):
