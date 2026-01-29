@@ -392,6 +392,13 @@ class ServiceDelete(PromgenGuardianPermissionMixin, DeleteView):
     def get_success_url(self):
         return reverse("service-list")
 
+    def post(self, request, *args, **kwargs):
+        service = self.get_object()
+        if not request.user.is_superuser and service.owner != request.user:
+            messages.error(request, "Only the service owner can delete the service.")
+            return HttpResponseRedirect(service.get_absolute_url())
+        return super().delete(request, *args, **kwargs)
+
 
 class ProjectDelete(PromgenGuardianPermissionMixin, DeleteView):
     permission_required = ["service_admin", "project_admin"]
@@ -399,6 +406,17 @@ class ProjectDelete(PromgenGuardianPermissionMixin, DeleteView):
 
     def get_success_url(self):
         return reverse("service-detail", args=[self.object.service_id])
+
+    def post(self, request, *args, **kwargs):
+        project = self.get_object()
+        if (
+            not request.user.is_superuser
+            and project.owner != request.user
+            and project.service.owner != request.user
+        ):
+            messages.error(request, "Only the project or the service owner can delete the project.")
+            return HttpResponseRedirect(project.get_absolute_url())
+        return super().delete(request, *args, **kwargs)
 
 
 class NotifierUpdate(PromgenGuardianPermissionMixin, UpdateView):
