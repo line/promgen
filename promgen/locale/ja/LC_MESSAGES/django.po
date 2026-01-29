@@ -359,3 +359,11 @@ msgstr "次の{label}に一致するサイレンスを期限切れにする権�
 #: proxy.py:472
 msgid "You do not have permission to expire the silence that matches many ({count}) {label}."
 msgstr "多くの({count}) {label}に一致するサイレンスを期限切れにする権限がありません。"
+
+#: views.py:398
+msgid "Only the service owner can delete the service."
+msgstr "サービスを削除できるのはサービスの所有者のみです。"
+
+#: views.py:418
+msgid "Only the project or the service owner can delete the project."
+msgstr "プロジェクトを削除できるのはプロジェクトまたはサービスの所有者のみです。"
