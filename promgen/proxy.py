@@ -184,6 +184,39 @@ class ProxyAlerts(View):
             return HttpResponse(response.content, content_type="application/json")
 
 
+def get_affected_obj_by_matchers(matchers):
+    def get_queryset_for_matcher(matcher, klass):
+        if matcher["isEqual"] and matcher["isRegex"]:  # =~
+            return klass.objects.filter(name__regex="^(?:" + matcher["value"] + ")$")
+        elif matcher["isEqual"]:  # =
+            return klass.objects.filter(name=matcher["value"])
+        elif matcher["isRegex"]:  # !~
+            return klass.objects.exclude(name__regex="^(?:" + matcher["value"] + ")$")
+        else:  # !=
+            return klass.objects.exclude(name=matcher["value"])
+
+    affected_projects = models.Project.objects.all()
+    affected_services = models.Service.objects.all()
+    has_project_matcher = has_service_matcher = False
+
+    for matcher in matchers:
+        if matcher["name"] == "project":
+            has_project_matcher = True
+            qs = get_queryset_for_matcher(matcher, models.Project)
+            affected_projects = affected_projects.filter(id__in=qs.values_list("id", flat=True))
+        elif matcher["name"] == "service":
+            has_service_matcher = True
+            qs = get_queryset_for_matcher(matcher, models.Service)
+            affected_services = affected_services.filter(id__in=qs.values_list("id", flat=True))
+
+    if not has_project_matcher:
+        affected_projects = models.Project.objects.none()
+    if not has_service_matcher:
+        affected_services = models.Service.objects.none()
+
+    return affected_projects, affected_services
+
+
 class ProxySilences(View):
     def get(self, request):
         try:
@@ -193,6 +226,32 @@ class ProxySilences(View):
             logger.error("Error connecting to %s", url)
             return JsonResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
+            # Filter the silences based on the user's permissions
+            if not self.request.user.is_superuser:
+                accessible_projects = promgen_permissions.get_accessible_projects_for_user(
+                    self.request.user
+                )
+                accessible_services = promgen_permissions.get_accessible_services_for_user(
+                    self.request.user
+                )
+
+                filtered_silences = []
+                for silence in response.json():
+                    affected_projects, affected_services = get_affected_obj_by_matchers(
+                        silence.get("matchers", [])
+                    )
+                    if (
+                        affected_projects.filter(
+                            id__in=accessible_projects.values_list("id", flat=True)
+                        ).exists()
+                        or affected_services.filter(
+                            id__in=accessible_services.values_list("id", flat=True)
+                        ).exists()
+                    ):
+                        filtered_silences.append(silence)
+
+                return HttpResponse(json.dumps(filtered_silences), content_type="application/json")
+
             return HttpResponse(response.content, content_type="application/json")
 
     def post(self, request):
