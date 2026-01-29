@@ -1220,6 +1220,9 @@ class Metrics(View):
 
         yield notifier
 
+        for metric in models.Metric.objects.prefetch_related("samples"):
+            yield metric.to_metric_family()
+
 
 class Search(LoginRequiredMixin, View):
     paginate_by = 20

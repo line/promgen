@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import argparse
+import math
 from urllib.parse import urlsplit
 
 import requests
@@ -137,6 +138,39 @@ def proxy_error(response: requests.Response) -> HttpResponse:
     )
     r.setdefault("X-PROMGEN-PROXY", response.url)
     return r
+
+
+# Convert Prometheus's Histogram/Quantile float representation to Go string
+# https://github.com/prometheus/client_python/blob/master/prometheus_client/utils.py#L9
+def float_to_go_string(d):
+    d = float(d)
+    if d == float("inf"):
+        return "+Inf"
+    elif d == float("-inf"):
+        return "-Inf"
+    elif math.isnan(d):
+        return "NaN"
+    else:
+        s = repr(d)
+        dot = s.find(".")
+        # Go switches to exponents sooner than Python.
+        # We only need to care about positive values for le/quantile.
+        if d > 0 and dot > 6:
+            mantissa = f"{s[0]}.{s[1:dot]}{s[dot + 1 :]}".rstrip("0.")
+            return f"{mantissa}e+0{dot - 1}"
+        return s
+
+
+def categorize_error(e: Exception) -> str:
+    """
+    Categorize an exception into a string label
+    """
+    if isinstance(e, ImportError):
+        return "import_error"
+    elif isinstance(e, requests.HTTPError):
+        return str(e.response.status_code) + "_http_error" if e.response else "other_error"
+    else:
+        return "other_error"
 
 
 # Comment wrappers to get the docstrings from the upstream functions
