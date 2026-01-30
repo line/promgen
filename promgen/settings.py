@@ -225,6 +225,15 @@ AUTHENTICATION_BACKENDS = (
     "guardian.backends.ObjectPermissionBackend",
 )
 
+# PagerDuty only accepts these severity levels: info, warning, error, critical.
+# However, Promgen user can define their own severity levels, so we provide
+# a mapping here to convert user-defined severity levels to PagerDuty accepted values.
+PAGERDUTY_SEVERITY_MAP = {
+    "debug": "info",
+    "minor": "warning",
+    "major": "error",
+}
+
 # Load overrides from PROMGEN to replace Django settings
 for k, v in PROMGEN.pop("django", {}).items():
     globals()[k] = v

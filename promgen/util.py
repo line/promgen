@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import argparse
+import hashlib
 import math
 from urllib.parse import urlsplit
 
@@ -171,6 +172,15 @@ def categorize_error(e: Exception) -> str:
         return str(e.response.status_code) + "_http_error" if e.response else "other_error"
     else:
         return "other_error"
+
+
+def fingerprint(body):
+    buff = ""
+    for k, v in sorted(body.get("groupLabels", {}).items()):
+        buff += k
+        buff += v
+
+    return hashlib.sha1(buff.encode("utf8")).hexdigest()
 
 
 # Comment wrappers to get the docstrings from the upstream functions
