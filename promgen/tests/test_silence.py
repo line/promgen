@@ -21,7 +21,7 @@ class SilenceTest(tests.PromgenTest):
     fixtures = ["testcases.yaml", "extras.yaml"]
 
     def setUp(self):
-        self.user = self.force_login(username="demo")
+        self.user = self.force_login(username="admin")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("promgen.util.post")
