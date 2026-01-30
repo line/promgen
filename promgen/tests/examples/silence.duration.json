@@ -1,5 +1,5 @@
 {
-    "createdBy": "demo@example.com",
+    "createdBy": "demo",
     "matchers": [{
         "value": "example.com:[0-9]*",
         "isRegex": true,
