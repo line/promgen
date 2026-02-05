@@ -20,7 +20,7 @@
         <th>Source</th>
         <th>Hosts</th>
         <th>Project</th>
-        <th>&nbsp;</th>
+        <th>Actions</th>
       </tr>
     </thead>
     {% for farm in farm_list %}
@@ -49,10 +49,13 @@
           <button class="btn btn-warning">{% trans "Convert to Local Farm" %}</button>
         </form>
         {% endif %}
+        {% current_role farm.project as role %}
+        {% if role == "ADMIN" or role == "EDIT" %}
         <form method="post" action="{% url 'farm-delete' farm.id %}" onsubmit="return confirm('Delete this farm?')" style="display: inline">
           {% csrf_token %}
           <button class="btn btn-danger">{% trans "Delete" %}</button>
         </form>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}
