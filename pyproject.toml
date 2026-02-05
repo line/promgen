@@ -56,6 +56,7 @@ promgen = "promgen.manage:main"
 promgen = "promgen.discovery.default:DiscoveryPromgen"
 
 [project.entry-points."promgen.notification"]
+alertmanager = "promgen.notification.alertmanager:NotificationAlertmanager"
 email = "promgen.notification.email:NotificationEmail"
 linenotify = "promgen.notification.linenotify:NotificationLineNotify"
 pagerduty = "promgen.notification.pagerduty:NotificationPagerDuty"
