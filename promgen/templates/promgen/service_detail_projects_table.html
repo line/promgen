@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load promgen %}
 
 <table class="table table-bordered table-condensed">
   <tr>
@@ -7,6 +8,7 @@
       <th class="col-md-3">Notifiers</th>
       <th class="col-md-1">Actions</th>
   </tr>
+  {% with service_role=role %}
   {% for project in shard_projects %}
 
   {% if service.notifiers.count == 0 and project.notifiers.count == 0 %}
@@ -18,10 +20,16 @@
   </tr>
   {% endif %}
 
-  {% include 'promgen/project_row.html' %}
+  {% if service_role == "ADMIN" or service_role == "EDIT" %}
+    {% include 'promgen/project_row.html' %}
+  {% else %}
+    {% current_role project as project_role %}
+    {% include 'promgen/project_row.html' with role=project_role %}
+  {% endif %}
   {% empty %}
   <tr>
       <td colspan="4">No Projects?</td>
   </tr>
   {% endfor %}
+  {% endwith %}
 </table>

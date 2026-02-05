@@ -6,6 +6,7 @@ Promgen / Group / {{ group.name }}
 {% endblock %}
 
 {% block content %}
+{% current_role group as role %}
 
 <div class="page-header promgen-flex-space-between-center" v-pre>
   <div>
@@ -15,6 +16,7 @@ Promgen / Group / {{ group.name }}
     <a href="{% urlqs 'audit-list' group=group.id %}" class="btn btn-primary btn-sm">
       {% translate "View Edit History" %}
     </a>
+    {% if role == "ADMIN" %}
     <a href="{% url 'group-update' group.id %}" class="btn btn-warning btn-sm">
       {% translate "Edit Group" %}
     </a>
@@ -27,6 +29,7 @@ Promgen / Group / {{ group.name }}
       {% csrf_token %}
       <button class="btn btn-danger btn-sm">Delete Group</button>
     </form>
+    {% endif %}
   </div>
 </div>
 

@@ -165,3 +165,35 @@ def get_editable_projects_for_user(user: User):
         user, ["project_admin", "project_editor"], klass=models.Project
     )
     return models.Project.objects.filter(Q(pk__in=projects) | Q(service__in=services))
+
+
+def get_highest_role(user: User, obj):
+    """
+    Determine the highest role a user has for a given object.
+
+    Roles are determined based on the following hierarchy:
+    - ADMIN: service_admin, project_admin, group_admin
+    - EDIT: service_editor, project_editor
+    - VIEW: service_viewer, project_viewer, group_member
+    """
+
+    # Superusers always have ADMIN permission
+    if user.is_active and user.is_superuser:
+        return "ADMIN"
+
+    check_permission_objects = get_check_permission_objects(obj)
+    if not check_permission_objects:
+        return None
+
+    role_perms = [
+        ("ADMIN", ["service_admin", "project_admin", "group_admin"]),
+        ("EDIT", ["service_editor", "project_editor"]),
+        ("VIEW", ["service_viewer", "project_viewer", "group_member"]),
+    ]
+
+    for role, perms in role_perms:
+        for check_obj in check_permission_objects:
+            if any(user.has_perm(perm, check_obj) for perm in perms):
+                return role
+
+    return None
