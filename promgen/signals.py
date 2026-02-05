@@ -359,21 +359,23 @@ post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Farm)
 post_delete.connect(remove_obj_perms_connected_with_user, sender=models.Group)
 
 
-def remove_existing_perms(sender, instance, **kwargs):
+def remove_other_existing_perms(sender, instance, **kwargs):
     if sender == UserObjectPermission:
         permissions = get_perms(instance.user, instance.content_object)
         for perm in permissions:
-            remove_perm(perm, instance.user, instance.content_object)
+            if perm != instance.permission.codename:
+                remove_perm(perm, instance.user, instance.content_object)
     elif sender == GroupObjectPermission:
         permissions = get_perms(instance.group, instance.content_object)
         for perm in permissions:
-            remove_perm(perm, instance.group, instance.content_object)
+            if perm != instance.permission.codename:
+                remove_perm(perm, instance.group, instance.content_object)
 
 
 # User or Group should only have one permission for an object, so we remove all permissions
-# before assigning a new one.
-pre_save.connect(remove_existing_perms, sender=UserObjectPermission)
-pre_save.connect(remove_existing_perms, sender=GroupObjectPermission)
+# except the one just added.
+post_save.connect(remove_other_existing_perms, sender=UserObjectPermission)
+post_save.connect(remove_other_existing_perms, sender=GroupObjectPermission)
 
 
 def check_and_unsubscribe(user, object):
