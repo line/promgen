@@ -152,7 +152,7 @@ docs: $(SPHINX)
 	$(SPHINX) -avb html docs dist/html
 
 $(RUFF_BIN): $(PIP_BIN)
-	$(PIP_BIN) install ruff
+	$(PIP_BIN) install ruff==0.14.14
 
 
 .PHONY: format
