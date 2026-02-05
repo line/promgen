@@ -15,6 +15,7 @@
     </span>
     {% endfor %}
 
+    {% if role == "ADMIN" %}
     <button
       style="background: none"
       class="btn btn-xs"
@@ -43,7 +44,9 @@
         <button class="btn btn-primary btn-xs">Change</button>
       </form>
     </div>
+    {% endif %}
   </td>
+  {% if role == "ADMIN" %}
   <td class="col-xs-3" v-pre>
     <form
       method="post"
@@ -82,4 +85,5 @@
       {% endif %}
     </form>
   </td>
+  {% endif %}
 </tr>

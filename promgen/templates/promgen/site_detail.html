@@ -10,12 +10,18 @@ Promgen / Shared
 <div class="panel panel-default">
     <div class="panel-heading">
         <span>Site Alert Rules</span>
+        {% if user.is_superuser %}
         <a href="{% url 'rule-new' 'site' 1 %}" class="btn btn-primary btn-xs pull-right">{% trans "Register Rule" %}</a>
+        {% endif %}
     </div>
 
     <table class="table table-bordered table-condensed">
         {% include "promgen/rule_header.html" %}
+        {% if user.is_superuser %}
+        {% include "promgen/rule_block.html" with delete=1 modify=1 %}
+        {% else %}
         {% include "promgen/rule_block.html" %}
+        {% endif %}
     </table>
 </div>
 

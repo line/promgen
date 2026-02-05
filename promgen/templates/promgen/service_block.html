@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load promgen %}
+{% current_role service as role %}
 <div class="well">
   {% if service.description %}
   <div class="panel panel-default">
@@ -32,6 +33,7 @@
 
   <div class="panel panel-default">
     <div class="panel-body">
+      {% if role == "ADMIN" or role == "EDIT" %}
       <div class="btn-group btn-group-sm mr-2" role="group" aria-label="...">
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {% trans "Register" %} <span class="caret"></span>
@@ -42,6 +44,7 @@
           <li role="presentation"><a href="{% url 'service-notifier' service.id %}">{% trans "Register Notifier" %}</a></li>
         </ul>
       </div>
+      {% endif %}
 
       {% include "promgen/service_action_button_group.html" %}
 
@@ -52,6 +55,6 @@
 
   {% include "promgen/service_block_panel_notifiers.inc.html" %}
 
-  {% include "promgen/service_block_projects.html" with project_list=project_list|default:service.project_set.all service=service only %}
+  {% include "promgen/service_block_projects.html" with project_list=project_list|default:service.project_set.all service=service role=role only %}
 
 </div><!-- end well-->

@@ -70,6 +70,7 @@
       <th class="col-md-1">Actions</th>
     </tr>
     {% for project in project_list %}
+    {% current_role project as role %}
     {% include 'promgen/project_row.html' %}
     {% endfor %}
   </table>
@@ -86,6 +87,7 @@
       <th>Hosts</th>
     </tr>
     {% for farm in farm_list %}
+    {% current_role farm as role %}
     <tr>
       <td><a href="{% url 'farm-detail' farm.id %}" v-pre>{{ farm.name }}</a></td>
       <td>
@@ -98,6 +100,7 @@
 {% for host in farm.host_set.all %}
           <li>
             <a href="{% url 'host-detail' host.name %}" v-pre>{{ host.name }}</a>
+            {% if role == "ADMIN" or role == "EDIT" %}
             <a
             @click="setSilenceDataset"
             class="btn btn-warning btn-xs"
@@ -106,6 +109,7 @@
             data-service="{{host.farm.project.service.name}}"
             style="display: inline-block;"
           >{% trans "Silence" %}</a></li>
+            {% endif %}
 {% endfor %}
         </ul>
       </td>

@@ -37,6 +37,7 @@ Promgen / Datasource / {{ shard.name }}
     <th class="col-md-1">Actions</th>
   </tr>
   {% for project in project_list %}
+  {% current_role project as role %}
   {% include 'promgen/project_row.html' %}
   {% endfor %}
 

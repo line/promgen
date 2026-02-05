@@ -7,6 +7,7 @@ Promgen / Service / {{ service.name }}
 {% endblock %}
 
 {% block content %}
+{% current_role service as role %}
 
 <div class="page-header promgen-flex-space-between-center">
   <div>
@@ -67,22 +68,26 @@ Promgen / Service / {{ service.name }}
 
   <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="projects">
-      {% include "promgen/service_detail_projects.html" with project_list=project_list|default:service.project_set.all service=service only %}
+      {% include "promgen/service_detail_projects.html" with project_list=project_list|default:service.project_set.all service=service role=role only %}
     </div>
 
     <div role="tabpanel" class="tab-pane" id="rules">
+      {% if role == "ADMIN" or role == "EDIT" %}
       <div class="text-right mb-4">
         <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Rule" %}</a>
       </div>
+      {% endif %}
 
       {% include "promgen/service_block_panel_rules.inc.html" %}
 
     </div>
 
     <div role="tabpanel" class="tab-pane" id="notifiers">
+      {% if role == "ADMIN" or role == "EDIT" %}
       <div class="text-right mb-4">
         <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Notifier" %}</a>
       </div>
+      {% endif %}
 
       {% include "promgen/service_block_panel_notifiers.inc.html" %}
 

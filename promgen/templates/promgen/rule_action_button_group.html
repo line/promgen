@@ -23,6 +23,7 @@
           {% trans "View Alert History" %}
         </a>
       </li>
+      {% if role == "ADMIN" or role == "EDIT" %}
       <hr />
       <li role="presentation">
         <form
@@ -35,9 +36,12 @@
           <button type="submit" style="color:#d9534f;">{% trans "Delete Rule" %}</button>
         </form>
       </li>
+      {% endif %}
     </ul>
   </div>
 
+  {% if role == "ADMIN" or role == "EDIT" %}
   <a href="{% url 'rule-edit' rule.pk %}" class="btn btn-warning btn-sm">{% trans "Edit Rule" %}</a>
+  {% endif %}
 
 </div>
