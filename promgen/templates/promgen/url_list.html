@@ -19,6 +19,7 @@
   </tr>
   {% for service in service_list %}
   {% for project in service.list %}
+  {% current_role project as role %}
   <tr>
     <th colspan="4">
       <h2>
@@ -39,12 +40,14 @@
     <td style="word-break: break-all">{{url.url}}</td>
     <td>{{url.probe.module}}</td>
     <td>{{url.probe.description}}</td>
+    {% if role == "ADMIN" or role == "EDIT" %}
     <td class="col-md-1">
       <form method="post" action="{% url 'url-delete' url.id %}" onsubmit="return confirm('Delete this url?')" style="display: inline">
         {% csrf_token %}
         <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
       </form>
     </td>
+    {% endif %}
   </tr>
   {% endfor %}{# URL #}
   {% endfor %}{# Project #}

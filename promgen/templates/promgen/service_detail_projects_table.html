@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load promgen %}
 
 <table class="table table-bordered table-condensed">
   <tr>
@@ -8,6 +9,9 @@
       <th class="col-md-1">Actions</th>
   </tr>
   {% for project in shard_projects %}
+  {% if role != "ADMIN" and role != "EDIT" %}
+    {% current_role project as role %}
+  {% endif %}
 
   {% if service.notifiers.count == 0 and project.notifiers.count == 0 %}
   <tr>

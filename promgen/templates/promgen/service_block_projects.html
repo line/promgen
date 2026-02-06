@@ -8,7 +8,9 @@
         Datasource
         <a href="{{shard.get_absolute_url}}">{{shard.name}}</a>
         ( <a href="{{shard.url}}">{{shard.url}}</a> )
+        {% if role == "ADMIN" or role == "EDIT" %}
         <a href="{% url 'project-new' service.id %}?shard={{shard.id}}" class="btn btn-primary btn-xs pull-right">{% trans "Register Project" %}</a>
+        {% endif %}
     </div>
 
     {% include 'promgen/service_detail_projects_table.html' with shard_projects=shard_projects service=service %}

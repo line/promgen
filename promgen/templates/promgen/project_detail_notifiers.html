@@ -1,13 +1,19 @@
 {% load i18n %}
 
+{% if role == "ADMIN" or role == "EDIT" %}
 <div class="text-right mb-4">
   <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary btn-sm">
     {% trans "Register Notifier" %}
   </a>
 </div>
+{% endif %}
 
 <div class="panel panel-default">
+  {% if role == "ADMIN" or role == "EDIT" %}
   {% include "promgen/notifier_block.html" with object=project show_edit=1 %}
+  {% else %}
+  {% include "promgen/notifier_block.html" with object=project %}
+  {% endif %}
 </div>
 <div>
   {% if project.service.notifiers.count %}

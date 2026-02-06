@@ -2,9 +2,11 @@
 
 {% regroup project_list|dictsort:"shard_id" by shard as project_shard_list %}
 
+{% if role == "ADMIN" or role == "EDIT" %}
 <div class="text-right mb-4">
     <a href="{% url 'project-new' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Project" %}</a>
 </div>
+{% endif %}
 
 {% for shard, shard_projects in project_shard_list %}
 <div class="panel panel-default">
@@ -13,8 +15,7 @@
         <a href="{{shard.get_absolute_url}}">{{shard.name}}</a>
         ( <a href="{{shard.url}}">{{shard.url}}</a> )
     </div>
-
-    {% include 'promgen/service_detail_projects_table.html' with shard_projects=shard_projects service=service %}
+    {% include 'promgen/service_detail_projects_table.html' with shard_projects=shard_projects service=service role=role %}
     
 </div>
 {% endfor %}

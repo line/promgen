@@ -8,7 +8,9 @@
           <th>User</th>
           <th>Email</th>
           <th>Role</th>
+          {% if role == "ADMIN" %}
           <th>Actions</th>
+          {% endif %}
         </tr>
         {% for user,perms in object|get_users_roles %}
           {% include "promgen/group_user_row.html" %}
@@ -17,6 +19,7 @@
     </div>
   </div>
 
+  {% if role == "ADMIN" %}
   <div class="panel panel-footer">
     <div class="panel-heading">
       <h4>Add Members</h4>
@@ -50,4 +53,5 @@
       </div>
     </div>
   </div>
+  {% endif %}
 </div>

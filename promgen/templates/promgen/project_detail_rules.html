@@ -1,17 +1,25 @@
 {% load i18n %}
 
+{% if role == "ADMIN" or role == "EDIT" %}
 <div class="text-right mb-4">
   <a href="{% url 'rule-new' 'project' project.id %}" class="btn btn-primary btn-sm">
     {% trans "Register Rule" %}
   </a>
 </div>
+{% endif %}
 
 <div class="panel panel-default">
   <table class="table table-bordered table-condensed">
     {% include "promgen/rule_header.html" %}
-    {% include "promgen/rule_block.html" with rule_list=project.rule_set.all toggle=1 delete=1 %}
+    {% if role == "ADMIN" or role == "EDIT" %}
+    {% include "promgen/rule_block.html" with rule_list=project.rule_set.all toggle=1 delete=1 modify=1 %}
+    {% include "promgen/rule_block.html" with rule_list=project.service.rule_set.all collapse="project-service-rules-" overwrite_type='project' overwrite_id=project.id modify=1 %}
+    {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="project-site-rules-" overwrite_type='project' overwrite_id=project.id modify=1 %}
+    {% else %}
+    {% include "promgen/rule_block.html" with rule_list=project.rule_set.all %}
     {% include "promgen/rule_block.html" with rule_list=project.service.rule_set.all collapse="project-service-rules-" overwrite_type='project' overwrite_id=project.id %}
     {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="project-site-rules-" overwrite_type='project' overwrite_id=project.id %}
+    {% endif %}
   </table>
   <div class="panel-footer">
     <a class="btn btn-default btn-xs" role="button" data-toggle="collapse" href=".project-service-rules-{{project.id}}" aria-expanded="false" aria-controls="collapseExample">
