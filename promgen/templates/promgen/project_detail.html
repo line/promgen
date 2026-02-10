@@ -7,6 +7,7 @@ Promgen / Project / {{ project.name }}
 {% endblock %}
 
 {% block content %}
+{% current_role project as role %}
 
 <div class="page-header promgen-flex-space-between-center">
   <div v-pre>
@@ -97,9 +98,6 @@ Promgen / Project / {{ project.name }}
     </div>
 
     <div role="tabpanel" class="tab-pane" id="members">
-      <div class="alert alert-warning" role="alert">
-        {% trans "This is a transitional release. Even if you are able to assign roles to members, the permission checks are actually disabled. They will be enabled in the next release." %}
-      </div>
       {% include "promgen/permission_block.html" with object=project %}
     </div>
   </div>

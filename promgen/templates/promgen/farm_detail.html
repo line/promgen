@@ -3,6 +3,7 @@
 {% load promgen %}
 
 {% block content %}
+{% current_role farm as role %}
 
 <div class="page-header promgen-flex-space-between-center" v-pre>
   <div>
@@ -11,6 +12,7 @@
     </h1>
   </div>
   {% if farm.editable %}
+    {% if role == "ADMIN" or role == "EDIT" %}
     <div>
       <a href="{% url 'farm-update' farm.id %}" class="btn btn-warning btn-sm">{% translate "Edit Farm" %}</a>
       <form
@@ -23,6 +25,7 @@
         <button class="btn btn-danger btn-sm">{% trans "Delete Farm" %}</button>
       </form>
     </div>
+    {% endif %}
   {% endif %}
 </div>
 
@@ -37,6 +40,7 @@
     <tr>
       <td><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
       {% if farm.editable %}
+      {% if role == "ADMIN" or role == "EDIT" %}
       <td style="width: 0; min-width: fit-content;">
         <form method="post" action="{% url 'host-delete' host.id %}" onsubmit="return confirm('Really delete this host?');">
           {% csrf_token %}
@@ -44,14 +48,17 @@
         </form>
       </td>
       {% endif %}
+      {% endif %}
     </tr>
   {% endfor %}
   </table>
 
 {% if farm.editable %}
+  {% if role == "ADMIN" or role == "EDIT" %}
   <div class="panel-footer">
     <a href="{% url 'hosts-add' farm.id %}" class="btn btn-primary">{% trans "Register Hosts" %}</a>
   </div>
+  {% endif %}
 {% endif %}
 </div>
 

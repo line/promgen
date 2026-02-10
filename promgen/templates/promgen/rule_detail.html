@@ -8,6 +8,8 @@ Promgen / Rule / {{ rule.name }}
 {% endblock %}
 
 {% block content %}
+{% current_role rule as role %}
+
 <div class="page-header promgen-flex-space-between-center" v-pre>
   <div>
     <h1>Rule: {{ rule.name }}</h1>

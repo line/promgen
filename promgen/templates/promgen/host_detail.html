@@ -23,6 +23,7 @@
       <th>Actions</th>
     </tr>
 {% for farm in farm_list %}
+    {% current_role farm as farm_role %}
     <tr>
       <td><a href="{{ farm.get_absolute_url }}" v-pre>{{ farm.name }} ({{ farm.source }})</a></td>
       <td>
@@ -30,6 +31,7 @@
           {{ farm.project }}
         </a>
       </td>
+      {% if farm_role == "ADMIN" or farm_role == "EDIT" %}
       <td>
         <a
           @click="setSilenceDataset"
@@ -42,6 +44,9 @@
         {% trans "Silence" %}
         </a>
       </td>
+      {% else %}
+      <td></td>
+      {% endif %}
     </tr>
 {% endfor %}
   </table>
@@ -105,7 +110,12 @@
         </h2>
       </td>
     </tr>
+    {% current_role service.grouper as grouper_role %}
+    {% if grouper_role == "ADMIN" or grouper_role == "EDIT" %}
+      {% include "promgen/rule_block.html" with rule_list=service.list modify=1 overwrite_id=service.grouper.id csrf_token=csrf_token only %}
+    {% else %}
     {% include "promgen/rule_block.html" with rule_list=service.list overwrite_id=service.grouper.id csrf_token=csrf_token only %}
+    {% endif %}
     {% endfor %}
   </table>
 </div>
