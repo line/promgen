@@ -25,7 +25,7 @@
             {% for notifier in project.notifiers.all %}
             <tr>
                 <td title="Added by: {{notifier.owner}}" v-pre>{{ notifier.sender }}</td>
-                <td v-pre>{{ notifier.show_value }}</td>
+                <td style="word-break: break-all" v-pre>{{ notifier.show_value }}</td>
             </tr>
             {% empty %}
             <tr>
