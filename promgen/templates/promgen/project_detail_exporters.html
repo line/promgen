@@ -16,7 +16,7 @@
     <tr {% if not exporter.enabled %}class="promgen-disabled"{% endif %}>
       <td class="col-xs-2" v-pre>{{ exporter.job }}</td>
       <td class="col-xs-2" v-pre>{{ exporter.scheme }}:{{ exporter.port }}</td>
-      <td class="col-xs-5" v-pre>{{ exporter.path | default:"/metrics" }}</td>
+      <td class="col-xs-5" v-pre>{{ exporter.path_value }}</td>
       <td class="col-xs-3" style="white-space: nowrap">
 
         <input
