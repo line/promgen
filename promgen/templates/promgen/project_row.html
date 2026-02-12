@@ -8,7 +8,7 @@
             <tr {% if not exporter.enabled %}class="promgen-disabled" {% endif %}>
                 <td v-pre>{{ exporter.job }}</td>
                 <td v-pre>{{ exporter.port }}</td>
-                <td v-pre>{{ exporter.path }}</td>
+                <td v-pre>{{ exporter.path_value }}</td>
             </tr>
             {% empty %}
             <tr>
