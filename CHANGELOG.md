@@ -1,5 +1,29 @@
 # Changelog
 
+# v0.72.4 - 2026-02-12
+
+- [IMPROVEMENT] Add Alertmanager notifier #694
+- [IMPROVEMENT] Pin Ruff's version #693
+- [INTERNAL] Bump docker/login-action from 3.6.0 to 3.7.0 #691
+- [IMPROVEMENT] Automatically set created_by field when creating new Silence #688
+- [IMPROVEMENT] Notifiers: Add support for PargerDuty #686
+- [INTERNAL] Bump actions/setup-python from 6.1.0 to 6.2.0 #690
+- [INTERNAL] Bump actions/checkout from 6.0.1 to 6.0.2 #689
+- [IMPROVEMENT] Alert notifications instrumentation #687
+- [IMPROVEMENT] Implement a Retry Mechanism for Celery Tasks #680
+- [BUGFIX] Registering an invalid URL causes an internal error #685
+- [IMPROVEMENT] Add Merge Users feature #683
+- [DOCUMENTATION] Add Promgen Task Queues explanation #684
+- [INTERNAL] Bump actions/checkout from 5.0.1 to 6.0.1 #682
+- [INTERNAL] Bump actions/setup-python from 6.0.0 to 6.1.0 #679
+- [INTERNAL] Bump docker/metadata-action from 5.8.0 to 5.10.0 #678
+- [INTERNAL] Bump actions/checkout from 5.0.0 to 5.0.1 #676
+- [BUGFIX] Fix overflow issue in the User Column of the Audit Table #675
+- [IMPROVEMENT] Show Alert's raw data inside modal #674
+- [IMPROVEMENT] Use fixed layout for Audit logs table #673
+- [IMPROVEMENT] Fix UI quirks in some tables #672
+- [BUGFIX] Wrong alert rule operator in docs example #671
+
 # v0.72.3 - 2025-11-07
 
 - [IMPROVEMENT] Document permission system #668
