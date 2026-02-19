@@ -185,12 +185,6 @@ msgstr "Actions"
 msgid "No search parameters provided."
 msgstr "検索フレーズが指定されていません"
 
-#: templates/promgen/service_detail.html:93
-#: templates/promgen/project_detail.html:101
-#: templates/promgen/farm_detail.html:71
-msgid "This is a transitional release. Even if you are able to assign roles to members, the permission checks are actually disabled. They will be enabled in the next release."
-msgstr "このリリースは移行用のリリースです。ロールをメンバーに割り当てても、権限のチェックは行われません。次のリリースで権限のチェックが有効化されます。"
-
 #: templates/promgen/permission_row.html:28
 msgid "Delete all permissions for user?"
 msgstr "ユーザーから全ての権限を削除しますか？"
@@ -337,3 +331,39 @@ msgstr "{from_user}は{to_user}に統合されました。"
 # : templates/admin/auth/user/change_list.html:7
 msgid "Merge user"
 msgstr "ユーザー統合"
+
+#: proxy.py:284
+msgid "You must specify either a project or service label."
+msgstr "プロジェクトまたはサービスラベルを指定する必要があります。"
+
+#: proxy.py:296
+msgid "You do not have permission to silence this alert."
+msgstr "このアラートを無効にする権限がありません。"
+
+#: proxy.py:390
+msgid "You do not have permission to silence alerts for the following {label}: {names}."
+msgstr "次の{label}のアラートを無効にする権限がありません: {names}。"
+
+#: proxy.py:400
+msgid "You do not have permission to silence alerts for many ({count}) {label}."
+msgstr "多くの({count}) {label}のアラートを無効にする権限がありません。"
+
+#: errors.py:20
+msgid "Silence must include a service or project matcher."
+msgstr "サイレンスにはサービスまたはプロジェクトのマッチャーを含める必要があります。"
+
+#: proxy.py:461
+msgid "You do not have permission to expire the silence that matches the following {label}: {names}."
+msgstr "次の{label}に一致するサイレンスを期限切れにする権限がありません: {names}。"
+
+#: proxy.py:472
+msgid "You do not have permission to expire the silence that matches many ({count}) {label}."
+msgstr "多くの({count}) {label}に一致するサイレンスを期限切れにする権限がありません。"
+
+#: views.py:398
+msgid "Only the service owner can delete the service."
+msgstr "サービスを削除できるのはサービスの所有者のみです。"
+
+#: views.py:418
+msgid "Only the project or the service owner can delete the project."
+msgstr "プロジェクトを削除できるのはプロジェクトまたはサービスの所有者のみです。"

@@ -13,7 +13,9 @@
             {% empty %}
             <tr>
                 <td colspan="3">
+                    {% if role == "ADMIN" or role == "EDIT" %}
                     <a href="{% url 'project-exporter' project.id %}" class="btn btn-primary btn-xs">{% trans "Register Exporter" %}</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -30,7 +32,9 @@
             {% empty %}
             <tr>
                 <td colspan="2">
+                    {% if role == "ADMIN" or role == "EDIT" %}
                     <a href="{% url 'project-notifier' project.id %}" class="btn btn-primary btn-xs">{% trans "Register Notifier" %}</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -38,6 +42,8 @@
     </td>
 
     <td>
+        {% if role == "ADMIN" or role == "EDIT" %}
         <a @click="setSilenceDataset" class="btn btn-warning btn-xs" data-project="{{project.name}}" data-service="{{service.name}}">{% trans "Silence" %}</a>
+        {% endif %}
     </td>
 </tr>

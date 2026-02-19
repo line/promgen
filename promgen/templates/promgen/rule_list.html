@@ -13,14 +13,21 @@
 
 {% for group in grouped_rule_list %}
 <div class="panel panel-default">
+  {% current_role group.grouper as role %}
   <div class="panel-heading" v-pre>
     <a href="{{ group.grouper.get_absolute_url }}">{{ group.grouper }}</a>
+    {% if role == "ADMIN" or role == "EDIT" %}
     <a href="{% url 'rule-new' group.grouper|klass|lower group.grouper.id %}" class="btn btn-primary btn-xs pull-right">{% trans "Register Rule" %}</a>
+    {% endif %}
   </div>
 
   <table class="table table-bordered table-condensed">
     {% include "promgen/rule_header.html" %}
+    {% if role == "ADMIN" or role == "EDIT" %}
+    {% include "promgen/rule_block.html" with rule_list=group.list toggle=1 delete=1 modify=1 %}
+    {% else %}
     {% include "promgen/rule_block.html" with rule_list=group.list %}
+    {% endif %}
   </table>
 </div>
 {% endfor %}

@@ -140,6 +140,19 @@ function activateTabFromHash() {
     // To fix this, instantiate the Select2 again when the tab becomes visible.
     // Ref: https://stackoverflow.com/questions/55277454/select2-not-working-inside-a-bootstrap-tab
     initSelect2();
+
+    // The hash (fragment) cannot be sent to the server side when submitting forms or clicking
+    // buttons. Ref: http://www.w3.org/DesignIssues/Fragment.html
+    // Therefore, we add the hash to the action URLs so that the browser can redirect to
+    // the correct tab anytime when the server responds with HTTP Referer redirects. For example,
+    // after permission check fails.
+    document.querySelectorAll("form").forEach(form => {
+      form.action = form.action.replace(/#.*$/, "") + hash;
+    });
+    document.querySelectorAll("a.btn:not([data-toggle])").forEach(btn => {
+      btn.href = btn.href.replace(/#.*$/, "") + hash;
+    });
+
   }
 }
 

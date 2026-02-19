@@ -13,6 +13,7 @@
       {% translate "Actions" %} <span class="caret"></span>
     </button>
     <ul class="dropdown-menu">
+      {% if role == "ADMIN" or role == "EDIT" %}
       <li>
         <form
           action="{% url 'project-notifier' project.id %}"
@@ -32,6 +33,7 @@
       </li>
 
       <hr />
+      {% endif %}
 
       <li role="presentation">
         <a href="{% urlqs 'audit-list' project=project.id %}">
@@ -57,6 +59,7 @@
         </a>
       </li>
 
+      {% if user.username == project.service.owner.username or user.username == project.owner.username or user.is_superuser %}
       <hr />
 
       <li role="presentation">
@@ -72,9 +75,11 @@
           </button>
         </form>
       </li>
+      {% endif %}
     </ul>
   </div>
 
+  {% if role == "ADMIN" or role == "EDIT" %}
   <a
     @click="setSilenceDataset"
     class="btn btn-warning btn-sm"
@@ -87,4 +92,5 @@
   <a href="{% url 'project-update' project.id %}" class="btn btn-warning btn-sm">
     {% translate "Edit Project" %}
   </a>
+  {% endif %}
 </div>

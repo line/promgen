@@ -18,7 +18,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, Paginator
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -42,6 +42,7 @@ from promgen import (
     forms,
     mixins,
     models,
+    permissions,
     plugins,
     prometheus,
     signals,
@@ -49,64 +50,82 @@ from promgen import (
     util,
 )
 from promgen.forms import GroupMemberForm, UserPermissionForm
+from promgen.mixins import PromgenGuardianPermissionMixin
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 
 
 class DatasourceList(LoginRequiredMixin, ListView):
-    queryset = models.Shard.objects.prefetch_related(
-        "project_set__service",
-        "project_set__service__owner",
-        "project_set__service__notifiers",
-        "project_set__service__notifiers__owner",
-        "project_set__service__rule_set",
-        "project_set",
-        "project_set__owner",
-        "project_set__farm",
-        "project_set__exporter_set",
-        "project_set__notifiers",
-        "project_set__notifiers__owner",
-        "prometheus_set",
-    ).annotate(num_projects=Count("project"))
+    def get_queryset(self):
+        projects = models.Project.objects.all()
+        # If the user is not a superuser, we need to filter the shards by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+        return models.Shard.objects.prefetch_related(
+            Prefetch("project_set", queryset=projects),
+            "project_set__service",
+            "project_set__service__owner",
+            "project_set__service__notifiers",
+            "project_set__service__notifiers__owner",
+            "project_set__service__rule_set",
+            "project_set__owner",
+            "project_set__farm",
+            "project_set__exporter_set",
+            "project_set__notifiers",
+            "project_set__notifiers__owner",
+            "prometheus_set",
+        ).annotate(num_projects=Count("project"))
 
 
 class DatasourceDetail(LoginRequiredMixin, DetailView):
-    queryset = models.Shard.objects.prefetch_related(
-        "project_set__service",
-        "project_set__service__owner",
-        "project_set__service__notifiers",
-        "project_set__service__notifiers__owner",
-        "project_set__service__notifiers__filter_set",
-        "project_set__service__rule_set",
-        "project_set",
-        "project_set__owner",
-        "project_set__farm",
-        "project_set__exporter_set",
-        "project_set__notifiers",
-        "project_set__notifiers__owner",
-        "project_set__notifiers__filter_set",
-    )
+    def get_queryset(self):
+        projects = models.Project.objects.all()
+        # If the user is not a superuser, we need to filter the shards by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+        return models.Shard.objects.prefetch_related(
+            Prefetch("project_set", queryset=projects),
+            "project_set__service",
+            "project_set__service__owner",
+            "project_set__service__notifiers",
+            "project_set__service__notifiers__owner",
+            "project_set__service__notifiers__filter_set",
+            "project_set__service__rule_set",
+            "project_set__owner",
+            "project_set__farm",
+            "project_set__exporter_set",
+            "project_set__notifiers",
+            "project_set__notifiers__owner",
+            "project_set__notifiers__filter_set",
+        )
 
 
 class ServiceList(LoginRequiredMixin, ListView):
     paginate_by = 20
-    queryset = models.Service.objects.prefetch_related(
-        "rule_set",
-        "rule_set__parent",
-        "project_set",
-        "project_set__owner",
-        "project_set__shard",
-        "project_set__notifiers",
-        "project_set__notifiers__owner",
-        "project_set__notifiers__filter_set",
-        "project_set__farm",
-        "project_set__exporter_set",
-        "owner",
-        "notifiers",
-        "notifiers__owner",
-        "notifiers__filter_set",
-    )
+
+    def get_queryset(self):
+        query_set = models.Service.objects.prefetch_related(
+            "rule_set",
+            "rule_set__parent",
+            "project_set",
+            "project_set__owner",
+            "project_set__shard",
+            "project_set__notifiers",
+            "project_set__notifiers__owner",
+            "project_set__notifiers__filter_set",
+            "project_set__farm",
+            "project_set__exporter_set",
+            "owner",
+            "notifiers",
+            "notifiers__owner",
+            "notifiers__filter_set",
+        )
+
+        services = permissions.get_accessible_services_for_user(self.request.user)
+        return query_set.filter(pk__in=services)
 
 
 class HomeList(LoginRequiredMixin, ListView):
@@ -122,7 +141,7 @@ class HomeList(LoginRequiredMixin, ListView):
         ).values_list("object_id")
 
         # and return just our list of services
-        return models.Service.objects.filter(pk__in=senders).prefetch_related(
+        query_set = models.Service.objects.filter(pk__in=senders).prefetch_related(
             "notifiers",
             "notifiers__owner",
             "owner",
@@ -137,13 +156,25 @@ class HomeList(LoginRequiredMixin, ListView):
             "project_set__notifiers__owner",
         )
 
+        services = permissions.get_accessible_services_for_user(self.request.user)
+        return query_set.filter(pk__in=services)
+
 
 class HostList(LoginRequiredMixin, ListView):
-    queryset = models.Host.objects.prefetch_related(
-        "farm",
-        "farm__project",
-        "farm__project__service",
-    )
+    def get_queryset(self):
+        query_set = models.Host.objects.prefetch_related(
+            "farm",
+            "farm__project",
+            "farm__project__service",
+        )
+
+        # If the user is not a superuser, we need to filter the hosts by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            farms = models.Farm.objects.filter(project__in=projects)
+            query_set = query_set.filter(farm__in=farms)
+
+        return query_set
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -165,47 +196,80 @@ class HostDetail(LoginRequiredMixin, View):
         context = {}
         context["slug"] = self.kwargs["slug"]
 
-        context["host_list"] = models.Host.objects.filter(
-            name__icontains=self.kwargs["slug"]
-        ).prefetch_related("farm")
+        hosts = models.Host.objects.filter(name__icontains=self.kwargs["slug"]).prefetch_related(
+            "farm"
+        )
+
+        # If the user is not a superuser, we need to filter the hosts by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            farms = models.Farm.objects.filter(project__in=projects)
+            hosts = hosts.filter(farm__in=farms)
+
+        context["host_list"] = hosts
 
         if not context["host_list"]:
             return render(request, "promgen/host_404.html", context, status=404)
 
-        context["farm_list"] = models.Farm.objects.filter(
+        farms = models.Farm.objects.filter(
             id__in=context["host_list"].values_list("farm_id", flat=True)
         )
 
-        context["project_list"] = models.Project.objects.filter(
-            id__in=context["farm_list"].values_list("project__id", flat=True)
+        projects = models.Project.objects.filter(
+            id__in=farms.values_list("project__id", flat=True)
         ).prefetch_related("notifiers", "rule_set")
 
-        context["exporter_list"] = models.Exporter.objects.filter(
-            project_id__in=context["project_list"].values_list("id", flat=True)
+        exporters = models.Exporter.objects.filter(
+            project_id__in=projects.values_list("id", flat=True)
         ).prefetch_related("project", "project__service")
 
-        context["service_list"] = models.Service.objects.filter(
-            id__in=context["project_list"].values_list("service__id", flat=True)
+        services = models.Service.objects.filter(
+            id__in=projects.values_list("service__id", flat=True)
         ).prefetch_related("notifiers", "rule_set")
 
-        context["rule_list"] = (
+        rules = (
             models.Rule.objects.filter(
-                Q(id__in=context["project_list"].values_list("rule_set__id"))
-                | Q(id__in=context["service_list"].values_list("rule_set__id"))
+                Q(id__in=projects.values_list("rule_set__id"))
+                | Q(id__in=services.values_list("rule_set__id"))
                 | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
             )
             .select_related("content_type")
             .prefetch_related("content_object")
         )
 
-        context["notifier_list"] = (
+        notifiers = (
             models.Sender.objects.filter(
-                Q(id__in=context["project_list"].values_list("notifiers__id"))
-                | Q(id__in=context["service_list"].values_list("notifiers__id"))
+                Q(id__in=projects.values_list("notifiers__id"))
+                | Q(id__in=services.values_list("notifiers__id"))
             )
             .select_related("content_type")
             .prefetch_related("content_object")
         )
+
+        # If the user is not a superuser, we need to filter other objects by the user's permissions
+        if not self.request.user.is_superuser:
+            accessible_services = permissions.get_accessible_services_for_user(self.request.user)
+            accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+            projects = projects.filter(pk__in=accessible_projects)
+            exporters = exporters.filter(project__in=accessible_projects)
+            services = services.filter(pk__in=accessible_services)
+            rules = rules.filter(
+                Q(content_type__model="service", object_id__in=accessible_services)
+                | Q(content_type__model="project", object_id__in=accessible_projects)
+                | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
+            )
+            notifiers = notifiers.filter(
+                Q(content_type__model="service", object_id__in=accessible_services)
+                | Q(content_type__model="project", object_id__in=accessible_projects)
+            )
+
+        context["farm_list"] = farms
+        context["project_list"] = projects
+        context["exporter_list"] = exporters
+        context["service_list"] = services
+        context["rule_list"] = rules
+        context["notifier_list"] = notifiers
 
         return render(request, "promgen/host_detail.html", context)
 
@@ -245,12 +309,67 @@ class AuditList(LoginRequiredMixin, ListView):
         if "user" in self.request.GET:
             queryset = queryset.filter(user_id=self.request.GET["user"])
 
+        # If the user is not a superuser, we need to filter the audits by the user's permissions
+        if not self.request.user.is_superuser:
+            # Get all the services that the user has access to
+            services = permissions.get_accessible_services_for_user(self.request.user)
+
+            # Get all the projects that the user has access to
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+            # Get all the farm that the user has access to
+            farms = models.Farm.objects.filter(project__in=projects)
+
+            # Get all the groups that the user has access to
+            groups = permissions.get_accessible_groups_for_user(self.request.user)
+
+            # Filter the queryset by the user's permissions
+            queryset = queryset.filter(
+                Q(
+                    content_type__model="service",
+                    content_type__app_label="promgen",
+                    object_id__in=services,
+                )
+                | Q(
+                    content_type__model="project",
+                    content_type__app_label="promgen",
+                    object_id__in=projects,
+                )
+                | Q(
+                    content_type__model="farm",
+                    content_type__app_label="promgen",
+                    object_id__in=farms,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Service).id,
+                    parent_object_id__in=services,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Project).id,
+                    parent_object_id__in=projects,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Farm).id,
+                    parent_object_id__in=farms,
+                )
+                | Q(
+                    content_type__model="group",
+                    content_type__app_label="auth",
+                    object_id__in=groups,
+                )
+                | Q(
+                    parent_content_type_id=ContentType.objects.get_for_model(models.Group).id,
+                    parent_object_id__in=groups,
+                )
+            )
+
         return queryset
 
     paginate_by = 50
 
 
-class ServiceDetail(LoginRequiredMixin, DetailView):
+class ServiceDetail(PromgenGuardianPermissionMixin, DetailView):
+    permission_required = ["service_admin", "service_editor", "service_viewer"]
     queryset = models.Service.objects.prefetch_related(
         "rule_set",
         "notifiers",
@@ -270,21 +389,44 @@ class ServiceDetail(LoginRequiredMixin, DetailView):
         return context
 
 
-class ServiceDelete(LoginRequiredMixin, DeleteView):
+class ServiceDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["service_admin"]
     model = models.Service
 
     def get_success_url(self):
         return reverse("service-list")
 
+    def post(self, request, *args, **kwargs):
+        service = self.get_object()
+        if not request.user.is_superuser and service.owner != request.user:
+            messages.error(request, _("Only the service owner can delete the service."))
+            return HttpResponseRedirect(service.get_absolute_url())
+        return super().delete(request, *args, **kwargs)
 
-class ProjectDelete(LoginRequiredMixin, DeleteView):
+
+class ProjectDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["service_admin", "project_admin"]
     model = models.Project
 
     def get_success_url(self):
         return reverse("service-detail", args=[self.object.service_id])
 
+    def post(self, request, *args, **kwargs):
+        project = self.get_object()
+        if (
+            not request.user.is_superuser
+            and project.owner != request.user
+            and project.service.owner != request.user
+        ):
+            messages.error(
+                request, _("Only the project or the service owner can delete the project.")
+            )
+            return HttpResponseRedirect(project.get_absolute_url())
+        return super().delete(request, *args, **kwargs)
 
-class NotifierUpdate(LoginRequiredMixin, UpdateView):
+
+class NotifierUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Sender
     form_class = forms.NotifierUpdate
 
@@ -335,7 +477,8 @@ class NotifierUpdate(LoginRequiredMixin, UpdateView):
         return self.get(self, request, pk)
 
 
-class NotifierDelete(LoginRequiredMixin, DeleteView):
+class NotifierDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Sender
 
     def get_success_url(self):
@@ -346,7 +489,9 @@ class NotifierDelete(LoginRequiredMixin, DeleteView):
         return reverse("profile")
 
 
-class NotifierTest(LoginRequiredMixin, View):
+class NotifierTest(PromgenGuardianPermissionMixin, View):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         try:
@@ -362,15 +507,21 @@ class NotifierTest(LoginRequiredMixin, View):
             return redirect(sender.content_object)
         return redirect("profile")
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Sender, id=self.kwargs["pk"])
 
-class ExporterDelete(LoginRequiredMixin, DeleteView):
+
+class ExporterDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Exporter
 
     def get_success_url(self):
         return reverse("project-detail", args=[self.object.project_id]) + "#exporters"
 
 
-class ExporterToggle(LoginRequiredMixin, View):
+class ExporterToggle(PromgenGuardianPermissionMixin, View):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+
     def post(self, request, pk):
         exporter = get_object_or_404(models.Exporter, id=pk)
         exporter.enabled = not exporter.enabled
@@ -378,8 +529,17 @@ class ExporterToggle(LoginRequiredMixin, View):
         signals.trigger_write_config.send(request)
         return JsonResponse({"redirect": exporter.project.get_absolute_url() + "#exporters"})
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Exporter, id=self.kwargs["pk"])
 
-class NotifierToggle(LoginRequiredMixin, View):
+    def on_perm_check_fail(self, request):
+        messages.warning(request, "You do not have permission to perform this action.")
+        return JsonResponse({"redirect": "#exporters"})
+
+
+class NotifierToggle(PromgenGuardianPermissionMixin, View):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
         sender.enabled = not sender.enabled
@@ -387,8 +547,16 @@ class NotifierToggle(LoginRequiredMixin, View):
         # Redirect to current page
         return JsonResponse({"redirect": "#notifiers"})
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Sender, id=self.kwargs["pk"])
 
-class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
+    def on_perm_check_fail(self, request):
+        messages.warning(request, "You do not have permission to perform this action.")
+        return JsonResponse({"redirect": "#notifiers"})
+
+
+class RuleDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Rule
 
     def get_permission_denied_message(self):
@@ -408,36 +576,44 @@ class RuleDelete(mixins.PromgenPermissionMixin, DeleteView):
         return self.object.content_object.get_absolute_url() + "#rules"
 
 
-class RuleToggle(mixins.PromgenPermissionMixin, SingleObjectMixin, View):
+class RuleToggle(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Rule
 
     def get_permission_denied_message(self):
         return "Unable to toggle rule %s. User lacks permission" % self.object
 
-    def get_permission_required(self):
-        # In the case of rules, we want to make sure the user has permission
-        # to delete the rule itself, but also permission to change the linked object
-        self.object = self.get_object()
-        obj = self.object._meta
-        tgt = self.object.content_object._meta
-
-        yield f"{obj.app_label}.change_{obj.model_name}"
-        yield f"{tgt.app_label}.change_{tgt.model_name}"
-
     def post(self, request, pk):
+        # Before, this is done inside the get_permission_required() function, but we changed the
+        # authorization model so that the function has been removed.
+        self.object = self.get_object()
+
         self.object.enabled = not self.object.enabled
         self.object.save()
         return JsonResponse({"redirect": self.object.content_object.get_absolute_url() + "#rules"})
 
+    def on_perm_check_fail(self, request):
+        messages.warning(request, "You do not have permission to perform this action.")
+        return JsonResponse({"redirect": "#rules"})
 
-class HostDelete(LoginRequiredMixin, DeleteView):
+
+class HostDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
     model = models.Host
 
     def get_success_url(self):
         return self.object.farm.get_absolute_url()
 
 
-class ProjectDetail(LoginRequiredMixin, DetailView):
+class ProjectDetail(PromgenGuardianPermissionMixin, DetailView):
+    permission_required = [
+        "service_admin",
+        "service_editor",
+        "service_viewer",
+        "project_admin",
+        "project_editor",
+        "project_viewer",
+    ]
     queryset = models.Project.objects.prefetch_related(
         "rule_set",
         "rule_set__parent",
@@ -466,13 +642,30 @@ class ProjectDetail(LoginRequiredMixin, DetailView):
 
 class FarmList(LoginRequiredMixin, ListView):
     paginate_by = 50
-    queryset = models.Farm.objects.prefetch_related(
-        "project",
-        "host_set",
-    )
+
+    def get_queryset(self):
+        query_set = models.Farm.objects.prefetch_related(
+            "project",
+            "host_set",
+        )
+
+        # If the user is not a superuser, we need to filter the farms by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            query_set = query_set.filter(project__in=projects)
+
+        return query_set
 
 
-class FarmDetail(LoginRequiredMixin, DetailView):
+class FarmDetail(PromgenGuardianPermissionMixin, DetailView):
+    permission_required = [
+        "project_admin",
+        "service_admin",
+        "project_editor",
+        "service_editor",
+        "project_viewer",
+        "service_viewer",
+    ]
     model = models.Farm
 
     def get_context_data(self, **kwargs):
@@ -481,7 +674,8 @@ class FarmDetail(LoginRequiredMixin, DetailView):
         return context
 
 
-class FarmUpdate(LoginRequiredMixin, UpdateView):
+class FarmUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
     model = models.Farm
     button_label = _("Update Farm")
     template_name = "promgen/farm_update.html"
@@ -501,7 +695,8 @@ class FarmUpdate(LoginRequiredMixin, UpdateView):
         return redirect("farm-detail", pk=farm.id)
 
 
-class FarmDelete(LoginRequiredMixin, RedirectView):
+class FarmDelete(PromgenGuardianPermissionMixin, RedirectView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     pattern_name = "farm-detail"
 
     def post(self, request, pk):
@@ -510,8 +705,13 @@ class FarmDelete(LoginRequiredMixin, RedirectView):
 
         return HttpResponseRedirect(request.POST.get("next", reverse("farm-list")))
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
-class UnlinkFarm(LoginRequiredMixin, View):
+
+class UnlinkFarm(PromgenGuardianPermissionMixin, View):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+
     def post(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
         oldfarm, project.farm = project.farm, None
@@ -521,6 +721,9 @@ class UnlinkFarm(LoginRequiredMixin, View):
         oldfarm.delete()
 
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#hosts")
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
 
 class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
@@ -552,14 +755,25 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
             "parent",
         )
 
+        # If the user is not a superuser, we need to filter the rules by the user's permissions
+        if not self.request.user.is_superuser:
+            services = permissions.get_accessible_services_for_user(self.request.user)
+            service_rules = service_rules.filter(object_id__in=services)
+
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            project_rules = project_rules.filter(object_id__in=projects)
+
         rule_list = list(chain(site_rules, service_rules, project_rules))
         page_number = self.request.GET.get("page", 1)
         context["rule_list"] = Paginator(rule_list, self.paginate_by).page(page_number)
+        context["page_obj"] = context["rule_list"]
 
         return context
 
 
-class RulesCopy(LoginRequiredMixin, View):
+class RulesCopy(PromgenGuardianPermissionMixin, View):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+
     def post(self, request, pk):
         original = get_object_or_404(models.Rule, id=pk)
         form = forms.RuleCopyForm(request.POST)
@@ -569,6 +783,13 @@ class RulesCopy(LoginRequiredMixin, View):
             return HttpResponseRedirect(reverse("rule-edit", args=[rule.id]))
         else:
             return HttpResponseRedirect(reverse("service-detail", args=[pk]) + "#rules")
+
+    def get_check_permission_object(self):
+        content_type = ContentType.objects.get(
+            app_label="promgen", model=self.request.POST["content_type"]
+        )
+        model_class = content_type.model_class()
+        return model_class.objects.get(pk=self.request.POST["object_id"])
 
 
 class FarmRefresh(LoginRequiredMixin, RedirectView):
@@ -588,7 +809,8 @@ class FarmRefresh(LoginRequiredMixin, RedirectView):
         return redirect(farm)
 
 
-class FarmConvert(LoginRequiredMixin, RedirectView):
+class FarmConvert(PromgenGuardianPermissionMixin, RedirectView):
+    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
     pattern_name = "farm-detail"
 
     def post(self, request, pk):
@@ -612,8 +834,13 @@ class FarmConvert(LoginRequiredMixin, RedirectView):
             request.POST.get("next", reverse("farm-detail", args=[farm.pk]))
         )
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
-class FarmLink(LoginRequiredMixin, View):
+
+class FarmLink(PromgenGuardianPermissionMixin, View):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+
     def get(self, request, pk, source):
         if source == discovery.FARM_DEFAULT:
             messages.error(request, "Cannot link to local farm")
@@ -644,8 +871,12 @@ class FarmLink(LoginRequiredMixin, View):
         messages.info(request, "Refreshed hosts")
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#hosts")
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
-class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+
+class ExporterRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Exporter
     template_name = "promgen/exporter_form.html"
     form_class = forms.ExporterForm
@@ -655,12 +886,27 @@ class ExporterRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         exporter, _ = models.Exporter.objects.get_or_create(project=project, **form.clean())
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#exporters")
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
+
 
 class ExporterScrape(LoginRequiredMixin, View):
     # TODO: Move to /rest/project/<slug>/scrape
     def post(self, request, pk):
         # Lookup our farm for testing
         project = get_object_or_404(models.Project, pk=pk)
+
+        # Check per-object permissions
+        has_perm = any(
+            self.request.user.has_perm(perm, project)
+            for perm in ["project_viewer", "project_editor", "project_admin"]
+        ) or any(
+            self.request.user.has_perm(perm, project.service)
+            for perm in ["service_viewer", "service_editor", "service_admin"]
+        )
+        if not has_perm:
+            return JsonResponse({"error": "You do not have permission to perform this action."})
+
         farm = getattr(project, "farm", None)
 
         # So we have a mutable dictionary
@@ -711,7 +957,8 @@ class ExporterScrape(LoginRequiredMixin, View):
             return JsonResponse({"error": "Error with query %s" % e})
 
 
-class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+class URLRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.URL
     form_class = forms.URLForm
 
@@ -725,8 +972,12 @@ class URLRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
         project = get_object_or_404(models.Project, id=self.kwargs["pk"])
         return HttpResponseRedirect(reverse("project-detail", args=[project.id]) + "#http-checks")
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
-class URLDelete(LoginRequiredMixin, DeleteView):
+
+class URLDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.URL
 
     def get_success_url(self):
@@ -734,15 +985,24 @@ class URLDelete(LoginRequiredMixin, DeleteView):
 
 
 class URLList(LoginRequiredMixin, ListView):
-    queryset = models.URL.objects.prefetch_related(
-        "project",
-        "project__service",
-        "project__shard",
-        "probe",
-    )
+    def get_queryset(self):
+        query_set = models.URL.objects.prefetch_related(
+            "project",
+            "project__service",
+            "project__shard",
+            "probe",
+        )
+
+        # If the user is not a superuser, we need to filter the URLs by the user's permissions
+        if not self.request.user.is_superuser:
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+            query_set = query_set.filter(project__in=projects)
+
+        return query_set
 
 
-class ProjectRegister(LoginRequiredMixin, CreateView):
+class ProjectRegister(PromgenGuardianPermissionMixin, CreateView):
+    permission_required = ["service_admin", "service_editor"]
     button_label = _("Register Project")
     model = models.Project
     fields = ["name", "description", "owner", "shard"]
@@ -771,8 +1031,12 @@ class ProjectRegister(LoginRequiredMixin, CreateView):
         form.instance.service_id = self.kwargs["pk"]
         return super().form_valid(form)
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Service, id=self.kwargs["pk"])
 
-class ProjectUpdate(LoginRequiredMixin, UpdateView):
+
+class ProjectUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Project
     button_label = _("Project Update")
     template_name = "promgen/project_form.html"
@@ -795,7 +1059,8 @@ class ProjectUpdate(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ServiceUpdate(LoginRequiredMixin, UpdateView):
+class ServiceUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["service_admin", "service_editor"]
     button_label = _("Update Service")
     form_class = forms.ServiceUpdate
     model = models.Service
@@ -811,29 +1076,58 @@ class ServiceUpdate(LoginRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class RuleDetail(LoginRequiredMixin, DetailView):
-    queryset = models.Rule.objects.prefetch_related(
-        "content_object",
-        "content_type",
-        "overrides",
-        "overrides__content_object",
-        "overrides__content_type",
-    )
+class RuleDetail(PromgenGuardianPermissionMixin, DetailView):
+    permission_required = [
+        "service_admin",
+        "service_editor",
+        "service_viewer",
+        "project_admin",
+        "project_editor",
+        "project_viewer",
+    ]
+
+    def get_queryset(self):
+        overrides = models.Rule.objects.filter(parent_id=self.kwargs["pk"])
+
+        # If the user is not a superuser, we need to filter child rules by the user's permissions
+        if not self.request.user.is_superuser:
+            accessible_services = permissions.get_accessible_services_for_user(self.request.user)
+            accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+            overrides = overrides.filter(
+                Q(content_type__model="service", object_id__in=accessible_services)
+                | Q(content_type__model="project", object_id__in=accessible_projects)
+                | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
+            )
+
+        queryset = models.Rule.objects.prefetch_related(
+            "content_object",
+            "content_type",
+            Prefetch("overrides", queryset=overrides),
+            "overrides__content_object",
+            "overrides__content_type",
+        )
+
+        return queryset
+
+    def get_object(self, queryset=None):
+        object = super().get_object()
+
+        # Check if we have a parent rule to show
+        if object.parent:
+            # Always show the parent rule if it's a Site rule
+            if isinstance(object.parent.content_object, models.Site):
+                return object
+
+            # Otherwise, check if the user has permission to view the parent rule
+            if not permissions.has_perm(self.request.user, self.permission_required, object.parent):
+                object.parent = None
+
+        return object
 
 
-class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
-    def get_permission_denied_message(self):
-        return "Unable to edit rule %s. User lacks permission" % self.object
-
-    def get_permission_required(self):
-        # In the case of rules, we want to make sure the user has permission
-        # to change the rule itself, but also permission to change the linked object
-        self.object = self.get_object()
-        obj = self.object._meta
-        tgt = self.object.content_object._meta
-
-        yield f"{obj.app_label}.change_{obj.model_name}"
-        yield f"{tgt.app_label}.change_{tgt.model_name}"
+class RuleUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
 
     queryset = models.Rule.objects.prefetch_related(
         "content_object", "overrides", "overrides__content_object"
@@ -861,6 +1155,11 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         return self.render_to_response(self.get_context_data(**kwargs))
 
     def post(self, request, *args, **kwargs):
+        # Refresh the object to set the Rule's PK back, after setting it to 0 at the AlertRuleForm.
+        # Before, this is done inside the get_permission_required() function, but we changed the
+        # authorization model so that the function has been removed.
+        self.object = self.get_object()
+
         # Save a copy of our forms into a context var that we can use
         # to re-render our form properly in case of errors
         context = {}
@@ -886,7 +1185,8 @@ class RuleUpdate(mixins.PromgenPermissionMixin, UpdateView):
         return self.form_valid(context["form"])
 
 
-class AlertRuleRegister(mixins.PromgenPermissionMixin, mixins.RuleFormMixin, FormView):
+class AlertRuleRegister(PromgenGuardianPermissionMixin, mixins.RuleFormMixin, FormView):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Rule
     template_name = "promgen/rule_register.html"
     form_class = forms.AlertRuleForm
@@ -918,6 +1218,13 @@ class AlertRuleRegister(mixins.PromgenPermissionMixin, mixins.RuleFormMixin, For
         messages.info(self.request, "Imported %s" % counters)
         return HttpResponseRedirect(content_object.get_absolute_url())
 
+    def get_check_permission_object(self):
+        id = self.kwargs["object_id"]
+        model = self.kwargs["content_type"]
+        models = ContentType.objects.get(app_label="promgen", model=model)
+        obj = models.get_object_for_this_type(pk=id)
+        return obj
+
 
 class ServiceRegister(LoginRequiredMixin, CreateView):
     button_label = _("Register Service")
@@ -937,7 +1244,8 @@ class ServiceRegister(LoginRequiredMixin, CreateView):
         return super().post(request, *args, **kwargs)
 
 
-class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
+class FarmRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
     model = models.Farm
     button_label = _("Register Farm")
     template_name = "promgen/farm_register.html"
@@ -967,8 +1275,15 @@ class FarmRegister(LoginRequiredMixin, FormView, mixins.ProjectMixin):
 
         return HttpResponseRedirect(project.get_absolute_url() + "#hosts")
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
-class ProjectNotifierRegister(LoginRequiredMixin, mixins.NotifierFormMixin, mixins.ProjectMixin):
+
+class ProjectNotifierRegister(
+    PromgenGuardianPermissionMixin, mixins.NotifierFormMixin, mixins.ProjectMixin
+):
+    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    model = models.Sender
     template_name = "promgen/notifier_form.html"
 
     def form_valid(self, form):
@@ -985,8 +1300,15 @@ class ProjectNotifierRegister(LoginRequiredMixin, mixins.NotifierFormMixin, mixi
         messages.error(self.request, "Error creating notifier: %s" % form.errors.as_text())
         return super().form_invalid(form)
 
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Project, id=self.kwargs["pk"])
 
-class ServiceNotifierRegister(LoginRequiredMixin, mixins.NotifierFormMixin, mixins.ServiceMixin):
+
+class ServiceNotifierRegister(
+    PromgenGuardianPermissionMixin, mixins.NotifierFormMixin, mixins.ServiceMixin
+):
+    permission_required = ["service_admin", "service_editor"]
+    model = models.Sender
     template_name = "promgen/notifier_form.html"
 
     def form_valid(self, form):
@@ -1002,6 +1324,9 @@ class ServiceNotifierRegister(LoginRequiredMixin, mixins.NotifierFormMixin, mixi
     def form_invalid(self, form):
         messages.error(self.request, "Error creating notifier: %s" % form.errors.as_text())
         return super().form_invalid(form)
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Service, id=self.kwargs["pk"])
 
 
 class SiteDetail(LoginRequiredMixin, TemplateView):
@@ -1040,7 +1365,8 @@ class Profile(LoginRequiredMixin, mixins.NotifierFormMixin):
         return super().form_invalid(form)
 
 
-class HostRegister(LoginRequiredMixin, FormView):
+class HostRegister(PromgenGuardianPermissionMixin, FormView):
+    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
     model = models.Host
     template_name = "promgen/host_form.html"
     form_class = forms.HostForm
@@ -1058,6 +1384,9 @@ class HostRegister(LoginRequiredMixin, FormView):
                 logger.debug("Added %s to %s", host.name, farm.name)
 
         return redirect("farm-detail", pk=farm.id)
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
 
 class ApiConfig(View):
@@ -1120,24 +1449,35 @@ class AlertList(LoginRequiredMixin, ListView):
     queryset = models.Alert.objects.order_by("-created")
 
     def get_queryset(self):
+        qs = self.queryset
         search = self.request.GET.get("search")
         if search:
-            return self.queryset.filter(
+            qs = self.queryset.filter(
                 Q(alertlabel__name="Service", alertlabel__value__icontains=search)
                 | Q(alertlabel__name="Project", alertlabel__value__icontains=search)
                 | Q(alertlabel__name="Job", alertlabel__value__icontains=search)
             )
+        else:
+            for key, value in self.request.GET.items():
+                if key in ["page", "search"]:
+                    continue
+                elif key == "noSent":
+                    qs = qs.filter(sent_count=0)
+                elif key == "sentError":
+                    qs = qs.exclude(error_count=0)
+                else:
+                    qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
 
-        qs = self.queryset
-        for key, value in self.request.GET.items():
-            if key in ["page", "search"]:
-                continue
-            elif key == "noSent":
-                qs = qs.filter(sent_count=0)
-            elif key == "sentError":
-                qs = qs.exclude(error_count=0)
-            else:
-                qs = qs.filter(alertlabel__name=key, alertlabel__value=value)
+        # If the user is not a superuser, we need to filter the alerts by the user's permissions
+        if not self.request.user.is_superuser:
+            services = permissions.get_accessible_services_for_user(self.request.user)
+            projects = permissions.get_accessible_projects_for_user(self.request.user)
+
+            qs = qs.filter(
+                Q(alertlabel__name="Service", alertlabel__value__in=services.values_list("name"))
+                | Q(alertlabel__name="Project", alertlabel__value__in=projects.values_list("name"))
+            )
+
         return qs
 
 
@@ -1311,16 +1651,41 @@ class Search(LoginRequiredMixin, View):
                     else:
                         filters = Q(**{field: query_dict[var]})
 
-            # For groups, we want to exclude the default group from search results
-            if obj["model"] == models.Group:
-                if filters:
-                    filters &= ~Q(name=settings.PROMGEN_DEFAULT_GROUP)
-                else:
-                    filters = ~Q(name=settings.PROMGEN_DEFAULT_GROUP)
-
             logger.info("filtering %s by %s", target, filters)
 
             qs = qs.filter(filters)
+
+            # If the user is not a superuser, we need to filter the result by the user's permissions
+            if not self.request.user.is_superuser:
+                services = permissions.get_accessible_services_for_user(self.request.user)
+                projects = permissions.get_accessible_projects_for_user(self.request.user)
+                farms = models.Farm.objects.filter(project__in=projects)
+                groups = permissions.get_accessible_groups_for_user(self.request.user)
+
+                if obj["model"] == models.Service:
+                    qs = qs.filter(pk__in=services)
+                elif obj["model"] == models.Project:
+                    qs = qs.filter(pk__in=projects)
+                elif obj["model"] == models.Farm:
+                    qs = qs.filter(pk__in=farms)
+                elif obj["model"] == models.Host:
+                    qs = qs.filter(farm__in=farms)
+                elif obj["model"] == models.Group:
+                    qs = qs.filter(pk__in=groups)
+                elif obj["model"] == models.Rule:
+                    qs = qs.filter(
+                        Q(
+                            content_type__model="service",
+                            content_type__app_label="promgen",
+                            object_id__in=services,
+                        )
+                        | Q(
+                            content_type__model="project",
+                            content_type__app_label="promgen",
+                            object_id__in=projects,
+                        )
+                    )
+
             try:
                 page_number = query_dict.get("page", 1)
                 page_target = Paginator(qs, self.paginate_by).page(page_number)
@@ -1531,7 +1896,7 @@ class ProfileTokenDelete(LoginRequiredMixin, View):
         return redirect("profile")
 
 
-class PermissionAssign(LoginRequiredMixin, View):
+class PermissionAssign(PromgenGuardianPermissionMixin, View):
     permission_required = ["service_admin", "project_admin"]
 
     def post(self, request):
@@ -1582,7 +1947,9 @@ class PermissionAssign(LoginRequiredMixin, View):
         return obj
 
 
-class PermissionDelete(LoginRequiredMixin, View):
+class PermissionDelete(PromgenGuardianPermissionMixin, View):
+    permission_required = ["service_admin", "project_admin"]
+
     def post(self, request):
         obj = self.get_object()
         permission_type = request.POST["perm-type"]
@@ -1698,11 +2065,14 @@ class PermissionDelete(LoginRequiredMixin, View):
 
 class GroupList(LoginRequiredMixin, ListView):
     paginate_by = 20
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP).order_by("name")
+
+    def get_queryset(self):
+        return permissions.get_accessible_groups_for_user(self.request.user).order_by("name")
 
 
-class GroupDetail(LoginRequiredMixin, DetailView):
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+class GroupDetail(PromgenGuardianPermissionMixin, DetailView):
+    permission_required = ["group_admin", "group_member"]
+    model = models.Group
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1711,8 +2081,9 @@ class GroupDetail(LoginRequiredMixin, DetailView):
         return context
 
 
-class GroupAddMember(LoginRequiredMixin, SingleObjectMixin, View):
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+class GroupAddMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
+    permission_required = ["group_admin"]
+    model = models.Group
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1749,8 +2120,9 @@ class GroupAddMember(LoginRequiredMixin, SingleObjectMixin, View):
         return redirect("group-detail", pk=group.pk)
 
 
-class GroupUpdateMember(LoginRequiredMixin, SingleObjectMixin, View):
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+class GroupUpdateMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
+    permission_required = ["group_admin"]
+    model = models.Group
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1775,8 +2147,9 @@ class GroupUpdateMember(LoginRequiredMixin, SingleObjectMixin, View):
         return redirect("group-detail", pk=group.pk)
 
 
-class GroupRemoveMember(LoginRequiredMixin, SingleObjectMixin, View):
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+class GroupRemoveMember(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
+    permission_required = ["group_admin"]
+    model = models.Group
 
     def post(self, request, *args, **kwargs):
         group = self.get_object()
@@ -1824,15 +2197,17 @@ class GroupRegister(LoginRequiredMixin, CreateView):
         return super().get_success_url()
 
 
-class GroupUpdate(LoginRequiredMixin, UpdateView):
+class GroupUpdate(PromgenGuardianPermissionMixin, UpdateView):
+    permission_required = ["group_admin"]
     button_label = _("Update Group")
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
     fields = ["name"]
 
 
-class GroupDelete(LoginRequiredMixin, DeleteView):
+class GroupDelete(PromgenGuardianPermissionMixin, DeleteView):
+    permission_required = ["group_admin"]
     button_label = _("Delete Group")
-    queryset = models.Group.objects.exclude(name=settings.PROMGEN_DEFAULT_GROUP)
+    model = models.Group
 
     def get_success_url(self):
         return reverse("group-list")

@@ -8,6 +8,7 @@
     </button>
     <ul class="dropdown-menu">
 
+      {% if role == "ADMIN" or role == "EDIT" %}
       <li>
         <form action="{% url 'service-notifier' service.id %}" style="display:inline" method="post" v-pre>{% csrf_token %}
           <input type="hidden" name="sender" value="promgen.notification.user">
@@ -17,6 +18,7 @@
       </li>
 
       <hr>
+      {% endif %}
 
       <li role="presentation"><a href="{% urlqs 'audit-list' service=service.id %}">{% translate "View Edit History" %}</a></li>
       <li role="presentation"><a href="{% urlqs 'alert-list' service=service.name %}">{% translate "View Alert History" %}</a></li>
@@ -26,6 +28,7 @@
       <li role="presentation"><a href="{% url 'api:service-rules' name=service.name %}">{% translate "Export Rules" %}</a></li>
       <li role="presentation"><a href="{% url 'api:service-targets' name=service.name %}">{% translate "Export Service" %}</a></li>
 
+      {% if user.username == service.owner.username or user.is_superuser %}
       <hr>
 
       <li role="presentation">
@@ -34,11 +37,15 @@
           <button type="submit" style="color:#d9534f;">{% translate "Delete Service" %}</button>  
         </form>
       </li>
+      {% endif %}
 
     </ul>
   </div>
+
+  {% if role == "ADMIN" or role == "EDIT" %}
   <a @click="setSilenceDataset" data-service="{{service.name}}" class="btn btn-warning btn-sm ml-2 mr-2">{% translate "Silence" %}</a>
 
   <a href="{% url 'service-update' service.id %}" class="btn btn-warning btn-sm">{% translate "Edit Service" %}</a>
+  {% endif %}
 
 </div>

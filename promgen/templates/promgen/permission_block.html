@@ -11,7 +11,9 @@
           <th>User</th>
           <th>Email</th>
           <th>Role</th>
+          {% if role == "ADMIN" %}
           <th>Actions</th>
+          {% endif %}
         </tr>
         {% for user,perms in object|get_users_roles %}
           {% include "promgen/permission_user_row.html" %}
@@ -29,7 +31,9 @@
         <tr>
           <th>Name</th>
           <th>Role</th>
+          {% if role == "ADMIN" %}
           <th>Actions</th>
+          {% endif %}
         </tr>
         {% for group,perms in object|get_groups_roles %}
           {% include "promgen/permission_group_row.html" %}
@@ -38,10 +42,12 @@
     </div>
   </div>
 
+  {% if role == "ADMIN" %}
   <div class="panel panel-footer">
     <div class="panel-heading">
       <h4>Grant Permissions</h4>
     </div>
     <div class="panel-body">{% include "promgen/permission_form.html" %}</div>
   </div>
+  {% endif %}
 </div>

@@ -21,7 +21,7 @@ class SilenceTest(tests.PromgenTest):
     fixtures = ["testcases.yaml", "extras.yaml"]
 
     def setUp(self):
-        self.user = self.force_login(username="demo")
+        self.user = self.force_login(username="admin")
 
     @override_settings(PROMGEN=TEST_SETTINGS)
     @mock.patch("promgen.util.post")
@@ -108,7 +108,7 @@ class SilenceTest(tests.PromgenTest):
             form.cleaned_data,
             {
                 "comment": "Silenced from Promgen",
-                "createdBy": "demo",
+                "createdBy": self.user.username,
                 "duration": "1m",
                 "endsAt": "",
                 "labels": {"alertname": "example-rule", "service": "foo"},

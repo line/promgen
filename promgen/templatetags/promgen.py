@@ -18,6 +18,8 @@ from django.utils.translation import gettext as _
 from guardian.models import GroupObjectPermission, UserObjectPermission
 from guardian.shortcuts import get_groups_with_perms, get_users_with_perms
 
+from promgen import permissions as promgen_permissions
+
 register = template.Library()
 
 EXCLUSION_MACRO = "<exclude>"
@@ -312,3 +314,9 @@ def audit_log_link(log):
     if obj:
         return format_html('<a href="{}">{}</a>', mark_safe(generate_link(obj)), obj)
     return ""
+
+
+@register.simple_tag(takes_context=True)
+def current_role(context, obj):
+    user = context.request.user
+    return promgen_permissions.get_highest_role(user, obj)

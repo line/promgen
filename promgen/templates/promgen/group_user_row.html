@@ -16,6 +16,7 @@
     </span>
     {% endfor %}
 
+    {% if role == "ADMIN" %}
     <button
       style="background: none"
       class="btn btn-xs"
@@ -43,7 +44,9 @@
         <button class="btn btn-primary btn-xs">Change</button>
       </form>
     </div>
+    {% endif %}
   </td>
+  {% if role == "ADMIN" %}
   <td class="col-xs-3" style="word-break: break-all" v-pre>
     <form
       method="post"
@@ -62,4 +65,5 @@
       <button type="submit" class="btn btn-danger btn-xs">Delete</button>
     </form>
   </td>
+  {% endif %}
 </tr>

@@ -21,7 +21,7 @@
     </span>
     {% endfor %}
 
-    {% if user.username != object.owner.username %}
+    {% if user.username != object.owner.username and role == "ADMIN" %}
     <button style="background:none" class="btn btn-xs" data-toggle="collapse" data-target="#user{{user.id}}">
       <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
     </button>
@@ -39,6 +39,7 @@
     </div>
     {% endif %}
   </td>
+  {% if role == "ADMIN" %}
   <td class="col-xs-3" v-pre>
     {% if user.username != object.owner.username %}
     <form
@@ -70,4 +71,5 @@
     </form>
     {% endif %}
   </td>
+  {% endif %}
 </tr>

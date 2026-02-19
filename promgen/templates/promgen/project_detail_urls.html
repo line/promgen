@@ -4,12 +4,15 @@
     <tr>
       <th>URL</th>
       <th>Probe</th>
+      {% if role == "ADMIN" or role == "EDIT" %}
       <th>Actions</th>
+      {% endif %}
     </tr>
     {% for url in project.url_set.all %}
     <tr>
       <td style="word-break: break-all" v-pre>{{ url.url }}</td>
       <td title="{{ url.probe.description }}" v-pre>{{ url.probe.module }}</td>
+      {% if role == "ADMIN" or role == "EDIT" %}
       <td>
         <a @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
@@ -23,9 +26,11 @@
           <button class="btn btn-danger btn-xs">{% trans "Delete" %}</button>
         </form>
       </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </table>
+  {% if role == "ADMIN" or role == "EDIT" %}
   <div class="panel-footer">
     <form method="post" action="{% url 'url-new' project.id %}" style="display: inline">
       {% csrf_token %}
@@ -37,4 +42,5 @@
       </div>
     </form>
   </div>
+  {% endif %}
 </div>
