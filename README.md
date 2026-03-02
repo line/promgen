@@ -40,7 +40,7 @@ docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen docker-compo
 # Apply database updates
 docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen migrate
 
-# You can then check your configuration to ensure everything correct
+# You can then check your configuration to ensure everything is correct
 docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen check
 
 # Create initial login user. This is the same as the default django-admin command
