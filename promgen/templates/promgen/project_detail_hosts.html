@@ -6,11 +6,15 @@
       {% trans "Farm Detail" %}
     </a>
   {% else %}
+    {% if role == "ADMIN" or role == "EDIT" %}
     <a href="{% url 'farm-new' project.id %}" class="btn btn-primary btn-sm">
       {% trans "Register Farm" %}
     </a>
+    {% endif %}
   {% endif %}
+  {% if role == "ADMIN" or role == "EDIT" %}
   {% include "promgen/project_detail_hosts_action_button_group.html" %}
+  {% endif %}
 </div>
 <div class="panel panel-default">
   <div v-pre class="panel-heading">
@@ -18,14 +22,21 @@
   </div>
   <table class="table table-bordered table-condensed">
     <tr>
+      {% if role == "ADMIN" or role == "EDIT" %}
       <th>Select</th>
+      {% endif %}
       <th>Name</th>
+      {% if role == "ADMIN" or role == "EDIT" %}
       <th>Actions</th>
+      {% endif %}
     </tr>
   {% for host in project.farm.host_set.all %}
     <tr>
+      {% if role == "ADMIN" or role == "EDIT" %}
       <td class="col-xs-1"><input type="checkbox" value="{{ host.name }}:[0-9]*" v-model="selectedHosts"></td>
+      {% endif %}
       <td class="col-xs-5" v-pre><a href="{% url 'host-detail' host.name %}">{{ host.name }}</a></td>
+      {% if role == "ADMIN" or role == "EDIT" %}
       <td class="col-xs-2">
         <a
           @click="setSilenceDataset"
@@ -36,6 +47,7 @@
           style="display: inline-block;"
         >{% trans "Silence" %}</a>
       </td>
+      {% endif %}
     </tr>
   {% endfor %}
   </table>

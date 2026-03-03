@@ -2,6 +2,10 @@
 
 {% if service.notifiers.count %} 
 <div class="panel panel-default">
+  {% if role == "ADMIN" or role == "EDIT" %}
   {% include "promgen/notifier_block.html" with object=service show_edit=1 %}
+  {% else %}
+  {% include "promgen/notifier_block.html" with object=service %}
+  {% endif %}
 </div>
 {% endif %}
