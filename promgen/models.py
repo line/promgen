@@ -375,6 +375,10 @@ class BaseExporter(models.Model):
     class Meta:
         abstract = True
 
+    @property
+    def path_value(self):
+        return self.path or "/metrics"
+
 
 class DefaultExporter(BaseExporter):
     class Meta:
@@ -391,7 +395,7 @@ class Exporter(BaseExporter):
         unique_together = (("job", "port", "path", "scheme", "project"),)
 
     def __str__(self):
-        return "{}:{}{}".format(self.job, self.port, self.path or "/metrics")
+        return "{}:{}{}".format(self.job, self.port, self.path_value)
 
 
 class Probe(models.Model):
