@@ -11,7 +11,7 @@ import logging
 
 from django import forms
 
-from promgen import settings, util, validators
+from promgen import util, validators
 from promgen.notification import NotificationBase
 from promgen.shortcuts import resolve_domain
 
@@ -19,10 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 def _choices():
-    if not getattr(settings, "PAGERDUTY_URLS", None):
+    urls = util.setting("promgen.notification.pagerduty:urls", {})
+    if not urls:
         yield "PagerDuty", "PagerDuty"
     else:
-        for k, v in settings.PAGERDUTY_URLS.items():
+        for k, v in urls.items():
             yield (k, k)
 
 
@@ -60,19 +61,27 @@ class NotificationPagerDuty(NotificationBase):
     Trigger an alert event to PagerDuty.
     """
 
+    DEFAULT_URL = "https://events.pagerduty.com/v2/enqueue"
+    # PagerDuty only accepts these severity levels: info, warning, error, critical.
+    # However, Promgen user can define their own severity levels, so we provide
+    # a default mapping here to convert user-defined severity levels to PagerDuty accepted values.
+    DEFAULT_SEVERITY_MAP = {
+        "debug": "info",
+        "minor": "warning",
+        "major": "error",
+    }
+
     form = FormPagerDuty
 
     def _send(self, target, data):
         domain = target.split(":")[0]
         integration_key = target.split(":")[1]
 
-        request_body = NotificationPagerDuty.build_request_body(data, integration_key)
+        request_body = self.build_request_body(data, integration_key)
 
         # Send event to PagerDuty Events V2 API
         # By default we send to the global endpoint unless overridden
-        url = "https://events.pagerduty.com/v2/enqueue"
-        if getattr(settings, "PAGERDUTY_URLS", None):
-            url = settings.PAGERDUTY_URLS.get(domain)
+        url = self.config("urls", {}).get(domain, self.DEFAULT_URL)
 
         util.post(url, json=request_body).raise_for_status()
 
@@ -80,8 +89,7 @@ class NotificationPagerDuty(NotificationBase):
     def json_to_string(data):
         return "".join(f"\n - {k} = {v}" for k, v in data.items())
 
-    @staticmethod
-    def build_request_body(data, integration_key):
+    def build_request_body(self, data, integration_key):
         # Initialize request body
         request_body = {
             "routing_key": integration_key,
@@ -119,10 +127,11 @@ class NotificationPagerDuty(NotificationBase):
         # Set severity
         PAGERDUTY_ACCEPTED_SEVERITIES = {"info", "warning", "error", "critical"}
         severity = data["commonLabels"].get("severity")
+        severity_map = self.config("severity_mapping", self.DEFAULT_SEVERITY_MAP)
         if severity in PAGERDUTY_ACCEPTED_SEVERITIES:
             request_body["payload"]["severity"] = severity
-        elif severity and severity in settings.PAGERDUTY_SEVERITY_MAP:
-            request_body["payload"]["severity"] = settings.PAGERDUTY_SEVERITY_MAP[severity]
+        elif severity and severity in severity_map:
+            request_body["payload"]["severity"] = severity_map[severity]
         else:
             request_body["payload"]["severity"] = "error"
 
