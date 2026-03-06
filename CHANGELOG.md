@@ -1,5 +1,15 @@
 # Changelog
 
+# v0.73.0 - 2026-03-04
+
+- [IMPROVEMENT] Sort the Probe list #703
+- [BUGFIX] Add missing migration for MetricSample model #702
+- [IMPROVEMENT] Support multiple PagerDuty back ends #700
+- [INTERNAL] Bump docker/build-push-action from 6.18.0 to 6.19.2 #698
+- [IMPROVEMENT] Show default value when Exporter's path is empty #696
+- [IMPROVEMENT] Fix UI quirks when showing notifier's value #695
+- [IMPROVEMENT] Add per-object permission checks #658
+
 # v0.72.4 - 2026-02-12
 
 - [IMPROVEMENT] Add Alertmanager notifier #694
