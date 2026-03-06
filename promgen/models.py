@@ -404,6 +404,9 @@ class Probe(models.Model):
     )
     description = models.TextField(blank=True)
 
+    class Meta:
+        ordering = ["module"]
+
     def __str__(self):
         return f"{self.module} » {self.description}"
 
