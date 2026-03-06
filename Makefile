@@ -101,6 +101,7 @@ check: django-check promgen-test ruff-lint ruff-check-format
 ## Django: Run Django checks
 django-check: $(APP_BIN)
 	$(APP_BIN) check
+	$(APP_BIN) makemigrations --check
 
 .PHONY: promgen-test
 promgen-test: $(APP_BIN)
