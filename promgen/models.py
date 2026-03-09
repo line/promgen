@@ -729,7 +729,7 @@ class Metric(models.Model):
 class MetricSample(models.Model):
     metric = models.ForeignKey("Metric", on_delete=models.CASCADE, related_name="samples")
     labels = models.CharField(
-        max_length=512, help_text="List of label values", blank=False, null=False
+        max_length=256, help_text="List of label values", blank=False, null=False
     )
     data = models.JSONField(default=dict)
 
