@@ -3,6 +3,20 @@ Configuring Notification Plugins
 
 Different settings for the Notification Plugins can be defined in the ``promgen.yml`` file.
 
+Email
+---------------------
+
+An SMTP server for sending outgoing mail can be configured by adding Django email settings
+(see :ref:`smtp_config`).
+The **email's sender address** either can be set using the ``DEFAULT_FROM_EMAIL`` Django setting
+or by setting the ``sender`` configuration as shown below. If both are set, the ``sender``
+configuration will take precedence.
+
+.. code-block:: yaml
+
+    promgen.notification.email:
+      sender: promgen@example.com
+
 PagerDuty
 ---------------------
 

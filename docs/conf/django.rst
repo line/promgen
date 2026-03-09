@@ -9,6 +9,7 @@ All available django settings (not every setting may apply to promgen)
 are listed in the `django
 reference <https://docs.djangoproject.com/en/1.11/ref/settings/>`__.
 
+.. _smtp_config:
 Configuring an SMTP Server
 --------------------------
 
@@ -16,10 +17,8 @@ An SMTP server for sending outgoing mail can be configured this way:
 
 .. code-block:: yaml
 
-    promgen.notification.email:
-      sender: promgen@example.com
-
     django:
+      DEFAULT_FROM_EMAIL: promgen@example.com
       EMAIL_HOST: mail.example.com
       EMAIL_PORT: 587
       EMAIL_HOST_USER: user@example.com
