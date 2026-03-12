@@ -927,29 +927,36 @@ class ExporterScrape(LoginRequiredMixin, View):
                             "{scheme}://{host}:{port}{path}".format(host=host.name, **data),
                         )
                     )
-                for future in concurrent.futures.as_completed(futures):
-                    try:
-                        result = future.result()
-                        result.raise_for_status()
-                        metrics = list(text_string_to_metric_families(result.text))
-                        yield (
-                            result.url,
-                            {
-                                "status_code": result.status_code,
-                                "metric_count": len(list(metrics)),
-                            },
-                        )
-                    except ValueError as e:
-                        yield result.url, f"Unable to parse metrics: {e}"
-                    except requests.ConnectionError as e:
-                        logger.warning("Error connecting to server")
-                        yield e.request.url, "Error connecting to server"
-                    except requests.RequestException as e:
-                        logger.warning("Error with response")
-                        yield e.request.url, str(e)
-                    except Exception:
-                        logger.exception("Unknown Exception")
-                        yield "Unknown URL", "Unknown error"
+                try:
+                    for future in concurrent.futures.as_completed(
+                        futures, timeout=settings.PROMGEN_EXPORTER_SCRAPE_TIMEOUT
+                    ):
+                        try:
+                            result = future.result()
+                            result.raise_for_status()
+                            metrics = list(text_string_to_metric_families(result.text))
+                            yield (
+                                result.url,
+                                {
+                                    "status_code": result.status_code,
+                                    "metric_count": len(list(metrics)),
+                                },
+                            )
+                        except ValueError as e:
+                            yield result.url, f"Unable to parse metrics: {e}"
+                        except requests.ConnectionError as e:
+                            logger.warning("Error connecting to server")
+                            yield e.request.url, "Error connecting to server"
+                        except requests.RequestException as e:
+                            logger.warning("Error with response")
+                            yield e.request.url, str(e)
+                        except Exception:
+                            logger.exception("Unknown Exception")
+                            yield "Unknown URL", "Unknown error"
+                except concurrent.futures.TimeoutError:
+                    for future in futures:
+                        future.cancel()
+                    yield "error", "Scrape timed out. Some requests may not have completed."
 
         try:
             return JsonResponse(dict(query()))

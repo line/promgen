@@ -388,7 +388,17 @@ app.component('exporter-test', {
             let form = new FormData(event.srcElement.closest('form'))
             fetch(this.href, { body: form, method: "post", })
                 .then(result => result.json())
-                .then(result => exporterTestResultStore.setResults(result))
+                .then((result) => {
+                    exporterTestResultStore.setResults(result);
+                    if (result.error) {
+                        globalStore.setMessages([
+                            {
+                                class: "alert alert-danger",
+                                message: result.error,
+                            },
+                        ]);
+                    }
+                })
                 .catch(error => alert(error))
         }
     }
