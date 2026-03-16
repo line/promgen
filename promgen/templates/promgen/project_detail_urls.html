@@ -16,6 +16,8 @@
       <td>
         <a @click="setSilenceDataset"
           class="btn btn-warning btn-xs"
+          data-project="{{project.name}}"
+          data-service="{{project.service.name}}"
           data-job="{{url.probe.module}}"
           data-instance="{{url.url}}">{% trans "Silence" %}</a>
         <form method="post"
