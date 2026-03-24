@@ -6,7 +6,7 @@ import json
 import logging
 import subprocess
 import tempfile
-from urllib.parse import urljoin
+from urllib.parse import parse_qs, urljoin, urlparse
 
 import yaml
 from dateutil import parser
@@ -133,8 +133,13 @@ def render_config(service=None, project=None, services=None, projects=None, farm
             "job": exporter.job,
             "__scheme__": exporter.scheme,
         }
+
         if exporter.path:
-            labels["__metrics_path__"] = exporter.path
+            parsed = urlparse(exporter.path)
+            labels["__metrics_path__"] = parsed.path
+            query_params = parse_qs(parsed.query)
+            for key, value in query_params.items():
+                labels[f"__param_{key}"] = value[0]
 
         hosts = []
         if farms is None or exporter.project.farm in farms:
