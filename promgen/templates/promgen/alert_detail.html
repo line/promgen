@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load promgen %}
 {% load tz %}
+{% load i18n %}
 {% block content %}
 {% breadcrumb alert %}
 
@@ -62,6 +63,7 @@
         <th>Start Time</th>
         <th>Labels</th>
         <th>Link</th>
+        <th>Action</th>
     </tr>
     {% for alert in data.alerts %}
     <tr>
@@ -74,6 +76,11 @@
             </ul>
         </td>
         <td v-pre>{{alert.generatorURL|urlizetrunc:100}}</td>
+        <td>
+            <a @click="setSilenceLabels({{alert.labels}})" class="btn btn-warning btn-xs">
+                {% trans "Silence" %}
+            </a>
+        </td>
     </tr>
     {% endfor %}
 </table>
