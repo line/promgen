@@ -21,12 +21,12 @@
     </ul>
   </td>
   <td class="col-xs-3" v-html="urlize(silence.comment)"></td>
-  <td class="col-xs-3">[[ silence.createdBy ]]</td>
-  <td style="col-xs-1">
-    <a
-      @click="$root.expireSilence(silence.id)"
-      class="btn btn-warning btn-xs"
-    >
+  <td class="col-xs-2">[[ silence.createdBy ]]</td>
+  <td class="col-xs-2">
+    <a @click="$root.editSilence(silence)" class="btn btn-warning btn-xs">
+      {% translate "Edit" %}
+    </a>
+    <a @click="$root.expireSilence(silence.id)" class="btn btn-warning btn-xs">
       {% translate "Expire" %}
     </a>
   </td>
