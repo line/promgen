@@ -14,8 +14,11 @@ logger = logging.getLogger(__name__)
 
 def _choices():
     for u in User.objects.filter(is_active=True).order_by("username"):
-        if u.first_name:
-            yield (u.pk, f"{u.username} ({u.first_name} {u.last_name})")
+        full_name = f"{u.first_name} {u.last_name}".strip()
+        if full_name and u.email:
+            yield (u.pk, f"{u.username} ({full_name})({u.email})")
+        elif full_name:
+            yield (u.pk, f"{u.username} ({full_name})")
         elif u.email:
             yield (u.pk, f"{u.username} ({u.email})")
         else:
