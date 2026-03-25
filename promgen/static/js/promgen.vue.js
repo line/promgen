@@ -256,8 +256,12 @@ app.component('silence-create-modal', {
 
             const body = JSON.stringify({
                 matchers: matchers,
-                startsAt: this.form.startsAt,
-                endsAt: this.form.endsAt,
+                startsAt: this.form.startsAt
+                    ? new Date(this.form.startsAt).toISOString()
+                    : undefined,
+                endsAt: this.form.endsAt
+                    ? new Date(this.form.endsAt).toISOString()
+                    : undefined,
                 duration: this.form.duration,
                 createdBy: this.form.createdBy,
                 comment: this.form.comment
