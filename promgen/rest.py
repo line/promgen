@@ -97,11 +97,6 @@ class ShardViewSet(viewsets.ModelViewSet):
     lookup_field = "name"
 
     @action(detail=True, methods=["get"])
-    def services(self, request, name):
-        shard = self.get_object()
-        return Response(serializers.ServiceSerializer(shard.service_set.all(), many=True).data)
-
-    @action(detail=True, methods=["get"])
     def usages(self, request, name):
         metric = request.query_params.get("metric", None)
         METRIC_QUERY_MAPPING = {
