@@ -121,6 +121,15 @@ class ShardViewSet(viewsets.ModelViewSet):
 
         return HttpResponse(response.content, content_type="application/json")
 
+    @action(detail=True, methods=["get"])
+    def projects(self, request, name):
+        shard = self.get_object()
+        projects = shard.project_set.all()
+        if not request.user.is_superuser:
+            accessible_projects = permissions.get_accessible_projects_for_user(request.user)
+            projects = projects.filter(pk__in=accessible_projects)
+        return Response(serializers.ProjectSerializer(projects, many=True).data)
+
 
 class RuleMixin:
     @action(detail=True, methods=["get"], renderer_classes=[renderers.RuleRenderer])
