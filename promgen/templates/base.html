@@ -24,7 +24,7 @@
     {% endblock %}
     <div class="container">
       {% include 'promgen/global_messages.html' %}
-      <silence-create-modal></silence-create-modal>
+      <silence-create-or-update-modal></silence-create-or-update-modal>
       <silence-list-modal></silence-list-modal>
       {% include 'promgen/global_alerts.html' %}
       {% include 'promgen/global_silences.html' %}
@@ -55,8 +55,8 @@
   <script type="text/x-template" id="data-source-usage-template">
     {% include 'promgen/vue/data_source_usage.html' %}
   </script>
-  <script type="text/x-template" id="silence-create-modal-template">
-    {% include 'promgen/vue/silence_create_modal.html' %}
+  <script type="text/x-template" id="silence-create-or-update-modal-template">
+    {% include 'promgen/vue/silence_create_or_update_modal.html' %}
   </script>
   <script type="text/x-template" id="silence-row-template">
     {% include 'promgen/vue/silence_row.html' %}
@@ -64,9 +64,9 @@
   <script type="text/x-template" id="silence-list-modal-template">
     {% include 'promgen/vue/silence_list_modal.html' %}
   </script>
-  <script src="{% static 'js/promgen.js' %}?v=5"></script>
+  <script src="{% static 'js/promgen.js' %}?v=6"></script>
   <script src="{% static 'js/mixins.vue.js' %}"></script>
-  <script src="{% static 'js/promgen.vue.js' %}?v=6"></script>
+  <script src="{% static 'js/promgen.vue.js' %}?v=7"></script>
   {% block javascript %}{% endblock %}
 
   <datalist style="display:none" id="common.labels">

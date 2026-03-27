@@ -23,7 +23,8 @@ const dataStore = Vue.reactive({
 const silenceStore = Vue.reactive({
     state: {
         show: false,
-        labels: {}
+        labels: {},
+        silence: null,
     },
     setLabels(labels) {
         this.state.labels = { ...labels };
@@ -46,6 +47,10 @@ const silenceStore = Vue.reactive({
             }
         }
         this.state.labels[label] = value;
+    },
+    setSilence(silence) {
+        this.state.silence = silence;
+        this.setLabels(silence.labels);
     },
     showModal() {
         this.state.show = true;
@@ -159,6 +164,11 @@ const app = Vue.createApp({
                 silencesMatchService.includes(silence)
             );
         },
+        editSilence: function (silence) {
+            silenceListStore.hideModal();
+            silenceStore.setSilence(silence);
+            silenceStore.showModal();
+        }
     },
     computed: {
         activeServiceAlerts: function () {
@@ -219,8 +229,8 @@ app.component("silence-row", {
     },
 });
 
-app.component('silence-create-modal', {
-    template: '#silence-create-modal-template',
+app.component('silence-create-or-update-modal', {
+    template: '#silence-create-or-update-modal-template',
     delimiters: ['[[', ']]'],
     data: () => ({
         state: silenceStore.state,
@@ -255,6 +265,7 @@ app.component('silence-create-modal', {
             }
 
             const body = JSON.stringify({
+                id: this.state.silence?.id,
                 matchers: matchers,
                 startsAt: this.form.startsAt
                     ? new Date(this.form.startsAt).toISOString()
@@ -291,11 +302,17 @@ app.component('silence-create-modal', {
             if (modal.length) {
                 globalStore.setMessages([]);
                 this.form = {operator: "="};
+                silenceStore.state.silence = null;
                 this.state = silenceStore.state;
                 modal.modal('hide');
             }
         },
         showModal() {
+            if (this.state.silence) {
+                this.form.startsAt = UTCToFormattedLocalDateTime(this.state.silence.startsAt);
+                this.form.endsAt = UTCToFormattedLocalDateTime(this.state.silence.endsAt);
+                this.form.comment = this.state.silence.comment;
+            }
             const modal = $('#silenceCreateModal');
             if (modal.length) {
                 // Detect when the modal is closed, and update the state accordingly. This is

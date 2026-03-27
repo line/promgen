@@ -130,6 +130,7 @@ class MatcherSerializer(serializers.Serializer):
 
 
 class SilenceSerializer(serializers.Serializer):
+    id = serializers.CharField(required=False)
     matchers = MatcherSerializer(many=True)
     startsAt = serializers.CharField(required=False)
     endsAt = serializers.CharField(required=False)

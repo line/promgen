@@ -3,7 +3,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" @click="state.show = false" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="silenceModalLabel">New Silence</h4>
+        <h4 class="modal-title" id="silenceModalLabel">
+            <div v-if="!state.silence">New Silence</div>
+            <div v-else>Edit Silence: [[state.silence.id]]</div>
+        </h4>
       </div>
       <div class="modal-body" style="padding:10px 30px;">
         
@@ -100,7 +103,10 @@
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" @click="submit()">Create</button>
+        <button type="button" class="btn btn-primary" @click="submit()">
+            <div v-if="!state.silence">Create</div>
+            <div v-else>Save</div>
+        </button>
       </div>
     </div>
   </div>
