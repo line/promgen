@@ -122,6 +122,11 @@ ruff-check-format: $(RUFF_BIN)
 migrate: $(APP_BIN)
 	$(APP_BIN) migrate
 
+.PHONY: compilemessages
+## Django: Compile locale messages (.po -> .mo)
+compilemessages: $(APP_BIN)
+	$(APP_BIN) compilemessages
+
 .PHONY:	run
 ## Django: Run development server
 run: migrate

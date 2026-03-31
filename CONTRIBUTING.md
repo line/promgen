@@ -23,6 +23,8 @@ database before running bootstrap or `make migrate` and `make test` will fail.
 # to get mysql client to install
 # export LDFLAGS="-I/usr/local/opt/openssl/include -L/usr/local/opt/openssl/lib"
 make bootstrap
+# If you update locale .po files, compile messages before running/testing
+make compilemessages
 # If you want to enable DEBUG (and development mode)
 echo 1 > ~/.config/promgen/DEBUG
 
