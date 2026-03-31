@@ -232,6 +232,7 @@ app.component("silence-row", {
 app.component('silence-create-or-update-modal', {
     template: '#silence-create-or-update-modal-template',
     delimiters: ['[[', ']]'],
+    mixins: [mixins],
     data: () => ({
         state: silenceStore.state,
         form: {operator: "="}
@@ -309,8 +310,8 @@ app.component('silence-create-or-update-modal', {
         },
         showModal() {
             if (this.state.silence) {
-                this.form.startsAt = UTCToFormattedLocalDateTime(this.state.silence.startsAt);
-                this.form.endsAt = UTCToFormattedLocalDateTime(this.state.silence.endsAt);
+                this.form.startsAt = this.time(this.state.silence.startsAt, "yyyy-MM-dd'T'HH:mm");
+                this.form.endsAt = this.time(this.state.silence.endsAt, "yyyy-MM-dd'T'HH:mm");
                 this.form.comment = this.state.silence.comment;
             }
             const modal = $('#silenceCreateModal');
