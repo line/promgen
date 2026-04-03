@@ -9,6 +9,7 @@
 .env
 .venv
 *.egg-info
+*.mo
 *.pyc
 *.sqlite3
 build

@@ -47,6 +47,10 @@ COPY promgen/tests/examples/promgen.yml /etc/promgen/promgen.yml
 
 WORKDIR /usr/src/app
 RUN pip install --no-cache-dir -e .
+RUN set -ex \
+    && apk add --no-cache gettext \
+    && SECRET_KEY=1 promgen compilemessages \
+    && apk del gettext
 
 USER promgen
 EXPOSE 8000
