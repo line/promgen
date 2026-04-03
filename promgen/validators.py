@@ -65,3 +65,10 @@ def datetime(value):
         parser.parse(value)
     except ValueError:
         raise ValidationError("Invalid timestamp")
+
+
+def validate_utf8(value):
+    try:
+        value.encode("utf-8").decode("utf-8")
+    except (UnicodeEncodeError, UnicodeDecodeError):
+        raise ValidationError("Invalid UTF-8 string.")

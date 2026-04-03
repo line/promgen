@@ -285,3 +285,69 @@ class WebTests(PromgenTest):
             reverse("admin:login") + "?next=" + reverse("admin:user-merge"),
             "Non-admin user redirected to login page",
         )
+
+    def test_register_exporter(self):
+        self.force_login(username="demo")
+        assign_perm("project_editor", self.user, models.Project.objects.get(pk=1))
+
+        # Check creating an exporter with just the required fields and no path
+        response = self.client.post(
+            reverse("project-exporter", kwargs={"pk": 1}),
+            {"job": "node", "port": 9101, "scheme": "http"},
+        )
+        self.assertEqual(
+            response.status_code, 302, msg="Exporter created successfully without path"
+        )
+
+        # Check successfully creating an exporter with query parameters in the path
+        response = self.client.post(
+            reverse("project-exporter", kwargs={"pk": 1}),
+            {
+                "job": "node",
+                "port": 9101,
+                "scheme": "http",
+                "path": "/metrics?param1=foo&param2=bar",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            models.Exporter.objects.filter(
+                path="/metrics?param1=foo&param2=bar",
+            ).exists(),
+            "Exporter with query parameters in path created successfully",
+        )
+
+        # Check creating an exporter with array query parameter should not be allowed
+        response = self.client.post(
+            reverse("project-exporter", kwargs={"pk": 1}),
+            {
+                "job": "node",
+                "port": 9101,
+                "scheme": "http",
+                "path": "/metrics?list[]=foo&list[]=bar",
+            },
+        )
+        self.assertEqual(response.status_code, 200, msg="Exporter created failed")
+        self.assertEqual(
+            response.context_data["form"].errors,
+            {"path": ["List values are currently not supported for query parameters."]},
+            msg="Exporter with array query parameters should not be allowed",
+        )
+
+        # Check creating an exporter with redundant query parameters should be cleaned up
+        response = self.client.post(
+            reverse("project-exporter", kwargs={"pk": 1}),
+            {
+                "job": "node",
+                "port": 9101,
+                "scheme": "http",
+                "path": "/metrics?param=value&param&param=",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            models.Exporter.objects.filter(
+                path="/metrics?param=value",
+            ).exists(),
+            "Redundant query parameters should be cleaned up and exporter created successfully",
+        )

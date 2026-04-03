@@ -109,6 +109,32 @@ class ExporterForm(forms.ModelForm):
             "scheme": forms.Select(attrs={"class": "form-control"}),
         }
 
+    def clean_path(self):
+        from urllib.parse import parse_qs, urlparse
+
+        path = self.cleaned_data["path"]
+        if not path:
+            return path
+
+        # Validate path and query parameters
+        parsed = urlparse(path)
+        query_params = parse_qs(qs=parsed.query)
+        query_params = {k: list(set(v)) for k, v in query_params.items()}
+        for key, values in query_params.items():
+            validators.validate_utf8(key)
+            if len(values) > 1:
+                raise ValidationError(
+                    "List values are currently not supported for query parameters."
+                )
+            for v in values:
+                validators.validate_utf8(v)
+
+        # Reconstruct the path with cleaned params
+        query_string = "&".join(
+            f"{key}={value}" for key, values in query_params.items() for value in values
+        )
+        return parsed.path + ("?" + query_string if query_string else "")
+
 
 class ServiceRegister(forms.ModelForm):
     class Meta:

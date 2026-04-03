@@ -4,7 +4,7 @@
 from django.urls import reverse
 from yaml import safe_load
 
-from promgen import tests
+from promgen import models, tests
 
 
 class RendererTests(tests.PromgenTest):
@@ -30,5 +30,15 @@ class RendererTests(tests.PromgenTest):
     def test_global_urls(self):
         expected = tests.Data("examples", "export.urls.json").json()
         response = self.client.get(reverse("api:all-urls"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+    def test_targets_with_query_params(self):
+        exporter = models.Exporter.objects.get(pk=1)
+        exporter.path = '/metrics?match[]={job="prometheus"}&param1=foo&param2=bar'
+        exporter.save()
+
+        expected = tests.Data("examples", "export.targets_with_query_params.json").json()
+        response = self.client.get(reverse("api:all-targets"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), expected)
