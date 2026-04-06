@@ -169,7 +169,9 @@ def categorize_error(e: Exception) -> str:
     if isinstance(e, ImportError):
         return "import_error"
     elif isinstance(e, requests.HTTPError):
-        return str(e.response.status_code) + "_http_error" if e.response else "other_error"
+        return (
+            str(e.response.status_code) + "_http_error" if e.response is not None else "other_error"
+        )
     else:
         return "other_error"
 
