@@ -43,6 +43,8 @@ class RestAPITest(tests.PromgenTest):
                     model = django_apps.get_model(app_label, model_name)
                     obj = model.objects.get(pk=obj_pk)
                     assign_perm(perm, user, obj)
+                    if isinstance(obj, models.Group):
+                        obj.user_set.add(user)
 
             url = reverse(viewname, kwargs=kwargs or None)
             request_kwargs = {}
@@ -95,6 +97,8 @@ class RestAPITest(tests.PromgenTest):
                     try:
                         obj = model.objects.get(pk=obj_pk)
                         remove_perm(perm, user, obj)
+                        if isinstance(obj, models.Group):
+                            obj.user_set.remove(user)
                     except model.DoesNotExist:
                         pass
 
@@ -173,3 +177,21 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_url.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_group(self):
+        # Initialize test data
+        admin = User.objects.get(username="admin")
+        test_group = models.Group.objects.get(pk=1)
+        test_group.user_set.add(admin)
+        assign_perm("group_admin", admin, test_group)
+        test_service = models.Service.objects.get(pk=1)
+        assign_perm("service_admin", test_group, test_service)
+
+        cases = tests.Data("cases", "test_rest_group.csv").csv()
+        for case in cases:
+            self._run_rest_test(case)
+
+            # Delete newly created group to avoid affecting other tests
+            if case["case"] == "An authenticated user without permissions can create a group.":
+                models.Group.objects.get(name="new-group").delete()

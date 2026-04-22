@@ -89,7 +89,7 @@ class SignalTest(tests.PromgenTest):
         service = models.Service.objects.get(pk=1)
         project = service.project_set.first()
         assign_perm("project_viewer", self.user, project)
-        group = models.Group.objects.create(name="Test Group")
+        group = models.Group.objects.get(pk=1)
         group.user_set.add(self.user)
 
         NotificationUser.create(obj=project, value=str(self.user.pk), owner=self.user)
@@ -133,7 +133,7 @@ class SignalTest(tests.PromgenTest):
     def test_unsubscribe_when_removing_permission(self, log_mock):
         service = models.Service.objects.get(pk=1)
         project = service.project_set.first()
-        group = models.Group.objects.create(name="Test Group")
+        group = models.Group.objects.get(pk=1)
         group.user_set.add(self.user)
 
         # 1. Check if removing user permission unsubscribes user
@@ -175,7 +175,7 @@ class SignalTest(tests.PromgenTest):
     @mock.patch("promgen.models.Audit.log")
     def test_unsubscribe_when_removing_user_from_group(self, log_mock):
         service = models.Service.objects.get(pk=1)
-        group = models.Group.objects.create(name="Test Group")
+        group = models.Group.objects.get(pk=1)
 
         group.user_set.add(self.user)
         assign_perm("service_viewer", group, service)
