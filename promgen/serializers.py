@@ -4,6 +4,7 @@ from dateutil import parser
 from django.db.models import prefetch_related_objects
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
+from guardian.models import GroupObjectPermission
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
@@ -301,3 +302,79 @@ class URLSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.URL
         fields = "__all__"
+
+
+class GroupRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Group
+        fields = (
+            "id",
+            "name",
+        )
+
+
+class UserWithPermRetrieveSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    role = serializers.CharField()
+
+
+class GroupAssignedResourceSerializer(serializers.Serializer):
+    content_type = serializers.CharField()
+    name = serializers.CharField()
+    role = serializers.CharField()
+
+
+class GroupRetrieveDetailSerializer(serializers.ModelSerializer):
+    members = UserWithPermRetrieveSerializer(many=True, required=False, read_only=True)
+    assigned_resources = GroupAssignedResourceSerializer(many=True, required=False, read_only=True)
+
+    class Meta:
+        model = models.Group
+        fields = (
+            "id",
+            "name",
+            "members",
+            "assigned_resources",
+        )
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        users_with_perm = macro.get_users_roles(instance)
+        representation["members"] = []
+        for user, perm in users_with_perm:
+            representation["members"].append(
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "role": perm[0].upper(),
+                }
+            )
+
+        assigned_resources = GroupObjectPermission.objects.filter(group=instance)
+        representation["assigned_resources"] = []
+        for assigned_resource in assigned_resources:
+            representation["assigned_resources"].append(
+                {
+                    "content_type": assigned_resource.content_type.model,
+                    "name": assigned_resource.content_object.name,
+                    "role": assigned_resource.permission.codename.split("_")[1].upper(),
+                }
+            )
+
+        return representation
+
+
+class AddMemberGroupSerializer(serializers.Serializer):
+    user_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        allow_empty=False,
+    )
+    group_role = serializers.ChoiceField(choices=["ADMIN", "MEMBER"])
+
+
+class UpdateMemberGroupSerializer(serializers.Serializer):
+    group_role = serializers.ChoiceField(choices=["ADMIN", "MEMBER"])

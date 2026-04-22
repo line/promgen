@@ -1,0 +1,35 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list groups.,,,GET,api-v2:group-list,,,401,
+An unauthenticated user cannot create a group.,,,POST,api-v2:group-list,,"{""name"": ""new-group""}",401,
+An unauthenticated user cannot view group detail.,,,GET,api-v2:group-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot update a group.,,,PUT,api-v2:group-detail,"{""id"": 1}","{""name"": ""Update""}",401,
+An unauthenticated user cannot partially update a group.,,,PATCH,api-v2:group-detail,"{""id"": 1}","{""name"": ""Update""}",401,
+An unauthenticated user cannot delete a group.,,,DELETE,api-v2:group-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot add members to group.,,,POST,api-v2:group-add-members,"{""id"": 2}","{""user_ids"": [1], ""group_role"": ""MEMBER"" }",401,
+An unauthenticated user cannot update member of group.,,,PUT,api-v2:group-update-member,"{""id"": 2, ""user_id"": 1}","{""group_role"": ""ADMIN""}",401,
+An unauthenticated user cannot remove member from group.,,,DELETE,api-v2:group-update-member,"{""id"": 1, ""user_id"": 1}",,401,
+An authenticated user without permissions see no groups.,demo,,GET,api-v2:group-list,,,200,"[]"
+An authenticated user without permissions can create a group.,demo,,POST,api-v2:group-list,,{"name": "new-group"},201,
+An authenticated user without permissions cannot view group detail.,demo,,GET,api-v2:group-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot update a group.,demo,,PUT,api-v2:group-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot partially update a group.,demo,,PATCH,api-v2:group-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot delete a group.,demo,,DELETE,api-v2:group-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot add members to group.,demo,,POST,api-v2:group-add-members,"{""id"": 2}","{""user_ids"": [1], ""group_role"": ""MEMBER"" }",403,
+An authenticated user without permissions cannot update member of group.,demo,,PUT,api-v2:group-update-member,"{""id"": 1, ""user_id"": 1}","{""group_role"": ""ADMIN""}",403,
+An authenticated user without permissions cannot remove member from group.,demo,,DELETE,api-v2:group-update-member,"{""id"": 1, ""user_id"": 1}",,403,
+A member can list groups.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1},{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":2}]",GET,api-v2:group-list,,,200,"{""example"":""rest.group.list.json""}"
+A member can get paginated group results.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1},{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":2}]",GET,api-v2:group-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"":1}"
+A member can filter groups by name.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1},{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":2}]",GET,api-v2:group-list,,"{""name"": ""Test Group""}",200,"{""results_length"": 1}"
+A member can view group detail.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1}]",GET,api-v2:group-detail,"{""id"": 1}",,200,"{""example"":""rest.group.detail.json""}"
+A member cannot update a group.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1}]",PUT,api-v2:group-detail,"{""id"": 1}","{""name"": ""Update""}",403,
+A member cannot partially update a group.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1}]",PATCH,api-v2:group-detail,"{""id"": 1}","{""name"": ""Update""}",403,
+A member cannot delete a group.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1}]",DELETE,api-v2:group-detail,"{""id"": 1}",,403,
+A member cannot add members to group.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":2}]",POST,api-v2:group-add-members,"{""id"": 2}","{""user_ids"": [1], ""group_role"": ""MEMBER"" }",403,
+A member cannot update member of group.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1}]",PUT,api-v2:group-update-member,"{""id"": 1, ""user_id"": 1}","{""group_role"": ""ADMIN""}",403,
+A member cannot remove member from group.,demo,"[{""codename"":""group_member"",""model"":""promgen.group"",""obj_pk"":1}]",DELETE,api-v2:group-update-member,"{""id"": 1, ""user_id"": 1}",,403,
+A group admin can update a group.,demo,"[{""codename"":""group_admin"",""model"":""promgen.group"",""obj_pk"":1}]",PUT,api-v2:group-detail,"{""id"": 1}","{""name"": ""Update""}",200,
+A group admin can partially update a group.,demo,"[{""codename"":""group_admin"",""model"":""promgen.group"",""obj_pk"":1}]",PATCH,api-v2:group-detail,"{""id"": 1}","{""name"": ""Update""}",200,
+A group admin can add members to group.,demo,"[{""codename"":""group_admin"",""model"":""promgen.group"",""obj_pk"":2}]",POST,api-v2:group-add-members,"{""id"": 2}","{""user_ids"": [1], ""group_role"": ""MEMBER"" }",200,
+A group admin can update member of group.,demo,"[{""codename"":""group_admin"",""model"":""promgen.group"",""obj_pk"":1}]",PUT,api-v2:group-update-member,"{""id"": 1, ""user_id"": 1}","{""group_role"": ""ADMIN""}",200,
+A group admin can remove member from group.,demo,"[{""codename"":""group_admin"",""model"":""promgen.group"",""obj_pk"":1}]",DELETE,api-v2:group-update-member,"{""id"": 1, ""user_id"": 1}",,200,
+A group admin can delete a group.,demo,"[{""codename"":""group_admin"",""model"":""promgen.group"",""obj_pk"":1}]",DELETE,api-v2:group-detail,"{""id"": 1}",,204,

@@ -175,3 +175,11 @@
     duration: 1m
     enabled: true
     description: "Site Rule Description"
+- model: auth.group
+  pk: 1
+  fields:
+    name: "Test Group"
+- model: auth.group
+  pk: 2
+  fields:
+    name: "Other Group"
