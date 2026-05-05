@@ -1184,6 +1184,7 @@ class ShardViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = models.Shard.objects.all()
     filterset_class = filters.ShardFilter
     serializer_class = serializers.ShardRetrieveSerializer
+    lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
 
@@ -1249,3 +1250,22 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             serializers.NotifierSerializer(notifier).data,
             status=HTTPStatus.CREATED,
         )
+
+
+@extend_schema(tags=["Site"])
+class SiteViewSet(RuleMixin, viewsets.GenericViewSet):
+    queryset = models.Site.objects.all()
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    @extend_schema(
+        summary="Get Current Site",
+        description="Retrieve the current site's information.",
+        responses=serializers.SiteRetrieveSerializer,
+    )
+    @action(detail=False, methods=["get"], url_path="me")
+    def get_current_site(self, request):
+        current_site = models.Site.objects.get_current()
+        return Response(serializers.SiteRetrieveSerializer(current_site).data)

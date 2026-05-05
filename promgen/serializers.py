@@ -703,3 +703,9 @@ class UserRetrieveDetailSerializer(serializers.ModelSerializer):
         }
 
         return representation
+
+
+class SiteRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Site
+        fields = "__all__"
