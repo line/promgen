@@ -1100,6 +1100,7 @@ class ShardViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = models.Shard.objects.all()
     filterset_class = filters.ShardFilter
     serializer_class = serializers.ShardRetrieveSerializer
+    lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
 
@@ -1165,3 +1166,20 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             serializers.NotifierSerializer(notifier).data,
             status=HTTPStatus.CREATED,
         )
+
+
+@extend_schema_view(
+    retrieve=extend_schema(
+        summary="Retrieve Site",
+        description="Retrieve detailed information about a specific Site.",
+    ),
+)
+@extend_schema(tags=["Site"])
+class SiteViewSet(RuleMixin, viewsets.GenericViewSet):
+    queryset = models.Site.objects.all()
+    filterset_class = filters.UserFilter
+    serializer_class = serializers.UserRetrieveSimpleSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]

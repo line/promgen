@@ -1,0 +1,4 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot register a Site Rule.,,,POST,api-v2:site-register-rule,"{""id"": 1}",,401,
+An authenticated user cannot register a Site Rule.,demo,,POST,api-v2:site-register-rule,"{""id"": 1}",,403,
+A Site Admin can register a Site Rule.,admin,,POST,api-v2:site-register-rule,"{""id"": 1}","{""annotations"": {""summary"": ""Test Rule Summary""}, ""clause"": ""up == 1"", ""description"": ""Test Rule Description"", ""duration"": ""5m"", ""enabled"": false, ""labels"": {""severity"": ""critical""}, ""name"": ""TestRuleCreated""}",201,
