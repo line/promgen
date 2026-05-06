@@ -532,6 +532,84 @@ class Rule(models.Model):
                 self.annotations["rule"] = resolve_domain("rule-detail", pk=self.pk)
                 super().save(update_fields=["annotations"])
 
+    def test(self, query):
+        import collections
+        import datetime
+        import time
+
+        from promgen import util
+
+        # Default values in case we do not have a more specific content_type to test against
+        expected_labels = {
+            "service": set(),
+            "project": set(),
+        }
+        unexpected_labels = collections.defaultdict(set)
+
+        # Given our current rule, we want to see what service/project it will affect, so that we can
+        # check our test query output for labels outside our expected match
+        if self.content_type.model == "service":
+            # for a service rule, we expect the current service and all child projects as expected
+            expected_labels["service"] = {self.content_object.name}
+            expected_labels["project"] = {
+                project.name for project in self.content_object.project_set.all()
+            }
+
+        if self.content_type.model == "project":
+            # for a project rule we expect only the current project and the parent service
+            expected_labels["service"] = {self.content_object.service.name}
+            expected_labels["project"] = {self.content_object.name}
+
+        query = macro.rulemacro(self, query)
+        # Since our rules affect all servers we use Promgen's proxy-query to test our rule
+        # against all the servers at once
+        url = resolve_domain("proxy-query")
+
+        logger.debug("Querying %s with %s", url, query)
+        start = time.time()
+        result = util.get(url, {"query": query}).json()
+        result["duration"] = datetime.timedelta(seconds=(time.time() - start))
+        result["query"] = query
+
+        # TODO: This could be more robust, but for now this ensures failed queries
+        # without a 'data' field get processed
+        metrics = result.get("data", {}).setdefault("result", [])
+        result["firing"] = len(metrics) > 0
+        errors = result.setdefault("errors", {})
+
+        for row in metrics:
+            if "service" not in row["metric"] and "project" not in row["metric"]:
+                errors["routing"] = (
+                    "Some metrics are missing service and project labels. "
+                    "Promgen will be unable to route message."
+                )
+
+            for label in expected_labels:
+                if label in row["metric"]:
+                    if (
+                        expected_labels[label]
+                        and row["metric"][label] not in expected_labels[label]
+                    ):
+                        unexpected_labels[label].add(row["metric"][label])
+
+        # For each key in our unexpected_labels, we want to go through the returned
+        # values and check to see if it is an expected one or not.
+        for label in unexpected_labels:
+            if unexpected_labels[label]:
+                result["severity"] = "danger"
+                errors[f"unrelated_{label}"] = (
+                    f"Unrelated {label} labels found\n"
+                    f"Expected: {expected_labels[label]}\n"
+                    f"Found: {unexpected_labels[label]}"
+                )
+
+        # Place this at the bottom to have a query error show up as danger
+        if result["status"] != "success":
+            result["severity"] = "danger"
+            errors["Query"] = result["error"]
+
+        return result
+
 
 class AlertLabel(models.Model):
     alert = models.ForeignKey("Alert", on_delete=models.CASCADE)

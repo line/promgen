@@ -703,3 +703,9 @@ class UserRetrieveDetailSerializer(serializers.ModelSerializer):
         }
 
         return representation
+
+
+class RuleTestResultSerializer(serializers.Serializer):
+    duration = serializers.DurationField(read_only=True)
+    firing = serializers.BooleanField(read_only=True)
+    errors = serializers.DictField(child=serializers.CharField(), read_only=True)

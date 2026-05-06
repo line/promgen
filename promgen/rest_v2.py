@@ -54,6 +54,56 @@ class RuleMixin:
         rule, created = models.Rule.objects.get_or_create(**attributes)
         return Response(serializers.RuleSerializer(rule).data, status=HTTPStatus.CREATED)
 
+    @extend_schema(
+        summary="Test Rule",
+        description="Test the specified rule against a query and return the result. "
+        "Use 0 for the ID to test against a new rule without creating it.",
+        parameters=[
+            OpenApiParameter(
+                name="clause",
+                required=False,
+                type=str,
+                description="Optional clause to test against the rule. "
+                "If not provided, the rule's clause will be used.",
+            )
+        ],
+        responses=serializers.RuleTestResultSerializer,
+    )
+    @action(
+        detail=True, methods=["get"], url_path=r"rules/(?P<rule_id>\d+)/test", url_name="rule-test"
+    )
+    def test(self, request, id, rule_id):
+        obj = self.get_object()
+        clause = request.query_params.get("clause")
+        content_type = ContentType.objects.get_for_model(obj)
+
+        if int(rule_id) == 0:
+            rule = models.Rule()
+            rule.pk = 0
+            rule.set_object(content_type.model, obj.pk)
+            if clause is None:
+                raise ValidationError({"detail": "Clause is required when testing a new rule"})
+        else:
+            rule = models.Rule.objects.filter(
+                pk=rule_id,
+                content_type=ContentType.objects.get(
+                    model=content_type.model,
+                    app_label="promgen",
+                ),
+                object_id=obj.id,
+            ).first()
+            if rule is None:
+                raise ValidationError({"detail": "Rule not found"})
+            if clause is None:
+                clause = rule.clause
+
+        try:
+            result = rule.test(clause)
+        except Exception as e:
+            raise ValidationError({"detail": f"Error testing rule: {str(e)}"})
+
+        return Response(serializers.RuleTestResultSerializer(result).data)
+
 
 class NotifierMixin:
     @extend_schema(
