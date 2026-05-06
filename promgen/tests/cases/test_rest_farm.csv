@@ -1,0 +1,47 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list farms.,,,GET,api-v2:farm-list,,,401,
+An unauthenticated user cannot view farm detail.,,,GET,api-v2:farm-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot update a farm.,,,PUT,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-updated""}",401,
+An unauthenticated user cannot partially update a farm.,,,PATCH,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-updated""}",401,
+An unauthenticated user cannot delete a farm.,,,DELETE,api-v2:farm-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot list farm sources.,,,GET,api-v2:farm-sources,,,401,
+An unauthenticated user cannot list remote farms.,,,GET,api-v2:farm-remote,"{""source"": ""mock-remote""}",,401,
+An unauthenticated user cannot view farm hosts.,,,GET,api-v2:farm-hosts,"{""id"": 1}",,401,
+An unauthenticated user cannot add farm hosts.,,,POST,api-v2:farm-hosts,"{""id"": 1}","{""hosts"": [""new.example.com""]}",401,
+An unauthenticated user cannot delete a farm host.,,,DELETE,api-v2:farm-delete-host,"{""id"": 1, ""host_id"": 1}",,401,
+An unauthenticated user cannot sync a farm.,,,POST,api-v2:farm-sync,"{""id"": 1}",,401,
+An unauthenticated user cannot convert a farm to local.,,,POST,api-v2:farm-convert-to-local-farm,"{""id"": 1}",,401,
+An authenticated user without permissions sees no farms.,demo,,GET,api-v2:farm-list,,,200,"{""count"": 0}"
+An authenticated user without permissions cannot view farm detail.,demo,,GET,api-v2:farm-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot update a farm.,demo,,PUT,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-updated""}",403,
+An authenticated user without permissions cannot partially update a farm.,demo,,PATCH,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-updated""}",403,
+An authenticated user without permissions cannot delete a farm.,demo,,DELETE,api-v2:farm-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot view farm hosts.,demo,,GET,api-v2:farm-hosts,"{""id"": 1}",,403,
+An authenticated user without permissions cannot add farm hosts.,demo,,POST,api-v2:farm-hosts,"{""id"": 1}","{""hosts"": [""new.example.com""]}",403,
+An authenticated user without permissions cannot delete a farm host.,demo,,DELETE,api-v2:farm-delete-host,"{""id"": 1, ""host_id"": 1}",,403,
+An authenticated user without permissions cannot sync a farm.,demo,,POST,api-v2:farm-sync,"{""id"": 1}",,403,
+An authenticated user without permissions cannot convert a farm to local.,demo,,POST,api-v2:farm-convert-to-local-farm,"{""id"": 1}",,403,
+An authenticated user without permissions can list farm sources.,demo,,GET,api-v2:farm-sources,,,200,"{""response_body"": [{""name"": ""mock-remote"", ""remote"": true}, {""name"": ""promgen"", ""remote"": false}]}"
+An authenticated user without permissions can list remote farms.,demo,,GET,api-v2:farm-remote,"{""source"": ""mock-remote""}",,200,"{""response_body"": [{""name"": ""mock-farm-a""}, {""name"": ""mock-farm-b""}]}"
+Remote farm listing rejects unknown source.,demo,,GET,api-v2:farm-remote,"{""source"": ""unknown""}",,400,
+Remote farm listing requires a remote source.,demo,,GET,api-v2:farm-remote,"{""source"": ""promgen""}",,400,
+A viewer can list farms.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:farm-list,,,200,"{""example"": ""rest.farm.list.json""}"
+A viewer can list farms with pagination.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:farm-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
+A viewer can filter farms by name.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:farm-list,,"{""name"": ""test-farm""}",200,"{""count"": 1}"
+A viewer can filter farms by source.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:farm-list,,"{""source"": ""promgen""}",200,"{""count"": 1}"
+A viewer can view farm detail.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",GET,api-v2:farm-detail,"{""id"": 1}",,200,"{""example"": ""rest.farm.detail.json""}"
+A viewer cannot update a farm.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PUT,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-updated""}",403,
+A viewer cannot partially update a farm.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PATCH,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-updated""}",403,
+A viewer cannot delete a farm.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:farm-detail,"{""id"": 1}",,403,
+A viewer can view farm hosts.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",GET,api-v2:farm-hosts,"{""id"": 1}",,200,"{""example"": ""rest.farm.hosts.json""}"
+A viewer cannot add hosts to a farm.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",POST,api-v2:farm-hosts,"{""id"": 1}","{""hosts"": [""new.example.com""]}",403,
+A viewer cannot delete a farm host.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:farm-delete-host,"{""id"": 1, ""host_id"": 1}",,403,
+An editor can update a farm.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PUT,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-updated""}",200,"{""field_equals"": [{""model"": ""promgen.farm"", ""filters"": {""id"": 1}, ""field"": ""name"", ""value"": ""test-farm-updated""}]}"
+An editor can partially update a farm.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PATCH,api-v2:farm-detail,"{""id"": 1}","{""name"": ""test-farm-patched""}",200,"{""field_equals"": [{""model"": ""promgen.farm"", ""filters"": {""id"": 1}, ""field"": ""name"", ""value"": ""test-farm-patched""}]}"
+An editor can add hosts to a farm.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",POST,api-v2:farm-hosts,"{""id"": 1}","{""hosts"": [""new.example.com"", ""example.com""]}",201,"{""exists"": [{""model"": ""promgen.host"", ""filters"": {""farm_id"": 1, ""name"": ""new.example.com""}, ""value"": true}]}"
+An editor can delete a farm host.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:farm-delete-host,"{""id"": 1, ""host_id"": 1}",,204,"{""exists"": [{""model"": ""promgen.host"", ""filters"": {""farm_id"": 1, ""name"": ""new.example.com""}, ""value"": false}]}"
+An editor can sync a remote farm.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",POST,api-v2:farm-sync,"{""id"": 2}",,200,
+An editor can convert a remote farm to local.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",POST,api-v2:farm-convert-to-local-farm,"{""id"": 2}",,200,
+An editor cannot sync a local farm.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",POST,api-v2:farm-sync,"{""id"": 1}",,400,
+An editor cannot convert a local farm to local.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",POST,api-v2:farm-convert-to-local-farm,"{""id"": 1}",,400,
+An editor can delete a local farm.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:farm-detail,"{""id"": 1}",,204,

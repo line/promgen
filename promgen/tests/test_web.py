@@ -169,7 +169,7 @@ class WebTests(PromgenTest):
         )
         assign_perm("service_viewer", user_to_merge_from, test_service)
 
-        group = models.Group.objects.create(name="Test Group")
+        group = models.Group.objects.get(pk=1)
         user_to_merge_from.groups.add(group)
         assign_perm("group_admin", user_to_merge_from, group)
         assign_perm("group_member", user_to_merge_into, group)

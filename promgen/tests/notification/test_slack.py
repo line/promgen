@@ -18,13 +18,14 @@ class SlackTest(tests.PromgenTest):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=2)
         self.user = self.force_login(username="demo")
+        permission = Permission.objects.get(codename="process_alert")
+        self.user.user_permissions.add(permission)
+        # Firstly, clear all Sender data in test database to ensure avoiding data conflicts
+        # without having to make too many changes in old tests.
+        models.Sender.objects.all().delete()
 
         NotificationSlack.create(obj=one, value=self.TestHook1, owner=self.user)
         NotificationSlack.create(obj=two, value=self.TestHook2, owner=self.user)
-
-        self.user = self.force_login(username="demo")
-        permission = Permission.objects.get(codename="process_alert")
-        self.user.user_permissions.add(permission)
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)

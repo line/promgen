@@ -1,0 +1,9 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user receives an HTTP 401 Unauthorized error when accessing the audit log.,,,GET,api-v2:audit-list,,,401,
+User without permissions sees no audit logs.,demo,,GET,api-v2:audit-list,,,200,"{""count"":0}"
+User with permissions can view the audit list.,demo,"[{""codename"":""project_viewer"",""model"":""promgen.project"",""obj_pk"":1},{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:audit-list,,,200,"{""example"":""rest.audit.list.json""}"
+User can view the paginated audit list.,demo,"[{""codename"":""project_viewer"",""model"":""promgen.project"",""obj_pk"":1},{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:audit-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_len"":1}"
+User can filter audits by content_type.,demo,"[{""codename"":""project_viewer"",""model"":""promgen.project"",""obj_pk"":1},{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:audit-list,,"{""content_type"": ""service""}",200,"{""count"":1}"
+Invalid content_type returns 400.,demo,"[{""codename"":""project_viewer"",""model"":""promgen.project"",""obj_pk"":1},{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:audit-list,,"{""content_type"": ""non-allowed""}",400,
+User can filter audits by object_id.,demo,"[{""codename"":""project_viewer"",""model"":""promgen.project"",""obj_pk"":1},{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:audit-list,,"{""object_id"": ""1""}",200,"{""count"":2}"
+User can filter audits by user.,demo,"[{""codename"":""project_viewer"",""model"":""promgen.project"",""obj_pk"":1},{""codename"":""service_viewer"",""model"":""promgen.service"",""obj_pk"":1}]",GET,api-v2:audit-list,,"{""user"": ""demo""}",200,"{""count"":1}"

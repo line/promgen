@@ -22,6 +22,12 @@ groups:
     for: 1s
     labels:
       severity: high
+  - alert: Site Rule
+    annotations:
+      rule: https://promgen.example.com/rule/3
+    expr: up == 1
+    for: 1m
+    labels: {}
 """.lstrip().encode("utf-8")
 
 TEST_SETTINGS = tests.Data("examples", "promgen.yml").yaml()
@@ -57,7 +63,7 @@ class RuleTest(tests.PromgenTest):
 
         # Includes count of our setUp rule + imported rules
         self.assertRoute(response, views.RuleImport, status=200)
-        self.assertCount(models.Rule, 3, "Missing Rule")
+        self.assertCount(models.Rule, 5, "Missing Rule")
 
     @skip
     @override_settings(PROMGEN=TEST_SETTINGS)
@@ -98,8 +104,8 @@ class RuleTest(tests.PromgenTest):
             {"rules": tests.Data("examples", "import.rule.yml").raw()},
         )
 
-        # Should only be a single rule from our initial setup
-        self.assertCount(models.Rule, 1, "Missing Rule")
+        # Should only be number of rules from our initial setup
+        self.assertCount(models.Rule, 3, "Missing Rule")
 
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_macro(self, mock_post):

@@ -9,3 +9,9 @@ groups:
         for: 1s
         labels:
           severity: high
+      - alert: Site Rule
+        annotations:
+          rule: http://promgen.example.com/rule/3
+        expr: up == 1
+        for: 1m
+        labels: {}

@@ -61,6 +61,7 @@ INSTALLED_APPS = apps_from_setuptools + [
     "promgen",
     # Third Party
     "django_filters",
+    "drf_spectacular",
     "rest_framework.authtoken",
     "rest_framework",
     "social_django",
@@ -196,6 +197,8 @@ REST_FRAMEWORK = {
         "promgen.permissions.ReadOnlyForAuthenticatedUserOrIsSuperuser",
     ),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_SCHEMA_CLASS": "promgen.schemas.CustomSchema",
+    "EXCEPTION_HANDLER": "promgen.middleware.custom_exception_handler",
 }
 
 # If CELERY_BROKER_URL is set in our environment, then we configure celery as
@@ -226,6 +229,13 @@ AUTHENTICATION_BACKENDS = (
 
 # Maximum time to wait for all scraping operations to complete (in seconds)
 PROMGEN_EXPORTER_SCRAPE_TIMEOUT = env.int("PROMGEN_EXPORTER_SCRAPE_TIMEOUT", default=25)
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Promgen API",
+    "VERSION": PROMGEN_VERSION,
+}
+
+ENABLE_API_LOGGING = env.bool("ENABLE_API_LOGGING", default=False)
 
 # Load overrides from PROMGEN to replace Django settings
 for k, v in PROMGEN.pop("django", {}).items():

@@ -2,16 +2,12 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import collections
-import concurrent.futures
-import datetime
 import json
 import logging
 import platform
-import time
 from itertools import chain
 
 import prometheus_client
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -33,7 +29,6 @@ from django.views.generic.edit import CreateView, DeleteView, FormView
 from guardian.models import GroupObjectPermission
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
-from prometheus_client.parser import text_string_to_metric_families
 from rest_framework.authtoken.models import Token
 
 import promgen.templatetags.promgen as macro
@@ -51,7 +46,6 @@ from promgen import (
 )
 from promgen.forms import GroupMemberForm, UserPermissionForm
 from promgen.mixins import PromgenGuardianPermissionMixin
-from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
 
@@ -907,59 +901,12 @@ class ExporterScrape(LoginRequiredMixin, View):
         if not has_perm:
             return JsonResponse({"error": "You do not have permission to perform this action."})
 
-        farm = getattr(project, "farm", None)
-
-        # So we have a mutable dictionary
-        data = request.POST.dict()
-
-        # The default __metrics_path__ for Prometheus is /metrics so we need to
-        # manually add it here in the case it's not set for our test
-        if not data.setdefault("path", "/metrics"):
-            data["path"] = "/metrics"
-
-        def query():
-            futures = []
-            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-                for host in farm.host_set.all():
-                    futures.append(
-                        executor.submit(
-                            util.scrape,
-                            "{scheme}://{host}:{port}{path}".format(host=host.name, **data),
-                        )
-                    )
-                try:
-                    for future in concurrent.futures.as_completed(
-                        futures, timeout=settings.PROMGEN_EXPORTER_SCRAPE_TIMEOUT
-                    ):
-                        try:
-                            result = future.result()
-                            result.raise_for_status()
-                            metrics = list(text_string_to_metric_families(result.text))
-                            yield (
-                                result.url,
-                                {
-                                    "status_code": result.status_code,
-                                    "metric_count": len(list(metrics)),
-                                },
-                            )
-                        except ValueError as e:
-                            yield result.url, f"Unable to parse metrics: {e}"
-                        except requests.ConnectionError as e:
-                            logger.warning("Error connecting to server")
-                            yield e.request.url, "Error connecting to server"
-                        except requests.RequestException as e:
-                            logger.warning("Error with response")
-                            yield e.request.url, str(e)
-                        except Exception:
-                            logger.exception("Unknown Exception")
-                            yield "Unknown URL", "Unknown error"
-                except concurrent.futures.TimeoutError:
-                    for future in futures:
-                        future.cancel()
-                    yield "error", "Scrape timed out. Some requests may not have completed."
+        data = request.POST.copy()
 
         try:
-            return JsonResponse(dict(query()))
+            return JsonResponse(
+                project.scrape(scheme=data["scheme"], path=data["path"], port=data["port"])
+            )
         except Exception as e:
             return JsonResponse({"error": "Error with query %s" % e})
 
@@ -1812,74 +1759,7 @@ class RuleTest(LoginRequiredMixin, View):
         else:
             rule = get_object_or_404(models.Rule, id=pk)
 
-        # Default values in case we do not have a more specific content_type to test against
-        expected_labels = {
-            "service": set(),
-            "project": set(),
-        }
-        unexpected_labels = collections.defaultdict(set)
-
-        # Given our current rule, we want to see what service/project it will affect, so that we can
-        # check our test query output for labels outside our expected match
-        if rule.content_type.model == "service":
-            # for a service rule, we expect the current service and all child projects as expected
-            expected_labels["service"] = {rule.content_object.name}
-            expected_labels["project"] = {
-                project.name for project in rule.content_object.project_set.all()
-            }
-
-        if rule.content_type.model == "project":
-            # for a project rule we expect only the current project and the parent service
-            expected_labels["service"] = {rule.content_object.service.name}
-            expected_labels["project"] = {rule.content_object.name}
-
-        query = macro.rulemacro(rule, request.POST["query"])
-        # Since our rules affect all servers we use Promgen's proxy-query to test our rule
-        # against all the servers at once
-        url = resolve_domain("proxy-query")
-
-        logger.debug("Querying %s with %s", url, query)
-        start = time.time()
-        result = util.get(url, {"query": query}).json()
-        result["duration"] = datetime.timedelta(seconds=(time.time() - start))
-        result["query"] = query
-
-        # TODO: This could be more robust, but for now this ensures failed queries
-        # without a 'data' field get processed
-        metrics = result.get("data", {}).setdefault("result", [])
-        result["firing"] = len(metrics) > 0
-        errors = result.setdefault("errors", {})
-
-        for row in metrics:
-            if "service" not in row["metric"] and "project" not in row["metric"]:
-                errors["routing"] = (
-                    "Some metrics are missing service and project labels. "
-                    "Promgen will be unable to route message."
-                )
-
-            for label in expected_labels:
-                if label in row["metric"]:
-                    if (
-                        expected_labels[label]
-                        and row["metric"][label] not in expected_labels[label]
-                    ):
-                        unexpected_labels[label].add(row["metric"][label])
-
-        # For each key in our unexpected_labels, we want to go through the returned
-        # values and check to see if it is an expected one or not.
-        for label in unexpected_labels:
-            if unexpected_labels[label]:
-                result["severity"] = "danger"
-                errors[f"unrelated_{label}"] = (
-                    f"Unrelated {label} labels found\n"
-                    f"Expected: {expected_labels[label]}\n"
-                    f"Found: {unexpected_labels[label]}"
-                )
-
-        # Place this at the bottom to have a query error show up as danger
-        if result["status"] != "success":
-            result["severity"] = "danger"
-            errors["Query"] = result["error"]
+        result = rule.test(request.POST["query"])
 
         return JsonResponse(
             {request.POST["target"]: render_to_string("promgen/ajax_clause_check.html", result)}
