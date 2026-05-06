@@ -709,3 +709,10 @@ class RuleTestResultSerializer(serializers.Serializer):
     duration = serializers.DurationField(read_only=True)
     firing = serializers.BooleanField(read_only=True)
     errors = serializers.DictField(child=serializers.CharField(), read_only=True)
+
+
+class ProjectExporterScrapeResultSerializer(serializers.Serializer):
+    url = serializers.URLField(read_only=True)
+    status_code = serializers.IntegerField(read_only=True)
+    metric_count = serializers.IntegerField(read_only=True)
+    error = serializers.CharField(read_only=True)

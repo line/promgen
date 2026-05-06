@@ -285,6 +285,69 @@ class Project(models.Model):
     def __str__(self):
         return f"{self.service} » {self.name}"
 
+    def scrape(self, scheme, port, path=None):
+        import concurrent.futures
+
+        import requests
+        from prometheus_client.parser import text_string_to_metric_families
+
+        from promgen import util
+
+        farm = self.farm
+
+        # The default __metrics_path__ for Prometheus is /metrics so we need to
+        # manually add it here in the case it's not set for our test
+        if path is None or path == "":
+            path = "/metrics"
+
+        def query():
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+                for host in farm.host_set.all():
+                    futures.append(
+                        executor.submit(
+                            util.scrape,
+                            "{scheme}://{host}:{port}{path}".format(
+                                host=host.name, scheme=scheme, port=port, path=path
+                            ),
+                        )
+                    )
+                try:
+                    for future in concurrent.futures.as_completed(
+                        futures, timeout=settings.PROMGEN_EXPORTER_SCRAPE_TIMEOUT
+                    ):
+                        try:
+                            result = future.result()
+                            result.raise_for_status()
+                            metrics = list(text_string_to_metric_families(result.text))
+                            yield (
+                                result.url,
+                                {
+                                    "status_code": result.status_code,
+                                    "metric_count": len(list(metrics)),
+                                },
+                            )
+                        except ValueError as e:
+                            yield result.url, f"Unable to parse metrics: {e}"
+                        except requests.ConnectionError as e:
+                            logger.warning("Error connecting to server")
+                            yield e.request.url, {"error": "Error connecting to server"}
+                        except requests.RequestException as e:
+                            logger.warning("Error with response")
+                            yield e.request.url, {"error": str(e)}
+                        except Exception:
+                            logger.exception("Unknown Exception")
+                            yield "Unknown URL", {"error": "Unknown error"}
+                except concurrent.futures.TimeoutError:
+                    for future in futures:
+                        future.cancel()
+                    yield (
+                        "error",
+                        {"error": "Scrape timed out. Some requests may not have completed."},
+                    )
+
+        return dict(query())
+
 
 class Farm(models.Model):
     name = models.CharField(max_length=128, validators=[validators.labelvalue])

@@ -1044,6 +1044,37 @@ class ProjectViewSet(
             status=HTTPStatus.CREATED,
         )
 
+    @extend_schema(
+        summary="Scrape Exporter",
+        description="Scrape the specified project exporter and return the results.",
+        parameters=[
+            OpenApiParameter(
+                name="scheme",
+                type=str,
+            ),
+            OpenApiParameter(
+                name="port",
+                type=int,
+            ),
+            OpenApiParameter(
+                name="path",
+                type=str,
+            ),
+        ],
+        responses=serializers.ProjectExporterScrapeResultSerializer(many=True),
+    )
+    @action(
+        detail=True, methods=["get"], url_path="scrape", pagination_class=None, filterset_class=None
+    )
+    def scrape(self, request, id):
+        project = self.get_object()
+        scheme = request.query_params.get("scheme")
+        port = request.query_params.get("port")
+        path = request.query_params.get("path")
+        results = project.scrape(scheme=scheme, port=port, path=path)
+        payload = [{"url": url, **value} for url, value in results.items()]
+        return Response(serializers.ProjectExporterScrapeResultSerializer(payload, many=True).data)
+
 
 @extend_schema_view(
     list=extend_schema(

@@ -2,14 +2,12 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import collections
-import concurrent.futures
 import json
 import logging
 import platform
 from itertools import chain
 
 import prometheus_client
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -31,7 +29,6 @@ from django.views.generic.edit import CreateView, DeleteView, FormView
 from guardian.models import GroupObjectPermission
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily
-from prometheus_client.parser import text_string_to_metric_families
 from rest_framework.authtoken.models import Token
 
 import promgen.templatetags.promgen as macro
@@ -904,59 +901,12 @@ class ExporterScrape(LoginRequiredMixin, View):
         if not has_perm:
             return JsonResponse({"error": "You do not have permission to perform this action."})
 
-        farm = getattr(project, "farm", None)
-
-        # So we have a mutable dictionary
-        data = request.POST.dict()
-
-        # The default __metrics_path__ for Prometheus is /metrics so we need to
-        # manually add it here in the case it's not set for our test
-        if not data.setdefault("path", "/metrics"):
-            data["path"] = "/metrics"
-
-        def query():
-            futures = []
-            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-                for host in farm.host_set.all():
-                    futures.append(
-                        executor.submit(
-                            util.scrape,
-                            "{scheme}://{host}:{port}{path}".format(host=host.name, **data),
-                        )
-                    )
-                try:
-                    for future in concurrent.futures.as_completed(
-                        futures, timeout=settings.PROMGEN_EXPORTER_SCRAPE_TIMEOUT
-                    ):
-                        try:
-                            result = future.result()
-                            result.raise_for_status()
-                            metrics = list(text_string_to_metric_families(result.text))
-                            yield (
-                                result.url,
-                                {
-                                    "status_code": result.status_code,
-                                    "metric_count": len(list(metrics)),
-                                },
-                            )
-                        except ValueError as e:
-                            yield result.url, f"Unable to parse metrics: {e}"
-                        except requests.ConnectionError as e:
-                            logger.warning("Error connecting to server")
-                            yield e.request.url, "Error connecting to server"
-                        except requests.RequestException as e:
-                            logger.warning("Error with response")
-                            yield e.request.url, str(e)
-                        except Exception:
-                            logger.exception("Unknown Exception")
-                            yield "Unknown URL", "Unknown error"
-                except concurrent.futures.TimeoutError:
-                    for future in futures:
-                        future.cancel()
-                    yield "error", "Scrape timed out. Some requests may not have completed."
+        data = request.POST.copy()
 
         try:
-            return JsonResponse(dict(query()))
+            return JsonResponse(
+                project.scrape(scheme=data["scheme"], path=data["path"], port=data["port"])
+            )
         except Exception as e:
             return JsonResponse({"error": "Error with query %s" % e})
 
