@@ -709,3 +709,9 @@ class SiteRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Site
         fields = "__all__"
+
+
+class RuleTestResultSerializer(serializers.Serializer):
+    duration = serializers.DurationField(read_only=True)
+    firing = serializers.BooleanField(read_only=True)
+    errors = serializers.DictField(child=serializers.CharField(), read_only=True)
