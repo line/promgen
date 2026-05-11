@@ -72,7 +72,7 @@ services:
       --config.file=/etc/alertmanager/alertmanager.yml
       --log.level=info
     volumes:
-      - ./docker:/etc/prometheus
+      - ./docker/alertmanager.yml:/etc/alertmanager/alertmanager.yml
 
   mysql:
     image: mysql:8
