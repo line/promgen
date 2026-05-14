@@ -1,0 +1,35 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list rules.,,,GET,api-v2:rule-list,,,401,
+An unauthenticated user cannot view rule detail.,,,GET,api-v2:rule-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot update rule detail.,,,PUT,api-v2:rule-detail,"{""id"": 1}",{},401,
+An unauthenticated user cannot partially update rule detail.,,,PATCH,api-v2:rule-detail,"{""id"": 1}",{},401,
+An unauthenticated user cannot delete rule detail.,,,DELETE,api-v2:rule-detail,"{""id"": 1}",,401,
+An authenticated user without permissions can view only the Site Rule.,demo,,GET,api-v2:rule-list,,,200,"{""count"": 1}"
+An authenticated user without permissions can view Site Rule detail.,demo,,GET,api-v2:rule-detail,"{""id"": 3}",,200,
+An authenticated user without permissions cannot update Site Rule detail.,demo,,PUT,api-v2:rule-detail,"{""id"": 3}",,403,
+An authenticated user without permissions cannot partially update Site Rule detail.,demo,,PATCH,api-v2:rule-detail,"{""id"": 3}",,403,
+An authenticated user without permissions cannot delete Site Rule detail.,demo,,DELETE,api-v2:rule-detail,"{""id"": 3}",,403,
+An authenticated user without permissions cannot view project or service rule detail.,demo,,GET,api-v2:rule-detail,"{""id"": 1}",,403,
+A viewer can list rules.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-list,,,200,"{""example"": ""rest.rule.list.json""}"
+A viewer can get paginated rule results.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
+A viewer can filter rules by content_type.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-list,,"{""content_type"": ""service""}",200,"{""results_length"": 1}"
+An invalid content_type returns HTTP 400.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-list,,"{""content_type"": ""non-allowed""}",400,
+A viewer can filter rules by object_id.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-list,,"{""object_id"": ""1""}",200,"{""results_length"": 3}"
+A viewer can filter rules by enabled state.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-list,,"{""enabled"": ""true""}",200,"{""results_length"": 2}"
+A viewer can filter rules by parent rule name.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-list,,"{""parent"": ""Test Rule""}",200,"{""results_length"": 1}"
+A viewer can view rule detail.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:rule-detail,"{""id"": 1}",,200,"{""example"": ""rest.rule.detail.json""}"
+A viewer cannot update a rule.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:rule-detail,"{""id"": 1}","{""annotations"": {""summary"": ""Test Rule Summary""}, ""clause"": ""up == 1"", ""description"": ""Test Rule Description"", ""duration"": ""5m"", ""enabled"": false, ""labels"": {""severity"": ""critical""}, ""name"": ""TestRuleUpdated""}",403,
+A viewer cannot partially update a rule.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PATCH,api-v2:rule-detail,"{""id"": 2}","{""enabled"": true}",403,
+A viewer cannot delete a rule.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",DELETE,api-v2:rule-detail,"{""id"": 1}",,403,
+An editor can update a rule.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:rule-detail,"{""id"": 1}","{""annotations"": {""summary"": ""Test Rule Summary""}, ""clause"": ""up == 1"", ""description"": ""Test Rule Description"", ""duration"": ""5m"", ""enabled"": false, ""labels"": {""severity"": ""critical""}, ""name"": ""TestRuleUpdated""}",200,
+An editor can partially update a rule.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PATCH,api-v2:rule-detail,"{""id"": 2}","{""enabled"": true}",200,
+An editor can delete a rule.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",DELETE,api-v2:rule-detail,"{""id"": 1}",,204,
+An editor cannot update a Site Rule.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:rule-detail,"{""id"": 3}","{""annotations"": {""summary"": ""Test Rule Summary""}, ""clause"": ""up == 1"", ""description"": ""Test Rule Description"", ""duration"": ""5m"", ""enabled"": false, ""labels"": {""severity"": ""critical""}, ""name"": ""TestRuleUpdated""}",403,
+An editor cannot partially update a Site Rule.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PATCH,api-v2:rule-detail,"{""id"": 3}","{""enabled"": true}",403,
+An editor cannot delete a Site Rule.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",DELETE,api-v2:rule-detail,"{""id"": 3}",,403,
+A service admin cannot update a Site Rule.,demo,"[{""codename"": ""service_admin"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:rule-detail,"{""id"": 3}","{""annotations"": {""summary"": ""Test Rule Summary""}, ""clause"": ""up == 1"", ""description"": ""Test Rule Description"", ""duration"": ""5m"", ""enabled"": false, ""labels"": {""severity"": ""critical""}, ""name"": ""TestRuleUpdated""}",403,
+A service admin cannot partially update a Site Rule.,demo,"[{""codename"": ""service_admin"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PATCH,api-v2:rule-detail,"{""id"": 3}","{""enabled"": true}",403,
+A service admin cannot delete a Site Rule.,demo,"[{""codename"": ""service_admin"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",DELETE,api-v2:rule-detail,"{""id"": 3}",,403,
+An Site Admin can update a Site Rule.,admin,"",PUT,api-v2:rule-detail,"{""id"": 3}","{""annotations"": {""summary"": ""Test Rule Summary""}, ""clause"": ""up == 1"", ""description"": ""Test Rule Description"", ""duration"": ""5m"", ""enabled"": false, ""labels"": {""severity"": ""critical""}, ""name"": ""TestRuleUpdated""}",200,
+An Site Admin can partially update a Site Rule.,admin,"",PATCH,api-v2:rule-detail,"{""id"": 3}","{""enabled"": true}",200,
+An Site Admin can delete a Site Rule.,admin,"",DELETE,api-v2:rule-detail,"{""id"": 3}",,204,

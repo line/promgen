@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load promgen %}
+  {% block content %}
+    <div class="page-header promgen-flex-space-between-center">
+      <h1>API v2 Specification</h1>
+      <a href="{% url 'api-v2-schema' %}" download class="btn btn-primary btn-sm mb-4">
+        Download API Schema
+      </a>
+    </div>
+{% breadcrumb label="API v2" %}
+{% if not api_token %}
+<p class="alert alert-warning" role="alert">
+  The API Token is not set. Please access the <a href="{% url 'profile' %}">Profile</a> page
+  to generate one.
+</p>
+{% endif %}
+
+<div class="panel panel-default">
+  <div class="panel-body">
+    <rapi-doc
+            id="rapidoc"
+            allow-authentication="false"
+            allow-server-selection="false"
+            api-key-location="header"
+            api-key-name="Authorization"
+            api-key-value="Token {{ api_token }}"
+            bg-color="#ffffff"
+            mono-font="monospace"
+            nav-bg-color="#f5f5f5"
+            primary-color="#0d6efd"
+            regular-font="inherit"
+            schema-description-expanded="true"
+            show-curl-before-try="true"
+            show-header="false"
+            show-info="false"
+            show-method-in-nav-bar="as-colored-text"
+            sort-endpoints-by="method"
+            sort-tags="true"
+            spec-url="{{ schema_url }}"
+    >
+    </rapi-doc>
+  </div>
+</div>
+  {% endblock %}

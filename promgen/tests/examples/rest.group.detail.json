@@ -1,0 +1,25 @@
+{
+  "id": 1,
+  "name": "Test Group",
+  "members": [
+    {
+      "email": "admin@example.com",
+      "id": 1,
+      "role": "ADMIN",
+      "username": "admin"
+    },
+    {
+      "email": "demo@example.com",
+      "id": 2,
+      "role": "MEMBER",
+      "username": "demo"
+    }
+  ],
+  "assigned_resources": [
+    {
+      "content_type": "service",
+      "name": "test-service",
+      "role": "ADMIN"
+    }
+  ]
+}

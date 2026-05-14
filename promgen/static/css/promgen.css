@@ -150,3 +150,15 @@ a[rel]:after {
 .mr-3 { margin-right: 1rem !important; }
 .mr-4 { margin-right: 1.5rem !important; }
 .mr-5 { margin-right: 3rem !important; }
+
+/* RapiDoc: Use Bootstrap colors for buttons */
+rapi-doc::part(btn) {
+    color: #fff;
+    background-color: #337ab7;
+    border: none;
+}
+
+/* RapiDoc: Fix missing operations navbar item issue */
+rapi-doc::part(section-navbar-item section-navbar-operations-top) {
+    display: flex;
+}
