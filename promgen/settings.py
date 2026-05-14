@@ -52,8 +52,9 @@ else:
 
 PROMGEN_SCHEME = env.str("PROMGEN_SCHEME", default="http")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["127.0.0.1", "localhost"])
-
+ALLOWED_HOSTS = env.list(
+    "ALLOWED_HOSTS", default=["127.0.0.1", "localhost", "host.docker.internal"]
+)
 
 # Application definition
 
@@ -91,6 +92,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "promgen.middleware.PromgenMiddleware",
+    "promgen.middleware.PromgenMonitoringMiddleware",
 ]
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG

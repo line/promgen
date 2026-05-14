@@ -19,15 +19,18 @@ caching system to set a key and then triggering the actual event from middleware
 
 import logging
 import uuid
+from datetime import datetime
 from http import HTTPStatus
 from threading import local
 
 from django.contrib import messages
+from django.contrib.admindocs.views import simplify_regex
 from django.db.models import prefetch_related_objects
 from django.http import JsonResponse
+from django.urls import resolve
 from rest_framework import exceptions, views
 
-from promgen import models, settings
+from promgen import metrics, models, settings
 from promgen.signals import trigger_write_config, trigger_write_rules, trigger_write_urls
 
 logger = logging.getLogger(__name__)
@@ -170,3 +173,42 @@ def custom_exception_handler(exc, context):
         return exceptions.server_error(context["request"])
 
     return response
+
+
+class PromgenMonitoringMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        try:
+            method = request.method
+            endpoint = simplify_regex(resolve(request.path_info).route)
+            started_time = datetime.now()
+
+            response = self.get_response(request)
+
+            finished_time = datetime.now()
+            status_code = str(response.status_code)
+
+            metrics.observe(
+                "promgen_requests_total",
+                label_values={
+                    "endpoint": endpoint,
+                    "method": method,
+                    "status_code": status_code,
+                },
+                value=1,
+            )
+            metrics.observe(
+                name="promgen_requests_duration_seconds",
+                label_values={
+                    "endpoint": endpoint,
+                    "method": method,
+                },
+                value=(finished_time - started_time).total_seconds(),
+            )
+
+            return response
+
+        except Exception as e:
+            logger.error(f"Failed to record metric: {e}")
