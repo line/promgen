@@ -18,12 +18,15 @@ caching system to set a key and then triggering the actual event from middleware
 """
 
 import logging
+import socket
+from datetime import datetime
 from threading import local
 
 from django.contrib import messages
+from django.contrib.admindocs.views import simplify_regex
 from django.db.models import prefetch_related_objects
 
-from promgen import models
+from promgen import metrics, models
 from promgen.signals import trigger_write_config, trigger_write_rules, trigger_write_urls
 
 logger = logging.getLogger(__name__)
@@ -67,3 +70,41 @@ class PromgenMiddleware:
 
 def get_current_user():
     return getattr(_user, "value", None)
+
+
+class PromgenMonitoringMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        started_time = datetime.now()
+        response = self.get_response(request)
+        finished_time = datetime.now()
+
+        if request.resolver_match:
+            endpoint = simplify_regex(request.resolver_match.route)
+            method = request.method
+            status_code = str(response.status_code)
+
+            metrics.observe(
+                "promgen_requests_total",
+                label_values={
+                    "endpoint": endpoint,
+                    "hostname": socket.gethostname(),
+                    "method": method,
+                    "status_code": status_code,
+                },
+                value=1,
+            )
+
+            metrics.observe(
+                name="promgen_requests_duration_seconds",
+                label_values={
+                    "endpoint": endpoint,
+                    "hostname": socket.gethostname(),
+                    "method": method,
+                },
+                value=(finished_time - started_time).total_seconds(),
+            )
+
+        return response
