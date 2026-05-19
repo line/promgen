@@ -90,6 +90,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "promgen.middleware.PromgenMiddleware",
+    "promgen.middleware.PromgenMonitoringMiddleware",
 ]
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = DEBUG
