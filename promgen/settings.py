@@ -197,6 +197,7 @@ REST_FRAMEWORK = {
         "promgen.permissions.ReadOnlyForAuthenticatedUserOrIsSuperuser",
     ),
     "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
+    "DEFAULT_SCHEMA_CLASS": "promgen.schemas.CustomSchema",
 }
 
 # If CELERY_BROKER_URL is set in our environment, then we configure celery as

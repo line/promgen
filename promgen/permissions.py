@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.utils.itercompat import is_iterable
 from guardian.shortcuts import get_objects_for_user
 from rest_framework import permissions
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from promgen import models
 
@@ -197,3 +197,39 @@ def get_highest_role(user: User, obj):
                 return role
 
     return None
+
+
+class PromgenGuardianRestPermission(BasePermission):
+    PERMISSION_MANAGEMENT_ACTIONS = ["assign_user", "remove_user", "assign_group", "remove_group"]
+
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated)
+
+    def has_object_permission(self, request, view, obj):
+        if view.action in self.PERMISSION_MANAGEMENT_ACTIONS:
+            perms = ["project_admin", "service_admin"]
+        elif request.method == "DELETE" and isinstance(obj, (models.Project, models.Service)):
+            perms = ["project_admin", "service_admin"]
+        elif request.method not in SAFE_METHODS:
+            perms = [
+                "project_editor",
+                "project_admin",
+                "service_editor",
+                "service_admin",
+                "group_admin",
+            ]
+        else:
+            # Always allow user to view the site rule
+            if isinstance(obj, models.Rule) and isinstance(obj.content_object, models.Site):
+                return True
+            perms = [
+                "project_viewer",
+                "project_editor",
+                "project_admin",
+                "service_viewer",
+                "service_editor",
+                "service_admin",
+                "group_member",
+                "group_admin",
+            ]
+        return has_perm(request.user, perms, obj)

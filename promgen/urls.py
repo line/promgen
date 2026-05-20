@@ -21,7 +21,7 @@ from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import routers
 
-from promgen import proxy, rest, views
+from promgen import proxy, rest, rest_v2, views
 
 router = routers.DefaultRouter()
 router.register("all", rest.AllViewSet, basename="all")
@@ -30,6 +30,7 @@ router.register("shard", rest.ShardViewSet)
 router.register("project", rest.ProjectViewSet)
 router.register("farm", rest.FarmViewSet)
 
+v2_router = rest_v2.Router()
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -141,6 +142,7 @@ urlpatterns = [
     path("proxy/v2/silences", csrf_exempt(proxy.ProxySilencesV2.as_view()), name="proxy-silence-v2"),
     # Promgen rest API
     path("rest/", include((router.urls, "api"), namespace="api")),
+    path("rest/v2/", include((v2_router.urls, "api-v2"), namespace="api-v2")),
 ]
 
 try:
