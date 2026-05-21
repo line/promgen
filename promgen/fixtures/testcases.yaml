@@ -19,6 +19,18 @@
     password: demo
     email: demo@example.com
     is_active: true
+- model: authtoken.token
+  pk: 1
+  fields:
+    user: 1
+    key: admin_token
+    created: 2024-03-18T00:00:00Z
+- model: authtoken.token
+  pk: 2
+  fields:
+    user: 2
+    key: demo_token
+    created: 2024-03-18T00:00:00Z
 - model: promgen.shard
   pk: 1
   fields:
@@ -79,3 +91,19 @@
     project: 1
     probe: 1
     url: probe.example.com
+- model: promgen.audit
+  pk: 1
+  fields:
+    content_type: ["promgen", "service"]
+    object_id: 1
+    body: "Created test-service"
+    user: 1
+    created: 2024-03-19T00:00:00Z
+- model: promgen.audit
+  pk: 2
+  fields:
+    content_type: ["promgen", "project"]
+    object_id: 1
+    body: "Updated test-project"
+    user: 2
+    created: 2024-03-19T01:00:00Z
