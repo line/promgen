@@ -30,7 +30,7 @@ router.register("shard", rest.ShardViewSet)
 router.register("project", rest.ProjectViewSet)
 router.register("farm", rest.FarmViewSet)
 
-v2_router = rest_v2.Router()
+v2_router = rest_v2.Router(trailing_slash=False)
 v2_router.register("logs", rest_v2.AuditViewSet)
 
 urlpatterns = [
