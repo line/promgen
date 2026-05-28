@@ -12,6 +12,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework.authtoken.models import Token
 
 from promgen import models, rest, signals, tests
+from promgen.notification.email import NotificationEmail
 
 
 class RestAPITest(tests.PromgenTest):
@@ -177,3 +178,47 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_audit.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_notifier(self):
+        cases = tests.Data("cases", "test_rest_notifier.csv").csv()
+        for case in cases:
+            self._run_rest_test(case)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_notifier_alias(self):
+        self.user = self.force_login(username="admin")
+        service = models.Service.objects.get(pk=1)
+        notifier = NotificationEmail.create(
+            obj=service, value="true_email@example.com", owner=self.user
+        )
+
+        response = self.client.get(reverse("api-v2:sender-list"), {"value": "true_email"})
+        self.assertEqual(response.data["count"], 1, "Expected one notifier matching the filter")
+        self.assertEqual(
+            response.data["results"][0]["value"],
+            "true_email@example.com",
+            "Expected the notifier's value to match the real email",
+        )
+
+        notifier.alias = "alias"
+        notifier.save()
+
+        response = self.client.get(reverse("api-v2:sender-list"), {"value": "true_email"})
+        self.assertEqual(
+            response.data["count"],
+            0,
+            "Expected no notifiers matching the filter after alias is set",
+        )
+
+        response = self.client.get(reverse("api-v2:sender-list"), {"value": "alias"})
+        self.assertEqual(
+            response.data["count"],
+            1,
+            "Expected one notifier matching the filter after alias is set",
+        )
+        self.assertEqual(
+            response.data["results"][0]["value"],
+            "alias",
+            "Expected the notifier's value to match the alias",
+        )
