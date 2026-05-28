@@ -19,6 +19,12 @@ class LineNotifyTest(tests.PromgenTest):
         NotificationLineNotify.create(obj=one, value="hogehoge", owner=self.user)
         NotificationLineNotify.create(obj=two, value="asdfasdf", owner=self.user)
 
+        # We disable all other senders to ensure that only our LINENotify sender is triggered
+        # during this test.
+        models.Sender.objects.exclude(sender=NotificationLineNotify.__module__).update(
+            enabled=False
+        )
+
         self.user = self.force_login(username="demo")
         permission = Permission.objects.get(codename="process_alert")
         self.user.user_permissions.add(permission)

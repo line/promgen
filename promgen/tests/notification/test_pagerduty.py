@@ -22,6 +22,10 @@ class PagerDutyTest(tests.PromgenTest):
             obj=two, value="PagerDuty Proxy Server:integration_key_test", owner_id=1
         )
 
+        # We disable all other senders to ensure that only our PagerDuty sender is triggered
+        # during this test.
+        models.Sender.objects.exclude(sender=NotificationPagerDuty.__module__).update(enabled=False)
+
         self.user = self.force_login(username="demo")
         permission = Permission.objects.get(codename="process_alert")
         self.user.user_permissions.add(permission)

@@ -20,6 +20,10 @@ class EmailTest(tests.PromgenTest):
         NotificationEmail.create(obj=one, value="foo@example.com", owner=self.user)
         NotificationEmail.create(obj=two, value="bar@example.com", owner=self.user)
 
+        # We disable all other senders to ensure that only our email sender is triggered
+        # during this test.
+        models.Sender.objects.exclude(sender=NotificationEmail.__module__).update(enabled=False)
+
         self.user = self.force_login(username="demo")
         permission = Permission.objects.get(codename="process_alert")
         self.user.user_permissions.add(permission)

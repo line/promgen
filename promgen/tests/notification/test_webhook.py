@@ -16,6 +16,10 @@ class WebhookTest(tests.PromgenTest):
         one = models.Project.objects.get(pk=1)
         two = models.Service.objects.get(pk=1)
 
+        # We disable all other senders to ensure that only our Webhook sender is triggered
+        # during this test.
+        models.Sender.objects.exclude(sender=NotificationWebhook.__module__).update(enabled=False)
+
         self.senderA = NotificationWebhook.create(
             obj=one, value="http://webhook.example.com/project", owner_id=1
         )
@@ -64,7 +68,7 @@ class WebhookTest(tests.PromgenTest):
         self.senderB.filter_set.create(name="severity", value="critical")
         self.senderB.filter_set.create(name="severity", value="major")
 
-        self.assertCount(models.Filter, 3, "Should be three filters")
+        self.assertCount(models.Filter, 4, "Should be four filters (One already exists)")
 
         response = self.fireAlert()
         self.assertRoute(response, rest.AlertReceiver, 202)
