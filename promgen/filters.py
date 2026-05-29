@@ -1,5 +1,10 @@
 import django_filters
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import F, Value
+from django.db.models.functions import Coalesce, NullIf
+
+from promgen import models
 
 
 class ShardFilter(django_filters.rest_framework.FilterSet):
@@ -31,6 +36,8 @@ def filter_content_type(queryset, name, value):
     try:
         if value == "group":
             content_type_id = ContentType.objects.get(model=value, app_label="auth").id
+        elif value == "user":
+            content_type_id = ContentType.objects.get_for_model(User).id
         else:
             content_type_id = ContentType.objects.get(model=value, app_label="promgen").id
 
@@ -84,3 +91,45 @@ class AuditFilter(django_filters.rest_framework.FilterSet):
         method=filter_content_type,
         help_text="Filter by parent content type model name. Example: parent_content_type=service",
     )
+
+
+class NotifierFilter(django_filters.rest_framework.FilterSet):
+    sender = django_filters.ChoiceFilter(
+        field_name="sender",
+        choices=[(module_name, module_name) for module_name, _ in models.Sender.driver_set()],
+        help_text="Filter by sender type. Example: sender=promgen.notification.email",
+    )
+    value = django_filters.CharFilter(
+        method="filter_value",
+        help_text="Filter by value (or alias if present) containing a specific substring. "
+        "Example: value=demo@example.com",
+    )
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.ChoiceFilter(
+        field_name="content_type",
+        choices=[
+            ("service", "Service"),
+            ("project", "Project"),
+            ("user", "User"),
+        ],
+        method=filter_content_type,
+        help_text="Filter by content type model name. Example: content_type=service",
+    )
+    owner = django_filters.CharFilter(
+        field_name="owner__username",
+        lookup_expr="exact",
+        help_text="Filter by exact owner username. Example: owner=Example Owner",
+    )
+
+    def filter_value(self, queryset, name, value):
+        # Annotate the queryset with an effective_value that uses alias if it's not empty,
+        # otherwise falls back to value. This is equivalent to the SQL expression:
+        # WHERE COALESCE(NULLIF(promgen_sender.alias,), promgen_sender.value) LIKE '%value%'
+        queryset = queryset.annotate(
+            effective_value=Coalesce(NullIf(F("alias"), Value("")), F("value"))
+        )
+        return queryset.filter(effective_value__contains=value)

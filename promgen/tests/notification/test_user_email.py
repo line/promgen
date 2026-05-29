@@ -37,12 +37,13 @@ class UserSplayTest(tests.PromgenTest):
         # Since we test the specifics elsewhere, just want to check
         # the count of calls here
         self.assertEqual(mock_post.call_count, 1, "Called LINE Notify")
-        self.assertEqual(mock_email.call_count, 1, "Called email")
+        self.assertEqual(mock_email.call_count, 2, "Called email")
 
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch("promgen.notification.email.send_mail")
-    def test_failed_user(self, mock_email):
+    @mock.patch("promgen.util.post")
+    def test_failed_user(self, mock_email, mock_post):
         # We have one valid sender and one invalid one
         # The invalid one should be skipped while still letting
         # the valid one pass
@@ -60,7 +61,11 @@ class UserSplayTest(tests.PromgenTest):
     @override_settings(PROMGEN=tests.SETTINGS)
     @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
     @mock.patch("promgen.notification.email.send_mail")
-    def test_enabled(self, mock_email):
+    @mock.patch("promgen.util.post")
+    def test_enabled(self, mock_email, mock_post):
+        # We disable all existing senders during this test.
+        models.Sender.objects.update(enabled=False)
+
         one = models.Service.objects.get(pk=1)
 
         # This notification is direct and disabled
