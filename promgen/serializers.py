@@ -220,3 +220,30 @@ class UpdateNotifierSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Sender
         fields = ["enabled"]
+
+
+class RuleRetrieveSimpleSerializer(serializers.ModelSerializer):
+    content_name = serializers.CharField(read_only=True, source="content_object.name")
+    content_type = serializers.CharField(read_only=True, source="content_type.model")
+
+    class Meta:
+        model = models.Rule
+        exclude = (
+            "description",
+            "annotations",
+            "labels",
+            "object_id",
+        )
+
+
+class RuleRetrieveDetailSerializer(serializers.ModelSerializer):
+    content_name = serializers.CharField(read_only=True, source="content_object.name")
+    content_type = serializers.CharField(read_only=True, source="content_type.model")
+
+    class Meta:
+        model = models.Rule
+        fields = "__all__"
+        read_only_fields = (
+            "parent",
+            "object_id",
+        )
