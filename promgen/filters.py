@@ -133,3 +133,35 @@ class NotifierFilter(django_filters.rest_framework.FilterSet):
             effective_value=Coalesce(NullIf(F("alias"), Value("")), F("value"))
         )
         return queryset.filter(effective_value__contains=value)
+
+
+class RuleFilterV2(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by rule name containing a specific substring. Example: name=Example Rule",
+    )
+    parent_rule_id = django_filters.NumberFilter(
+        field_name="parent__id",
+        lookup_expr="exact",
+        help_text="Filter by exact parent rule ID. Example: parent_rule_id=123",
+    )
+    enabled = django_filters.BooleanFilter(
+        field_name="enabled",
+        help_text="Filter by enabled status (true or false). Example: enabled=true",
+    )
+    object_id = django_filters.NumberFilter(
+        field_name="object_id",
+        lookup_expr="exact",
+        help_text="Filter by exact object ID. Example: object_id=123",
+    )
+    content_type = django_filters.ChoiceFilter(
+        field_name="content_type",
+        choices=[
+            ("service", "Service"),
+            ("project", "Project"),
+            ("site", "Site"),
+        ],
+        method=filter_content_type,
+        help_text="Filter by content type model name. Example: content_type=service",
+    )

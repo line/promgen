@@ -1,0 +1,37 @@
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "clause": "up == 1",
+      "content_name": "CI Test",
+      "content_type": "site",
+      "duration": "1m",
+      "enabled": true,
+      "id": 3,
+      "name": "Site Rule",
+      "parent": null
+    },
+    {
+      "clause": "up != 0",
+      "content_name": "test-project",
+      "content_type": "project",
+      "duration": "1m",
+      "enabled": false,
+      "id": 2,
+      "name": "Test Rule 2",
+      "parent": 1
+    },
+    {
+      "clause": "up == 0",
+      "content_name": "test-service",
+      "content_type": "service",
+      "duration": "5m",
+      "enabled": true,
+      "id": 1,
+      "name": "Test Rule",
+      "parent": null
+    }
+  ]
+}

@@ -222,3 +222,9 @@ class RestAPITest(tests.PromgenTest):
             "alias",
             "Expected the notifier's value to match the alias",
         )
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_rule(self):
+        cases = tests.Data("cases", "test_rest_rule.csv").csv()
+        for case in cases:
+            self._run_rest_test(case)
