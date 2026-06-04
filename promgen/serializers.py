@@ -247,3 +247,38 @@ class RuleRetrieveDetailSerializer(serializers.ModelSerializer):
             "parent",
             "object_id",
         )
+
+
+class HostRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Host
+        fields = "__all__"
+
+
+class FarmRetrieveSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+    project_id = serializers.ReadOnlyField(source="project.id")
+    remote = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Farm
+        fields = "__all__"
+        read_only_fields = ("id", "project", "source")
+
+    def get_remote(self, obj) -> bool:
+        return obj.driver.remote
+
+
+class HostListSerializer(serializers.Serializer):
+    hosts = serializers.ListField(
+        child=serializers.CharField(), help_text="List of hostnames to add."
+    )
+
+
+class FarmSourceSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    remote = serializers.BooleanField()
+
+
+class RemoteFarmSerializer(serializers.Serializer):
+    name = serializers.CharField()
