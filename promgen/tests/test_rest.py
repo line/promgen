@@ -157,13 +157,10 @@ class RestAPITest(tests.PromgenTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
-        # Check retrieving farms with a non-existent "source" returns an empty list
+        # Check retrieving farms with a non-existent "source" returns 400 Bad Request
         response = self.client.get(reverse("api:farm-list"), {"source": "other-source"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(response.status_code, 400)
 
-        farm = models.Farm.objects.get(id=1)
-        models.Host.objects.create(name="host.example.com", farm=farm)
         expected = tests.Data("examples", "rest.farm.1.json").json()
 
         # Check retrieving the farm whose "id" is "1", including the list of hosts.
