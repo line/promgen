@@ -198,14 +198,17 @@ class NotifierSerializer(serializers.ModelSerializer):
     content_name = serializers.SerializerMethodField()
     content_type = serializers.ReadOnlyField(source="content_type.model")
     filters = FilterSerializer(many=True, read_only=True, source="filter_set")
-    value = serializers.ReadOnlyField(source="show_value")
+    value = serializers.SerializerMethodField(
+        method_name="get_notifier_value",
+        help_text="If an alias is set, the value will be hidden as null.",
+    )
+    alias = serializers.CharField(
+        help_text="Use to hide the notifier's value from being displayed."
+    )
 
     class Meta:
         model = models.Sender
-        exclude = (
-            "object_id",
-            "alias",
-        )
+        exclude = ("object_id",)
 
     def get_content_name(self, obj) -> str:
         if hasattr(obj, "content_object"):
@@ -214,6 +217,11 @@ class NotifierSerializer(serializers.ModelSerializer):
             if hasattr(obj.content_object, "username"):
                 return obj.content_object.username
         return None
+
+    def get_notifier_value(self, obj) -> str:
+        if obj.alias:
+            return None
+        return obj.value
 
 
 class UpdateNotifierSerializer(serializers.ModelSerializer):

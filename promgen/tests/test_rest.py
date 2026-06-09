@@ -215,10 +215,14 @@ class RestAPITest(tests.PromgenTest):
             1,
             "Expected one notifier matching the filter after alias is set",
         )
-        self.assertEqual(
+        self.assertIsNone(
             response.data["results"][0]["value"],
+            "Expected the notifier's value to be null",
+        )
+        self.assertEqual(
+            response.data["results"][0]["alias"],
             "alias",
-            "Expected the notifier's value to match the alias",
+            "Expected the notifier's alias to match the alias",
         )
 
     @override_settings(PROMGEN=tests.SETTINGS)
