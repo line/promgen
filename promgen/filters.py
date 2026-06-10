@@ -234,3 +234,12 @@ class ProbeFilter(django_filters.rest_framework.FilterSet):
         lookup_expr="contains",
         help_text="Filter by probe module containing a specific substring. Example: probe=http_2xx",
     )
+
+
+class GroupFilter(django_filters.rest_framework.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by group name containing a specific substring. "
+        "Example: name=Example Group",
+    )

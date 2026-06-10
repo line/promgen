@@ -13,6 +13,8 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from drf_spectacular.views import SpectacularAPIView
+from guardian.models import GroupObjectPermission
+from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from rest_framework import mixins, pagination, routers, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
@@ -22,6 +24,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from promgen import discovery, filters, models, permissions, serializers, signals, validators
+from promgen.templatetags import promgen as shortcuts
 
 
 class SpectacularRapiDocView(APIView):
@@ -541,3 +544,176 @@ class ProbeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     lookup_value_regex = "[^/]+"
     pagination_class = PromgenPagination
     permission_classes = [permissions.ReadOnlyForAuthenticatedUserOrIsSuperuser]
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Groups", description="Retrieve a list of all groups."),
+    retrieve=extend_schema(
+        summary="Retrieve Group",
+        description="Retrieve detailed information about a specific group.",
+    ),
+    create=extend_schema(summary="Create Group", description="Create a new group."),
+    update=extend_schema(summary="Update Group", description="Update an existing group."),
+    partial_update=extend_schema(
+        summary="Partially Update Group", description="Partially update an existing group."
+    ),
+    destroy=extend_schema(summary="Delete Group", description="Delete an existing group."),
+)
+@extend_schema(tags=["Group"])
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = models.Group.objects.all()
+    filterset_class = filters.GroupFilter
+    serializer_class = serializers.GroupRetrieveSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        return permissions.get_accessible_groups_for_user(self.request.user)
+
+    @extend_schema(
+        summary="List Members",
+        description="Retrieve a list of all members in the specific group.",
+        responses=serializers.UserWithPermRetrieveSerializer(many=True),
+    )
+    @action(detail=True, methods=["get"], url_path="members")
+    def members(self, request, id):
+        group = self.get_object()
+
+        users_with_perm = shortcuts.get_users_roles(group)
+        members = []
+        for user, perm in users_with_perm:
+            members.append(
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "role": perm[0].upper(),
+                }
+            )
+
+        page = self.paginate_queryset(members)
+        return self.get_paginated_response(
+            serializers.UserWithPermRetrieveSerializer(page, many=True).data
+        )
+
+    @extend_schema(
+        summary="Add Members",
+        description="Add list of members to the group.",
+        request=serializers.AddMemberGroupSerializer,
+        responses={204: None},
+    )
+    @members.mapping.post
+    def add_members(self, request, id):
+        group = self.get_object()
+        serializer = serializers.AddMemberGroupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        already_members = User.objects.filter(
+            Q(id__in=serializer.validated_data["user_ids"])
+            & Q(id__in=group.user_set.values_list("id", flat=True))
+        )
+        new_members = User.objects.filter(id__in=serializer.validated_data["user_ids"]).exclude(
+            id__in=group.user_set.values_list("id", flat=True)
+        )
+
+        if already_members.exists():
+            raise ValidationError(
+                {
+                    "detail": "Users are already members of Group {group}: {users}".format(
+                        group=group.name,
+                        users=[user.username for user in already_members],
+                    )
+                }
+            )
+
+        if new_members.exists():
+            content_type = ContentType.objects.get_for_model(group)
+            permission = content_type.model + "_" + serializer.validated_data["group_role"].lower()
+            for user in new_members:
+                group.user_set.add(user)
+                assign_perm(permission, user, group)
+
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+    @extend_schema(exclude=True)
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path=r"members/(?P<user_id>\d+)",
+        pagination_class=None,
+        filterset_class=None,
+    )
+    def member(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Update Member",
+        description="Change role of a member in the group.",
+        request=serializers.UpdateMemberGroupSerializer,
+        responses={204: None},
+    )
+    @member.mapping.put
+    def update_member(self, request, id, user_id):
+        group = self.get_object()
+        user = User.objects.get(id=user_id)
+        serializer = serializers.UpdateMemberGroupSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if group.user_set.filter(pk=user.pk).exists():
+            content_type = ContentType.objects.get_for_model(group)
+            permission = content_type.model + "_" + serializer.validated_data["group_role"].lower()
+            assign_perm(permission, user, group)
+        else:
+            raise ValidationError({"detail": f"User {user.id} is not a member of the group"})
+
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+    @extend_schema(
+        summary="Remove Member",
+        description="Remove a member from the group.",
+        responses={204: None},
+    )
+    @member.mapping.delete
+    def remove_member(self, request, id, user_id):
+        group = self.get_object()
+        user = User.objects.get(id=user_id)
+
+        if group.user_set.filter(pk=user.pk).exists():
+            permissions = get_perms(user, group)
+            for perm in permissions:
+                remove_perm(perm, user, group)
+            group.user_set.remove(user)
+        else:
+            raise ValidationError({"detail": f"User {user.id} is not a member of the group."})
+
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+    @extend_schema(
+        summary="List Assigned Resources",
+        description="Retrieve a list of all resources assigned with the specific group.",
+        responses=serializers.GroupAssignedResourceSerializer(many=True),
+    )
+    @action(detail=True, methods=["get"], url_path="resources")
+    def resources(self, request, id):
+        group = self.get_object()
+
+        resources = GroupObjectPermission.objects.filter(group=group)
+        assigned_resources = []
+        for resource in resources:
+            assigned_resources.append(
+                {
+                    "content_type": resource.content_type.model,
+                    "object_id": resource.content_object.id,
+                    "name": resource.content_object.name,
+                    "role": resource.permission.codename.split("_")[1].upper(),
+                }
+            )
+
+        page = self.paginate_queryset(assigned_resources)
+        return self.get_paginated_response(
+            serializers.GroupAssignedResourceSerializer(page, many=True).data
+        )
