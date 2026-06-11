@@ -2,6 +2,9 @@ import collections
 
 from dateutil import parser
 from django.db.models import prefetch_related_objects
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
+from guardian.models import UserObjectPermission
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
@@ -347,3 +350,112 @@ class AddMemberGroupSerializer(serializers.Serializer):
 
 class UpdateMemberGroupSerializer(serializers.Serializer):
     group_role = serializers.ChoiceField(choices=["ADMIN", "MEMBER"])
+
+
+class ShardRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Shard
+        exclude = ("authorization",)
+
+
+class ServiceRetrieveSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+
+class GroupWithPermRetrieveSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    role = serializers.CharField()
+
+
+class PermissionAssignSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    role = serializers.ChoiceField(choices=["ADMIN", "EDITOR", "VIEWER"])
+
+
+class ProjectSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class ProjectRetrieveDetailSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    owner_id = serializers.ReadOnlyField(source="owner.id")
+    service = ServiceRetrieveSimpleSerializer()
+    shard = ShardRetrieveSerializer()
+    farm = FarmRetrieveSerializer()
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+
+
+class RegisterFarmToProjectSerializer(serializers.ModelSerializer):
+    source = serializers.CharField()
+    hosts = serializers.ListField(
+        required=False,
+        child=serializers.CharField(),
+        help_text="List of hostnames. Only used when registering a local farm.",
+    )
+
+    class Meta:
+        model = models.Farm
+        fields = ("name", "hosts", "source")
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class ProbeField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            probe = models.Probe.objects.get(module=data)
+        except models.Probe.DoesNotExist:
+            raise serializers.ValidationError("Probe does not exist.")
+        return probe
+
+    def to_representation(self, value):
+        return value.module
+
+
+class RegisterURLToProjectSerializer(serializers.ModelSerializer):
+    probe = ProbeField()
+
+    class Meta:
+        model = models.URL
+        fields = ("url", "probe")
+
+
+class RegisterExporterToProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Exporter
+        fields = ("job", "port", "path", "scheme", "enabled")
+
+
+class RegisterNotifierSerializer(serializers.Serializer):
+    sender = serializers.ChoiceField(choices=[name for name, _ in models.Sender.driver_set()])
+    value = serializers.CharField()
+    alias = serializers.CharField(required=False)
+    enabled = serializers.BooleanField(required=False, default=True)
+    filters = FilterSerializer(many=True, required=False)
+
+
+class UserObjectPermissionSerializer(serializers.ModelSerializer):
+    object = serializers.CharField(source="content_object.name", required=True)
+    permission = serializers.CharField(source="permission.codename", required=True)
+    user = serializers.CharField(source="user.username", required=True)
+
+    class Meta:
+        model = UserObjectPermission
+        fields = ("id", "object", "permission", "user")
+
+
+class GroupObjectPermissionSerializer(serializers.ModelSerializer):
+    object = serializers.CharField(source="content_object.name", required=True)
+    permission = serializers.CharField(source="permission.codename", required=True)
+    group = serializers.CharField(source="group.name", required=True)
+
+    class Meta:
+        model = UserObjectPermission
+        fields = ("id", "group", "object", "permission")
