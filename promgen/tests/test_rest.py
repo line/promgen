@@ -1,6 +1,7 @@
 # Copyright (c) 2018 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
 import json
+from unittest import mock
 
 from django.apps import apps as django_apps
 from django.contrib.auth.models import Permission, User
@@ -11,7 +12,7 @@ from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
 from rest_framework.authtoken.models import Token
 
-from promgen import models, rest, signals, tests
+from promgen import models, plugins, rest, signals, tests
 from promgen.notification.email import NotificationEmail
 
 
@@ -157,13 +158,10 @@ class RestAPITest(tests.PromgenTest):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 0)
 
-        # Check retrieving farms with a non-existent "source" returns an empty list
+        # Check retrieving farms with a non-existent "source" returns 400 Bad Request
         response = self.client.get(reverse("api:farm-list"), {"source": "other-source"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(response.status_code, 400)
 
-        farm = models.Farm.objects.get(id=1)
-        models.Host.objects.create(name="host.example.com", farm=farm)
         expected = tests.Data("examples", "rest.farm.1.json").json()
 
         # Check retrieving the farm whose "id" is "1", including the list of hosts.
@@ -228,3 +226,27 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_rule.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+    def test_rest_farm(self):
+        local_driver = mock.Mock(remote=False)
+        local_driver.name = "promgen"
+        local_driver.load.return_value = mock.Mock(return_value=mock.Mock(remote=False))
+        remote_driver = mock.Mock(remote=True)
+        remote_driver.name = "external"
+        remote_driver.load.return_value = mock.Mock(return_value=mock.Mock(remote=True))
+        with (
+            mock.patch.object(plugins, "discovery", return_value=[local_driver, remote_driver]),
+            mock.patch.object(
+                models.Farm,
+                "driver_set",
+                return_value=[
+                    (local_driver.name, local_driver),
+                    (remote_driver.name, remote_driver),
+                ],
+            ),
+            mock.patch.object(models.Farm, "fetch", return_value=["other-farm", "other-farm-2"]),
+            mock.patch.object(models.Farm, "refresh", return_value=(set(), set())),
+        ):
+            cases = tests.Data("cases", "test_rest_farm.csv").csv()
+            for case in cases:
+                self._run_rest_test(case)
