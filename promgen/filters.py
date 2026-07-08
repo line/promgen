@@ -174,3 +174,34 @@ class RuleFilterV2(django_filters.rest_framework.FilterSet):
         method=filter_content_type,
         help_text="Filter by content type model name. Example: content_type=service",
     )
+
+
+class ExporterFilter(django_filters.rest_framework.FilterSet):
+    project_id = django_filters.NumberFilter(
+        field_name="project__id",
+        lookup_expr="exact",
+        help_text="Filter by exact project ID. Example: project_id=123.",
+    )
+    job = django_filters.CharFilter(
+        field_name="job",
+        lookup_expr="contains",
+        help_text="Filter by job name containing a specific substring. Example: job=prometheus",
+    )
+    path = django_filters.CharFilter(
+        field_name="path",
+        lookup_expr="contains",
+        help_text="Filter by path containing a specific substring. Example: path=/metrics",
+    )
+    scheme = django_filters.ChoiceFilter(
+        field_name="scheme",
+        choices=[
+            ("http", "HTTP"),
+            ("https", "HTTPS"),
+        ],
+        lookup_expr="exact",
+        help_text="Filter by exact scheme. Example: scheme=http",
+    )
+    enabled = django_filters.BooleanFilter(
+        field_name="enabled",
+        help_text="Filter by enabled status (true or false). Example: enabled=true",
+    )
