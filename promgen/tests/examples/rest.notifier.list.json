@@ -17,7 +17,8 @@
       "id": 1,
       "owner": "admin",
       "sender": "promgen.notification.email",
-      "value": "email@example.com"
+      "value": "email@example.com",
+      "alias": ""
     },
     {
       "content_name": "test-project",
@@ -27,7 +28,8 @@
       "id": 2,
       "owner": "demo",
       "sender": "promgen.notification.slack",
-      "value": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX"
+      "value": "https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX",
+      "alias": ""
     }
   ]
 }
