@@ -64,6 +64,7 @@ INSTALLED_APPS = apps_from_setuptools + [
     "rest_framework.authtoken",
     "rest_framework",
     "social_django",
+    "sri",
     "guardian",
     # Django
     "django.forms",

@@ -26,6 +26,7 @@ dependencies = [
     "django-environ",
     "django-filter",
     "django-guardian",
+    "django-sri",
     "djangorestframework",
     "drf-spectacular",
     "kombu",
