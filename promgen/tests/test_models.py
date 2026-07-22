@@ -69,3 +69,52 @@ class ModelTest(PromgenTest):
         new_rule = rule.override(content_type="service", object_id=2)
         self.assertEqual(resolve_domain("rule-detail", rule.pk), rule.annotations["rule"])
         self.assertEqual(resolve_domain("rule-detail", new_rule.pk), new_rule.annotations["rule"])
+
+    @mock.patch("django.dispatch.dispatcher.Signal.send")
+    def test_rule_label(self, mock_post):
+        site = models.Site.objects.get(pk=1)
+        service = models.Service.objects.get(pk=1)
+        project = models.Project.objects.get(pk=1)
+
+        # Check if Site Rule has no "service" and "project" labels when creating a new rule
+        site_rule = models.Rule(
+            name="New Site Rule",
+            content_object=site,
+            clause="up==1",
+            duration="1s",
+            labels={"service": "should-not-be-set", "project": "should-not-be-set"},
+        )
+        site_rule.save()
+        self.assertIsNone(site_rule.labels.get("service", None))
+        self.assertIsNone(site_rule.labels.get("project", None))
+
+        # Check if Service Rule has "service" label when creating a new rule
+        service_rule = models.Rule(
+            name="New Service Rule",
+            content_object=service,
+            clause="up==1",
+            duration="1s",
+        )
+        service_rule.save()
+        self.assertEqual(service_rule.labels.get("service", None), service.name)
+        self.assertIsNone(service_rule.labels.get("project", None))
+
+        # Check if Project Rule has "project" label when creating a new rule
+        project_rule = models.Rule(
+            name="New Project Rule",
+            content_object=project,
+            clause="up==1",
+            duration="1s",
+        )
+        project_rule.save()
+        self.assertEqual(project_rule.labels.get("project", None), project.name)
+        self.assertEqual(project_rule.labels.get("service", None), project.service.name)
+
+        # Check if "service" label of Service Rule cannot be modified
+        service_rule.labels["service"] = "other-service"
+        service_rule.save()
+        self.assertEqual(service_rule.labels.get("service", None), service.name)
+
+        # Check if Service Rule has "service" label when overriding from a Site rule
+        overridden_rule = site_rule.override(content_type="service", object_id=service.id)
+        self.assertEqual(overridden_rule.labels.get("service", None), service.name)
