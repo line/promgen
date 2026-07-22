@@ -300,3 +300,18 @@ class ExporterRetrieveSerializer(serializers.ModelSerializer):
         model = models.Exporter
         fields = "__all__"
         read_only_fields = ("job", "port", "path", "scheme", "project")
+
+
+class URLSerializer(serializers.ModelSerializer):
+    project = serializers.ReadOnlyField(source="project.name")
+    probe = serializers.ReadOnlyField(source="probe.module")
+
+    class Meta:
+        model = models.URL
+        fields = "__all__"
+
+
+class ProbeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Probe
+        fields = "__all__"
