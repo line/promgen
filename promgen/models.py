@@ -577,6 +577,17 @@ class Alert(models.Model):
                 routable[label] = obj
                 data["commonAnnotations"][label] = resolve_domain(obj)
 
+        project = routable.get("project")
+        service = routable.get("service")
+        if project and service and project.service != service:
+            logger.warning(
+                "Project %s does not belong to Service %s, ignoring both",
+                routable["project"],
+                routable["service"],
+            )
+            routable.pop("project")
+            routable.pop("service")
+
         return routable, data
 
     @cached_property
