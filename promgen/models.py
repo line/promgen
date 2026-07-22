@@ -507,18 +507,20 @@ class Rule(models.Model):
                 f'{content_type.model}="{content_object.name}",{macro.EXCLUSION_MACRO}',
             )
 
-            # Add a label to our new rule by default, to help ensure notifications
-            # get routed to the notifier we expect
-            self.labels[content_type.model] = content_object.name
-
             self.save()
 
         return self
 
-    # Custom logic before saving Rule to control the value of the annotation "rule":
-    # Format: annotations["rule"] = {domain}/rule/{id}
+    # Custom logic before saving Rule to control the values of the annotations and labels:
     def save(self, *args, **kwargs):
         with transaction.atomic():
+            # If the rule is associated with a Service or Project, we set labels to the rule
+            if isinstance(self.content_object, Service):
+                self.labels["service"] = self.content_object.name
+            if isinstance(self.content_object, Project):
+                self.labels["project"] = self.content_object.name
+
+            # Always set the annotations["rule"] to be {domain}/rule/{id}
             if self.pk:
                 # When updating rule, we already have the primary key.
                 # Just set annotations["rule"] before saving to database.
