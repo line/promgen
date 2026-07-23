@@ -315,3 +315,35 @@ class ProbeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Probe
         fields = "__all__"
+
+
+class GroupRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Group
+        fields = ("id", "name")
+
+
+class UserWithPermRetrieveSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    role = serializers.CharField()
+
+
+class GroupAssignedResourceSerializer(serializers.Serializer):
+    content_type = serializers.CharField()
+    object_id = serializers.IntegerField()
+    name = serializers.CharField()
+    role = serializers.CharField()
+
+
+class AddMemberGroupSerializer(serializers.Serializer):
+    user_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=1),
+        allow_empty=False,
+    )
+    group_role = serializers.ChoiceField(choices=["ADMIN", "MEMBER"])
+
+
+class UpdateMemberGroupSerializer(serializers.Serializer):
+    group_role = serializers.ChoiceField(choices=["ADMIN", "MEMBER"])

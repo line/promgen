@@ -1,0 +1,19 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "role": "ADMIN"
+    },
+    {
+      "id": 2,
+      "username": "demo",
+      "email": "demo@example.com",
+      "role": "MEMBER"
+    }
+  ]
+}
