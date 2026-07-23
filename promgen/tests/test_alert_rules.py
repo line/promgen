@@ -150,3 +150,26 @@ class RuleTest(tests.PromgenTest):
         rule.annotations["has a space"] = "value"
         with self.assertRaises(ValidationError):
             prometheus.check_rules([rule])
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    @override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+    @override_settings(CELERY_TASK_EAGER_PROPAGATES=True)
+    @mock.patch("promgen.util.post")
+    def test_alert_routable(self, mock_post):
+        self.user = self.force_login(username="admin")
+        data = tests.Data("examples", "alertmanager.json").json()
+
+        self.fireAlert(data=data)
+        self.assertEqual(
+            mock_post.call_count, 1, "One alert should be sent because of correct routable."
+        )
+
+        mock_post.reset_mock()
+        data["commonLabels"]["service"] = "other-service"
+        self.fireAlert(data=data)
+        self.assertEqual(
+            mock_post.call_count,
+            0,
+            "No alert should be sent because of wrong routable "
+            "(project now doesn't match with service).",
+        )
