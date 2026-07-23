@@ -18,11 +18,12 @@ from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from rest_framework import mixins, pagination, routers, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, ValidationError
+from rest_framework.exceptions import MethodNotAllowed, PermissionDenied, ValidationError
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+import promgen.templatetags.promgen as promgen_templatetags
 from promgen import discovery, filters, models, permissions, serializers, signals, validators
 from promgen.templatetags import promgen as shortcuts
 
@@ -77,6 +78,281 @@ class PromgenPagination(pagination.PageNumberPagination):
         self.page_size_query_description = self.page_size_query_description + str.format(
             " Defaults to {}.", self.page_size
         )
+
+
+class RuleMixin:
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="rules")
+    def rules(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Rule",
+        description="Register a new rule for the specified object.",
+        request=serializers.RuleRetrieveSimpleSerializer,
+        responses={201: serializers.RuleRetrieveSimpleSerializer},
+    )
+    @rules.mapping.post
+    def register_rule(self, request, id):
+        object = self.get_object()
+        serializer = serializers.RuleRetrieveSimpleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        attributes = {
+            "content_type_id": ContentType.objects.get_for_model(object).id,
+            "object_id": object.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        rule, created = models.Rule.objects.get_or_create(**attributes)
+        return Response(
+            serializers.RuleRetrieveSimpleSerializer(rule).data, status=HTTPStatus.CREATED
+        )
+
+
+class NotifierMixin:
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="notifiers")
+    def notifiers(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Notifier",
+        description="Register a new notifier for the specified object.",
+        request=serializers.RegisterNotifierSerializer,
+        responses={201: serializers.NotifierSerializer},
+    )
+    @notifiers.mapping.post
+    def register_notifier(self, request, id):
+        object = self.get_object()
+        serializer = serializers.RegisterNotifierSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        attributes = {
+            "content_type_id": ContentType.objects.get_for_model(object).id,
+            "object_id": object.id,
+            "owner_id": request.user.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None and field != "filters":
+                attributes[field] = value
+
+        notifier, created = models.Sender.objects.get_or_create(**attributes)
+        for filter_data in serializer.validated_data.get("filters", []):
+            models.Filter.objects.get_or_create(sender=notifier, **filter_data)
+        return Response(
+            serializers.NotifierSerializer(notifier).data,
+            status=HTTPStatus.CREATED,
+        )
+
+
+class PermissionManagementMixin:
+    @extend_schema(
+        summary="List Users",
+        description="Retrieve list of users which are members of the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="role",
+                required=False,
+                type=str,
+                enum=["ADMIN", "EDITOR", "VIEWER"],
+                description="Optional role filter.",
+            )
+        ],
+        responses=serializers.UserWithPermRetrieveSerializer(many=True),
+    )
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="users",
+        filterset_class=None,
+    )
+    def users(self, request, id):
+        object = self.get_object()
+        users_with_perm = promgen_templatetags.get_users_roles(object)
+        payload = [
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "role": perm[0].upper(),
+            }
+            for user, perm in users_with_perm
+        ]
+
+        role = request.query_params.get("role")
+        if role:
+            payload = [item for item in payload if item["role"] == role]
+
+        payload = sorted(payload, key=lambda item: item["username"].lower())
+
+        page = self.paginate_queryset(payload)
+        return self.get_paginated_response(
+            serializers.UserWithPermRetrieveSerializer(page, many=True).data
+        )
+
+    @extend_schema(
+        summary="Assign User",
+        description="Assign permission for a user to the specified object. "
+        "Assigning permission for an already assigned user will override the role.",
+        request=serializers.PermissionAssignSerializer,
+        responses=serializers.UserObjectPermissionSerializer,
+    )
+    @users.mapping.post
+    def assign_user(self, request, id):
+        object = self.get_object()
+        serializer = serializers.PermissionAssignSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = User.objects.get(id=serializer.validated_data["id"])
+        if not user.is_active:
+            raise ValidationError({"detail": "Cannot assign permissions to an inactive user."})
+        content_type = ContentType.objects.get_for_model(object)
+        permission = content_type.model + "_" + serializer.validated_data["role"].lower()
+        user_object_perm = assign_perm(permission, user, object)
+        return Response(
+            serializers.UserObjectPermissionSerializer(user_object_perm).data,
+            status=HTTPStatus.CREATED,
+        )
+
+    @extend_schema(
+        summary="List Groups",
+        description="Retrieve list of groups which are members of the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="role",
+                required=False,
+                type=str,
+                enum=["ADMIN", "EDITOR", "VIEWER"],
+                description="Optional role filter.",
+            )
+        ],
+        responses=serializers.GroupWithPermRetrieveSerializer(many=True),
+    )
+    @action(detail=True, methods=["get"], url_path="groups", filterset_class=None)
+    def groups(self, request, id):
+        object = self.get_object()
+        groups_with_perm = promgen_templatetags.get_groups_roles(object)
+
+        payload = [
+            {
+                "id": group.id,
+                "name": group.name,
+                "role": perm[0].upper(),
+            }
+            for group, perm in groups_with_perm
+        ]
+
+        role = request.query_params.get("role")
+        if role:
+            payload = [item for item in payload if item["role"] == role]
+
+        payload = sorted(payload, key=lambda item: item["name"].lower())
+        page = self.paginate_queryset(payload)
+        return self.get_paginated_response(
+            serializers.GroupWithPermRetrieveSerializer(page, many=True).data
+        )
+
+    @extend_schema(
+        summary="Assign Group",
+        description="Assign permission for a group to the specified object. "
+        "Assigning permission for an already assigned group will override the role.",
+        request=serializers.PermissionAssignSerializer,
+        responses=serializers.GroupObjectPermissionSerializer,
+    )
+    @groups.mapping.post
+    def assign_group(self, request, id):
+        object = self.get_object()
+        serializer = serializers.PermissionAssignSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        group = models.Group.objects.get(id=serializer.validated_data["id"])
+        content_type = ContentType.objects.get_for_model(object)
+        permission = content_type.model + "_" + serializer.validated_data["role"].lower()
+        group_object_perm = assign_perm(permission, group, object)
+        return Response(
+            serializers.GroupObjectPermissionSerializer(group_object_perm).data,
+            status=HTTPStatus.CREATED,
+        )
+
+    def remove_perm(self, user_or_group, remove_sub_permissions):
+        obj = self.get_object()
+        permissions = get_perms(user_or_group, obj)
+        for perm in permissions:
+            remove_perm(perm, user_or_group, obj)
+
+        if isinstance(obj, models.Service) and remove_sub_permissions:
+            # Remove all permissions on the Service's projects
+            for project in obj.project_set.all():
+                permissions = get_perms(user_or_group, project)
+                for perm in permissions:
+                    remove_perm(perm, user_or_group, project)
+
+                # If the removed user is the owner of the Project, we need to transfer the ownership
+                # to the Service's owner and assign admin permission for them.
+                if isinstance(user_or_group, User) and user_or_group == project.owner:
+                    assign_perm("project_admin", obj.owner, project)
+                    project.owner = obj.owner
+                    project.save()
+
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path=r"users/(?P<user_id>\d+)")
+    def user(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Remove User",
+        description="Remove a user from the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="remove_sub_permissions",
+                required=False,
+                type=bool,
+                description="Also remove permissions from sub-projects. Defaults to True.",
+            )
+        ],
+    )
+    @user.mapping.delete
+    def remove_user(self, request, id, user_id):
+        remove_sub_permissions = (
+            request.query_params.get("remove_sub_permissions", "true").lower() == "true"
+        )
+        user = User.objects.get(id=user_id)
+        self.remove_perm(user, remove_sub_permissions)
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path=r"groups/(?P<group_id>\d+)")
+    def group(self, request, id, group_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Remove Group",
+        description="Remove a group from the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="remove_sub_permissions",
+                required=False,
+                type=bool,
+                description="(Only use for Service) Also remove permissions from sub-projects. "
+                "Defaults to True.",
+            )
+        ],
+    )
+    @group.mapping.delete
+    def remove_group(self, request, id, group_id):
+        remove_sub_permissions = (
+            request.query_params.get("remove_sub_permissions", "true").lower() == "true"
+        )
+        group = models.Group.objects.get(id=group_id)
+        self.remove_perm(group, remove_sub_permissions)
+        return Response(status=HTTPStatus.NO_CONTENT)
 
 
 @extend_schema_view(
@@ -716,4 +992,214 @@ class GroupViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(assigned_resources)
         return self.get_paginated_response(
             serializers.GroupAssignedResourceSerializer(page, many=True).data
+        )
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Projects", description="Retrieve a list of all projects."),
+    retrieve=extend_schema(
+        summary="Retrieve Project",
+        description="Retrieve detailed information about a specific project.",
+    ),
+    update=extend_schema(summary="Update Project", description="Update an existing project."),
+    partial_update=extend_schema(
+        summary="Partially Update Project", description="Partially update an existing project."
+    ),
+    destroy=extend_schema(summary="Delete Project", description="Delete an existing project."),
+)
+@extend_schema(tags=["Project"])
+class ProjectViewSet(
+    NotifierMixin,
+    RuleMixin,
+    PermissionManagementMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = models.Project.objects.all()
+    filterset_class = filters.ProjectFilter
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        return permissions.get_accessible_projects_for_user(self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return serializers.ProjectRetrieveDetailSerializer
+        return serializers.ProjectSimpleSerializer
+
+    def perform_update(self, serializer):
+        project = self.get_object()
+        original_owner_id = project.owner_id
+        new_owner = serializer.validated_data.get("owner")
+        owner_changed = new_owner is not None and new_owner.id != original_owner_id
+
+        if owner_changed and not (
+            self.request.user.is_superuser or self.request.user.id == original_owner_id
+        ):
+            raise ValidationError({"owner": "You do not have permission to change the owner."})
+
+        super().perform_update(serializer)
+
+        if owner_changed:
+            assign_perm("project_admin", new_owner, project)
+
+    def destroy(self, request, *args, **kwargs):
+        project = self.get_object()
+        if (
+            not request.user.is_superuser
+            and project.owner != request.user
+            and project.service.owner != request.user
+        ):
+            raise PermissionDenied("Only the project or the service owner can delete the project.")
+        return super().destroy(request, *args, **kwargs)
+
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="farms")
+    def farms(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Farm",
+        description="Register a new farm for the specified project.",
+        request=serializers.RegisterFarmToProjectSerializer,
+        responses={201: serializers.FarmRetrieveSerializer},
+    )
+    @farms.mapping.post
+    def register_farm(self, request, id):
+        project = self.get_object()
+        if hasattr(project, "farm"):
+            raise ValidationError({"detail": "Project already has a farm."})
+
+        serializer = serializers.RegisterFarmToProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if serializer.validated_data["source"] == discovery.FARM_DEFAULT:
+            farm = self.register_local_farm(
+                serializer.validated_data["name"], serializer.validated_data["hosts"]
+            )
+        else:
+            farm = self.link_to_remote_farm(
+                serializer.validated_data["source"], serializer.validated_data["name"]
+            )
+
+        return Response(serializers.FarmRetrieveSerializer(farm).data, status=HTTPStatus.CREATED)
+
+    def register_local_farm(self, farm_name, hosts):
+        project = self.get_object()
+
+        valid_hosts = set()
+        invalid_hosts = set()
+        for hostname in hosts:
+            if hostname == "":
+                continue
+            try:
+                validators.hostname(hostname)
+            except DjangoValidationError:
+                invalid_hosts.add(hostname)
+            valid_hosts.add(hostname)
+
+        if invalid_hosts:
+            raise ValidationError(
+                {"detail": "Invalid hostnames.", "extras": {"invalid_hosts": list(invalid_hosts)}}
+            )
+
+        farm, created = models.Farm.objects.get_or_create(
+            project=project,
+            name=farm_name,
+            source=discovery.FARM_DEFAULT,
+        )
+
+        for valid_host in valid_hosts:
+            models.Host.objects.get_or_create(name=valid_host, farm_id=farm.pk)
+
+        return farm
+
+    def link_to_remote_farm(self, source, farm_name):
+        project = self.get_object()
+
+        driver = None
+        for driver_name, farm_driver in models.Farm.driver_set():
+            if driver_name == source:
+                driver = farm_driver
+                break
+
+        if driver is None:
+            raise ValidationError({"source": "Unknown farm source."})
+
+        if farm_name not in set(models.Farm.fetch(source)):
+            raise ValidationError({"farm": "Unknown farm."})
+
+        farm, created = models.Farm.objects.get_or_create(
+            name=farm_name,
+            source=source,
+            project=project,
+        )
+        if created:
+            farm.refresh()
+        project.farm = farm
+        project.save()
+        return farm
+
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="urls")
+    def urls(self, request, id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register URL",
+        description="Register a new URL for the specified project.",
+        request=serializers.RegisterURLToProjectSerializer,
+        responses={201: serializers.URLSerializer},
+    )
+    @urls.mapping.post
+    def register_url(self, request, id):
+        project = self.get_object()
+        serializer = serializers.RegisterURLToProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        url, created = models.URL.objects.get_or_create(
+            project=project,
+            url=serializer.validated_data["url"],
+            probe=serializer.validated_data["probe"],
+        )
+        return Response(serializers.URLSerializer(url).data, status=HTTPStatus.CREATED)
+
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="exporters")
+    def exporters(self, request, id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Exporter",
+        description="Register a new exporter for the specified project.",
+        request=serializers.RegisterExporterToProjectSerializer,
+        responses={201: serializers.ExporterRetrieveSerializer},
+    )
+    @exporters.mapping.post
+    def register_exporter(self, request, id):
+        project = self.get_object()
+        serializer = serializers.RegisterExporterToProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        attributes = {
+            "project_id": project.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        exporter, created = models.Exporter.objects.get_or_create(**attributes)
+        return Response(
+            serializers.ExporterRetrieveSerializer(exporter).data,
+            status=HTTPStatus.CREATED,
         )
