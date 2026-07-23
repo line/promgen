@@ -1215,7 +1215,6 @@ class AlertRuleRegister(PromgenGuardianPermissionMixin, mixins.RuleFormMixin, Fo
         return context
 
     def form_valid(self, form):
-        form.instance.labels[form.instance.content_type.model] = form.instance.content_object.name
         form.instance.save()
         return HttpResponseRedirect(form.instance.get_absolute_url())
 
