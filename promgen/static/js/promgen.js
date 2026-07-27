@@ -115,10 +115,12 @@ function initSelect2() {
   $(selectors).select2({
     placeholder: "Select an option",
     width: "25%",
+    theme: "bootstrap",
   });
   $('select[name="users"]').select2({
     multiple: "multiple",
     placeholder: "Select users",
+    theme: "bootstrap",
   });
 }
 
