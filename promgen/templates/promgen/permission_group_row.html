@@ -25,11 +25,7 @@
       <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
     </button>
     <div class="collapse" id="group{{group.id}}">
-      <form
-        method="post"
-        action="{% url 'permission-assign' %}"
-        style="display: inline"
-      >
+      <form method="post" action="{% url 'permission-assign' %}" class="form-inline">
         {% csrf_token %}
         <input
           name="next"

@@ -250,14 +250,6 @@ msgstr "{user}をグループ{group}から削除しました。"
 msgid "Group {group} created successfully."
 msgstr "グループ{group}が正常に作成されました。"
 
-#: templates/promgen/permission_form.html:64
-msgid "Don't have a Group yet?"
-msgstr "まだグループを持っていませんか？"
-
-#: templates/promgen/permission_form.html:68
-msgid "Register a new Group"
-msgstr "新しいグループを登録する"
-
 #: views.py:1572
 msgid "Assigned permission: {permission} for group: {group_name} on: {name}"
 msgstr "{group_name} に対して {name} で {permission} の権限を割り当てました"

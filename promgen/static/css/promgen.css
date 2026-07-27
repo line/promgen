@@ -162,3 +162,26 @@ rapi-doc::part(btn) {
 rapi-doc::part(section-navbar-item section-navbar-operations-top) {
     display: flex;
 }
+
+/* Promgen Permission Panel */
+.promgen-permission-panel.panel-default {
+  margin-bottom: 3rem;
+}
+
+.promgen-permission-panel :is(#add-user, #add-group) {
+  table :is(th, td) {
+    border: none;
+  }
+
+  .panel {
+    border-color: #d8e2ef;
+  }
+
+  .panel-body {
+    background-color: #f4f7fc;
+  }
+
+  select {
+    width: 75%;
+  }
+}

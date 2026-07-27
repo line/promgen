@@ -122,6 +122,16 @@ function initSelect2() {
     placeholder: "Select users",
     theme: "bootstrap",
   });
+  $('.promgen-permission-panel select[name="username"]').select2({
+    placeholder: "Enter username, email, or name",
+    width: "75%",
+    theme: "bootstrap",
+  });
+  $('.promgen-permission-panel select[name="group"]').select2({
+    placeholder: "Enter group name",
+    width: "75%",
+    theme: "bootstrap",
+  });
 }
 
 // Activate a tab based on the hash value of the URL
@@ -216,4 +226,23 @@ $(document).ready(function() {
 
   // Initialize Select2 for the select elements
   initSelect2();
+
+  // Update the toggle icon for permission panels based on their collapse state
+  $(".promgen-permission-panel [data-toggle='collapse']").each(function() {
+    const trigger = $(this);
+    const icon = trigger.find(".toggle-icon");
+    const panel = $(trigger.data("target"));
+
+    const setIcon = isExpanded => {
+      icon
+        .addClass("glyphicon")
+        .toggleClass("glyphicon-chevron-down", !isExpanded)
+        .toggleClass("glyphicon-chevron-up", isExpanded);
+    };
+
+    panel.on("show.bs.collapse", function() { setIcon(true); });
+    panel.on("hide.bs.collapse", function() { setIcon(false); });
+
+    setIcon(panel.hasClass("in"));
+  });
 });

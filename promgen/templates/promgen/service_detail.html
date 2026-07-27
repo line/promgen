@@ -64,41 +64,39 @@ Promgen / Service / {{ service.name }}
   <li role="presentation"><a href="#members" data-toggle="tab">Members</a></li>
 </ul>
 
-<div class="well">
 
-  <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="projects">
-      {% include "promgen/service_detail_projects.html" with project_list=project_list|default:service.project_set.all service=service role=role only %}
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane active well" id="projects">
+    {% include "promgen/service_detail_projects.html" with project_list=project_list|default:service.project_set.all service=service role=role only %}
+  </div>
+
+  <div role="tabpanel" class="tab-pane well" id="rules">
+    {% if role == "ADMIN" or role == "EDIT" %}
+    <div class="text-right mb-4">
+      <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Rule" %}</a>
     </div>
+    {% endif %}
 
-    <div role="tabpanel" class="tab-pane" id="rules">
-      {% if role == "ADMIN" or role == "EDIT" %}
-      <div class="text-right mb-4">
-        <a href="{% url 'rule-new' 'service' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Rule" %}</a>
-      </div>
-      {% endif %}
-
-      {% include "promgen/service_block_panel_rules.inc.html" %}
-
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="notifiers">
-      {% if role == "ADMIN" or role == "EDIT" %}
-      <div class="text-right mb-4">
-        <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Notifier" %}</a>
-      </div>
-      {% endif %}
-
-      {% include "promgen/service_block_panel_notifiers.inc.html" %}
-
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="members">
-      {% include "promgen/permission_block.html" with object=service %}
-    </div>
+    {% include "promgen/service_block_panel_rules.inc.html" %}
 
   </div>
 
-</div> 
+  <div role="tabpanel" class="tab-pane well" id="notifiers">
+    {% if role == "ADMIN" or role == "EDIT" %}
+    <div class="text-right mb-4">
+      <a href="{% url 'service-notifier' service.id %}" class="btn btn-primary btn-sm">{% translate "Register Notifier" %}</a>
+    </div>
+    {% endif %}
+
+    {% include "promgen/service_block_panel_notifiers.inc.html" %}
+
+  </div>
+
+  <div role="tabpanel" class="tab-pane" id="members">
+    {% include "promgen/permission_block.html" with object=service %}
+  </div>
+
+</div>
+
 
 {% endblock %}
