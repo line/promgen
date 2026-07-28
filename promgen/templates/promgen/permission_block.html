@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load promgen %}
 <div class="panel-group">
-  <div class="panel panel-default">
+  <div class="panel panel-default promgen-permission-panel">
     <div class="panel-heading">
       <h5>Users</h5>
     </div>
@@ -19,10 +19,13 @@
           {% include "promgen/permission_user_row.html" %}
         {% endfor %}
       </table>
+      {% if role == "ADMIN" %}
+      {% include "promgen/permission_form.html" with perm_type="user" %}
+      {% endif %}
     </div>
   </div>
 
-  <div class="panel panel-default">
+  <div class="panel panel-default promgen-permission-panel">
     <div class="panel-heading">
       <h5>Groups</h5>
     </div>
@@ -39,15 +42,9 @@
           {% include "promgen/permission_group_row.html" %}
         {% endfor %}
       </table>
+      {% if role == "ADMIN" %}
+      {% include "promgen/permission_form.html" with perm_type="group" %}
+      {% endif %}
     </div>
   </div>
-
-  {% if role == "ADMIN" %}
-  <div class="panel panel-footer">
-    <div class="panel-heading">
-      <h4>Grant Permissions</h4>
-    </div>
-    <div class="panel-body">{% include "promgen/permission_form.html" %}</div>
-  </div>
-  {% endif %}
 </div>

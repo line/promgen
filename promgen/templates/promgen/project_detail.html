@@ -74,34 +74,32 @@ Promgen / Project / {{ project.name }}
   <li role="presentation"><a href="#members" data-toggle="tab">Members</a></li>
 </ul>
 
-<div class="well">
 
-  <div class="tab-content">
-    <div role="tabpanel" class="tab-pane active" id="exporters">
-    {% include "promgen/project_detail_exporters.html" %}
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="hosts">
-    {% include "promgen/project_detail_hosts.html" %}
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="rules">
-    {% include "promgen/project_detail_rules.html" %}
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="http-checks">
-    {% include "promgen/project_detail_urls.html" %}
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="notifiers">
-    {% include "promgen/project_detail_notifiers.html" %}
-    </div>
-
-    <div role="tabpanel" class="tab-pane" id="members">
-      {% include "promgen/permission_block.html" with object=project %}
-    </div>
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane active well" id="exporters">
+  {% include "promgen/project_detail_exporters.html" %}
   </div>
 
+  <div role="tabpanel" class="tab-pane well" id="hosts">
+  {% include "promgen/project_detail_hosts.html" %}
+  </div>
+
+  <div role="tabpanel" class="tab-pane well" id="rules">
+  {% include "promgen/project_detail_rules.html" %}
+  </div>
+
+  <div role="tabpanel" class="tab-pane well" id="http-checks">
+  {% include "promgen/project_detail_urls.html" %}
+  </div>
+
+  <div role="tabpanel" class="tab-pane well" id="notifiers">
+  {% include "promgen/project_detail_notifiers.html" %}
+  </div>
+
+  <div role="tabpanel" class="tab-pane" id="members">
+    {% include "promgen/permission_block.html" with object=project %}
+  </div>
 </div>
+
 
 {% endblock %}

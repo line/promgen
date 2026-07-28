@@ -317,6 +317,7 @@ class UserPermissionForm(forms.Form):
     permission = forms.ChoiceField(
         required=True,
         label="Role",
+        widget=forms.Select(attrs={"class": "form-control"}),
     )
 
     username = forms.ChoiceField(
