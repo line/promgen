@@ -438,3 +438,16 @@ class RegisterURLToProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.URL
         fields = ("url", "probe")
+
+
+class RegisterFarmToProjectSerializer(serializers.ModelSerializer):
+    source = serializers.CharField()
+    hosts = serializers.ListField(
+        required=False,
+        child=serializers.CharField(),
+        help_text="List of hostnames. Only used when registering a local farm.",
+    )
+
+    class Meta:
+        model = models.Farm
+        fields = ("name", "hosts", "source")

@@ -394,3 +394,75 @@ class RestAPITest(tests.PromgenTest):
             HTTP_AUTHORIZATION=f"Token {user_token}",
         )
         self.assertEqual(response.status_code, 204, "Service owner can delete project.")
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_project__registering_farm(self):
+        # Prepare test data
+        user = User.objects.get(username="demo")
+        user_token = Token.objects.filter(user=user).first().key
+        project = models.Project.objects.get(id=1)
+        assign_perm("project_editor", user, project)
+
+        # 1. User cannot register a farm if project already has a farm.
+        response = self.client.post(
+            reverse("api-v2:project-farms", kwargs={"id": 1}),
+            data={"name": "test-farm", "source": "promgen", "hosts": ["test-host-1"]},
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {"detail": "Project already has a farm."})
+
+        # Delete the farm for next case
+        farm = project.farm
+        farm.delete()
+
+        # 2. User can register a local farm to project
+        response = self.client.post(
+            reverse("api-v2:project-farms", kwargs={"id": 1}),
+            data={"name": "test-farm", "source": "promgen", "hosts": ["test-host-1"]},
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 201, "User can register a local farm to project.")
+
+        # Delete the farm for next case
+        project.refresh_from_db()
+        farm = project.farm
+        farm.delete()
+
+        # 3. User can link a remote farm to project
+        remote_driver = mock.Mock(remote=True)
+        remote_driver.name = "external"
+        remote_driver.load.return_value = mock.Mock(return_value=mock.Mock(remote=True))
+        with (
+            mock.patch.object(plugins, "discovery", return_value=[remote_driver]),
+            mock.patch.object(
+                models.Farm, "driver_set", return_value=[(remote_driver.name, remote_driver)]
+            ),
+            mock.patch.object(models.Farm, "fetch", return_value=["other-farm"]),
+            mock.patch.object(models.Farm, "refresh", return_value=(set(), set())),
+        ):
+            # 3.1. Farm source must be existing driver.
+            response = self.client.post(
+                reverse("api-v2:project-farms", kwargs={"id": 1}),
+                data={"name": "other-farm", "source": "other-external"},
+                HTTP_AUTHORIZATION=f"Token {user_token}",
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.json(), {"source": "Unknown farm source."})
+
+            # 3.2. Farm must be existing in the driver.
+            response = self.client.post(
+                reverse("api-v2:project-farms", kwargs={"id": 1}),
+                data={"name": "farm", "source": "external"},
+                HTTP_AUTHORIZATION=f"Token {user_token}",
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.json(), {"farm": "Unknown farm."})
+
+            # 3.3. User can link a remote farm to project.
+            response = self.client.post(
+                reverse("api-v2:project-farms", kwargs={"id": 1}),
+                data={"name": "other-farm", "source": "external"},
+                HTTP_AUTHORIZATION=f"Token {user_token}",
+            )
+            self.assertEqual(response.status_code, 201, "User can link a remote farm to project.")

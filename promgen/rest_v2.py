@@ -1055,3 +1055,93 @@ class ProjectViewSet(
             probe=serializer.validated_data["probe"],
         )
         return Response(serializers.URLSerializer(url).data, status=HTTPStatus.CREATED)
+
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="farms")
+    def farms(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Farm",
+        description="Register a new farm for the specified project.",
+        request=serializers.RegisterFarmToProjectSerializer,
+        responses={201: serializers.FarmRetrieveSerializer},
+    )
+    @farms.mapping.post
+    def register_farm(self, request, id):
+        project = self.get_object()
+        if hasattr(project, "farm"):
+            raise ValidationError({"detail": "Project already has a farm."})
+
+        serializer = serializers.RegisterFarmToProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if serializer.validated_data["source"] == discovery.FARM_DEFAULT:
+            farm = self.register_local_farm(
+                serializer.validated_data["name"], serializer.validated_data["hosts"]
+            )
+        else:
+            farm = self.link_to_remote_farm(
+                serializer.validated_data["source"], serializer.validated_data["name"]
+            )
+
+        return Response(serializers.FarmRetrieveSerializer(farm).data, status=HTTPStatus.CREATED)
+
+    def register_local_farm(self, farm_name, hosts):
+        project = self.get_object()
+
+        valid_hosts = set()
+        invalid_hosts = set()
+        for hostname in hosts:
+            if hostname == "":
+                continue
+            try:
+                validators.hostname(hostname)
+            except DjangoValidationError:
+                invalid_hosts.add(hostname)
+            valid_hosts.add(hostname)
+
+        if invalid_hosts:
+            raise ValidationError(
+                {"detail": "Invalid hostnames.", "extras": {"invalid_hosts": list(invalid_hosts)}}
+            )
+
+        farm, created = models.Farm.objects.get_or_create(
+            project=project,
+            name=farm_name,
+            source=discovery.FARM_DEFAULT,
+        )
+
+        for valid_host in valid_hosts:
+            models.Host.objects.get_or_create(name=valid_host, farm_id=farm.pk)
+
+        return farm
+
+    def link_to_remote_farm(self, source, farm_name):
+        project = self.get_object()
+
+        driver = None
+        for driver_name, farm_driver in models.Farm.driver_set():
+            if driver_name == source:
+                driver = farm_driver
+                break
+
+        if driver is None:
+            raise ValidationError({"source": "Unknown farm source."})
+
+        if farm_name not in set(models.Farm.fetch(source)):
+            raise ValidationError({"farm": "Unknown farm."})
+
+        farm, created = models.Farm.objects.get_or_create(
+            name=farm_name,
+            source=source,
+            project=project,
+        )
+        if created:
+            farm.refresh()
+        project.farm = farm
+        project.save()
+        return farm
