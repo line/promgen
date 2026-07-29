@@ -451,3 +451,11 @@ class RegisterFarmToProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Farm
         fields = ("name", "hosts", "source")
+
+
+class RegisterNotifierSerializer(serializers.Serializer):
+    sender = serializers.ChoiceField(choices=[name for name, _ in models.Sender.driver_set()])
+    value = serializers.CharField()
+    alias = serializers.CharField(required=False)
+    enabled = serializers.BooleanField(required=False, default=True)
+    filters = FilterSerializer(many=True, required=False)
