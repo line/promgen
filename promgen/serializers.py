@@ -377,3 +377,9 @@ class ProjectRetrieveDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
         fields = "__all__"
+
+
+class GroupWithPermRetrieveSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    role = serializers.CharField()

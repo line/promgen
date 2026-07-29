@@ -23,6 +23,7 @@ from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+import promgen.templatetags.promgen as promgen_templatetags
 from promgen import discovery, filters, models, permissions, serializers, signals, validators
 from promgen.templatetags import promgen as shortcuts
 
@@ -76,6 +77,90 @@ class PromgenPagination(pagination.PageNumberPagination):
         self.page_query_description = self.page_query_description + " Starts from 1."
         self.page_size_query_description = self.page_size_query_description + str.format(
             " Defaults to {}.", self.page_size
+        )
+
+
+class PermissionManagementMixin:
+    @extend_schema(
+        summary="List Users",
+        description="Retrieve list of users which are members of the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="role",
+                required=False,
+                type=str,
+                enum=["ADMIN", "EDITOR", "VIEWER"],
+                description="Optional role filter.",
+            )
+        ],
+        responses=serializers.UserWithPermRetrieveSerializer(many=True),
+    )
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="users",
+        filterset_class=None,
+    )
+    def users(self, request, id):
+        object = self.get_object()
+        users_with_perm = promgen_templatetags.get_users_roles(object)
+        payload = [
+            {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "role": perm[0].upper(),
+            }
+            for user, perm in users_with_perm
+        ]
+
+        role = request.query_params.get("role")
+        if role:
+            payload = [item for item in payload if item["role"] == role]
+
+        payload = sorted(payload, key=lambda item: item["username"].lower())
+
+        page = self.paginate_queryset(payload)
+        return self.get_paginated_response(
+            serializers.UserWithPermRetrieveSerializer(page, many=True).data
+        )
+
+    @extend_schema(
+        summary="List Groups",
+        description="Retrieve list of groups which are members of the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="role",
+                required=False,
+                type=str,
+                enum=["ADMIN", "EDITOR", "VIEWER"],
+                description="Optional role filter.",
+            )
+        ],
+        responses=serializers.GroupWithPermRetrieveSerializer(many=True),
+    )
+    @action(detail=True, methods=["get"], url_path="groups", filterset_class=None)
+    def groups(self, request, id):
+        object = self.get_object()
+        groups_with_perm = promgen_templatetags.get_groups_roles(object)
+
+        payload = [
+            {
+                "id": group.id,
+                "name": group.name,
+                "role": perm[0].upper(),
+            }
+            for group, perm in groups_with_perm
+        ]
+
+        role = request.query_params.get("role")
+        if role:
+            payload = [item for item in payload if item["role"] == role]
+
+        payload = sorted(payload, key=lambda item: item["name"].lower())
+        page = self.paginate_queryset(payload)
+        return self.get_paginated_response(
+            serializers.GroupWithPermRetrieveSerializer(page, many=True).data
         )
 
 
@@ -733,6 +818,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 )
 @extend_schema(tags=["Project"])
 class ProjectViewSet(
+    PermissionManagementMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
