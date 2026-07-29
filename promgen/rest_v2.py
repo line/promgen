@@ -290,6 +290,43 @@ class PermissionManagementMixin:
         return Response(status=HTTPStatus.NO_CONTENT)
 
 
+class RuleMixin:
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="rules")
+    def rules(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Rule",
+        description="Register a new rule for the specified object.",
+        request=serializers.RuleRetrieveSimpleSerializer,
+        responses={201: serializers.RuleRetrieveSimpleSerializer},
+    )
+    @rules.mapping.post
+    def register_rule(self, request, id):
+        object = self.get_object()
+        serializer = serializers.RuleRetrieveSimpleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        attributes = {
+            "content_type_id": ContentType.objects.get_for_model(object).id,
+            "object_id": object.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        rule, created = models.Rule.objects.get_or_create(**attributes)
+        return Response(
+            serializers.RuleRetrieveSimpleSerializer(rule).data, status=HTTPStatus.CREATED
+        )
+
+
 @extend_schema_view(
     list=extend_schema(summary="List Audit Logs", description="Retrieve a list of all audit logs."),
 )
@@ -945,6 +982,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 @extend_schema(tags=["Project"])
 class ProjectViewSet(
     PermissionManagementMixin,
+    RuleMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
