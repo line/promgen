@@ -209,6 +209,86 @@ class PermissionManagementMixin:
             status=HTTPStatus.CREATED,
         )
 
+    def remove_perm(self, user_or_group, remove_sub_permissions):
+        obj = self.get_object()
+        permissions = get_perms(user_or_group, obj)
+        for perm in permissions:
+            remove_perm(perm, user_or_group, obj)
+
+        if isinstance(obj, models.Service) and remove_sub_permissions:
+            # Remove all permissions on the Service's projects
+            for project in obj.project_set.all():
+                permissions = get_perms(user_or_group, project)
+                for perm in permissions:
+                    remove_perm(perm, user_or_group, project)
+
+                # If the removed user is the owner of the Project, we need to transfer the ownership
+                # to the Service's owner and assign admin permission for them.
+                if isinstance(user_or_group, User) and user_or_group == project.owner:
+                    assign_perm("project_admin", obj.owner, project)
+                    project.owner = obj.owner
+                    project.save()
+
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path=r"users/(?P<user_id>\d+)")
+    def user(self, request, id, user_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Remove User",
+        description="Remove a user from the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="remove_sub_permissions",
+                required=False,
+                type=bool,
+                description="(Only use for Service) Also remove permissions from sub-projects. "
+                "Defaults to True.",
+            )
+        ],
+    )
+    @user.mapping.delete
+    def remove_user(self, request, id, user_id):
+        remove_sub_permissions = (
+            request.query_params.get("remove_sub_permissions", "true").lower() == "true"
+        )
+        user = User.objects.get(id=user_id)
+        self.remove_perm(user, remove_sub_permissions)
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path=r"groups/(?P<group_id>\d+)")
+    def group(self, request, id, group_id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Remove Group",
+        description="Remove a group from the specified object.",
+        parameters=[
+            OpenApiParameter(
+                name="remove_sub_permissions",
+                required=False,
+                type=bool,
+                description="(Only use for Service) Also remove permissions from sub-projects. "
+                "Defaults to True.",
+            )
+        ],
+    )
+    @group.mapping.delete
+    def remove_group(self, request, id, group_id):
+        remove_sub_permissions = (
+            request.query_params.get("remove_sub_permissions", "true").lower() == "true"
+        )
+        group = models.Group.objects.get(id=group_id)
+        self.remove_perm(group, remove_sub_permissions)
+        return Response(status=HTTPStatus.NO_CONTENT)
+
 
 @extend_schema_view(
     list=extend_schema(summary="List Audit Logs", description="Retrieve a list of all audit logs."),
