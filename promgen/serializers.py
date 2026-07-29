@@ -2,6 +2,7 @@ import collections
 
 from dateutil import parser
 from django.db.models import prefetch_related_objects
+from guardian.models import UserObjectPermission
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
@@ -383,3 +384,28 @@ class GroupWithPermRetrieveSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     role = serializers.CharField()
+
+
+class PermissionAssignSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    role = serializers.ChoiceField(choices=["ADMIN", "EDITOR", "VIEWER"])
+
+
+class UserObjectPermissionSerializer(serializers.ModelSerializer):
+    object = serializers.CharField(source="content_object.name", required=True)
+    permission = serializers.CharField(source="permission.codename", required=True)
+    user = serializers.CharField(source="user.username", required=True)
+
+    class Meta:
+        model = UserObjectPermission
+        fields = ("id", "object", "permission", "user")
+
+
+class GroupObjectPermissionSerializer(serializers.ModelSerializer):
+    object = serializers.CharField(source="content_object.name", required=True)
+    permission = serializers.CharField(source="permission.codename", required=True)
+    group = serializers.CharField(source="group.name", required=True)
+
+    class Meta:
+        model = UserObjectPermission
+        fields = ("id", "group", "object", "permission")

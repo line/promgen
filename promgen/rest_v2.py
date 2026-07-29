@@ -163,6 +163,52 @@ class PermissionManagementMixin:
             serializers.GroupWithPermRetrieveSerializer(page, many=True).data
         )
 
+    @extend_schema(
+        summary="Assign User",
+        description="Assign permission for a user to the specified object. "
+        "Assigning permission for an already assigned user will override the role.",
+        request=serializers.PermissionAssignSerializer,
+        responses=serializers.UserObjectPermissionSerializer,
+    )
+    @users.mapping.post
+    def assign_user(self, request, id):
+        object = self.get_object()
+        serializer = serializers.PermissionAssignSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = User.objects.get(id=serializer.validated_data["id"])
+        if not user.is_active:
+            raise ValidationError({"detail": "Cannot assign permissions to an inactive user."})
+        content_type = ContentType.objects.get_for_model(object)
+        permission = content_type.model + "_" + serializer.validated_data["role"].lower()
+        user_object_perm = assign_perm(permission, user, object)
+        return Response(
+            serializers.UserObjectPermissionSerializer(user_object_perm).data,
+            status=HTTPStatus.CREATED,
+        )
+
+    @extend_schema(
+        summary="Assign Group",
+        description="Assign permission for a group to the specified object. "
+        "Assigning permission for an already assigned group will override the role.",
+        request=serializers.PermissionAssignSerializer,
+        responses=serializers.GroupObjectPermissionSerializer,
+    )
+    @groups.mapping.post
+    def assign_group(self, request, id):
+        object = self.get_object()
+        serializer = serializers.PermissionAssignSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        group = models.Group.objects.get(id=serializer.validated_data["id"])
+        content_type = ContentType.objects.get_for_model(object)
+        permission = content_type.model + "_" + serializer.validated_data["role"].lower()
+        group_object_perm = assign_perm(permission, group, object)
+        return Response(
+            serializers.GroupObjectPermissionSerializer(group_object_perm).data,
+            status=HTTPStatus.CREATED,
+        )
+
 
 @extend_schema_view(
     list=extend_schema(summary="List Audit Logs", description="Retrieve a list of all audit logs."),
