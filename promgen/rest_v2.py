@@ -18,7 +18,7 @@ from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from rest_framework import mixins, pagination, routers, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, ValidationError
+from rest_framework.exceptions import MethodNotAllowed, PermissionDenied, ValidationError
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -729,12 +729,14 @@ class GroupViewSet(viewsets.ModelViewSet):
     partial_update=extend_schema(
         summary="Partially Update Project", description="Partially update an existing project."
     ),
+    destroy=extend_schema(summary="Delete Project", description="Delete an existing project."),
 )
 @extend_schema(tags=["Project"])
 class ProjectViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = models.Project.objects.all()
@@ -769,3 +771,13 @@ class ProjectViewSet(
 
         if owner_changed:
             assign_perm("project_admin", new_owner, project)
+
+    def destroy(self, request, *args, **kwargs):
+        project = self.get_object()
+        if (
+            not request.user.is_superuser
+            and project.owner != request.user
+            and project.service.owner != request.user
+        ):
+            raise PermissionDenied("Only the project or the service owner can delete the project.")
+        return super().destroy(request, *args, **kwargs)

@@ -3,10 +3,12 @@ An unauthenticated user cannot list projects.,,,GET,api-v2:project-list,,,401,
 An unauthenticated user cannot view project detail.,,,GET,api-v2:project-detail,"{""id"": 1}",,401,
 An unauthenticated user cannot update a project.,,,PUT,api-v2:project-detail,"{""id"": 1}",,401,
 An unauthenticated user cannot partially update a project.,,,PATCH,api-v2:project-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot delete a project.,,,DELETE,api-v2:project-detail,"{""id"": 1}",,401,
 An authenticated user without permissions sees no projects.,demo,,GET,api-v2:project-list,,,200,"{""count"": 0}"
 An authenticated user without permissions cannot view project detail.,demo,,GET,api-v2:project-detail,"{""id"": 1}",,403,
 An authenticated user without permissions cannot update a project.,demo,,PUT,api-v2:project-detail,"{""id"": 1}",,403,
 An authenticated user without permissions cannot partially update a project.,demo,,PATCH,api-v2:project-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot delete a project.,demo,,DELETE,api-v2:project-detail,"{""id"": 1}",,403,
 A viewer can list projects.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:project-list,,,200,"{""example"": ""rest.project.list.json""}"
 A viewer can list projects with pagination.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:project-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
 A viewer can filter projects by name.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}, {""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 2}]",GET,api-v2:project-list,,"{""name"": ""test""}",200,"{""count"": 1}"
@@ -17,6 +19,8 @@ A viewer can filter projects by shard ID.,demo,"[{""codename"": ""project_viewer
 A viewer can view project detail.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",GET,api-v2:project-detail,"{""id"": 1}",,200,"{""example"": ""rest.project.detail.json""}"
 A viewer cannot update a project.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PUT,api-v2:project-detail,"{""id"": 1}",,403,
 A viewer cannot partially update a project.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PATCH,api-v2:project-detail,"{""id"": 1}",,403,
+A viewer cannot delete a project.,demo,"[{""codename"": ""project_viewer"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:project-detail,"{""id"": 1}",,403,
 An editor can update a project.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PUT,api-v2:project-detail,"{""id"": 1}","{""name"": ""updated-project"", ""owner"": 1, ""shard"": 1, ""description"": ""Test Project Description"", ""service"": 1}",200,
 An editor cannot change project owner when not current owner.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PUT,api-v2:project-detail,"{""id"": 1}","{""name"": ""updated-project"", ""owner"": 2, ""shard"": 1, ""description"": ""Test Project Description"", ""service"": 1}",400,
 An editor can partially update a project.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",PATCH,api-v2:project-detail,"{""id"": 1}","{""name"": ""updated-project""}",200,
+An editor cannot delete a project.,demo,"[{""codename"": ""project_editor"", ""model"": ""promgen.project"", ""obj_pk"": 1}]",DELETE,api-v2:project-detail,"{""id"": 1}",,403,

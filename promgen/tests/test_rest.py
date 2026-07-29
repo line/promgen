@@ -333,3 +333,64 @@ class RestAPITest(tests.PromgenTest):
         self.assertEqual(
             response.json(), {"owner": "You do not have permission to change the owner."}
         )
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_project__deleting_project(self):
+        # Prepare test data
+        admin = User.objects.get(username="admin")
+        admin_token = Token.objects.filter(user=admin).first().key
+        user = User.objects.get(username="demo")
+        user_token = Token.objects.filter(user=user).first().key
+
+        response = self.client.delete(
+            reverse("api-v2:project-detail", kwargs={"id": 1}),
+            HTTP_AUTHORIZATION=f"Token {admin_token}",
+        )
+        self.assertEqual(response.status_code, 204, "Site Admin can delete project.")
+
+        # Recreate the deleted project for the next test case
+        models.Project.objects.create(name="test-project", owner_id=1, shard_id=1, service_id=1)
+        project = models.Project.objects.get(name="test-project")
+        assign_perm("project_admin", user, project)
+
+        response = self.client.delete(
+            reverse("api-v2:project-detail", kwargs={"id": project.pk}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(
+            response.status_code, 403, "Non-owner project admin cannot delete project."
+        )
+
+        project.owner = user
+        project.save()
+        project.refresh_from_db()
+
+        response = self.client.delete(
+            reverse("api-v2:project-detail", kwargs={"id": project.pk}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 204, "Project owner can delete project.")
+
+        # Recreate the deleted project for the next test case
+        models.Project.objects.create(name="test-project", owner_id=1, shard_id=1, service_id=1)
+        project = models.Project.objects.get(name="test-project")
+        assign_perm("service_admin", user, project.service)
+
+        response = self.client.delete(
+            reverse("api-v2:project-detail", kwargs={"id": project.pk}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(
+            response.status_code, 403, "Non-owner service admin cannot delete project."
+        )
+
+        service = project.service
+        service.owner = user
+        service.save()
+        service.refresh_from_db()
+
+        response = self.client.delete(
+            reverse("api-v2:project-detail", kwargs={"id": project.pk}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 204, "Service owner can delete project.")
