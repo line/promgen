@@ -353,3 +353,27 @@ class ProjectSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Project
         fields = "__all__"
+
+
+class ShardRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Shard
+        exclude = ("authorization",)
+
+
+class ServiceRetrieveSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+
+
+class ProjectRetrieveDetailSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    owner_id = serializers.ReadOnlyField(source="owner.id")
+    service = ServiceRetrieveSimpleSerializer()
+    shard = ShardRetrieveSerializer()
+    farm = FarmRetrieveSerializer()
+
+    class Meta:
+        model = models.Project
+        fields = "__all__"

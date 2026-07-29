@@ -721,12 +721,15 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 @extend_schema_view(
     list=extend_schema(summary="List Projects", description="Retrieve a list of all projects."),
+    retrieve=extend_schema(
+        summary="Retrieve Project",
+        description="Retrieve detailed information about a specific project.",
+    ),
 )
 @extend_schema(tags=["Project"])
-class ProjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class ProjectViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Project.objects.all()
     filterset_class = filters.ProjectFilter
-    serializer_class = serializers.ProjectSimpleSerializer
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
@@ -736,3 +739,8 @@ class ProjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if self.request.user.is_superuser or self.action != "list":
             return self.queryset
         return permissions.get_accessible_projects_for_user(self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return serializers.ProjectRetrieveDetailSerializer
+        return serializers.ProjectSimpleSerializer
