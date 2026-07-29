@@ -725,9 +725,18 @@ class GroupViewSet(viewsets.ModelViewSet):
         summary="Retrieve Project",
         description="Retrieve detailed information about a specific project.",
     ),
+    update=extend_schema(summary="Update Project", description="Update an existing project."),
+    partial_update=extend_schema(
+        summary="Partially Update Project", description="Partially update an existing project."
+    ),
 )
 @extend_schema(tags=["Project"])
-class ProjectViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class ProjectViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = models.Project.objects.all()
     filterset_class = filters.ProjectFilter
     lookup_value_regex = "[^/]+"
@@ -744,3 +753,19 @@ class ProjectViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
         if self.action == "retrieve":
             return serializers.ProjectRetrieveDetailSerializer
         return serializers.ProjectSimpleSerializer
+
+    def perform_update(self, serializer):
+        project = self.get_object()
+        original_owner_id = project.owner_id
+        new_owner = serializer.validated_data.get("owner")
+        owner_changed = new_owner is not None and new_owner.id != original_owner_id
+
+        if owner_changed and not (
+            self.request.user.is_superuser or self.request.user.id == original_owner_id
+        ):
+            raise ValidationError({"owner": "You do not have permission to change the owner."})
+
+        super().perform_update(serializer)
+
+        if owner_changed:
+            assign_perm("project_admin", new_owner, project)

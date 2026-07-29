@@ -294,3 +294,42 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_project.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_project__changing_owner(self):
+        # Prepare test data
+        admin = User.objects.get(username="admin")
+        admin_token = Token.objects.filter(user=admin).first().key
+        user = User.objects.get(username="demo")
+        user_token = Token.objects.filter(user=user).first().key
+        project = models.Project.objects.get(id=1)
+        assign_perm("project_admin", user, project)
+
+        response = self.client.patch(
+            reverse("api-v2:project-detail", kwargs={"id": 1}),
+            data={"owner": 2},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {admin_token}",
+        )
+        self.assertEqual(response.status_code, 200, "Site Admin can change project owner.")
+
+        response = self.client.patch(
+            reverse("api-v2:project-detail", kwargs={"id": 1}),
+            data={"owner": 1},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200, "Current owner can change project owner.")
+
+        response = self.client.patch(
+            reverse("api-v2:project-detail", kwargs={"id": 1}),
+            data={"owner": 2},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(
+            response.status_code, 400, "Non-owner project admin cannot change project owner."
+        )
+        self.assertEqual(
+            response.json(), {"owner": "You do not have permission to change the owner."}
+        )
