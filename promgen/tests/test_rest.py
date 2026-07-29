@@ -288,3 +288,9 @@ class RestAPITest(tests.PromgenTest):
             # Delete newly created group to avoid affecting other tests
             if case["case"] == "An authenticated user without permissions can create a group.":
                 models.Group.objects.get(name="new-group").delete()
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_project(self):
+        cases = tests.Data("cases", "test_rest_project.csv").csv()
+        for case in cases:
+            self._run_rest_test(case)

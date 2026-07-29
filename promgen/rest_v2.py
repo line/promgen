@@ -717,3 +717,22 @@ class GroupViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(
             serializers.GroupAssignedResourceSerializer(page, many=True).data
         )
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Projects", description="Retrieve a list of all projects."),
+)
+@extend_schema(tags=["Project"])
+class ProjectViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = models.Project.objects.all()
+    filterset_class = filters.ProjectFilter
+    serializer_class = serializers.ProjectSimpleSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_queryset(self):
+        if self.request.user.is_superuser or self.action != "list":
+            return self.queryset
+        return permissions.get_accessible_projects_for_user(self.request.user)

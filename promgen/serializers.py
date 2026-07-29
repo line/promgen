@@ -347,3 +347,9 @@ class AddMemberGroupSerializer(serializers.Serializer):
 
 class UpdateMemberGroupSerializer(serializers.Serializer):
     group_role = serializers.ChoiceField(choices=["ADMIN", "MEMBER"])
+
+
+class ProjectSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Project
+        fields = "__all__"
