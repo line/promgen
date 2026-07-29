@@ -1028,3 +1028,30 @@ class ProjectViewSet(
             serializers.ExporterRetrieveSerializer(exporter).data,
             status=HTTPStatus.CREATED,
         )
+
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="urls")
+    def urls(self, request, id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register URL",
+        description="Register a new URL for the specified project.",
+        request=serializers.RegisterURLToProjectSerializer,
+        responses={201: serializers.URLSerializer},
+    )
+    @urls.mapping.post
+    def register_url(self, request, id):
+        project = self.get_object()
+        serializer = serializers.RegisterURLToProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        url, created = models.URL.objects.get_or_create(
+            project=project,
+            url=serializer.validated_data["url"],
+            probe=serializer.validated_data["probe"],
+        )
+        return Response(serializers.URLSerializer(url).data, status=HTTPStatus.CREATED)

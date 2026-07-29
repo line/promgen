@@ -2,6 +2,8 @@ import collections
 
 from dateutil import parser
 from django.db.models import prefetch_related_objects
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from guardian.models import UserObjectPermission
 from rest_framework import serializers
 
@@ -415,3 +417,24 @@ class RegisterExporterToProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Exporter
         fields = ("job", "port", "path", "scheme", "enabled")
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class ProbeField(serializers.Field):
+    def to_internal_value(self, data):
+        try:
+            probe = models.Probe.objects.get(module=data)
+        except models.Probe.DoesNotExist:
+            raise serializers.ValidationError("Probe does not exist.")
+        return probe
+
+    def to_representation(self, value):
+        return value.module
+
+
+class RegisterURLToProjectSerializer(serializers.ModelSerializer):
+    probe = ProbeField()
+
+    class Meta:
+        model = models.URL
+        fields = ("url", "probe")
