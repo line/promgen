@@ -409,3 +409,9 @@ class GroupObjectPermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserObjectPermission
         fields = ("id", "group", "object", "permission")
+
+
+class RegisterExporterToProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Exporter
+        fields = ("job", "port", "path", "scheme", "enabled")

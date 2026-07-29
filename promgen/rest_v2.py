@@ -993,3 +993,38 @@ class ProjectViewSet(
         ):
             raise PermissionDenied("Only the project or the service owner can delete the project.")
         return super().destroy(request, *args, **kwargs)
+
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="exporters")
+    def exporters(self, request, id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Exporter",
+        description="Register a new exporter for the specified project.",
+        request=serializers.RegisterExporterToProjectSerializer,
+        responses={201: serializers.ExporterRetrieveSerializer},
+    )
+    @exporters.mapping.post
+    def register_exporter(self, request, id):
+        project = self.get_object()
+        serializer = serializers.RegisterExporterToProjectSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        attributes = {
+            "project_id": project.id,
+        }
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        exporter, created = models.Exporter.objects.get_or_create(**attributes)
+        return Response(
+            serializers.ExporterRetrieveSerializer(exporter).data,
+            status=HTTPStatus.CREATED,
+        )
