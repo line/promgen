@@ -16,9 +16,34 @@ class ServiceFilter(django_filters.rest_framework.FilterSet):
 
 
 class ProjectFilter(django_filters.rest_framework.FilterSet):
-    name = django_filters.CharFilter(field_name="name", lookup_expr="contains")
-    service = django_filters.CharFilter(field_name="service__name", lookup_expr="contains")
-    shard = django_filters.CharFilter(field_name="shard__name", lookup_expr="contains")
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by project name containing a specific substring. "
+        "Example: name=Example Project",
+    )
+    service = django_filters.CharFilter(
+        field_name="service__name",
+        lookup_expr="contains",
+        help_text="Filter by service name containing a specific substring. "
+        "Example: name=Example Service",
+    )
+    shard = django_filters.CharFilter(
+        field_name="shard__name",
+        lookup_expr="contains",
+        help_text="Filter by shard name containing a specific substring. "
+        "Example: name=Example Shard",
+    )
+    service_id = django_filters.NumberFilter(
+        field_name="service__id",
+        lookup_expr="exact",
+        help_text="Filter by exact service ID. Example: service_id=123",
+    )
+    shard_id = django_filters.NumberFilter(
+        field_name="shard__id",
+        lookup_expr="exact",
+        help_text="Filter by exact shard ID. Example: shard_id=123",
+    )
 
 
 class RuleFilter(django_filters.rest_framework.FilterSet):

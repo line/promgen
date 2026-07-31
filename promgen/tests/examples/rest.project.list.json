@@ -1,0 +1,23 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "description": "",
+      "id": 2,
+      "name": "another-project",
+      "owner": 2,
+      "service": 2,
+      "shard": 1
+    },
+    {
+      "description": "",
+      "id": 1,
+      "name": "test-project",
+      "owner": 1,
+      "service": 1,
+      "shard": 1
+    }
+  ]
+}
