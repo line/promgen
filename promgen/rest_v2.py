@@ -1237,12 +1237,17 @@ class ProjectViewSet(
         description="Retrieve detailed information about a specific service.",
     ),
     create=extend_schema(summary="Register Service", description="Create a new service."),
+    update=extend_schema(summary="Update Service", description="Update an existing service."),
+    partial_update=extend_schema(
+        summary="Partially Update Service", description="Partially update an existing service."
+    ),
 )
 @extend_schema(tags=["Service"])
 class ServiceViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = models.Service.objects.all()
@@ -1266,3 +1271,19 @@ class ServiceViewSet(
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        service = self.get_object()
+        original_owner_id = service.owner_id
+        new_owner = serializer.validated_data.get("owner")
+        owner_changed = new_owner is not None and new_owner.id != original_owner_id
+
+        if owner_changed and not (
+            self.request.user.is_superuser or self.request.user.id == original_owner_id
+        ):
+            raise ValidationError({"owner": "You do not have permission to change the owner."})
+
+        super().perform_update(serializer)
+
+        if owner_changed:
+            assign_perm("service_admin", new_owner, service)
