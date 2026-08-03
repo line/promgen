@@ -1245,6 +1245,7 @@ class ProjectViewSet(
 )
 @extend_schema(tags=["Service"])
 class ServiceViewSet(
+    NotifierMixin,
     RuleMixin,
     PermissionManagementMixin,
     viewsets.ModelViewSet,
