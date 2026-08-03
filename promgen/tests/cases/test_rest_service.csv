@@ -4,17 +4,21 @@ An unauthenticated user cannot view service detail.,,,GET,api-v2:service-detail,
 An unauthenticated user cannot create a service.,,,POST,api-v2:service-list,,,401,
 An unauthenticated user cannot update a service.,,,PUT,api-v2:service-detail,"{""id"": 1}",,401,
 An unauthenticated user cannot partially update a service.,,,PATCH,api-v2:service-detail,"{""id"": 1}",,401,
+An unauthenticated user cannot delete a service.,,,DELETE,api-v2:service-detail,"{""id"": 1}",,401,
 An authenticated user without permissions sees no services.,demo,,GET,api-v2:service-list,,,200,"{""count"": 0}"
 An authenticated user without permissions cannot view service detail.,demo,,GET,api-v2:service-detail,"{""id"": 1}",,403,
 An authenticated user without permissions can create a service.,demo,,POST,api-v2:service-list,,"{""name"": ""new-service"", ""owner"": 2, ""description"": ""Test New Service Description""}",201,
 An authenticated user without permissions cannot update a service.,demo,,PUT,api-v2:service-detail,"{""id"": 1}",,403,
 An authenticated user without permissions cannot partially update a service.,demo,,PATCH,api-v2:service-detail,"{""id"": 1}",,403,
+An authenticated user without permissions cannot delete a service.,demo,,DELETE,api-v2:service-detail,"{""id"": 1}",,403,
 A viewer can list services.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}, {""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 2}]",GET,api-v2:service-list,,,200,"{""example"": ""rest.service.list.json""}"
 A viewer can list services with pagination.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}, {""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 2}]",GET,api-v2:service-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
 A viewer can filter services by name.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}, {""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 2}]",GET,api-v2:service-list,,"{""name"": ""test""}",200,"{""results_length"": 1}"
 A viewer can view service detail.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",GET,api-v2:service-detail,"{""id"": 1}",,200,"{""example"": ""rest.service.detail.json""}"
 A viewer cannot update a service.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:service-detail,"{""id"": 1}",,403,
 A viewer cannot partially update a service.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PATCH,api-v2:service-detail,"{""id"": 1}",,403,
+A viewer cannot delete a service.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",DELETE,api-v2:service-detail,"{""id"": 1}",,403,
 An editor can update a service.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:service-detail,"{""id"": 1}","{""name"": ""updated-service"", ""owner"": 1, ""description"": ""Test Updated Description""}",200,
 An editor cannot change service owner when not current owner.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:service-detail,"{""id"": 1}","{""name"": ""updated-service"", ""owner"": 2, ""description"": ""Test Updated Description""}",400,
 An editor can partially update a service.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PATCH,api-v2:service-detail,"{""id"": 1}","{""name"": ""partial-updated-service""}",200,
+An editor cannot delete a service.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",DELETE,api-v2:service-detail,"{""id"": 1}",,403,

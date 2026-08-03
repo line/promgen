@@ -1241,14 +1241,11 @@ class ProjectViewSet(
     partial_update=extend_schema(
         summary="Partially Update Service", description="Partially update an existing service."
     ),
+    destroy=extend_schema(summary="Delete Service", description="Delete an existing service."),
 )
 @extend_schema(tags=["Service"])
 class ServiceViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.CreateModelMixin,
-    mixins.UpdateModelMixin,
-    viewsets.GenericViewSet,
+    viewsets.ModelViewSet,
 ):
     queryset = models.Service.objects.all()
     filterset_class = filters.ServiceFilter
@@ -1287,3 +1284,9 @@ class ServiceViewSet(
 
         if owner_changed:
             assign_perm("service_admin", new_owner, service)
+
+    def destroy(self, request, *args, **kwargs):
+        service = self.get_object()
+        if not request.user.is_superuser and service.owner != request.user:
+            raise PermissionDenied("Only the service owner can delete the service.")
+        return super().destroy(request, *args, **kwargs)
