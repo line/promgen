@@ -1236,9 +1236,15 @@ class ProjectViewSet(
         summary="Retrieve Service",
         description="Retrieve detailed information about a specific service.",
     ),
+    create=extend_schema(summary="Register Service", description="Create a new service."),
 )
 @extend_schema(tags=["Service"])
-class ServiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class ServiceViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
     queryset = models.Service.objects.all()
     filterset_class = filters.ServiceFilter
     lookup_value_regex = "[^/]+"
@@ -1254,4 +1260,9 @@ class ServiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     def get_serializer_class(self):
         if self.action == "retrieve":
             return serializers.ServiceRetrieveDetailSerializer
+        if self.action == "create":
+            return serializers.RegisterServiceSerializer
         return serializers.ServiceRetrieveSimpleSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

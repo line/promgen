@@ -468,3 +468,10 @@ class ServiceRetrieveDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Service
         fields = "__all__"
+
+
+class RegisterServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Service
+        fields = "__all__"
+        read_only_fields = ("owner",)

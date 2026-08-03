@@ -472,3 +472,7 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_service.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+            # Delete newly created service to avoid affecting other tests
+            if case["case"] == "An authenticated user without permissions can create a service.":
+                models.Service.objects.get(name="new-service").delete()
