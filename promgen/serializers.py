@@ -459,3 +459,12 @@ class RegisterNotifierSerializer(serializers.Serializer):
     alias = serializers.CharField(required=False)
     enabled = serializers.BooleanField(required=False, default=True)
     filters = FilterSerializer(many=True, required=False)
+
+
+class ServiceRetrieveDetailSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    owner_id = serializers.ReadOnlyField(source="owner.id")
+
+    class Meta:
+        model = models.Service
+        fields = "__all__"

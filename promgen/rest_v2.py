@@ -1232,12 +1232,15 @@ class ProjectViewSet(
         summary="List Services",
         description="Retrieve a list of all services.",
     ),
+    retrieve=extend_schema(
+        summary="Retrieve Service",
+        description="Retrieve detailed information about a specific service.",
+    ),
 )
 @extend_schema(tags=["Service"])
-class ServiceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class ServiceViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = models.Service.objects.all()
     filterset_class = filters.ServiceFilter
-    serializer_class = serializers.ServiceRetrieveSimpleSerializer
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
     pagination_class = PromgenPagination
@@ -1247,3 +1250,8 @@ class ServiceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if self.request.user.is_superuser or self.action != "list":
             return self.queryset
         return permissions.get_accessible_services_for_user(self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return serializers.ServiceRetrieveDetailSerializer
+        return serializers.ServiceRetrieveSimpleSerializer
