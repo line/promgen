@@ -1,0 +1,6 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot list services.,,,GET,api-v2:service-list,,,401,
+An authenticated user without permissions sees no services.,demo,,GET,api-v2:service-list,,,200,"{""count"": 0}"
+A viewer can list services.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}, {""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 2}]",GET,api-v2:service-list,,,200,"{""example"": ""rest.service.list.json""}"
+A viewer can list services with pagination.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}, {""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 2}]",GET,api-v2:service-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
+A viewer can filter services by name.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}, {""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 2}]",GET,api-v2:service-list,,"{""name"": ""test""}",200,"{""results_length"": 1}"
