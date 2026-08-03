@@ -1291,3 +1291,35 @@ class ServiceViewSet(
         if not request.user.is_superuser and service.owner != request.user:
             raise PermissionDenied("Only the service owner can delete the service.")
         return super().destroy(request, *args, **kwargs)
+
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=True, methods=["get"], url_path="project")
+    def projects(self, request, id):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Register Project",
+        description="Register a new project for the specified service.",
+        request=serializers.RegisterProjectToServiceSerializer,
+        responses={201: serializers.ProjectSimpleSerializer},
+    )
+    @projects.mapping.post
+    def register_project(self, request, id):
+        service = self.get_object()
+        serializer = serializers.RegisterProjectToServiceSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        attributes = {"service": service, "owner_id": request.user.id}
+
+        for field in serializer.fields:
+            value = serializer.validated_data.get(field)
+            if value is not None:
+                attributes[field] = value
+
+        project, _ = models.Project.objects.get_or_create(**attributes)
+        return Response(
+            serializers.ProjectSimpleSerializer(project).data, status=HTTPStatus.CREATED
+        )

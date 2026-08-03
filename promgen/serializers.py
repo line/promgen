@@ -475,3 +475,10 @@ class RegisterServiceSerializer(serializers.ModelSerializer):
         model = models.Service
         fields = "__all__"
         read_only_fields = ("owner",)
+
+
+class RegisterProjectToServiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Project
+        fields = "__all__"
+        read_only_fields = ("service", "owner")
