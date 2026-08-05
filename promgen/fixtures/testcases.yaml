@@ -17,8 +17,11 @@
   fields:
     username: demo
     password: demo
+    first_name: DemoFirstName
+    last_name: DemoLastName
     email: demo@example.com
     is_active: true
+    date_joined: 2026-08-05T00:00:00Z
 - model: authtoken.token
   pk: 1
   fields:
