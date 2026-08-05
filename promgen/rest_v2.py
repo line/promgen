@@ -13,6 +13,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from drf_spectacular.views import SpectacularAPIView
+from guardian.conf.settings import ANONYMOUS_USER_NAME
 from guardian.models import GroupObjectPermission
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from rest_framework import mixins, pagination, routers, viewsets
@@ -1325,3 +1326,20 @@ class ServiceViewSet(
         return Response(
             serializers.ProjectSimpleSerializer(project).data, status=HTTPStatus.CREATED
         )
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Users", description="Retrieve a list of all users."),
+)
+@extend_schema(tags=["User"])
+class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = (
+        User.objects.filter(is_active=True)
+        .exclude(username=ANONYMOUS_USER_NAME)
+        .order_by("username")
+    )
+    filterset_class = filters.UserFilter
+    serializer_class = serializers.UserRetrieveSimpleSerializer
+    lookup_value_regex = "[^/]+"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
