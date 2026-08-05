@@ -1,8 +1,10 @@
 case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
 An unauthenticated user cannot list users.,,,GET,api-v2:user-list,,,401,
+An unauthenticated user cannot get current user detail.,,,GET,api-v2:user-get-current-user,,,401,
 An authenticated user can list users.,demo,,GET,api-v2:user-list,,,200,"{""example"": ""rest.user.list.json""}"
 An authenticated user can list users with pagination.,demo,,GET,api-v2:user-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
 An authenticated user can filter users by username.,demo,,GET,api-v2:user-list,,"{""q"": ""demo""}",200,"{""count"": 1}"
 An authenticated user can filter users by email.,demo,,GET,api-v2:user-list,,"{""q"": ""demo@example""}",200,"{""count"": 1}"
 An authenticated user can filter users by first name.,demo,,GET,api-v2:user-list,,"{""q"": ""DemoFirst""}",200,"{""count"": 1}"
 An authenticated user can filter users by last name.,demo,,GET,api-v2:user-list,,"{""q"": ""DemoLast""}",200,"{""count"": 1}"
+An authenticated user can retrieve current user detail.,demo,,GET,api-v2:user-get-current-user,,,200,"{""example"": ""rest.user.detail.json""}"

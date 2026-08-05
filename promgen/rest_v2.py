@@ -1343,3 +1343,12 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     lookup_value_regex = "[^/]+"
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    @extend_schema(
+        summary="Get Current User",
+        description="Retrieve the current authenticated user's information.",
+        responses=serializers.UserRetrieveDetailSerializer,
+    )
+    @action(detail=False, methods=["get"], url_path="me")
+    def get_current_user(self, request):
+        return Response(serializers.UserRetrieveDetailSerializer(request.user).data)
