@@ -1,6 +1,7 @@
 import collections
 
 from dateutil import parser
+from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -482,3 +483,24 @@ class RegisterProjectToServiceSerializer(serializers.ModelSerializer):
         model = models.Project
         fields = "__all__"
         read_only_fields = ("service", "owner")
+
+
+class UserRetrieveSimpleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "username", "email", "first_name", "last_name")
+
+
+class UserRetrieveDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "is_staff",
+            "is_superuser",
+            "date_joined",
+        )

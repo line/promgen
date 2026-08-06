@@ -1,7 +1,7 @@
 import django_filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import F, Value
+from django.db.models import F, Q, Value
 from django.db.models.functions import Coalesce, NullIf
 
 from promgen import models
@@ -273,3 +273,18 @@ class GroupFilter(django_filters.rest_framework.FilterSet):
         help_text="Filter by group name containing a specific substring. "
         "Example: name=Example Group",
     )
+
+
+class UserFilter(django_filters.rest_framework.FilterSet):
+    q = django_filters.CharFilter(
+        method="filter_q",
+        help_text="Search in username, email, first name, and last name. Example: q=example",
+    )
+
+    def filter_q(self, queryset, name, value):
+        return queryset.filter(
+            Q(username__contains=value)
+            | Q(email__contains=value)
+            | Q(first_name__contains=value)
+            | Q(last_name__contains=value)
+        )

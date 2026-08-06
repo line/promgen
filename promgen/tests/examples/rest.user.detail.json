@@ -1,0 +1,10 @@
+{
+  "id": 2,
+  "username": "demo",
+  "email": "demo@example.com",
+  "first_name": "DemoFirstName",
+  "last_name": "DemoLastName",
+  "is_staff": false,
+  "is_superuser": false,
+  "date_joined": "2026-08-05T00:00:00Z"
+}

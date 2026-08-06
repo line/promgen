@@ -13,6 +13,7 @@ from drf_spectacular.utils import (
     extend_schema_view,
 )
 from drf_spectacular.views import SpectacularAPIView
+from guardian.conf.settings import ANONYMOUS_USER_NAME
 from guardian.models import GroupObjectPermission
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from rest_framework import mixins, pagination, routers, viewsets
@@ -327,6 +328,28 @@ class RuleMixin:
         )
 
 
+def _create_notifier(request, object):
+    serializer = serializers.RegisterNotifierSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+
+    attributes = {
+        "content_type_id": ContentType.objects.get_for_model(object).id,
+        "object_id": object.id,
+        "owner_id": request.user.id,
+    }
+
+    for field in serializer.fields:
+        value = serializer.validated_data.get(field)
+        if value is not None and field != "filters":
+            attributes[field] = value
+
+    notifier, created = models.Sender.objects.get_or_create(**attributes)
+    for filter_data in serializer.validated_data.get("filters", []):
+        models.Filter.objects.get_or_create(sender=notifier, **filter_data)
+
+    return notifier
+
+
 class NotifierMixin:
     # We let the GET method return MethodNotAllowed because we don't want to implement this API.
     # However, we still need to define the function so that Django REST Framework can generate
@@ -345,23 +368,7 @@ class NotifierMixin:
     @notifiers.mapping.post
     def register_notifier(self, request, id):
         object = self.get_object()
-        serializer = serializers.RegisterNotifierSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        attributes = {
-            "content_type_id": ContentType.objects.get_for_model(object).id,
-            "object_id": object.id,
-            "owner_id": request.user.id,
-        }
-
-        for field in serializer.fields:
-            value = serializer.validated_data.get(field)
-            if value is not None and field != "filters":
-                attributes[field] = value
-
-        notifier, created = models.Sender.objects.get_or_create(**attributes)
-        for filter_data in serializer.validated_data.get("filters", []):
-            models.Filter.objects.get_or_create(sender=notifier, **filter_data)
+        notifier = _create_notifier(request, object)
         return Response(
             serializers.NotifierSerializer(notifier).data,
             status=HTTPStatus.CREATED,
@@ -1324,4 +1331,53 @@ class ServiceViewSet(
         project, _ = models.Project.objects.get_or_create(**attributes)
         return Response(
             serializers.ProjectSimpleSerializer(project).data, status=HTTPStatus.CREATED
+        )
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Users", description="Retrieve a list of all users."),
+)
+@extend_schema(tags=["User"])
+class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = (
+        User.objects.filter(is_active=True)
+        .exclude(username=ANONYMOUS_USER_NAME)
+        .order_by("username")
+    )
+    filterset_class = filters.UserFilter
+    serializer_class = serializers.UserRetrieveSimpleSerializer
+    lookup_value_regex = "[^/]+"
+    pagination_class = PromgenPagination
+    permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    @extend_schema(
+        summary="Get Current User",
+        description="Retrieve the current authenticated user's information.",
+        responses=serializers.UserRetrieveDetailSerializer,
+    )
+    @action(detail=False, methods=["get"], url_path="me")
+    def get_current_user(self, request):
+        return Response(serializers.UserRetrieveDetailSerializer(request.user).data)
+
+    @extend_schema(
+        summary="Register User's Notifier",
+        description="Register a new notifier for the current user.",
+        request=serializers.RegisterNotifierSerializer,
+        responses={201: serializers.NotifierSerializer},
+    )
+    @action(detail=False, methods=["post"], url_path="me/notifiers")
+    def register_user_notifier(self, request):
+        serializer = serializers.RegisterNotifierSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if serializer.validated_data.get("sender") == "promgen.notification.user":
+            return Response(
+                {"detail": "Cannot register a promgen.notification.user notifier for a user."},
+                status=HTTPStatus.BAD_REQUEST,
+            )
+
+        notifier = _create_notifier(request, request.user)
+        return Response(
+            serializers.NotifierSerializer(notifier).data,
+            status=HTTPStatus.CREATED,
         )
