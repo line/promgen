@@ -1381,3 +1381,16 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             serializers.NotifierSerializer(notifier).data,
             status=HTTPStatus.CREATED,
         )
+
+
+@extend_schema_view(
+    list=extend_schema(summary="List Shards", description="Retrieve a list of all shards."),
+)
+@extend_schema(tags=["Shard"])
+class ShardViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = models.Shard.objects.all()
+    filterset_class = filters.ShardFilter
+    serializer_class = serializers.ShardRetrieveDetailSerializer
+    lookup_value_regex = "[^/]+"
+    lookup_field = "id"
+    pagination_class = PromgenPagination

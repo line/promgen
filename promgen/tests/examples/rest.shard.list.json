@@ -1,0 +1,29 @@
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "enabled": false,
+      "id": 2,
+      "name": "other-shard",
+      "proxy": false,
+      "samples": 5000000,
+      "targets": 10000,
+      "url": "http://prometheus-002.example.com",
+      "samples_count": 0,
+      "targets_count": 0
+    },
+    {
+      "enabled": true,
+      "id": 1,
+      "name": "test-shard",
+      "proxy": true,
+      "samples": 5000000,
+      "targets": 10000,
+      "url": "http://prometheus.example.com",
+      "samples_count": 0,
+      "targets_count": 0
+    }
+  ]
+}

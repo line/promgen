@@ -8,7 +8,12 @@ from promgen import models
 
 
 class ShardFilter(django_filters.rest_framework.FilterSet):
-    name = django_filters.CharFilter(field_name="name", lookup_expr="contains")
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="contains",
+        help_text="Filter by shard name containing a specific substring. "
+        "Example: name=Example Shard",
+    )
 
 
 class ServiceFilter(django_filters.rest_framework.FilterSet):
