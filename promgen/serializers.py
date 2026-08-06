@@ -504,3 +504,12 @@ class UserRetrieveDetailSerializer(serializers.ModelSerializer):
             "is_superuser",
             "date_joined",
         )
+
+
+class ShardRetrieveDetailSerializer(serializers.ModelSerializer):
+    samples_count = serializers.IntegerField(read_only=True, help_text="Number of samples.")
+    targets_count = serializers.IntegerField(read_only=True, help_text="Number of targets.")
+
+    class Meta:
+        model = models.Shard
+        exclude = ("authorization",)

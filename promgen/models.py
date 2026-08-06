@@ -17,7 +17,7 @@ from django.utils.functional import cached_property
 from django.utils.text import slugify
 
 import promgen.templatetags.promgen as macro
-from promgen import plugins, tests, validators
+from promgen import plugins, tests, util, validators
 from promgen.shortcuts import resolve_domain
 
 logger = logging.getLogger(__name__)
@@ -224,6 +224,28 @@ class Shard(models.Model):
         if self.enabled:
             return self.name
         return self.name + " (disabled)"
+
+    @property
+    def samples_count(self):
+        return self._query_count("sum(scrape_samples_scraped)", "sample count")
+
+    @property
+    def targets_count(self):
+        return self._query_count("count(up)", "target count")
+
+    def _query_count(self, query, metric_name):
+        try:
+            headers = {"Authorization": self.authorization} if self.authorization else {}
+            response = util.get(
+                f"{self.url}/api/v1/query", params={"query": query}, headers=headers
+            )
+            response.raise_for_status()
+            data = response.json()
+            value = data["data"]["result"][0]["value"][1]
+            return int(value)
+        except Exception as e:
+            logger.warning("Error fetching %s for shard %s: %s", metric_name, self.name, e)
+            return 0
 
 
 class Service(models.Model):
