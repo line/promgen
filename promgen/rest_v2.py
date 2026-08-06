@@ -303,13 +303,13 @@ class RuleMixin:
     @extend_schema(
         summary="Register Rule",
         description="Register a new rule for the specified object.",
-        request=serializers.RuleRetrieveSimpleSerializer,
-        responses={201: serializers.RuleRetrieveSimpleSerializer},
+        request=serializers.RuleRetrieveDetailSerializer,
+        responses={201: serializers.RuleRetrieveDetailSerializer},
     )
     @rules.mapping.post
     def register_rule(self, request, id):
         object = self.get_object()
-        serializer = serializers.RuleRetrieveSimpleSerializer(data=request.data)
+        serializer = serializers.RuleRetrieveDetailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         attributes = {
@@ -324,7 +324,7 @@ class RuleMixin:
 
         rule, created = models.Rule.objects.get_or_create(**attributes)
         return Response(
-            serializers.RuleRetrieveSimpleSerializer(rule).data, status=HTTPStatus.CREATED
+            serializers.RuleRetrieveDetailSerializer(rule).data, status=HTTPStatus.CREATED
         )
 
 
