@@ -1,0 +1,3 @@
+case,user,permissions,method,viewname,kwargs,payload,expected_status,expected_response
+An unauthenticated user cannot retrieve the current Site Rule's information.,,,GET,api-v2:site-get-current-site,,,401,
+An authenticated user can retrieve the current Site Rule's information.,demo,,GET,api-v2:site-get-current-site,,,200,"{""example"": ""rest.site.detail.json""}"
