@@ -313,7 +313,9 @@ class RuleMixin:
         serializer.is_valid(raise_exception=True)
 
         attributes = {
-            "content_type_id": ContentType.objects.get_for_model(object).id,
+            "content_type_id": ContentType.objects.get_for_model(
+                object, for_concrete_model=False
+            ).id,
             "object_id": object.id,
         }
 
@@ -1401,7 +1403,7 @@ class ShardViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.Ge
 
 
 @extend_schema(tags=["Site"])
-class SiteViewSet(viewsets.GenericViewSet):
+class SiteViewSet(RuleMixin, viewsets.GenericViewSet):
     queryset = models.Site.objects.all()
     lookup_value_regex = "[^/]+"
     lookup_field = "id"
