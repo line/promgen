@@ -45,7 +45,7 @@ class RuleTest(tests.PromgenTest):
     @mock.patch("django.dispatch.dispatcher.Signal.send")
     def test_copy(self, mock_post):
         rule = models.Rule.objects.get(pk=1)
-        copy = rule.copy_to(content_type="service", object_id=2)
+        copy = rule.override(content_type="service", object_id=2)
         # Test that our copy has the same labels and annotations
         self.assertIn("severity", copy.labels)
         self.assertIn("summary", copy.annotations)
@@ -125,9 +125,9 @@ class RuleTest(tests.PromgenTest):
             name="Common", clause=clause, duration="1s", obj=self.site
         )
         rules["common"]["model"] = models.Rule.objects.get(pk=common_rule.pk)
-        service_rule = common_rule.copy_to("service", self.service.id)
+        service_rule = common_rule.override("service", self.service.id)
         rules["service"]["model"] = models.Rule.objects.get(pk=service_rule.pk)
-        project_rule = service_rule.copy_to("project", self.project.id)
+        project_rule = service_rule.override("project", self.project.id)
         rules["project"]["model"] = models.Rule.objects.get(pk=project_rule.pk)
 
         for k, r in rules.items():

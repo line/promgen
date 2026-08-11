@@ -779,7 +779,7 @@ class RulesCopy(PromgenGuardianPermissionMixin, View):
         form = forms.RuleCopyForm(request.POST)
 
         if form.is_valid():
-            rule = original.copy_to(**form.clean())
+            rule = original.override(**form.clean())
             return HttpResponseRedirect(reverse("rule-edit", args=[rule.id]))
         else:
             return HttpResponseRedirect(reverse("service-detail", args=[pk]) + "#rules")

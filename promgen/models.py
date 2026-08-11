@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models, transaction
 from django.forms.models import model_to_dict
 from django.urls import reverse
@@ -496,9 +497,9 @@ class Rule(models.Model):
         )
         self.object_id = object_id
 
-    def copy_to(self, content_type, object_id):
+    def override(self, content_type, object_id, **overrides):
         """
-        Make a copy under a new service
+        Make an overridden rule under a new content object
 
         It's important that we set pk to None so a new object is created, but we
         also need to ensure the new name is unique by appending some unique data
@@ -521,13 +522,21 @@ class Rule(models.Model):
             self.name = f"{self.name}_{slugify(content_object.name)}".replace("-", "_")
             self.content_type = content_type
             self.object_id = object_id
-            # Enable the copy by default since it's more likely the user prefers
-            # to have their own copy enabled rather than the original one.
+            # Enable the rule by default since it's more likely the user prefers
+            # to have their own rule enabled rather than the original one.
             self.enabled = True
             self.clause = self.clause.replace(
                 macro.EXCLUSION_MACRO,
                 f'{content_type.model}="{content_object.name}",{macro.EXCLUSION_MACRO}',
             )
+
+            # Override original fields
+            for field, value in overrides.items():
+                try:
+                    self._meta.get_field(field)
+                except FieldDoesNotExist:
+                    continue
+                setattr(self, field, value)
 
             # Add a label to our new rule by default, to help ensure notifications
             # get routed to the notifier we expect
