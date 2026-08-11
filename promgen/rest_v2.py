@@ -19,7 +19,7 @@ from guardian.shortcuts import assign_perm, get_perms, remove_perm
 from rest_framework import mixins, pagination, routers, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action
-from rest_framework.exceptions import MethodNotAllowed, PermissionDenied, ValidationError
+from rest_framework.exceptions import MethodNotAllowed, NotFound, PermissionDenied, ValidationError
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -328,6 +328,41 @@ class RuleMixin:
         return Response(
             serializers.RuleRetrieveDetailSerializer(rule).data, status=HTTPStatus.CREATED
         )
+
+    @extend_schema(
+        summary="Override Rule",
+        description="Register a new rule that overrides an existing rule for the specified object.",
+        request=serializers.RuleOverrideSerializer,
+        responses={201: serializers.RuleRetrieveDetailSerializer},
+    )
+    @action(detail=True, methods=["post"], url_path="rules/override", url_name="rules-override")
+    def override_rule(self, request, id):
+        object = self.get_object()
+        serializer = serializers.RuleOverrideSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        original_rule = models.Rule.objects.get(pk=serializer.validated_data["original_rule_id"])
+
+        if isinstance(object, models.Service) and not isinstance(
+            original_rule.content_object, models.Site
+        ):
+            raise ValidationError({"detail": "Service Rule must be inherited from a Site Rule."})
+
+        if isinstance(object, models.Project) and not (
+            isinstance(original_rule.content_object, models.Site)
+            or original_rule.content_object == object.service
+        ):
+            raise ValidationError(
+                {
+                    "detail": "Project Rule must be inherited from a Site Rule "
+                    "or its parent Service Rule."
+                }
+            )
+
+        content_type = ContentType.objects.get_for_model(object).model
+        rule = original_rule.override(
+            content_type, object.id, **serializer.validated_data.get("overrides", {})
+        )
+        return Response(serializers.RuleRetrieveDetailSerializer(rule).data, HTTPStatus.CREATED)
 
 
 def _create_notifier(request, object):
@@ -1419,3 +1454,7 @@ class SiteViewSet(RuleMixin, viewsets.GenericViewSet):
     def get_current_site(self, request):
         current_site = models.Site.objects.get_current()
         return Response(serializers.SiteRetrieveSerializer(current_site).data)
+
+    @extend_schema(exclude=True)
+    def override_rule(self, request, id):
+        raise NotFound()
