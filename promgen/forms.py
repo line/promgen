@@ -149,6 +149,19 @@ class ServiceUpdate(forms.ModelForm):
         exclude = []
 
 
+class ProjectRegister(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        # service is determined by the pk in the project register url
+        exclude = ["service"]
+
+    def clean_shard(self):
+        shard = self.cleaned_data["shard"]
+        if not shard.enabled:
+            raise ValidationError("Shard is disabled.")
+        return shard
+
+
 class URLForm(forms.ModelForm):
     class Meta:
         model = models.URL

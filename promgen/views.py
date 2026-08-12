@@ -1012,7 +1012,7 @@ class ProjectRegister(PromgenGuardianPermissionMixin, CreateView):
     permission_required = ["service_admin", "service_editor"]
     button_label = _("Register Project")
     model = models.Project
-    fields = ["name", "description", "owner", "shard"]
+    form_class = forms.ProjectRegister
 
     def get_initial(self):
         initial = {}
