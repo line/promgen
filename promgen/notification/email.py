@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class FormEmail(forms.Form):
-    value = forms.CharField(
+    value = forms.EmailField(
         required=True,
         label="Email Address",
     )
