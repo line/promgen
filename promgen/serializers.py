@@ -494,6 +494,11 @@ class RegisterProjectToServiceSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ("service", "owner")
 
+    def validate_shard(self, shard):
+        if not shard.enabled:
+            raise serializers.ValidationError("Shard is disabled.")
+        return shard
+
 
 class UserRetrieveSimpleSerializer(serializers.ModelSerializer):
     class Meta:
