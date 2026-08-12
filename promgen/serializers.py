@@ -368,6 +368,12 @@ class ProjectSimpleSerializer(serializers.ModelSerializer):
         model = models.Project
         fields = "__all__"
 
+    def validate_shard(self, shard):
+        # If the shard is being changed, we need to make sure that the new shard is enabled.
+        if shard != self.instance.shard and not shard.enabled:
+            raise serializers.ValidationError("Shard is disabled.")
+        return shard
+
 
 class ShardRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
