@@ -7,10 +7,12 @@ from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.core import validators
 from django.urls import path
 from django.utils.html import format_html
 
 from promgen import actions, models, plugins, views
+from promgen.notification.email import NotificationEmail
 
 
 class PrometheusInline(admin.TabularInline):
@@ -60,6 +62,11 @@ class SenderForm(forms.ModelForm):
     class Meta:
         model = models.Sender
         exclude = ["content_object"]
+
+    def clean(self):
+        if self.cleaned_data["sender"] == NotificationEmail.__module__:
+            validator = validators.EmailValidator()
+            validator(self.cleaned_data["value"])
 
 
 @admin.register(models.Sender)
