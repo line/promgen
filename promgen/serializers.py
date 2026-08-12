@@ -251,6 +251,16 @@ class RuleRetrieveSimpleSerializer(serializers.ModelSerializer):
 class RuleRetrieveDetailSerializer(serializers.ModelSerializer):
     content_name = serializers.CharField(read_only=True, source="content_object.name")
     content_type = serializers.CharField(read_only=True, source="content_type.model")
+    annotations = serializers.DictField(
+        required=False,
+        child=serializers.CharField(),
+        help_text="Provide extra details for notifications",
+    )
+    labels = serializers.DictField(
+        required=False,
+        child=serializers.CharField(),
+        help_text="Control routing through AlertManager and Promgen",
+    )
 
     class Meta:
         model = models.Rule
