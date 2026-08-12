@@ -162,6 +162,19 @@ class ProjectRegister(forms.ModelForm):
         return shard
 
 
+class ProjectUpdate(forms.ModelForm):
+    class Meta:
+        model = models.Project
+        exclude = []
+
+    def clean_shard(self):
+        shard = self.cleaned_data["shard"]
+        # If the shard is being changed, we need to make sure that the new shard is enabled.
+        if shard != self.instance.shard and not shard.enabled:
+            raise ValidationError("Shard is disabled.")
+        return shard
+
+
 class URLForm(forms.ModelForm):
     class Meta:
         model = models.URL

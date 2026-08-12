@@ -1047,7 +1047,7 @@ class ProjectUpdate(PromgenGuardianPermissionMixin, UpdateView):
     model = models.Project
     button_label = _("Project Update")
     template_name = "promgen/project_form.html"
-    fields = ["name", "description", "owner", "service", "shard"]
+    form_class = forms.ProjectUpdate
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
