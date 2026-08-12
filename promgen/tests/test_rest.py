@@ -564,3 +564,9 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_shard.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_site(self):
+        cases = tests.Data("cases", "test_rest_site.csv").csv()
+        for case in cases:
+            self._run_rest_test(case)

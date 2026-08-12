@@ -513,3 +513,9 @@ class ShardRetrieveDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Shard
         exclude = ("authorization",)
+
+
+class SiteRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Site
+        fields = "__all__"
