@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% for rule in rule_list %}
-<tr class="{% if not rule.enabled %}promgen-disabled{% endif %} {% if collapse %}active collapse {{ collapse }}{{overwrite_id}}{% endif %}">
+<tr class="{% if not rule.enabled %}promgen-disabled{% endif %} {% if collapse %}active collapse {{ collapse }}{{override_id}}{% endif %}">
   <td>
     <a title="{{rule.description}}" data-toggle="tooltip" data-placement="right" href="{% url 'rule-detail' rule.id %}" v-pre>{{ rule.name }}</a>
     {% if rule.parent %}
@@ -31,13 +31,13 @@
   {% endif %}
 
   {% if modify %}
-  {% if overwrite_id %}
+  {% if override_id %}
   <td>
-    <form method="post" action="{% url 'rule-overwrite' rule.pk %}" style="display: inline">
-      <input name="content_type" type="hidden" value="{{overwrite_type}}" />
-      <input name="object_id" type="hidden" value="{{overwrite_id}}" />
+    <form method="post" action="{% url 'rule-override' rule.pk %}" style="display: inline">
+      <input name="content_type" type="hidden" value="{{override_type}}" />
+      <input name="object_id" type="hidden" value="{{override_id}}" />
       {% csrf_token %}
-      <button class="btn btn-warning btn-xs">{% trans "Overwrite" %}</button>
+      <button class="btn btn-warning btn-xs">{% trans "Override" %}</button>
     </form>
   </td>
   {% else %}
