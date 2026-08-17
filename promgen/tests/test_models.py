@@ -66,6 +66,6 @@ class ModelTest(PromgenTest):
 
         # Check if annotation["rule"] of new rule is automatically set to be {domain}/rule/{id}
         # when cloning an existed rule
-        new_rule = rule.copy_to(content_type="service", object_id=2)
+        new_rule = rule.override(content_type="service", object_id=2)
         self.assertEqual(resolve_domain("rule-detail", rule.pk), rule.annotations["rule"])
         self.assertEqual(resolve_domain("rule-detail", new_rule.pk), new_rule.annotations["rule"])

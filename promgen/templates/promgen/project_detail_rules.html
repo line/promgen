@@ -13,12 +13,12 @@
     {% include "promgen/rule_header.html" %}
     {% if role == "ADMIN" or role == "EDIT" %}
     {% include "promgen/rule_block.html" with rule_list=project.rule_set.all toggle=1 delete=1 modify=1 %}
-    {% include "promgen/rule_block.html" with rule_list=project.service.rule_set.all collapse="project-service-rules-" overwrite_type='project' overwrite_id=project.id modify=1 %}
-    {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="project-site-rules-" overwrite_type='project' overwrite_id=project.id modify=1 %}
+    {% include "promgen/rule_block.html" with rule_list=project.service.rule_set.all collapse="project-service-rules-" override_type='project' override_id=project.id modify=1 %}
+    {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="project-site-rules-" override_type='project' override_id=project.id modify=1 %}
     {% else %}
     {% include "promgen/rule_block.html" with rule_list=project.rule_set.all %}
-    {% include "promgen/rule_block.html" with rule_list=project.service.rule_set.all collapse="project-service-rules-" overwrite_type='project' overwrite_id=project.id %}
-    {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="project-site-rules-" overwrite_type='project' overwrite_id=project.id %}
+    {% include "promgen/rule_block.html" with rule_list=project.service.rule_set.all collapse="project-service-rules-" override_type='project' override_id=project.id %}
+    {% include "promgen/rule_block.html" with rule_list=request.site.rule_set.all collapse="project-site-rules-" override_type='project' override_id=project.id %}
     {% endif %}
   </table>
   <div class="panel-footer">

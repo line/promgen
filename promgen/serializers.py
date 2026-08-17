@@ -540,3 +540,28 @@ class SiteRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Site
         fields = "__all__"
+
+
+class RuleOverridesField(RuleRetrieveDetailSerializer):
+    """
+    Same as RuleRetrieveDetailSerializer, but every field is optional because the original fields
+    will be used if user does not provide the overridden values.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.required = False
+
+
+class RuleOverrideSerializer(serializers.Serializer):
+    original_rule_id = serializers.IntegerField()
+    overrides = RuleOverridesField(
+        required=False,
+        help_text="Fields to override. If not provided, the original rule's fields will be used.",
+    )
+
+    def validate_original_rule_id(self, value):
+        if not models.Rule.objects.filter(pk=value).exists():
+            raise serializers.ValidationError("Original rule does not exist.")
+        return value

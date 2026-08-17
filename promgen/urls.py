@@ -100,7 +100,7 @@ urlpatterns = [
     path("rule/<int:pk>/delete", views.RuleDelete.as_view(), name="rule-delete"),
     path("rule/<int:pk>/toggle", views.RuleToggle.as_view(), name="rule-toggle"),
     path("rule/<int:pk>/test", csrf_exempt(views.RuleTest.as_view()), name="rule-test"),
-    path("rule/<int:pk>/duplicate", views.RulesCopy.as_view(), name="rule-overwrite"),
+    path("rule/<int:pk>/override", views.RulesOverride.as_view(), name="rule-override"),
     # Permissions
     path("permission/assign", views.PermissionAssign.as_view(), name="permission-assign"),
     path("permission/delete", views.PermissionDelete.as_view(), name="permission-delete"),

@@ -771,15 +771,15 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
         return context
 
 
-class RulesCopy(PromgenGuardianPermissionMixin, View):
+class RulesOverride(PromgenGuardianPermissionMixin, View):
     permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
 
     def post(self, request, pk):
         original = get_object_or_404(models.Rule, id=pk)
-        form = forms.RuleCopyForm(request.POST)
+        form = forms.RuleOverrideForm(request.POST)
 
         if form.is_valid():
-            rule = original.copy_to(**form.clean())
+            rule = original.override(**form.clean())
             return HttpResponseRedirect(reverse("rule-edit", args=[rule.id]))
         else:
             return HttpResponseRedirect(reverse("service-detail", args=[pk]) + "#rules")

@@ -262,7 +262,7 @@ AnnotationFormSet = partial(
 )
 
 
-class RuleCopyForm(forms.Form):
+class RuleOverrideForm(forms.Form):
     content_type = forms.ChoiceField(choices=[(x, x) for x in ["service", "project"]])
     object_id = forms.IntegerField()
 
