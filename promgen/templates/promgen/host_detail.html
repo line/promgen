@@ -112,7 +112,7 @@
     </tr>
     {% current_role service.grouper as grouper_role %}
     {% if grouper_role == "ADMIN" or grouper_role == "EDIT" %}
-      {% include "promgen/rule_block.html" with rule_list=service.list modify=1 csrf_token=csrf_token only %}
+      {% include "promgen/rule_block.html" with rule_list=service.list toggle=1 modify=1 csrf_token=csrf_token only %}
     {% else %}
     {% include "promgen/rule_block.html" with rule_list=service.list csrf_token=csrf_token only %}
     {% endif %}
