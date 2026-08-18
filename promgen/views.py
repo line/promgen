@@ -254,10 +254,14 @@ class HostDetail(LoginRequiredMixin, View):
             projects = projects.filter(pk__in=accessible_projects)
             exporters = exporters.filter(project__in=accessible_projects)
             services = services.filter(pk__in=accessible_services)
-            rules = rules.filter(
-                Q(content_type__model="service", object_id__in=accessible_services)
-                | Q(content_type__model="project", object_id__in=accessible_projects)
-                | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
+            rules = (
+                rules.filter(
+                    Q(content_type__model="service", object_id__in=accessible_services)
+                    | Q(content_type__model="project", object_id__in=accessible_projects)
+                    | Q(id__in=models.Site.objects.get_current().rule_set.values_list("id"))
+                )
+                .select_related("content_type")
+                .prefetch_related("content_object")
             )
             notifiers = notifiers.filter(
                 Q(content_type__model="service", object_id__in=accessible_services)
@@ -268,7 +272,16 @@ class HostDetail(LoginRequiredMixin, View):
         context["project_list"] = projects
         context["exporter_list"] = exporters
         context["service_list"] = services
-        context["rule_list"] = rules
+        # Sort rules by content type priority, then by the __str__() function of their
+        # content object for displaying on UI.
+        content_type_order = {"project": 0, "service": 1, "site": 2}
+        context["rule_list"] = sorted(
+            rules,
+            key=lambda rule: (
+                content_type_order.get(rule.content_type.model),
+                str(rule.content_object),
+            ),
+        )
         context["notifier_list"] = notifiers
 
         return render(request, "promgen/host_detail.html", context)
