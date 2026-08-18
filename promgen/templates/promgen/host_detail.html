@@ -104,8 +104,15 @@
   {% for service in service_list %}
     <h4>
       <a href="{{ service.grouper.get_absolute_url }}">{{ service.grouper }}</a>
+      <a
+        class="btn btn-default btn-xs"
+        role="button"
+        @click="toggleCollapse('rule-list-{{ forloop.counter }}')"
+      >
+        Show/Hide
+      </a>
     </h4>
-    <table class="table table-bordered table-condensed">
+    <table id="rule-list-{{ forloop.counter }}" class="table table-bordered table-condensed collapse">
       {% current_role service.grouper as grouper_role %}
       {% include "promgen/rule_header.html" with role=grouper_role %}
       {% if grouper_role == "ADMIN" or grouper_role == "EDIT" %}
