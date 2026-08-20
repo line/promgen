@@ -5,6 +5,12 @@
 </td>
 <td>
     <dl class="dl-horizontal">
+        <template v-if="alert.promgen && alert.promgen.warnings">
+            <template v-for="message in alert.promgen.warnings">
+                <dt><span class="glyphicon glyphicon-warning-sign"></span></dt>
+                <dd class="text-warning">[[message]]</dd>
+            </template>
+        </template>
         <dt>Labels</dt>
         <dd>
             <ul class="list-inline">

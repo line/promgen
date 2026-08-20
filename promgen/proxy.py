@@ -166,6 +166,7 @@ class ProxyAlerts(View):
             logger.error("Error connecting to %s", url)
             return JsonResponse({}, status=HTTPStatus.INTERNAL_SERVER_ERROR)
         else:
+            filtered_response = response.json()
             # Filter the alerts based on the user's permissions
             if not self.request.user.is_superuser:
                 services = promgen_permissions.get_accessible_services_for_user(self.request.user)
@@ -176,13 +177,61 @@ class ProxyAlerts(View):
 
                 filtered_response = [
                     alert
-                    for alert in response.json()
+                    for alert in filtered_response
                     if alert.get("labels", {}).get("service") in accessible_services
                     or alert.get("labels", {}).get("project") in accessible_projects
                 ]
-                return HttpResponse(json.dumps(filtered_response), content_type="application/json")
-            # If the user is a superuser, return all alerts
-            return HttpResponse(response.content, content_type="application/json")
+
+            filtered_response = self.check_alert_labels(filtered_response)
+
+            return HttpResponse(json.dumps(filtered_response), content_type="application/json")
+
+    @staticmethod
+    def check_alert_labels(alerts):
+        """
+        Check for service and project labels.
+
+        Check if service and project labels are invalid. If so, set warning messages to
+        the "promgen.warnings" field of the corresponding alert in the response so that
+        the frontend can display them to the user.
+        """
+        checked_alerts = []
+        for alert in alerts:
+            labels = alert.get("labels", {})
+            service_name = labels.get("service")
+            project_name = labels.get("project")
+
+            def set_warning(message):
+                if "promgen" not in alert:
+                    alert["promgen"] = {}
+                if "warnings" not in alert["promgen"]:
+                    alert["promgen"]["warnings"] = []
+                alert["promgen"]["warnings"].append(message)
+
+            # If both service and project labels exist, verify their relationship
+            if service_name and project_name:
+                try:
+                    project = models.Project.objects.get(name=project_name)
+                    # Check if the project's service matches the service label
+                    if project.service.name != service_name:
+                        logger.warning(
+                            "Alert has mismatched service and project labels: "
+                            "service=%s, project=%s (belongs to service=%s)",
+                            service_name,
+                            project_name,
+                            project.service.name,
+                        )
+                        set_warning(
+                            "The 'service' and 'project' labels do not match. "
+                            "This alert may originate from an unrelated Alert Rule."
+                        )
+                except models.Project.DoesNotExist:
+                    logger.warning("Project %s from alert labels not found", project_name)
+                    set_warning("Project from alert's labels is not found.")
+
+            checked_alerts.append(alert)
+
+        return checked_alerts
 
 
 def get_affected_obj_by_matchers(matchers):
