@@ -196,9 +196,7 @@ class HostDetail(LoginRequiredMixin, View):
         context = {}
         context["slug"] = self.kwargs["slug"]
 
-        hosts = models.Host.objects.filter(name__icontains=self.kwargs["slug"]).prefetch_related(
-            "farm"
-        )
+        hosts = models.Host.objects.filter(name=self.kwargs["slug"]).prefetch_related("farm")
 
         # If the user is not a superuser, we need to filter the hosts by the user's permissions
         if not self.request.user.is_superuser:
