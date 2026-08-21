@@ -538,18 +538,26 @@ class Rule(models.Model):
                     continue
                 setattr(self, field, value)
 
-            # Add a label to our new rule by default, to help ensure notifications
-            # get routed to the notifier we expect
-            self.labels[content_type.model] = content_object.name
-
             self.save()
 
         return self
 
-    # Custom logic before saving Rule to control the value of the annotation "rule":
-    # Format: annotations["rule"] = {domain}/rule/{id}
+    # Custom logic before saving Rule to control the values of the annotations and labels:
     def save(self, *args, **kwargs):
         with transaction.atomic():
+            # Site rules should not carry service/project scoped labels. Otherwise, if the rule
+            # is associated with a Service or Project, we set labels to the rule.
+            if isinstance(self.content_object, Site):
+                self.labels.pop("service", None)
+                self.labels.pop("project", None)
+            elif isinstance(self.content_object, Service):
+                self.labels["service"] = self.content_object.name
+                self.labels.pop("project", None)
+            elif isinstance(self.content_object, Project):
+                self.labels["service"] = self.content_object.service.name
+                self.labels["project"] = self.content_object.name
+
+            # Always set the annotations["rule"] to be {domain}/rule/{id}
             if self.pk:
                 # When updating rule, we already have the primary key.
                 # Just set annotations["rule"] before saving to database.
@@ -607,6 +615,17 @@ class Alert(models.Model):
                 logger.debug("Found %s %s", label, obj)
                 routable[label] = obj
                 data["commonAnnotations"][label] = resolve_domain(obj)
+
+        project = routable.get("project")
+        service = routable.get("service")
+        if project and service and project.service != service:
+            logger.warning(
+                "Project %s does not belong to Service %s, ignoring both",
+                routable["project"],
+                routable["service"],
+            )
+            routable.pop("project")
+            routable.pop("service")
 
         return routable, data
 
