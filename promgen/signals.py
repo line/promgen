@@ -137,6 +137,7 @@ pre_save.connect(update_log, sender=models.Sender)
 pre_save.connect(update_log, sender=models.Service)
 pre_save.connect(update_log, sender=models.URL)
 pre_save.connect(update_log, sender=models.Group)
+pre_save.connect(update_log, sender=models.CustomLabelInstance)
 
 
 @skip_raw
@@ -159,6 +160,7 @@ post_save.connect(create_log, sender=models.URL)
 post_save.connect(create_log, sender=UserObjectPermission)
 post_save.connect(create_log, sender=GroupObjectPermission)
 post_save.connect(create_log, sender=models.Group)
+post_save.connect(create_log, sender=models.CustomLabelInstance)
 
 
 def delete_log(sender, instance, **kwargs):
@@ -176,6 +178,7 @@ post_delete.connect(delete_log, sender=models.URL)
 post_delete.connect(delete_log, sender=UserObjectPermission)
 post_delete.connect(delete_log, sender=GroupObjectPermission)
 post_delete.connect(delete_log, sender=models.Group)
+post_delete.connect(delete_log, sender=models.CustomLabelInstance)
 
 
 @receiver(post_save, sender=models.Rule)
