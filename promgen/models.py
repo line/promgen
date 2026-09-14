@@ -801,3 +801,40 @@ class AuthToken(knox.models.AbstractAuthToken):
             if self.expiry < timezone.now():
                 return True
         return False
+
+
+class CustomLabel(models.Model):
+    label_name = models.CharField(max_length=128, validators=[validators.custom_label_name])
+    display_name = models.CharField(max_length=128)
+    description = models.TextField(blank=True)
+    model = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    is_required = models.BooleanField(
+        default=False, help_text="Is this label required for its model?"
+    )
+
+    class Meta:
+        unique_together = ("label_name", "model")
+        db_table = "promgen_custom_label"
+
+    def __str__(self):
+        return f"{self.model} » {self.label_name}"
+
+
+class CustomLabelInstance(models.Model):
+    value = models.CharField(max_length=128, validators=[validators.labelvalue])
+    custom_label = models.ForeignKey("CustomLabel", on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+
+    content_object = GenericForeignKey("content_type", "object_id", for_concrete_model=False)
+
+    class Meta:
+        unique_together = ("custom_label", "content_type", "object_id")
+        db_table = "promgen_custom_label_instance"
+
+    def __str__(self):
+        return (
+            f"{self.pk}:{self.custom_label.label_name}:{self.value}"
+            if self.content_object is None
+            else f"{self.pk}:{self.custom_label.label_name}:{self.value} [{self.content_object}]"
+        )

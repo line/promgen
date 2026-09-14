@@ -26,6 +26,28 @@ labelname = RegexValidator(
     "Only alphanumeric characters are allowed.",
 )
 
+RESERVED_LABEL_NAMES = [
+    "farm",
+    "job",
+    "project",
+    "service",
+
+]
+
+
+def custom_label_name(value):
+    # Custom labels also follow the basic label rules
+    labelname(value)
+
+    if value.startswith("__"):
+        raise ValidationError("Custom label name cannot start with __")
+
+    # Custom labels cannot reuse default label names and existing model's fields.
+    if value in RESERVED_LABEL_NAMES:
+        reserved_values = ", ".join(RESERVED_LABEL_NAMES)
+        raise ValidationError(f"Custom label name cannot be one of: {reserved_values}.")
+
+
 # While Prometheus accepts label values of any unicode character, our values sometimes
 # make it into URLs, so we want to make sure we do not have stray / characters
 labelvalue = RegexValidator(
