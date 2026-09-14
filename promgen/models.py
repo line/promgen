@@ -337,7 +337,7 @@ class Service(CustomLabelSaveMixin, models.Model):
         return service
 
 
-class Project(models.Model):
+class Project(CustomLabelSaveMixin, models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -347,6 +347,7 @@ class Project(models.Model):
 
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation("Rule")
+    custom_labels = GenericRelation("CustomLabelInstance")
 
     class Meta:
         ordering = ["name"]
@@ -863,7 +864,10 @@ class CustomLabel(models.Model):
     model = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=(models.Q(app_label="promgen", model="service")),
+        limit_choices_to=(
+            models.Q(app_label="promgen", model="service")
+            | models.Q(app_label="promgen", model="project")
+        ),
     )
     is_required = models.BooleanField(
         default=False, help_text="Is this label required for its model?"
@@ -883,7 +887,10 @@ class CustomLabelInstance(models.Model):
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to=(models.Q(app_label="promgen", model="service")),
+        limit_choices_to=(
+            models.Q(app_label="promgen", model="service")
+            | models.Q(app_label="promgen", model="project")
+        ),
     )
     object_id = models.PositiveIntegerField()
 

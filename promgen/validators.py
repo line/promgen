@@ -37,7 +37,9 @@ RESERVED_LABEL_NAMES = [
     "pk",
     "project",
     "service",
-
+    "service_id",
+    "shard",
+    "shard_id",
 ]
 
 
