@@ -17,7 +17,7 @@ An unauthenticated user cannot register notifier to a service.,,,POST,api-v2:ser
 An unauthenticated user cannot register an overridden rule to a service.,,,POST,api-v2:service-rules-override,"{""id"": 1}",,401,
 An authenticated user without permissions sees no services.,demo,,GET,api-v2:service-list,,,200,"{""count"": 0}"
 An authenticated user without permissions cannot view service detail.,demo,,GET,api-v2:service-detail,"{""id"": 1}",,403,
-An authenticated user without permissions can create a service.,demo,,POST,api-v2:service-list,,"{""name"": ""new-service"", ""owner"": 2, ""description"": ""Test New Service Description""}",201,
+An authenticated user without permissions can create a service.,demo,,POST,api-v2:service-list,,"{""name"": ""new-service"", ""owner"": 2, ""description"": ""Test New Service Description"", ""custom_labels"":{""test_label"":""updated_labelvalue""}}",201,
 An authenticated user without permissions cannot update a service.,demo,,PUT,api-v2:service-detail,"{""id"": 1}",,403,
 An authenticated user without permissions cannot partially update a service.,demo,,PATCH,api-v2:service-detail,"{""id"": 1}",,403,
 An authenticated user without permissions cannot delete a service.,demo,,DELETE,api-v2:service-detail,"{""id"": 1}",,403,
@@ -47,7 +47,7 @@ A viewer cannot remove a group from a service.,demo,"[{""codename"": ""service_v
 A viewer cannot register project to a service.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",POST,api-v2:service-projects,"{""id"": 1}",,403,
 A viewer cannot register rule to a service.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",POST,api-v2:service-rules,"{""id"": 1}",,403,
 A viewer cannot register notifier to a service.,demo,"[{""codename"": ""service_viewer"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",POST,api-v2:service-notifiers,"{""id"": 1}",,403,
-An editor can update a service.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:service-detail,"{""id"": 1}","{""name"": ""updated-service"", ""owner"": 1, ""description"": ""Test Updated Description""}",200,
+An editor can update a service.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:service-detail,"{""id"": 1}","{""name"": ""updated-service"", ""owner"": 1, ""description"": ""Test Updated Description"", ""custom_labels"": {""test_label"": ""updated_labelvalue""}}",200,"{""response_body"": {""id"":1,""name"":""updated-service"",""description"":""Test Updated Description"",""owner"":1,""custom_labels"":{""test_label"":""updated_labelvalue""}}}"
 An editor cannot change service owner when not current owner.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PUT,api-v2:service-detail,"{""id"": 1}","{""name"": ""updated-service"", ""owner"": 2, ""description"": ""Test Updated Description""}",400,
 An editor can partially update a service.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",PATCH,api-v2:service-detail,"{""id"": 1}","{""name"": ""partial-updated-service""}",200,
 An editor cannot delete a service.,demo,"[{""codename"": ""service_editor"", ""model"": ""promgen.service"", ""obj_pk"": 1}]",DELETE,api-v2:service-detail,"{""id"": 1}",,403,

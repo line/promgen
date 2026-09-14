@@ -6,7 +6,10 @@
     "id": 1,
     "name": "test-service",
     "description": "",
-    "owner": 1
+    "owner": 1,
+    "custom_labels": {
+      "test_label": "test_labelvalue"
+    }
   },
   "shard": {
     "id": 1,
