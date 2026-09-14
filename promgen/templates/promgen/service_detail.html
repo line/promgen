@@ -12,6 +12,9 @@ Promgen / Service / {{ service.name }}
 <div class="page-header promgen-flex-space-between-center">
   <div>
     <h1>Service: {{ service.name }}</h1>
+      {% for label in service.custom_labels.all %}
+        <span class="label label-primary">{{label.custom_label.label_name}}:{{label.value}}</span>
+      {% endfor %}
   </div>
 
   {% include "promgen/service_action_button_group.html" %}

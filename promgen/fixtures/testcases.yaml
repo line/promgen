@@ -209,3 +209,18 @@
   pk: 2
   fields:
     name: "Other Group"
+- model: promgen.customlabel
+  pk: 1
+  fields:
+      label_name: "test_label"
+      display_name: "Test Label"
+      description: "A custom label for testing"
+      model: ["promgen", "service"]
+      is_required: false
+- model: promgen.customlabelinstance
+  pk: 1
+  fields:
+      value: "test_labelvalue"
+      custom_label: 1
+      content_type: ["promgen", "service"]
+      object_id: 1

@@ -351,3 +351,70 @@ class WebTests(PromgenTest):
             ).exists(),
             "Redundant query parameters should be cleaned up and exporter created successfully",
         )
+
+    def test_custom_labels(self):
+        self.force_login(username="demo")
+
+        # Test creating a service with a custom label
+        response = self.client.post(
+            reverse("service-new"),
+            {
+                "name": "Test Custom Label",
+                "custom_label_test_label": "new_label_value",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        new_service = models.Service.objects.get(name="Test Custom Label")
+        self.assertTrue(
+            models.CustomLabelInstance.objects.filter(
+                value="new_label_value", content_type__model="service", object_id=new_service.pk
+            ).exists(),
+            "",
+        )
+
+        # Test updating a service with a required custom label
+        custom_label = models.CustomLabel.objects.get(pk=1)
+        custom_label.is_required = True
+        custom_label.save()
+        response = self.client.post(
+            reverse("service-update", kwargs={"pk": new_service.pk}),
+            {
+                "name": "Test Custom Label",
+                "owner": 1,
+                "custom_label_test_label": "",
+            },
+        )
+        self.assertEqual(response.status_code, 200, msg="Service updated failed")
+        self.assertEqual(
+            response.context_data["form"].errors,
+            {"custom_label_test_label": ["This field is required."]},
+            msg="Required custom label should not be empty",
+        )
+
+        response = self.client.post(
+            reverse("service-update", kwargs={"pk": new_service.pk}),
+            {
+                "name": "Test Custom Label",
+                "owner": 1,
+                "custom_label_test_label": "updated_label_value",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(
+            models.CustomLabelInstance.objects.filter(
+                value="updated_label_value", content_type__model="service", object_id=new_service.pk
+            ).exists(),
+            "Required custom label value should be updated successfully",
+        )
+
+        # Test deleting a service with a custom label
+        response = self.client.delete(
+            reverse("service-delete", kwargs={"pk": new_service.pk}),
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(
+            models.CustomLabelInstance.objects.filter(
+                value="updated_label_value", content_type__model="service", object_id=new_service.pk
+            ).exists(),
+            "Required custom label value should be deleted within the service deletion process",
+        )
