@@ -27,8 +27,14 @@ labelname = RegexValidator(
 )
 
 RESERVED_LABEL_NAMES = [
+    "description",
     "farm",
+    "id",
     "job",
+    "name",
+    "owner",
+    "owner_id",
+    "pk",
     "project",
     "service",
 
