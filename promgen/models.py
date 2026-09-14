@@ -363,6 +363,15 @@ class Project(CustomLabelSaveMixin, models.Model):
     def __str__(self):
         return f"{self.service} » {self.name}"
 
+    @property
+    def inherited_custom_labels(self):
+        project_custom_labels = self.custom_labels.values_list(
+            "custom_label__label_name", flat=True
+        )
+        return self.service.custom_labels.exclude(
+            custom_label__label_name__in=project_custom_labels
+        )
+
 
 class Farm(models.Model):
     name = models.CharField(max_length=128, validators=[validators.labelvalue])

@@ -61,6 +61,17 @@
         </td>
       </tr>
       {% endif %}
+      {% for field in form %}
+      {% if field.name|slice:":12" == "custom_label" %}
+      <tr>
+        <th>{{field.label}}</th>
+        <td>
+          {% include 'promgen/error_block.html' with warning=field.errors only %}
+          {{field}}
+        </td>
+      </tr>
+      {% endif %}
+      {% endfor %}
     </table>
   </div>
   {% include 'promgen/error_block.html' with warning=form.shard.errors only %}

@@ -187,7 +187,7 @@ class ServiceUpdate(_CustomLabelModelForm):
         exclude = []
 
 
-class ProjectRegister(forms.ModelForm):
+class ProjectRegister(_CustomLabelModelForm):
     class Meta:
         model = models.Project
         # service is determined by the pk in the project register url
@@ -200,7 +200,7 @@ class ProjectRegister(forms.ModelForm):
         return shard
 
 
-class ProjectUpdate(forms.ModelForm):
+class ProjectUpdate(_CustomLabelModelForm):
     class Meta:
         model = models.Project
         exclude = []
