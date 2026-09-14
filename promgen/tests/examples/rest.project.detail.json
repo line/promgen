@@ -29,5 +29,6 @@
     "source": "promgen"
   },
   "name": "test-project",
-  "description": ""
+  "description": "",
+  "custom_labels": {}
 }

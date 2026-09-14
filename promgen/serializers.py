@@ -437,7 +437,7 @@ class ModelWithCustomLabelSerializer(serializers.ModelSerializer):
         return fields
 
 
-class ProjectSimpleSerializer(serializers.ModelSerializer):
+class ProjectSimpleSerializer(ModelWithCustomLabelSerializer):
     class Meta:
         model = models.Project
         fields = "__all__"
@@ -461,7 +461,7 @@ class ServiceRetrieveSimpleSerializer(ModelWithCustomLabelSerializer):
         fields = "__all__"
 
 
-class ProjectRetrieveDetailSerializer(serializers.ModelSerializer):
+class ProjectRetrieveDetailSerializer(ModelWithCustomLabelSerializer):
     owner = serializers.ReadOnlyField(source="owner.username")
     owner_id = serializers.ReadOnlyField(source="owner.id")
     service = ServiceRetrieveSimpleSerializer()
@@ -568,7 +568,7 @@ class RegisterServiceSerializer(ModelWithCustomLabelSerializer):
         read_only_fields = ("owner",)
 
 
-class RegisterProjectToServiceSerializer(serializers.ModelSerializer):
+class RegisterProjectToServiceSerializer(ModelWithCustomLabelSerializer):
     class Meta:
         model = models.Project
         fields = "__all__"
