@@ -134,6 +134,14 @@ def render_config(service=None, project=None, services=None, projects=None, farm
             "__scheme__": exporter.scheme,
         }
 
+        for custom_label_instance in exporter.project.service.custom_labels.all():
+            if custom_label_instance.custom_label.is_added_to_metric:
+                labels[custom_label_instance.custom_label.label_name] = custom_label_instance.value
+
+        for custom_label_instance in exporter.project.custom_labels.all():
+            if custom_label_instance.custom_label.is_added_to_metric:
+                labels[custom_label_instance.custom_label.label_name] = custom_label_instance.value
+
         if exporter.path:
             parsed = urlparse(exporter.path)
             labels["__metrics_path__"] = parsed.path

@@ -881,6 +881,9 @@ class CustomLabel(models.Model):
     is_required = models.BooleanField(
         default=False, help_text="Is this label required for its model?"
     )
+    is_added_to_metric = models.BooleanField(
+        default=True, help_text="Is this label added to metrics when scrapping targets?"
+    )
 
     class Meta:
         unique_together = ("label_name", "model")
