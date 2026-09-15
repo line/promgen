@@ -137,8 +137,15 @@ function initSelect2() {
 // Activate a tab based on the hash value of the URL
 // For example, if the URL is `http://example.com#tab2`, it will activate the tab with id `tab2`.
 function activateTabFromHash() {
-  const hash = window.location.hash;
-  if (hash && $(hash).length) {
+  let hash = window.location.hash;
+  if (!hash) {
+    return;
+  }
+
+  // Escapes any character that has a special meaning in a CSS selector to ensure that the hash
+  // can be used as a valid selector.
+  hash = "#" + $.escapeSelector(hash.replace(/^#/, ""));
+  if ($(hash).length) {
     // Remove active class from all tabs and tab content
     $(".nav-tabs li").removeClass("active");
     $(".tab-pane:not(.perm-tab-pane)").removeClass("active");
