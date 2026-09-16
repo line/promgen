@@ -18,6 +18,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, Paginator
+from django.db import transaction
 from django.db.models import Count, Prefetch, Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -1913,19 +1914,19 @@ class ProfileTokenGenerate(LoginRequiredMixin, FormView):
         return super().post(request)
 
     def form_valid(self, form):
-        expiry = None
-        if form.cleaned_data["expiration_days"]:
-            expiry = datetime.timedelta(days=form.cleaned_data["expiration_days"])
+        with transaction.atomic():
+            instance, token = models.AuthToken.objects.create(
+                user=self.request.user,
+                name=form.cleaned_data["name"],
+                expiry=None,
+            )
+            if form.cleaned_data["expiration"]:
+                instance.expiry = form.cleaned_data["expiration"]
+                instance.save()
 
-        _, token = models.AuthToken.objects.create(
-            user=self.request.user,
-            name=form.cleaned_data["name"],
-            expiry=expiry,
-        )
-
-        return self.render_to_response(
-            self.get_context_data(form=self.form_class(), auth_token=token)
-        )
+            return self.render_to_response(
+                self.get_context_data(form=self.form_class(), auth_token=token)
+            )
 
 
 class ProfileTokenDelete(LoginRequiredMixin, View):

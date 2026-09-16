@@ -1,15 +1,17 @@
 # Copyright (c) 2017 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
-
+import datetime
 import re
 import uuid
 from functools import partial
+from zoneinfo import ZoneInfo
 
 from dateutil import parser
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from guardian.conf.settings import ANONYMOUS_USER_NAME
 from guardian.shortcuts import get_perms_for_model
@@ -453,10 +455,14 @@ class UserMergeForm(forms.Form):
 class TokenGenerationForm(forms.Form):
     default_name = forms.CharField(required=False, widget=forms.HiddenInput())
     name = forms.CharField(max_length=64, required=False, help_text=_("Token name (max 64 chars)"))
-    expiration_days = forms.IntegerField(
-        required=settings.API_TOKEN_TTL_DAYS,
-        min_value=1,
-        max_value=settings.API_TOKEN_TTL_DAYS,
+    user_timezone = forms.CharField(required=False, widget=forms.HiddenInput())
+    expiration = forms.DateTimeField(
+        required=bool(settings.API_TOKEN_TTL_DAYS),
+        input_formats=["%Y-%m-%dT%H:%M"],
+        widget=forms.DateTimeInput(
+            format="%Y-%m-%dT%H:%M",
+            attrs={"type": "datetime-local"},
+        ),
     )
 
     def __init__(self, *args, **kwargs):
@@ -466,18 +472,43 @@ class TokenGenerationForm(forms.Form):
         self.fields["name"].widget.attrs["placeholder"] = default_name
 
         if settings.API_TOKEN_TTL_DAYS:
-            self.fields["expiration_days"].help_text = _(
-                "Token expiration in days (max %d)" % settings.API_TOKEN_TTL_DAYS
+            self.fields["expiration"].help_text = _(
+                "Token expiration (max %d days)" % settings.API_TOKEN_TTL_DAYS
             )
         else:
-            self.fields["expiration_days"].help_text = _(
-                "Token expiration in days. Leave blank for no expiration."
+            self.fields["expiration"].help_text = _(
+                "Token expiration. Leave blank for no expiration."
             )
 
     def clean_name(self):
         if not self.cleaned_data["name"]:
             return self.cleaned_data["default_name"]
         return self.cleaned_data["name"]
+
+    def clean_expiration(self):
+        if not self.cleaned_data["expiration"]:
+            return None
+
+        user_tz = self.cleaned_data["user_timezone"]
+        if user_tz:
+            self.cleaned_data["expiration"] = self.cleaned_data["expiration"].replace(
+                tzinfo=ZoneInfo(user_tz)
+            )
+
+        if self.cleaned_data["expiration"]:
+            if self.cleaned_data["expiration"] < timezone.now():
+                raise ValidationError(_("Expiration date cannot be in the past."))
+            if settings.API_TOKEN_TTL_DAYS:
+                max_expiration = timezone.now() + datetime.timedelta(
+                    days=settings.API_TOKEN_TTL_DAYS
+                )
+                if self.cleaned_data["expiration"] > max_expiration:
+                    raise ValidationError(
+                        _("Expiration date cannot be more than %d days in the future.")
+                        % settings.API_TOKEN_TTL_DAYS
+                    )
+
+        return self.cleaned_data["expiration"]
 
 
 class PromgenAuthTokenCreateForm(AuthTokenCreateForm):

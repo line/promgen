@@ -278,4 +278,7 @@ $(document).ready(function() {
     }
   });
 
+  // Set the user's current timezone for forms
+  $("#id_user_timezone").attr("value", luxon.DateTime.local().zoneName);
+
 });
