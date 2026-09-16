@@ -8,7 +8,8 @@
         "farm": "test-farm",
         "job": "node",
         "project": "test-project",
-        "service": "test-service"
+        "service": "test-service",
+        "test_label": "test_labelvalue"
       },
       "targets": [
         "example.com:9100"

@@ -8,6 +8,7 @@ from functools import partial
 from dateutil import parser
 from django import forms
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from guardian.conf.settings import ANONYMOUS_USER_NAME
@@ -139,20 +140,54 @@ class ExporterForm(forms.ModelForm):
         return parsed.path + ("?" + query_string if query_string else "")
 
 
-class ServiceRegister(forms.ModelForm):
+class _CustomLabelModelForm(forms.ModelForm):
+    custom_label_prefix = "custom_label_"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        custom_labels = models.CustomLabel.objects.filter(
+            model=ContentType.objects.get_for_model(self._meta.model)
+        )
+        initial_labels = {
+            custom_label.custom_label.label_name: custom_label.value
+            for custom_label in self.instance.custom_labels.all()
+        }
+
+        for field in custom_labels:
+            self.fields[f"{self.custom_label_prefix}{field.label_name}"] = forms.CharField(
+                label=field.display_name,
+                required=field.is_required,
+                help_text=field.description,
+                initial=initial_labels.get(field.label_name),
+                validators=[validators.labelvalue],
+            )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if commit:
+            custom_labels = {}
+            for field, value in self.cleaned_data.items():
+                if field.startswith(self.custom_label_prefix):
+                    custom_labels[field[len(self.custom_label_prefix) :]] = value
+            instance.save(custom_labels=custom_labels)
+        return instance
+
+
+class ServiceRegister(_CustomLabelModelForm):
     class Meta:
         model = models.Service
         # shard is determined by the pk in the service register url
         exclude = ["shard"]
 
 
-class ServiceUpdate(forms.ModelForm):
+class ServiceUpdate(_CustomLabelModelForm):
     class Meta:
         model = models.Service
         exclude = []
 
 
-class ProjectRegister(forms.ModelForm):
+class ProjectRegister(_CustomLabelModelForm):
     class Meta:
         model = models.Project
         # service is determined by the pk in the project register url
@@ -165,7 +200,7 @@ class ProjectRegister(forms.ModelForm):
         return shard
 
 
-class ProjectUpdate(forms.ModelForm):
+class ProjectUpdate(_CustomLabelModelForm):
     class Meta:
         model = models.Project
         exclude = []

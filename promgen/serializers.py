@@ -1,7 +1,10 @@
 import collections
+from functools import lru_cache
 
 from dateutil import parser
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
 from django.db.models import prefetch_related_objects
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
@@ -9,7 +12,7 @@ from guardian.models import UserObjectPermission
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
-from promgen import errors, models, shortcuts
+from promgen import errors, models, shortcuts, validators
 from promgen.shortcuts import resolve_domain
 
 
@@ -363,7 +366,78 @@ class UpdateMemberGroupSerializer(serializers.Serializer):
     group_role = serializers.ChoiceField(choices=["ADMIN", "MEMBER"])
 
 
-class ProjectSimpleSerializer(serializers.ModelSerializer):
+class CustomLabelSerializer(serializers.Serializer):
+    class Meta:
+        model = None
+
+    def __init__(self, model, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.model = model
+
+    def get_fields(self):
+        fields = super().get_fields()
+        custom_labels = models.CustomLabel.objects.filter(
+            model=ContentType.objects.get_for_model(self.model)
+        )
+        for field in custom_labels:
+            fields[field.label_name] = serializers.CharField(
+                required=field.is_required,
+                allow_blank=not field.is_required,
+                help_text=field.description,
+                validators=[validators.labelvalue],
+            )
+            if field.is_required:
+                self.required = True
+        return fields
+
+    def to_representation(self, instance):
+        custom_labels = instance.instance.custom_labels
+        return {label.custom_label.label_name: label.value for label in custom_labels.all()}
+
+
+# Dynamic Subclassing for CustomLabelSerializer to avoid shared class-level variable. This is
+# necessary because DRF uses the serializer class name as the ref_name in the OpenAPI schema, and
+# if we use the same class for different models, it will cause conflicts in the schema generation.
+@lru_cache(maxsize=None)
+def get_custom_label_serializer(model):
+    class_name = f"{model.__name__}CustomLabelSerializer"
+    ref_name = f"{model.__name__}CustomLabel"
+
+    meta_cls = type("Meta", (), {"model": model, "ref_name": ref_name})
+
+    def __init__(self, *args, **kwargs):
+        # Bind model at class creation time to avoid shared class-level ref_name mutation.
+        CustomLabelSerializer.__init__(self, model=model, *args, **kwargs)
+
+    return type(
+        class_name,
+        (CustomLabelSerializer,),
+        {"Meta": meta_cls, "__init__": __init__, "__module__": CustomLabelSerializer.__module__},
+    )
+
+
+class ModelWithCustomLabelSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            custom_labels = validated_data.pop("custom_labels", None)
+            instance = super().update(instance, validated_data)
+            instance.update_custom_labels(custom_labels=custom_labels)
+            return instance
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            custom_labels = validated_data.pop("custom_labels", None)
+            instance = super().create(validated_data)
+            instance.update_custom_labels(custom_labels=custom_labels)
+            return instance
+
+    def get_fields(self):
+        fields = super().get_fields()
+        fields["custom_labels"] = get_custom_label_serializer(self.Meta.model)(required=False)
+        return fields
+
+
+class ProjectSimpleSerializer(ModelWithCustomLabelSerializer):
     class Meta:
         model = models.Project
         fields = "__all__"
@@ -381,13 +455,13 @@ class ShardRetrieveSerializer(serializers.ModelSerializer):
         exclude = ("authorization",)
 
 
-class ServiceRetrieveSimpleSerializer(serializers.ModelSerializer):
+class ServiceRetrieveSimpleSerializer(ModelWithCustomLabelSerializer):
     class Meta:
         model = models.Service
         fields = "__all__"
 
 
-class ProjectRetrieveDetailSerializer(serializers.ModelSerializer):
+class ProjectRetrieveDetailSerializer(ModelWithCustomLabelSerializer):
     owner = serializers.ReadOnlyField(source="owner.username")
     owner_id = serializers.ReadOnlyField(source="owner.id")
     service = ServiceRetrieveSimpleSerializer()
@@ -478,7 +552,7 @@ class RegisterNotifierSerializer(serializers.Serializer):
     filters = FilterSerializer(many=True, required=False)
 
 
-class ServiceRetrieveDetailSerializer(serializers.ModelSerializer):
+class ServiceRetrieveDetailSerializer(ModelWithCustomLabelSerializer):
     owner = serializers.ReadOnlyField(source="owner.username")
     owner_id = serializers.ReadOnlyField(source="owner.id")
 
@@ -487,14 +561,14 @@ class ServiceRetrieveDetailSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class RegisterServiceSerializer(serializers.ModelSerializer):
+class RegisterServiceSerializer(ModelWithCustomLabelSerializer):
     class Meta:
         model = models.Service
         fields = "__all__"
         read_only_fields = ("owner",)
 
 
-class RegisterProjectToServiceSerializer(serializers.ModelSerializer):
+class RegisterProjectToServiceSerializer(ModelWithCustomLabelSerializer):
     class Meta:
         model = models.Project
         fields = "__all__"

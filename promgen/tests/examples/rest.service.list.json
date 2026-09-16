@@ -7,13 +7,17 @@
       "description": "",
       "id": 2,
       "name": "other-service",
-      "owner": 2
+      "owner": 2,
+      "custom_labels": {}
     },
     {
       "description": "",
       "id": 1,
       "name": "test-service",
-      "owner": 1
+      "owner": 1,
+      "custom_labels": {
+        "test_label": "test_labelvalue"
+      }
     }
   ]
 }

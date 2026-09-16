@@ -210,3 +210,15 @@ class AuthTokenAdmin(AuthTokenAdmin):
     list_display = ("name", "user", "created", "expiry", "token_key")
     list_filter = ("name", "user", "token_key")
     readonly_fields = ("digest", "token_key")
+
+
+@admin.register(models.CustomLabel)
+class CustomLabelAdmin(admin.ModelAdmin):
+    list_display = ("label_name", "model", "display_name", "is_required")
+    list_filter = ("model",)
+
+
+@admin.register(models.CustomLabelInstance)
+class CustomLabelInstanceAdmin(admin.ModelAdmin):
+    list_display = ("value", "custom_label", "content_object", "content_type")
+    list_filter = ("custom_label__label_name", "content_type")

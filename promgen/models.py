@@ -250,13 +250,66 @@ class Shard(models.Model):
             return 0
 
 
-class Service(models.Model):
+class CustomLabelSaveMixin:
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            custom_labels = kwargs.pop("custom_labels", None)
+            super().save(*args, **kwargs)
+            self.update_custom_labels(custom_labels)
+
+    def update_custom_labels(self, custom_labels=None):
+        # Keep existing labels untouched when no custom_labels argument is provided.
+        if custom_labels is None:
+            return
+        content_type = ContentType.objects.get_for_model(self)
+
+        accepted_labels = CustomLabel.objects.filter(model=content_type)
+        if not accepted_labels.exists():
+            return
+
+        label_map = {label.label_name: label for label in accepted_labels}
+
+        # Only labels explicitly provided by the caller should be touched.
+        provided_labels = {
+            label_name: value
+            for label_name, value in custom_labels.items()
+            if label_name in label_map
+        }
+        if not provided_labels:
+            return
+
+        for label_name, value in provided_labels.items():
+            try:
+                existing_instance = CustomLabelInstance.objects.get(
+                    custom_label__label_name=label_name,
+                    object_id=self.pk,
+                    content_type=content_type,
+                )
+                if value:
+                    if value != existing_instance.value:
+                        existing_instance.value = value
+                        existing_instance.save()
+                else:
+                    existing_instance.delete()
+
+            except CustomLabelInstance.DoesNotExist:
+                if value:
+                    CustomLabelInstance(
+                        custom_label=label_map[label_name],
+                        value=value,
+                        content_type=content_type,
+                        object_id=self.pk,
+                    ).save()
+
+
+class Service(CustomLabelSaveMixin, models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation("Rule")
+    custom_labels = GenericRelation("CustomLabelInstance")
 
     class Meta:
         ordering = ["name"]
@@ -284,7 +337,7 @@ class Service(models.Model):
         return service
 
 
-class Project(models.Model):
+class Project(CustomLabelSaveMixin, models.Model):
     name = models.CharField(max_length=128, unique=True, validators=[validators.labelvalue])
     description = models.TextField(blank=True)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -294,6 +347,7 @@ class Project(models.Model):
 
     notifiers = GenericRelation(Sender)
     rule_set = GenericRelation("Rule")
+    custom_labels = GenericRelation("CustomLabelInstance")
 
     class Meta:
         ordering = ["name"]
@@ -308,6 +362,15 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.service} » {self.name}"
+
+    @property
+    def inherited_custom_labels(self):
+        project_custom_labels = self.custom_labels.values_list(
+            "custom_label__label_name", flat=True
+        )
+        return self.service.custom_labels.exclude(
+            custom_label__label_name__in=project_custom_labels
+        )
 
 
 class Farm(models.Model):
@@ -801,3 +864,57 @@ class AuthToken(knox.models.AbstractAuthToken):
             if self.expiry < timezone.now():
                 return True
         return False
+
+
+class CustomLabel(models.Model):
+    label_name = models.CharField(max_length=128, validators=[validators.custom_label_name])
+    display_name = models.CharField(max_length=128)
+    description = models.TextField(blank=True)
+    model = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=(
+            models.Q(app_label="promgen", model="service")
+            | models.Q(app_label="promgen", model="project")
+        ),
+    )
+    is_required = models.BooleanField(
+        default=False, help_text="Is this label required for its model?"
+    )
+    is_added_to_metric = models.BooleanField(
+        default=True, help_text="Is this label added to metrics when scrapping targets?"
+    )
+
+    class Meta:
+        unique_together = ("label_name", "model")
+        db_table = "promgen_custom_label"
+
+    def __str__(self):
+        return f"{self.model} » {self.label_name}"
+
+
+class CustomLabelInstance(models.Model):
+    value = models.CharField(max_length=128, validators=[validators.labelvalue])
+    custom_label = models.ForeignKey("CustomLabel", on_delete=models.CASCADE)
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to=(
+            models.Q(app_label="promgen", model="service")
+            | models.Q(app_label="promgen", model="project")
+        ),
+    )
+    object_id = models.PositiveIntegerField()
+
+    content_object = GenericForeignKey("content_type", "object_id", for_concrete_model=False)
+
+    class Meta:
+        unique_together = ("custom_label", "content_type", "object_id")
+        db_table = "promgen_custom_label_instance"
+
+    def __str__(self):
+        return (
+            f"{self.pk}:{self.custom_label.label_name}:{self.value}"
+            if self.content_object is None
+            else f"{self.pk}:{self.custom_label.label_name}:{self.value} [{self.content_object}]"
+        )

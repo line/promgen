@@ -1377,7 +1377,7 @@ class ServiceViewSet(
             if value is not None:
                 attributes[field] = value
 
-        project, _ = models.Project.objects.get_or_create(**attributes)
+        project = serializer.create(attributes)
         return Response(
             serializers.ProjectSimpleSerializer(project).data, status=HTTPStatus.CREATED
         )

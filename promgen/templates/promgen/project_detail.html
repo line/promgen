@@ -14,6 +14,12 @@ Promgen / Project / {{ project.name }}
     <h1>
       Project: {{ project.name }}
     </h1>
+    {% for label in project.custom_labels.all %}
+      <span class="label label-primary">{{label.custom_label.label_name}}:{{label.value}}</span>
+    {% endfor %}
+    {% for label in project.inherited_custom_labels.all %}
+      <span class="label label-info" data-toggle="tooltip" title="Service's label">{{label.custom_label.label_name}}:{{label.value}}</span>
+    {% endfor %}
   </div>
 
   {% include "promgen/project_action_button_group.html" %}
