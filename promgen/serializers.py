@@ -4,6 +4,7 @@ from functools import lru_cache
 from dateutil import parser
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MaxValueValidator
 from django.db import transaction
 from django.db.models import prefetch_related_objects
 from drf_spectacular.types import OpenApiTypes
@@ -12,7 +13,7 @@ from guardian.models import UserObjectPermission
 from rest_framework import serializers
 
 import promgen.templatetags.promgen as macro
-from promgen import errors, models, shortcuts, validators
+from promgen import errors, models, settings, shortcuts, validators
 from promgen.shortcuts import resolve_domain
 
 
@@ -647,3 +648,32 @@ class TokenRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.AuthToken
         exclude = ("token_key", "user")
+
+
+class TokenCreateRequestSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=64, help_text="Name of the token.", required=False)
+    seconds_to_live = serializers.IntegerField(
+        min_value=1,
+        help_text="Time to live for this token in seconds.",
+        required=False,
+        allow_null=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if settings.API_TOKEN_TTL_DAYS:
+            max_seconds_to_live = settings.API_TOKEN_TTL_DAYS * 24 * 60 * 60
+            self.fields["seconds_to_live"].validators.append(MaxValueValidator(max_seconds_to_live))
+            self.fields["seconds_to_live"].required = True
+            self.fields["seconds_to_live"].allow_null = False
+        else:
+            self.fields["seconds_to_live"].help_text += " Leave null for no expiration."
+
+
+class TokenCreateResponseSerializer(serializers.Serializer):
+    name = serializers.CharField(read_only=True, help_text="Name of the token.")
+    token = serializers.CharField(
+        read_only=True,
+        help_text="The actual token value. "
+        "This is only returned on creation and cannot be retrieved again.",
+    )
