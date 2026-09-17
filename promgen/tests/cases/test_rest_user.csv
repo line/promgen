@@ -4,6 +4,7 @@ An unauthenticated user cannot get current user detail.,,,GET,api-v2:user-get-cu
 An unauthenticated user cannot register new notifier.,,,POST,api-v2:user-register-user-notifier,,,401,
 An unauthenticated user cannot list their API tokens.,,,GET,api-v2:user-current-user-tokens,,,401,
 An unauthenticated user cannot create API token.,,,POST,api-v2:user-current-user-tokens,,,401,
+An unauthenticated user cannot delete their API token.,,,DELETE,api-v2:user-current-user-token,"{""digest"": ""2ca4bea592c85b3996047d1121dfd428670ece2805050fd9906a23c0942fb745aebcd59f751727f0f4dc24e3efa9b71219b6a8b8866d3ffb3d9f3f8a329dcb47""}",,401,
 An authenticated user can list users.,demo,,GET,api-v2:user-list,,,200,"{""example"": ""rest.user.list.json""}"
 An authenticated user can list users with pagination.,demo,,GET,api-v2:user-list,,"{""page_number"": 1, ""page_size"": 1}",200,"{""results_length"": 1}"
 An authenticated user can filter users by username.,demo,,GET,api-v2:user-list,,"{""q"": ""demo""}",200,"{""count"": 1}"
@@ -15,3 +16,4 @@ An authenticated user can register new notifier.,demo,,POST,api-v2:user-register
 An authenticated user cannot register new notifier with type promgen.notification.user.,demo,,POST,api-v2:user-register-user-notifier,,"{""filters"": [{""name"": ""test-name"", ""value"": ""test-value""}], ""sender"": ""promgen.notification.user"", ""value"": ""https://test.slack.com"", ""enabled"": false}",400,"{""response_body"": {""detail"": ""Cannot register a promgen.notification.user notifier for a user.""}}"
 An authenticated user can list their API tokens.,demo,,GET,api-v2:user-current-user-tokens,,,200,"{""example"": ""rest.user.detail.tokens.json""}"
 An authenticated user can create API token.,demo,,POST,api-v2:user-current-user-tokens,,"{""name"": ""test-token"", ""seconds_to_live"": 1}",201,
+An unauthenticated user can delete their API token.,demo,,DELETE,api-v2:user-current-user-token,"{""digest"": ""2ca4bea592c85b3996047d1121dfd428670ece2805050fd9906a23c0942fb745aebcd59f751727f0f4dc24e3efa9b71219b6a8b8866d3ffb3d9f3f8a329dcb47""}",,204,

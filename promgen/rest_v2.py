@@ -1495,6 +1495,23 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             status=HTTPStatus.CREATED,
         )
 
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=False, methods=["get"], url_path=r"me/tokens/(?P<digest>[0-9a-f]+)")
+    def current_user_token(self, request, id, digest):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Delete User Tokens",
+        description="Delete an existing API token of current authenticated user.",
+    )
+    @current_user_token.mapping.delete
+    def delete_token_of_current_user(self, request, digest):
+        models.AuthToken.objects.filter(digest=digest, user=self.request.user).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
+
 
 @extend_schema_view(
     list=extend_schema(summary="List Shards", description="Retrieve a list of all shards."),
