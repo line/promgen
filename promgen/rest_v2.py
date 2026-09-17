@@ -1,5 +1,7 @@
 # Copyright (c) 2026 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+import datetime
+import uuid
 from http import HTTPStatus
 
 from django.contrib.auth.models import User
@@ -24,7 +26,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView, exception_handler
 
 import promgen.templatetags.promgen as promgen_templatetags
-from promgen import discovery, filters, models, permissions, serializers, signals, validators
+from promgen import (
+    discovery,
+    filters,
+    models,
+    permissions,
+    serializers,
+    settings,
+    signals,
+    validators,
+)
 from promgen.templatetags import promgen as shortcuts
 
 
@@ -1430,6 +1441,76 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             serializers.NotifierSerializer(notifier).data,
             status=HTTPStatus.CREATED,
         )
+
+    @extend_schema(
+        summary="Get Current User Tokens",
+        description="Retrieve a list of current authenticated user's tokens.",
+        responses=serializers.TokenRetrieveSerializer(many=True),
+    )
+    @action(detail=False, methods=["get"], url_path="me/tokens", filterset_class=None)
+    def current_user_tokens(self, request):
+        tokens = models.AuthToken.objects.filter(user=request.user)
+        page = self.paginate_queryset(tokens)
+        return self.get_paginated_response(
+            serializers.TokenRetrieveSerializer(page, many=True).data
+        )
+
+    @extend_schema(
+        summary="Create User Token",
+        description="Create a new API token for current authenticated user.",
+        request=serializers.TokenCreateRequestSerializer,
+        responses=serializers.TokenCreateResponseSerializer,
+    )
+    @current_user_tokens.mapping.post
+    def create_token_for_current_user(self, request):
+        existing_tokens = models.AuthToken.objects.filter(user=self.request.user).count()
+        if settings.API_TOKEN_MAX_QUOTA and existing_tokens >= settings.API_TOKEN_MAX_QUOTA:
+            raise ValidationError(
+                {
+                    "detail": (
+                        "You have reached the maximum number of API tokens allowed "
+                        f"({settings.API_TOKEN_MAX_QUOTA}). Please delete an existing token before "
+                        "creating a new one."
+                    )
+                }
+            )
+
+        serializer = serializers.TokenCreateRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        if serializer.validated_data.get("name"):
+            name = serializer.validated_data["name"]
+        else:
+            name = f"{request.user.username}-{uuid.uuid4()}"
+
+        expiry = None
+        if serializer.validated_data.get("seconds_to_live"):
+            expiry = datetime.timedelta(seconds=serializer.validated_data["seconds_to_live"])
+        instance, token = models.AuthToken.objects.create(
+            user=self.request.user, name=name, expiry=expiry
+        )
+
+        return Response(
+            serializers.TokenCreateResponseSerializer({"name": instance.name, "token": token}).data,
+            status=HTTPStatus.CREATED,
+        )
+
+    # We let the GET method return MethodNotAllowed because we don't want to implement this API.
+    # However, we still need to define the function so that Django REST Framework can generate
+    # the correct URL patterns for the other related methods when using the decorator.
+    @extend_schema(exclude=True)
+    @action(detail=False, methods=["get"], url_path=r"me/tokens/(?P<digest>[0-9a-f]+)")
+    def current_user_token(self, request, id, digest):
+        raise MethodNotAllowed(request.method)
+
+    @extend_schema(
+        summary="Delete User Tokens",
+        description="Delete an existing API token of current authenticated user.",
+    )
+    @current_user_token.mapping.delete
+    def delete_token_of_current_user(self, request, digest):
+        models.AuthToken.objects.filter(digest=digest, user=self.request.user).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
 
 
 @extend_schema_view(
