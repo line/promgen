@@ -1431,6 +1431,19 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             status=HTTPStatus.CREATED,
         )
 
+    @extend_schema(
+        summary="Get Current User Tokens",
+        description="Retrieve a list of current authenticated user's tokens.",
+        responses=serializers.TokenRetrieveSerializer(many=True),
+    )
+    @action(detail=False, methods=["get"], url_path="me/tokens", filterset_class=None)
+    def current_user_tokens(self, request):
+        tokens = models.AuthToken.objects.filter(user=request.user)
+        page = self.paginate_queryset(tokens)
+        return self.get_paginated_response(
+            serializers.TokenRetrieveSerializer(page, many=True).data
+        )
+
 
 @extend_schema_view(
     list=extend_schema(summary="List Shards", description="Retrieve a list of all shards."),

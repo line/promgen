@@ -639,3 +639,11 @@ class RuleOverrideSerializer(serializers.Serializer):
         if not models.Rule.objects.filter(pk=value).exists():
             raise serializers.ValidationError("Original rule does not exist.")
         return value
+
+
+class TokenRetrieveSerializer(serializers.ModelSerializer):
+    has_expired = serializers.BooleanField(read_only=True, source="is_expired")
+
+    class Meta:
+        model = models.AuthToken
+        exclude = ("token_key", "user")
