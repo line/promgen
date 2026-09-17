@@ -7,11 +7,11 @@
   <h1>{{user.username}} ({{user.email}})</h1>
 </div>
 
-<div class="panel panel-primary" v-pre>
+<div class="panel panel-primary">
   <div class="panel-heading">API Tokens</div>
   <table class="table">
     <tr>
-      <th>Name</th>
+      <th v-pre>Name</th>
       <th>Created At</th>
       <th>Expires At</th>
       <th>Actions</th>
@@ -19,10 +19,10 @@
     {% for token in api_tokens %}
     <tr>
       <td>{{ token.name }}</td>
-      <td>{{ token.created }}</td>
+      <td><span v-text="time('{{ token.created|date:'c' }}')"></span></td>
       <td>
         {% if token.expiry %}
-          {{ token.expiry }}
+          <span v-text="time('{{ token.expiry|date:'c' }}')"></span>
           {% if token.is_expired %}
             <span class="label label-danger">Expired</span>
           {% endif %}
