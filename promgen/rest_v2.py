@@ -1484,8 +1484,8 @@ class UserViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             name = f"{request.user.username}-{uuid.uuid4()}"
 
         expiry = None
-        if serializer.validated_data.get("seconds_to_live"):
-            expiry = datetime.timedelta(seconds=serializer.validated_data["seconds_to_live"])
+        if serializer.validated_data.get("days_to_live"):
+            expiry = datetime.timedelta(days=serializer.validated_data["days_to_live"])
         instance, token = models.AuthToken.objects.create(
             user=self.request.user, name=name, expiry=expiry
         )
