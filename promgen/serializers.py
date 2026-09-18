@@ -652,9 +652,9 @@ class TokenRetrieveSerializer(serializers.ModelSerializer):
 
 class TokenCreateRequestSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=64, help_text="Name of the token.", required=False)
-    seconds_to_live = serializers.IntegerField(
+    days_to_live = serializers.IntegerField(
         min_value=1,
-        help_text="Time to live for this token in seconds.",
+        help_text="Time to live for this token in days.",
         required=False,
         allow_null=True,
     )
@@ -662,12 +662,12 @@ class TokenCreateRequestSerializer(serializers.Serializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if settings.API_TOKEN_TTL_DAYS:
-            max_seconds_to_live = settings.API_TOKEN_TTL_DAYS * 24 * 60 * 60
-            self.fields["seconds_to_live"].validators.append(MaxValueValidator(max_seconds_to_live))
-            self.fields["seconds_to_live"].required = True
-            self.fields["seconds_to_live"].allow_null = False
+            max_days_to_live = settings.API_TOKEN_TTL_DAYS
+            self.fields["days_to_live"].validators.append(MaxValueValidator(max_days_to_live))
+            self.fields["days_to_live"].required = True
+            self.fields["days_to_live"].allow_null = False
         else:
-            self.fields["seconds_to_live"].help_text += " Leave null for no expiration."
+            self.fields["days_to_live"].help_text += " Leave null for no expiration."
 
 
 class TokenCreateResponseSerializer(serializers.Serializer):

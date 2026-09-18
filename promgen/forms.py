@@ -458,11 +458,7 @@ class TokenGenerationForm(forms.Form):
     user_timezone = forms.CharField(required=False, widget=forms.HiddenInput())
     expiration = forms.DateTimeField(
         required=bool(settings.API_TOKEN_TTL_DAYS),
-        input_formats=["%Y-%m-%dT%H:%M"],
-        widget=forms.DateTimeInput(
-            format="%Y-%m-%dT%H:%M",
-            attrs={"type": "datetime-local"},
-        ),
+        widget=forms.DateInput(attrs={"type": "date"}),
     )
 
     def __init__(self, *args, **kwargs):
@@ -489,19 +485,24 @@ class TokenGenerationForm(forms.Form):
         if not self.cleaned_data["expiration"]:
             return None
 
-        user_tz = self.cleaned_data["user_timezone"]
-        if user_tz:
+        now = timezone.now()
+        if self.cleaned_data["user_timezone"]:
+            user_tz = ZoneInfo(self.cleaned_data["user_timezone"])
+            now = now.astimezone(user_tz)
             self.cleaned_data["expiration"] = self.cleaned_data["expiration"].replace(
-                tzinfo=ZoneInfo(user_tz)
+                tzinfo=user_tz
             )
 
+        # User only selects a date, so we need to set the time to the current
+        self.cleaned_data["expiration"] = self.cleaned_data["expiration"].replace(
+            hour=now.hour, minute=now.minute, second=now.second
+        )
+
         if self.cleaned_data["expiration"]:
-            if self.cleaned_data["expiration"] < timezone.now():
+            if self.cleaned_data["expiration"] < now:
                 raise ValidationError(_("Expiration date cannot be in the past."))
             if settings.API_TOKEN_TTL_DAYS:
-                max_expiration = timezone.now() + datetime.timedelta(
-                    days=settings.API_TOKEN_TTL_DAYS
-                )
+                max_expiration = now + datetime.timedelta(days=settings.API_TOKEN_TTL_DAYS)
                 if self.cleaned_data["expiration"] > max_expiration:
                     raise ValidationError(
                         _("Expiration date cannot be more than %d days in the future.")
