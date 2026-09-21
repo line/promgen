@@ -1120,13 +1120,24 @@ class ProjectViewSet(
         original_owner_id = project.owner_id
         new_owner = serializer.validated_data.get("owner")
         owner_changed = new_owner is not None and new_owner.id != original_owner_id
+        original_service_id = project.service_id
+        new_service = serializer.validated_data.get("service")
+        service_changed = new_service is not None and new_service.id != original_service_id
 
-        if owner_changed and not (
-            self.request.user.is_superuser
-            or self.request.user == project.owner
-            or self.request.user == project.service.owner
-        ):
-            raise ValidationError({"owner": "You do not have permission to change the owner."})
+        if owner_changed or service_changed:
+            if not (
+                self.request.user.is_superuser
+                or self.request.user == project.owner
+                or self.request.user == project.service.owner
+            ):
+                validation_errors = {}
+                if owner_changed:
+                    validation_errors["owner"] = "You do not have permission to change the owner."
+                if service_changed:
+                    validation_errors["service"] = (
+                        "You do not have permission to change the service."
+                    )
+                raise ValidationError(validation_errors)
 
         super().perform_update(serializer)
 
