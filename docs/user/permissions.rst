@@ -51,7 +51,7 @@ The following table summarizes the permissions inheritance:
 
 - User with **Service Admin** permission can manage all aspects of the Service, including its Projects and associated objects, but only the owner can delete the Service or any Project.
 - User with **Project Admin** permission can manage the specific Project and its associated objects, but only the owner can delete the Service or any Project.
-Project Admin of Project cannot also see or modify other Projects under the same Service. They cannot even view the parents Service's details unless they have explicit permissions on that Service.
+  Project Admin of Project cannot also see or modify other Projects under the same Service. They cannot even view the parents Service's details unless they have explicit permissions on that Service.
 - User with **Service Viewer** permission can only view all aspects of the Service, including its Projects and associated objects, without making any changes.
 - User with **Project Viewer** permission can only view the specific Project and its associated objects, but cannot see or modify other Projects under the same Service.
 - User with **Service Editor** permission can modify the Service, its associated objects and the Projects under that Service, but cannot delete those Projects. However, they still can delete any associated objects of those Projects (such as Exporters and Farms).
