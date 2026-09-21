@@ -1067,11 +1067,19 @@ class ProjectUpdate(PromgenGuardianPermissionMixin, UpdateView):
         return context
 
     def form_valid(self, form):
-        if "owner" in form.changed_data:
+        initial = self.get_object()
+        if "owner" in form.changed_data or "service" in form.changed_data:
             if not (
-                self.request.user.is_superuser or self.request.user.id == form.initial["owner"]
+                self.request.user.is_superuser
+                or self.request.user == initial.owner
+                or self.request.user == initial.service.owner
             ):
-                form.add_error("owner", _("You do not have permission to change the owner."))
+                if "owner" in form.changed_data:
+                    form.add_error("owner", _("You do not have permission to change the owner."))
+                if "service" in form.changed_data:
+                    form.add_error(
+                        "service", _("You do not have permission to change the service.")
+                    )
                 return self.form_invalid(form)
             assign_perm("project_admin", form.cleaned_data["owner"], form.instance)
         return super().form_valid(form)
