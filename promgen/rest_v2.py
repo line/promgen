@@ -1122,7 +1122,9 @@ class ProjectViewSet(
         owner_changed = new_owner is not None and new_owner.id != original_owner_id
 
         if owner_changed and not (
-            self.request.user.is_superuser or self.request.user.id == original_owner_id
+            self.request.user.is_superuser
+            or self.request.user == project.owner
+            or self.request.user == project.service.owner
         ):
             raise ValidationError({"owner": "You do not have permission to change the owner."})
 

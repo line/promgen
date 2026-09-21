@@ -320,6 +320,22 @@ class RestAPITest(tests.PromgenTest):
         )
         self.assertEqual(response.status_code, 200, "Current owner can change project owner.")
 
+        project.service.owner = user
+        project.service.save()
+        response = self.client.patch(
+            reverse("api-v2:project-detail", kwargs={"id": 1}),
+            data={"owner": 2},
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(
+            response.status_code, 200, "Parent service owner can change project owner."
+        )
+
+        project.service.owner = admin
+        project.service.save()
+        project.owner = admin
+        project.save()
         response = self.client.patch(
             reverse("api-v2:project-detail", kwargs={"id": 1}),
             data={"owner": 2},
