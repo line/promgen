@@ -4,6 +4,7 @@ Using Promgen
 .. toctree::
   :maxdepth: 3
 
+  /user/custom_labels
   /user/rules
   /user/notifications
   /user/queue
