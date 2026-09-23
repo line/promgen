@@ -1,3 +1,4 @@
+..  _queue:
 Distributed task queues
 =======================
 
@@ -22,6 +23,7 @@ Tasks that time out will be retried indefinitely until they succeed. This ensure
 important tasks, such as sending alert notifications, are not lost due to temporary issues.
 The delay between retries increases exponentially to avoid overwhelming the system.
 
+.. _dlq:
 The Dead-letter Queue
 -----------------------
 
