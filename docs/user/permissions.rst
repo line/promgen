@@ -9,13 +9,20 @@ Permissions can be assigned to users or groups (see: :ref:`group`).
 
 Service and Project permissions
 -------------------------------
+Any authenticated user can create a **new Service** on Promgen. After creating a Service or Project,
+the user will automatically become the **Owner** of the object as well as the first **Admin**.
+The Admin can do most of the operations on the object, including modifying its content and managing
+permissions for other users or groups. However, only the Owner can **delete** or **transfer ownership**
+of the object.
+
 Permissions can be assigned at both the **Service** and **Project** levels.
 
 Each user or group can have at most one permission per Service or Project: **Admin**, **Editor** and **Viewer**.
 
-- **Admin**: Full control over the Service or Project, including managing permissions. **Note:** Only the owner can delete the Service or Project.
-- **Editor**: Can modify the Service or Project but cannot delete it or manage permissions.
-- **Viewer**: Read-only access to the Service or Project.
+- **Admin**: Has full control over the Service or Project, including managing permissions.
+- **Editor**: Can modify the Service's or Project's content.
+- **Viewer**: Has read-only access to the Service or Project.
+
 
 Inheritance of Permissions
 --------------------------
@@ -27,31 +34,75 @@ The permissions are **inherited**. This means the person who has a specific perm
 For example, if a user has Admin permission on a Service, they will automatically have Admin permission on all Projects under that Service.
 
 To keep it simple, an **Editor** can fully control child objects, **unless** the child is a Project.
-It means if someone has Editor permission for a Service, they can change and even **delete** all its Rules and Notifiers. However, while they can modify Projects within that Service, they cannot delete them.
+It means if someone has Editor permission for a Service, they can change and even **delete** all its Rules and Notifiers.
 
 The following table summarizes the permissions inheritance:
 
-+---------------------------+----------------+------------------+------------------+----------------+------------------+------------------+
-| Target                    | Service's      | Service's        | Service's        | Project's      | Project's        | Project's        |
-|                           | Admin          | Editor           | Viewer           | Admin          | Editor           | Viewer           |
-+===========================+================+==================+==================+================+==================+==================+
-| Service                   | Full control   | View, Update     | View             |                |                  |                  |
-+---------------------------+----------------+------------------+------------------+----------------+------------------+------------------+
-| Service's Notifier/Rule   | Full control   | Full control     | View             |                |                  |                  |
-+---------------------------+----------------+------------------+------------------+----------------+------------------+------------------+
-| Service's Project         | Full control   | View, Update     | View             | Full control   | View, Update     | View             |
-+---------------------------+----------------+------------------+------------------+----------------+------------------+------------------+
-| Project's Notifier/Rule/  |                |                  |                  |                |                  |                  |
-| Exporter/URL/Farm/Host    | Full control   | Full control     | View             | Full control   | Full control     | View             |
-+---------------------------+----------------+------------------+------------------+----------------+------------------+------------------+
+.. list-table::
+   :header-rows: 1
 
-*Full control: View, Create, Update, Delete, Manage Permissions.* *Note: Delete Service or Project is only allowed for the owner.*
+   * - Role|Target
+     - Service
+     - Service's Notifier/Rule
+     - Service's Project
+     - | Project's Notifier/Rule/
+       | Exporter/URL/Farm/Host
+   * - Service's Owner
+     - * View/Edit/Delete
+       * Transfer ownership
+       * Manage members
+     - * Create/View/Edit/Delete
+     - * Create/View/Edit/Delete
+       * Transfer ownership
+       * Manage members
+     - * Create/View/Edit/Delete
+   * - Service's Admin
+     - * View/Edit
+       * Manage members
+     - * Create/View/Edit/Delete
+     - * Create/View/Edit
+       * Manage members
+     - * Create/View/Edit/Delete
+   * - Service's Editor
+     - * Create/View/Edit
+     - * Create/View/Edit/Delete
+     - * Create/View/Edit
+     - * Create/View/Edit/Delete
+   * - Service's Viewer
+     - * View
+     - * View
+     - * View
+     - * View
+   * - Project's Owner
+     -
+     -
+     - * View/Edit/Delete
+       * Transfer ownership
+       * Manage members
+     - * Create/View/Edit/Delete
+   * - Project's Admin
+     -
+     -
+     - * View/Edit
+       * Manage members
+     - * Create/View/Edit/Delete
+   * - Project's Editor
+     -
+     -
+     - * View/Edit
+     - * Create/View/Edit/Delete
+   * - Project's Viewer
+     -
+     -
+     - * View
+     - * View
+
 
 **Use cases:**
 
 - User with **Service Admin** permission can manage all aspects of the Service, including its Projects and associated objects, but only the owner can delete the Service or any Project.
 - User with **Project Admin** permission can manage the specific Project and its associated objects, but only the owner can delete the Service or any Project.
-Project Admin of Project cannot also see or modify other Projects under the same Service. They cannot even view the parents Service's details unless they have explicit permissions on that Service.
+  Also, a Project Admin cannot see or modify other Projects under the same Service. They cannot even view the parent Service's details unless they have explicit permissions on that Service.
 - User with **Service Viewer** permission can only view all aspects of the Service, including its Projects and associated objects, without making any changes.
 - User with **Project Viewer** permission can only view the specific Project and its associated objects, but cannot see or modify other Projects under the same Service.
 - User with **Service Editor** permission can modify the Service, its associated objects and the Projects under that Service, but cannot delete those Projects. However, they still can delete any associated objects of those Projects (such as Exporters and Farms).
