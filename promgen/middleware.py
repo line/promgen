@@ -32,7 +32,11 @@ from promgen import metrics, models, settings, util
 from promgen.signals import trigger_write_config, trigger_write_rules, trigger_write_urls
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    logger.addHandler(handler)
 
 _user = local()
 
