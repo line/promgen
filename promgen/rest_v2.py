@@ -930,6 +930,12 @@ class GroupViewSet(viewsets.ModelViewSet):
             return self.queryset
         return permissions.get_accessible_groups_for_user(self.request.user)
 
+    def perform_create(self, serializer):
+        group = serializer.save()
+        # Assign the user who created the group as the first admin of the group
+        group.user_set.add(self.request.user)
+        assign_perm("group_admin", self.request.user, group)
+
     @extend_schema(
         summary="List Members",
         description="Retrieve a list of all members in the specific group.",
