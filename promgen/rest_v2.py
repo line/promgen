@@ -206,10 +206,9 @@ class PermissionManagementMixin:
         serializer.is_valid(raise_exception=True)
 
         user = User.objects.get(id=serializer.validated_data["id"])
-        if not user.is_active:
-            raise ValidationError({"detail": "Cannot assign permissions to an inactive user."})
         content_type = ContentType.objects.get_for_model(object)
         permission = content_type.model + "_" + serializer.validated_data["role"].lower()
+        validators.validate_assign_perm(user, object, permission)
         user_object_perm = assign_perm(permission, user, object)
         return Response(
             serializers.UserObjectPermissionSerializer(user_object_perm).data,
@@ -285,6 +284,7 @@ class PermissionManagementMixin:
             request.query_params.get("remove_sub_permissions", "true").lower() == "true"
         )
         user = User.objects.get(id=user_id)
+        validators.validate_remove_perm(user, self.get_object())
         self.remove_perm(user, remove_sub_permissions)
         return Response(status=HTTPStatus.NO_CONTENT)
 

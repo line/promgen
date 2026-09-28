@@ -17,6 +17,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.core.paginator import EmptyPage, Paginator
 from django.db import transaction
 from django.db.models import Count, Prefetch, Q
@@ -52,6 +53,7 @@ from promgen import (
 from promgen.forms import GroupMemberForm, UserPermissionForm
 from promgen.mixins import PromgenGuardianPermissionMixin
 from promgen.shortcuts import resolve_domain
+from promgen.validators import validate_assign_perm, validate_remove_perm
 
 logger = logging.getLogger(__name__)
 
@@ -1956,15 +1958,10 @@ class PermissionAssign(PromgenGuardianPermissionMixin, View):
         if "user" == permission_type:
             user = User.objects.get_by_natural_key(request.POST["username"])
 
-            # Prevent changing permissions for the owner of the object
-            if user == obj.owner and request.POST["permission"] not in self.permission_required:
-                messages.warning(
-                    request,
-                    _(
-                        "Cannot assign permission for the owner. "
-                        "The owner must have the ADMIN role."
-                    ),
-                )
+            try:
+                validate_assign_perm(user, obj, permission)
+            except ValidationError as e:
+                messages.error(request, e.message)
                 return redirect(request.POST["next"])
 
             assign_perm(permission, user, obj)
@@ -2006,12 +2003,10 @@ class PermissionDelete(PromgenGuardianPermissionMixin, View):
         if "user" == permission_type:
             user = User.objects.get_by_natural_key(request.POST["username"])
 
-            # Prevent removing permissions for the owner of the object
-            if user == obj.owner:
-                messages.warning(
-                    request,
-                    _("Cannot remove permissions for the owner. Please transfer ownership first."),
-                )
+            try:
+                validate_remove_perm(user, obj)
+            except ValidationError as e:
+                messages.error(request, e.message)
                 return redirect(request.POST["next"])
 
             self.delete_perm(user)

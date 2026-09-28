@@ -6,6 +6,7 @@ import re
 from dateutil import parser
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, URLValidator
+from django.utils.translation import gettext as _
 
 # See definition of duration field
 # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#configuration-file
@@ -102,3 +103,19 @@ def validate_utf8(value):
         value.encode("utf-8").decode("utf-8")
     except (UnicodeEncodeError, UnicodeDecodeError):
         raise ValidationError("Invalid UTF-8 string.")
+
+
+def validate_assign_perm(user, object, permission):
+    if not user.is_active:
+        raise ValidationError(_("Cannot assign permissions to an inactive user."))
+    if user == object.owner and permission not in ["service_admin", "project_admin"]:
+        raise ValidationError(
+            _("Cannot assign permission for the owner. The owner must have the ADMIN role.")
+        )
+
+
+def validate_remove_perm(user, object):
+    if user == object.owner:
+        raise ValidationError(
+            _("Cannot remove permissions for the owner. Please transfer ownership first.")
+        )
