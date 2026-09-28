@@ -764,6 +764,8 @@ class FarmViewSet(
     @hosts.mapping.post
     def register_host(self, request, id):
         farm = self.get_object()
+        if not farm.source == discovery.FARM_DEFAULT:
+            raise ValidationError({"detail": "Hosts can only be registered to local farms."})
         hostnames = request.data.get("hosts", [])
         valid_hosts = set()
         invalid_hosts = set()
