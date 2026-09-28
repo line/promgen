@@ -11,6 +11,7 @@ from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
+from django.core.validators import EmailValidator
 from django.db import models, transaction
 from django.forms.models import model_to_dict
 from django.urls import reverse
@@ -177,6 +178,20 @@ class Sender(models.Model):
 
     def get_absolute_url(self):
         return reverse("notifier-edit", kwargs={"pk": self.pk})
+
+    def clean(self):
+        super().clean()
+        if self.sender == "promgen.notification.email":
+            validator = EmailValidator()
+            validator(self.value)
+
+    def save(self, *args, **kwargs):
+        # Django model validation is not automatically invoked when calling the original method
+        # save(). It runs automatically when data is handled through standard Django Forms or
+        # ModelForms. Therefore, we need to explicitly call full_clean() before saving the model
+        # instance to ensure that all field validations are always performed.
+        self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Filter(models.Model):

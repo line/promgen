@@ -662,14 +662,3 @@ class RestAPITest(tests.PromgenTest):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"name": ["This field may not be blank."]})
-
-        # Unexpected exception (django.ValidationError) returns 500 HTTP code with
-        # the default response.
-        response = self.client.patch(
-            reverse("api-v2:rule-detail", kwargs={"id": 1}),
-            data={"clause": "This clause is not valid."},
-            content_type="application/json",
-            HTTP_AUTHORIZATION=f"Token {admin_token}",
-        )
-        self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.json(), {"error": "Server Error (500)"})

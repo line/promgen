@@ -23,6 +23,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, NotFound, PermissionDenied, ValidationError
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
+from rest_framework.serializers import as_serializer_error
 from rest_framework.views import APIView, exception_handler
 
 import promgen.templatetags.promgen as promgen_templatetags
@@ -78,6 +79,10 @@ class Router(routers.DefaultRouter):
 
 
 def custom_exception_handler(exc, context):
+    if isinstance(exc, DjangoValidationError):
+        # Convert DjangoValidationError to a DRFValidationError
+        exc = ValidationError(detail=as_serializer_error(exc))
+
     # Call REST framework's default exception handler first,
     # to get the standard error response.
     response = exception_handler(exc, context)
