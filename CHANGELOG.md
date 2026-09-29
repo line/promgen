@@ -1,5 +1,86 @@
 # Changelog
 
+# v0.74.0 - 2026-09-29
+
+[BUGFIX] test_rest_user sometimes fail #793
+[BUGFIX] No validations for owner permissions assignment via API #792
+[BUGFIX] Hosts can be registered to non-local farms #791
+[BUGFIX] Email notifier's value not validated through APIs #790
+[BUGFIX] V2 API logs not displayed as expected #789
+[BUGFIX] Group creator not added as Admin #788
+[IMPROVEMENT] Add docs for Promgen API configuration #787
+[IMPROVEMENT] Update permissions docs #785
+[IMPROVEMENT] Add docs for custom labels #784
+[INTERNAL] Bump docker/build-push-action from 7.3.0 to 7.4.0 #783
+[IMPROVEMENT ] Better logic for project parent and ownership #782
+[IMPROVEMENT] Specify token expiration in days #781
+[IMPROVEMENT] Add APIs for managing user tokens #780
+[IMPROVEMENT] Use datetime picker for token expiration #779
+[IMPROVEMENT] Support custom labels for Service and Project #777
+[BUGFIX] Fix activateTabFromHash function for weird hash values #778
+[IMPROVEMENT] Feature: Knox Authentication #775
+[INTERNAL] Bump actions/deploy-pages from 5.0.0 to 5.0.1 #776
+[IMPROVEMENT] Add Custom Exception Handler for Django REST Framework #774
+[IMPROVEMENT] Support for logging in API v2 #773
+[IMPROVEMENT] Query Hosts exactly by hostname on the HostDetail page #771
+[IMPROVEMENT] Use Farms in plural on the HostDetail page #772
+[IMPROVEMENT] Avoid wrong notification caused by unrelated Alert #770
+[IMPROVEMENT] Display rules on HostDetail page in a better way #769
+[IMPROVEMENT] Add new APIs for overriding Rule #764
+[BUGFIX] Validate email address for email notifier #767
+[BUGFIX] Not allow registering Project to disabled Shard #765
+[IMPROVEMENT] Specify field type for Rule serializer's labels and annotations #766
+[IMPROVEMENT] Add new APIs for integrating with Site #762
+[IMPROVEMENT] Change the serializer class of Registering Rule API #763
+[IMPROVEMENT] Add new APIs for integrating with Shard #761
+[IMPROVEMENT] Add new APIs for integrating with User #760
+[INTERNAL] Bump docker/login-action from 4.5.1 to 4.6.0 #759
+[IMPROVEMENT] Add new APIs for integrating with Service #758
+[IMPROVEMENT] Add new APIs for integrating with Project #755
+[IMPROVEMENT] Redesign the Grant Permissions UI in the Members Tab #756
+[INTERNAL] Bump docker/login-action from 4.4.0 to 4.5.1 #757
+[IMPROVEMENT] Add new APIs for integrating with Group #752
+[INTERNAL] Bump actions/checkout from 7.0.0 to 7.0.1 #751
+[INTERNAL] Bump actions/setup-python from 6.3.0 to 7.0.0 #750
+[IMPROVEMENT] Add new APIs for integrating with URL #747
+[IMPROVEMENT] Add Django SRI #749
+[BUGFIX] Rapidoc checksum mismatch in Production #748
+[IMPROVEMENT] Update notifier API to return both value and alias fields #746
+[INTERNAL] Bump docker/metadata-action from 6.1.0 to 6.2.0 #745
+[INTERNAL] Bump docker/login-action from 4.2.0 to 4.4.0 #744
+[INTERNAL] Bump docker/build-push-action from 7.2.0 to 7.3.0 #743
+[INTERNAL] Bump actions/setup-python from 6.2.0 to 6.3.0 #742
+[INTERNAL] Bump actions/checkout from 6.0.3 to 7.0.0 #741
+[IMPROVEMENT] Add new APIs for integrating with Exporter #740
+[IMPROVEMENT] Add new APIs for integrating with Farm #739
+[INTERNAL] Bump actions/checkout from 6.0.2 to 6.0.3 #738
+[IMPROVEMENT] Add new APIs for integrating with Rule #737
+[IMPROVEMENT] Add new APIs for Notifiers #733
+[INTERNAL] Bump docker/metadata-action from 6.0.0 to 6.1.0 #736
+[INTERNAL] Bump docker/login-action from 4.1.0 to 4.2.0 #735
+[INTERNAL] Bump docker/build-push-action from 7.1.0 to 7.2.0 #734
+[IMPROVEMENT] Remove the trailing slash in v2 APIs #732
+[IMPROVEMENT] Initialize v2 API #731
+[IMPROVEMENT] Add metrics to monitor requests to Promgen #729
+[BUGFIX] Fix alertmanager config path in docker compose #728
+[INTERNAL] Bump docker/build-push-action from 7.0.0 to 7.1.0 #726
+[INTERNAL] Bump actions/upload-pages-artifact from 4.0.0 to 5.0.0 #725
+[INTERNAL] Bump docker/login-action from 4.0.0 to 4.1.0 #724
+[BUGFIX] Fix wrong classification of sending alert error #723
+[IMPROVEMENT] Remove compiled messages from source code #722
+[IMPROVEMENT] Support query parameters in metrics path #713
+[INTERNAL] Bump actions/deploy-pages from 4.0.5 to 5.0.0 #720
+[REFACTOR] Replace UTCToFormattedLocalDateTime with mixins.time #721
+[IMPROVEMENT] Support editing silence #716
+[BUGFIX] Create silences with timezone-aware dates #715
+[IMPROVEMENT] Show full name and email in user select dropdown #718
+[IMPROVEMENT] Facilitate creating silences from past alerts #717
+[IMPROVEMENT] Add API to get Shard's projects #714
+[CLEANUP] Remove API to get Shard's services #719
+[IMPROVEMENT] Auto-add Service and Project labels for URL silence #712
+[IMPROVEMENT] Set a timeout for the ExporterScrape view #710
+[CLEANUP] Remove unused PAGERDUTY_SEVERITY_MAP in settings #711
+
 # v0.73.0 - 2026-03-10
 
 - [INTERNAL] Bump docker/build-push-action from 6.19.2 to 7.0.0 #709
