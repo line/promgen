@@ -107,7 +107,11 @@ def render_config(service=None, project=None, services=None, projects=None, farm
     for exporter in models.Exporter.objects.prefetch_related(
         "project__farm__host_set",
         "project__farm",
+        "project__service__custom_labels__custom_label",
+        "project__service__custom_labels",
         "project__service",
+        "project__custom_labels__custom_label",
+        "project__custom_labels",
         "project__shard",
         "project",
     ):
