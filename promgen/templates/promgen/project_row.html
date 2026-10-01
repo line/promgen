@@ -3,12 +3,24 @@
     <td><a href="{{project.get_absolute_url}}" v-pre>{{ project.name }}</a></td>
 
     <td>
-        <table style="width: 100%">
+        <table class="p-0" style="width: 100%; table-layout: fixed; padding: 0;">
             {% for exporter in project.exporter_set.all %}
             <tr {% if not exporter.enabled %}class="promgen-disabled" {% endif %}>
-                <td v-pre>{{ exporter.job }}</td>
-                <td v-pre>{{ exporter.port }}</td>
-                <td v-pre>{{ exporter.path_value }}</td>
+                <td
+                    class="col-xs-4"
+                    style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-left: 0px;"
+                    v-pre
+                >
+                    {{ exporter.job }}
+                </td>
+                <td class="col-xs-2" v-pre>{{ exporter.port }}</td>
+                <td
+                    class="col-xs-6"
+                    style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 0px;"
+                    v-pre
+                >
+                    {{ exporter.path_value }}
+                </td>
             </tr>
             {% empty %}
             <tr>
