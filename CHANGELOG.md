@@ -1,5 +1,11 @@
 # Changelog
 
+# v0.74.1 - 2026-10-01
+
+[IMPROVEMENT] Add number of Samples to the result of ExporterScrape #797
+[IMPROVEMENT] Allow exporter tables to fit long strings #796
+[IMPROVEMENT] Prefetch custom labels when rendering config #795
+
 # v0.74.0 - 2026-09-29
 
 [BUGFIX] test_rest_user sometimes fail #793
