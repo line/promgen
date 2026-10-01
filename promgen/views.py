@@ -953,6 +953,7 @@ class ExporterScrape(LoginRequiredMixin, View):
                                 {
                                     "status_code": result.status_code,
                                     "metric_count": len(list(metrics)),
+                                    "sample_count": sum(len(m.samples) for m in metrics),
                                 },
                             )
                         except ValueError as e:
