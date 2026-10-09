@@ -62,6 +62,30 @@ class SilenceTest(tests.PromgenTest):
 
         mock_post.assert_called_with("http://alertmanager:9093/api/v2/silences", json=TEST_RANGE)
 
+    @override_settings(
+        PROMGEN={
+            **TEST_SETTINGS,
+            "alertmanager": {"url": "http://example.com/alertmanager/"},
+        }
+    )
+    @mock.patch("promgen.util.post")
+    def test_alertmanager_url_with_path_prefix(self, mock_post):
+        mock_post.return_value.status_code = 200
+
+        with mock.patch("django.utils.timezone.now") as mock_now:
+            mock_now.return_value = datetime.datetime(2017, 12, 14, tzinfo=datetime.timezone.utc)
+            self.client.post(
+                reverse("proxy-silence"),
+                data={
+                    "duration": "1m",
+                    "labels": {"instance": "example.com:[0-9]*"},
+                },
+                content_type="application/json",
+            )
+        mock_post.assert_called_with(
+            "http://example.com/alertmanager/api/v2/silences", json=TEST_DURATION
+        )
+
     @override_settings(PROMGEN=TEST_SETTINGS)
     def test_site_silence_errors(self):
         form = forms.SilenceForm(

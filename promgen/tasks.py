@@ -5,7 +5,6 @@ import logging
 import os
 import socket
 from datetime import datetime
-from urllib.parse import urljoin
 
 from atomicwrites import atomic_write
 from billiard.exceptions import SoftTimeLimitExceeded
@@ -184,7 +183,7 @@ def send_notification(*args, alert_pk, **kwargs):
 def reload_prometheus():
     from promgen import signals
 
-    target = urljoin(util.setting("prometheus:url"), "/-/reload")
+    target = util.join_url(util.setting("prometheus:url"), "/-/reload")
     response = util.post(target)
     response.raise_for_status()
     signals.post_reload.send(response)
@@ -192,7 +191,7 @@ def reload_prometheus():
 
 @shared_task(base=BaseTaskWithRetry)
 def clear_tombstones():
-    target = urljoin(util.setting("prometheus:url"), "/api/v1/admin/tsdb/clean_tombstones")
+    target = util.join_url(util.setting("prometheus:url"), "/api/v1/admin/tsdb/clean_tombstones")
     response = util.post(target)
     response.raise_for_status()
 
