@@ -10,6 +10,7 @@ from django.test import override_settings
 from django.urls import reverse
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
+from requests.models import Response
 
 from promgen import models, plugins, rest, signals, tests
 from promgen.notification.email import NotificationEmail
@@ -233,6 +234,72 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_rule.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+    @mock.patch("promgen.util.get")
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_rule__rule_test(self, mock_get):
+        # Mock the Prometheus API response
+        mock_response = mock.Mock(spec=Response)
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "data": {
+                "result": [
+                    {
+                        "metric": {
+                            "__name__": "up",
+                        },
+                        "value": [1, "0"],
+                    }
+                ],
+                "resultType": "vector",
+            },
+            "status": "success",
+        }
+        mock_get.return_value = mock_response
+
+        expected_response = tests.Data("examples", "rest.rule.test.json").json()
+        expected_response["details"]["clause"] = mock.ANY  # Ignore the clause
+        expected_response["details"]["duration"] = mock.ANY  # Ignore the duration
+
+        user = User.objects.get(username="demo")
+        user_token = "demo_token"
+
+        # Test a non-existing Rule
+        assign_perm("project_viewer", user, models.Project.objects.get(id=1))
+        response = self.client.get(
+            reverse("api-v2:rule-test", kwargs={"id": 0}),
+            {"content_type": "project", "object_id": 1, "clause": "up == 0"},
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_response)
+
+        # Test an existing Project's Rule
+        assign_perm("project_viewer", user, models.Project.objects.get(id=1))
+        response = self.client.get(
+            reverse("api-v2:rule-test", kwargs={"id": 2}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_response)
+
+        # Test an existing Service's Rule
+        assign_perm("service_viewer", user, models.Service.objects.get(id=1))
+        response = self.client.get(
+            reverse("api-v2:rule-test", kwargs={"id": 1}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_response)
+
+        # Test an existing Site's Rule
+        admin_token = "admin_token"
+        response = self.client.get(
+            reverse("api-v2:rule-test", kwargs={"id": 3}),
+            HTTP_AUTHORIZATION=f"Token {admin_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected_response)
 
     def test_rest_farm(self):
         local_driver = mock.Mock(remote=False)

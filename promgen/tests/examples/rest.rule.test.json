@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "message": "",
+  "details": {
+    "clause": "up == 0",
+    "duration": 0.123,
+    "errors": {
+      "routing": "Some metrics are missing service and project labels. Promgen will be unable to route message."
+    },
+    "firing": true
+  }
+}

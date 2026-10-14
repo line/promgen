@@ -632,6 +632,44 @@ class RuleViewSet(
             | Q(content_type=site_ct)
         )
 
+    @extend_schema(
+        summary="Test Rule",
+        description="Attempt to test an alerting Rule. "
+        "The test result will be included in the response's body. "
+        "Use 0 for the ID to test a new rule without creating it.",
+        parameters=[serializers.RuleTestParamsSerializer],
+        responses=serializers.RuleTestResultSerializer,
+    )
+    @action(
+        detail=True, methods=["get"], url_path="/test", pagination_class=None, filterset_class=None
+    )
+    def test(self, request, id):
+        if int(id) == 0:
+            serializer = serializers.RuleTestParamsSerializer(data=request.query_params)
+            serializer.is_valid(raise_exception=True)
+            rule = models.Rule()
+            rule.pk = 0
+            rule.set_object(
+                serializer.validated_data["content_type"],
+                serializer.validated_data["object_id"],
+            )
+            rule.clause = serializer.validated_data["clause"]
+        else:
+            rule = self.get_object()
+
+        try:
+            result = rule.test(rule.clause)
+            result["clause"] = rule.clause
+            return Response(
+                {
+                    "success": True,
+                    "message": "",
+                    "details": serializers.RuleTestResultSerializer(result).data,
+                }
+            )
+        except Exception as e:
+            return Response({"success": False, "message": str(e), "details": {}})
+
 
 @extend_schema_view(
     list=extend_schema(
