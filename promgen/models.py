@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import collections
+import concurrent.futures
 import datetime
 import json
 import logging
@@ -9,6 +10,7 @@ import time
 
 import django.contrib.sites.models
 import knox.models
+import requests
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -21,6 +23,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.text import slugify
+from prometheus_client.parser import text_string_to_metric_families
 
 import promgen.templatetags.promgen as macro
 from promgen import plugins, tests, util, validators
@@ -501,6 +504,62 @@ class Exporter(BaseExporter):
 
     def __str__(self):
         return "{}:{}{}".format(self.job, self.port, self.path_value)
+
+    def scrape(self, hosts=None):
+        if not hosts:
+            hosts = self.project.farm.host_set.values_list("name", flat=True)
+
+        def query():
+            futures = []
+            with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+                for host in hosts:
+                    futures.append(
+                        executor.submit(
+                            util.scrape,
+                            "{scheme}://{host}:{port}{path}".format(
+                                scheme=self.scheme,
+                                host=host,
+                                port=self.port,
+                                path=self.path_value,
+                            ),
+                        )
+                    )
+                try:
+                    for future in concurrent.futures.as_completed(
+                        futures, timeout=settings.PROMGEN_EXPORTER_SCRAPE_TIMEOUT
+                    ):
+                        try:
+                            result = future.result()
+                            result.raise_for_status()
+                            metrics = list(text_string_to_metric_families(result.text))
+                            yield (
+                                result.url,
+                                {
+                                    "status_code": result.status_code,
+                                    "metric_count": len(list(metrics)),
+                                    "sample_count": sum(len(m.samples) for m in metrics),
+                                },
+                            )
+                        except ValueError as e:
+                            yield result.url, {"error": f"Unable to parse metrics: {e}"}
+                        except requests.ConnectionError as e:
+                            logger.warning("Error connecting to server")
+                            yield e.request.url, {"error": "Error connecting to server"}
+                        except requests.RequestException as e:
+                            logger.warning("Error with response")
+                            yield e.request.url, {"error": str(e)}
+                        except Exception:
+                            logger.exception("Unknown Exception")
+                            yield "Unknown URL", {"error": "Unknown error"}
+                except concurrent.futures.TimeoutError:
+                    for future in futures:
+                        future.cancel()
+                    yield (
+                        "error",
+                        {"error": "Scrape timed out. Some requests may not have completed."},
+                    )
+
+        return dict(query())
 
 
 class Probe(models.Model):
