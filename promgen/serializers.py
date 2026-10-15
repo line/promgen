@@ -677,3 +677,57 @@ class TokenCreateResponseSerializer(serializers.Serializer):
         help_text="The actual token value. "
         "This is only returned on creation and cannot be retrieved again.",
     )
+
+
+class ExporterTestParamsSerializer(serializers.ModelSerializer):
+    project_id = serializers.IntegerField(
+        help_text="ID of the project to test the exporter against. "
+        "Only required when exporter ID is 0.",
+    )
+    port = serializers.IntegerField(
+        help_text="Port to test the exporter against. Only required when exporter ID is 0.",
+    )
+
+    class Meta:
+        model = models.Exporter
+        fields = ("scheme", "port", "path", "project_id")
+
+    def validate_project_id(self, value):
+        if not models.Project.objects.filter(pk=value).exists():
+            raise serializers.ValidationError("Project does not exist.")
+        return value
+
+
+class ExporterTestResultDetailSerializer(serializers.Serializer):
+    url = serializers.URLField(read_only=True)
+    status_code = serializers.IntegerField(read_only=True)
+    metric_count = serializers.IntegerField(read_only=True)
+    sample_count = serializers.IntegerField(read_only=True)
+    error = serializers.CharField(read_only=True)
+
+
+class ExporterTestResultSerializer(serializers.Serializer):
+    SUCCESS_MESSAGE = "Scrape completed."
+    message = serializers.CharField(read_only=True)
+    details = ExporterTestResultDetailSerializer(read_only=True, many=True)
+
+    def to_representation(self, results):
+        message = self.SUCCESS_MESSAGE
+        payload = []
+        for key, value in results.items():
+            if key != "error":
+                payload.append(
+                    {
+                        "url": key,
+                        "status_code": value.get("status_code"),
+                        "metric_count": value.get("metric_count"),
+                        "sample_count": value.get("sample_count"),
+                        "error": value.get("error"),
+                    }
+                )
+            else:
+                message = value if isinstance(value, str) else value["error"]
+        return {
+            "message": message,
+            "details": ExporterTestResultDetailSerializer(payload, many=True).data,
+        }

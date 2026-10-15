@@ -874,6 +874,46 @@ class ExporterViewSet(
         accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
         return self.queryset.filter(project__in=accessible_projects)
 
+    @extend_schema(
+        summary="Test Exporter",
+        description="Test the specified exporter by scraping its metrics endpoint. "
+        "Use 0 for the ID to test against a new exporter without creating it.",
+        parameters=[serializers.ExporterTestParamsSerializer],
+        responses=serializers.ExporterTestResultSerializer,
+    )
+    @action(
+        detail=True, methods=["get"], url_path="/test", pagination_class=None, filterset_class=None
+    )
+    def test_exporter(self, request, id):
+        if int(id) == 0:
+            serializer = serializers.ExporterTestParamsSerializer(data=request.query_params)
+            serializer.is_valid(raise_exception=True)
+
+            project = models.Project.objects.get(pk=serializer.validated_data["project_id"])
+
+            # Check project permissions
+            has_perm = any(
+                self.request.user.has_perm(perm, project)
+                for perm in ["project_viewer", "project_editor", "project_admin"]
+            ) or any(
+                self.request.user.has_perm(perm, project.service)
+                for perm in ["service_viewer", "service_editor", "service_admin"]
+            )
+            if not has_perm:
+                raise PermissionDenied(
+                    {"detail": "You do not have permission to perform this action."}
+                )
+
+            exporter = models.Exporter(**serializer.validated_data)
+        else:
+            exporter = self.get_object()
+
+        results = serializers.ExporterTestResultSerializer(exporter.scrape())
+        response = Response(results.data)
+        if results.data["message"] != serializers.ExporterTestResultSerializer.SUCCESS_MESSAGE:
+            response.status_code = HTTPStatus.BAD_REQUEST
+        return response
+
 
 @extend_schema_view(
     list=extend_schema(summary="List URLs", description="Retrieve a list of all URLs."),
