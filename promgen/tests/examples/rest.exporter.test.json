@@ -1,0 +1,14 @@
+{
+  "message": "Scrape completed.",
+  "details": [
+    {
+      "url": "http://example.com:9100/metrics",
+      "status_code": 200,
+      "metric_count": 2,
+      "sample_count": 3,
+      "error": null
+    }
+  ]
+}
+
+
