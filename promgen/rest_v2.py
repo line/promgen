@@ -554,6 +554,38 @@ class NotifierViewSet(
             models.Filter.objects.filter(pk=filter_id).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
 
+    @extend_schema(
+        summary="Test Notifier",
+        description="Attempt to send a test notification. "
+        "The test result will be included in the response's body. "
+        "Use 0 for the ID to test against a new notifier without creating it.",
+        request=serializers.NotifierTestRequestSerializer,
+    )
+    @action(
+        detail=True, methods=["post"], url_path="test", pagination_class=None, filterset_class=None
+    )
+    def test_notifier(self, request, id):
+        if int(id) == 0:
+            serializer = serializers.NotifierTestRequestSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            notifier = models.Sender(
+                sender=serializer.validated_data["sender"], value=serializer.validated_data["value"]
+            )
+        else:
+            notifier = self.get_object()
+
+        try:
+            notifier.test()
+        except Exception as e:
+            success = False
+            message = "Error sending test message {} to {}: {}.".format(
+                notifier.sender, notifier.show_value(), str(e)
+            )
+        else:
+            success = True
+            message = "Sent test message {} to {}.".format(notifier.sender, notifier.show_value())
+        return Response({"success": success, "message": message}, status=HTTPStatus.OK)
+
 
 @extend_schema_view(
     list=extend_schema(summary="List Rules", description="Retrieve a list of all rules."),

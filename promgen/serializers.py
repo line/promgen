@@ -677,3 +677,13 @@ class TokenCreateResponseSerializer(serializers.Serializer):
         help_text="The actual token value. "
         "This is only returned on creation and cannot be retrieved again.",
     )
+
+
+class NotifierTestRequestSerializer(serializers.Serializer):
+    sender = serializers.ChoiceField(
+        choices=[name for name, _ in models.Sender.driver_set()],
+        help_text="The sender to test. Only required when the notifier ID is 0.",
+    )
+    value = serializers.CharField(
+        help_text="The value to test with. Only required when the notifier ID is 0."
+    )
