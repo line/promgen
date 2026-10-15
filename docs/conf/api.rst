@@ -38,3 +38,15 @@ For requests, the method, path, and request body are logged. However, fields in 
 are truncated to avoid filling up the log. By default, the character limit is set to 128, but fields
 like "clause" are still logged in full as they are necessary. For responses, only the status and
 response content size are logged. A unique trace ID is generated to link the request and response logs.
+
+
+V2_API_MAX_HOSTS_PER_EXPORTER_TEST
+----------------------------------
+[Integer | default = 50]
+
+Maximum number of hosts that can be used when testing an exporter through the V2 API. If a project
+farm contains more than this many hosts, Promgen will reject the test and require the caller to
+specify a smaller host list explicitly.
+
+This protects the API from scraping too many targets in a single request and helps avoid excessive
+resource usage during exporter validation.

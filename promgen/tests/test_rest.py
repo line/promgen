@@ -10,9 +10,9 @@ from django.test import override_settings
 from django.urls import reverse
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
-from requests.models import Response
+from requests import Response
 
-from promgen import models, plugins, rest, signals, tests
+from promgen import models, plugins, rest, settings, signals, tests
 from promgen.notification.email import NotificationEmail
 
 
@@ -330,6 +330,128 @@ class RestAPITest(tests.PromgenTest):
         cases = tests.Data("cases", "test_rest_exporter.csv").csv()
         for case in cases:
             self._run_rest_test(case)
+
+    @mock.patch("promgen.util.scrape")
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_rest_exporter__test_exporter(self, mock_scrape):
+        # Mock the scrape method to return a successful response with a sample metric.
+        mock_response = mock.Mock(spec=Response)
+        mock_response.status_code = 200
+        mock_response.url = "http://example.com:9100/metrics"
+        mock_response.text = """
+            # HELP up Was the last scrape of the target successful.
+            # TYPE up gauge
+            up 1
+            # HELP http_requests_total Total number of requests processed
+            # TYPE http_requests_total counter
+            http_requests_total{method="get",code="200"} 5
+            http_requests_total{method="get",code="404"} 1
+        """
+        mock_scrape.return_value = mock_response
+
+        user = User.objects.get(username="demo")
+        user_token = models.AuthToken.objects.filter(user=user).first().token_key
+        project = models.Project.objects.get(id=1)
+        exporter = models.Exporter.objects.get(id=1)
+
+        # Test that a user without the necessary permissions cannot test an existing exporter.
+        response = self.client.post(
+            reverse("api-v2:exporter-test", kwargs={"id": exporter.id}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.json(), {"detail": "You do not have permission to perform this action."}
+        )
+
+        assign_perm("project_editor", user, exporter.project)
+        expected = tests.Data("examples", "rest.exporter.test.json").json()
+
+        # Test that a user can test an existing exporter.
+        response = self.client.post(
+            reverse("api-v2:exporter-test", kwargs={"id": exporter.id}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Test that a user can test a temporary exporter.
+        response = self.client.post(
+            reverse("api-v2:exporter-test", kwargs={"id": 0}),
+            {
+                "scheme": "http",
+                "port": 9100,
+                "path": "/metrics",
+                "hosts": ["example.com"],
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), expected)
+
+        # Test that the exporter test fails if there is an error in scraping the metrics.
+        mock_scrape.return_value = mock.Mock(
+            spec=Response, status_code=500, url="http://example.com:9100/metrics", text=None
+        )
+        response = self.client.post(
+            reverse("api-v2:exporter-test", kwargs={"id": 0}),
+            {
+                "scheme": "http",
+                "port": 9100,
+                "path": "/metrics",
+                "hosts": ["example.com"],
+            },
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["success"], False)
+        self.assertEqual(response.json()["message"], "Scrape failed for some URLs.")
+
+        # Test that a user cannot test an exporter of project without hosts
+        project.farm.host_set.all().delete()
+        response = self.client.post(
+            reverse("api-v2:exporter-test", kwargs={"id": exporter.id}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Project has no hosts. Please specify hosts."},
+        )
+
+        # Test that a user cannot test an exporter when the project farm has too many hosts.
+        models.Host.objects.bulk_create(
+            [
+                models.Host(name=f"example-host-{idx}.example.com", farm=project.farm)
+                for idx in range(settings.V2_API_MAX_HOSTS_PER_EXPORTER_TEST + 1)
+            ]
+        )
+        response = self.client.post(
+            reverse("api-v2:exporter-test", kwargs={"id": exporter.id}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {
+                "detail": "Too many hosts available for the exporter to scrape. "
+                "Please specify hosts."
+            },
+        )
+
+        # Test that a user cannot test an exporter of project without farm
+        project.farm.delete()
+        response = self.client.post(
+            reverse("api-v2:exporter-test", kwargs={"id": exporter.id}),
+            HTTP_AUTHORIZATION=f"Token {user_token}",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            {"detail": "Project has no farm. Please specify hosts."},
+        )
 
     @override_settings(PROMGEN=tests.SETTINGS)
     def test_rest_url(self):

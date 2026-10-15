@@ -972,6 +972,61 @@ class ExporterViewSet(
         accessible_projects = permissions.get_accessible_projects_for_user(self.request.user)
         return self.queryset.filter(project__in=accessible_projects)
 
+    @extend_schema(
+        summary="Test Exporter",
+        description="Attempt to test an Exporter by scraping its metrics endpoint. "
+        "The test result will be included in the response's body. "
+        "Use 0 for the ID to test against a new exporter without creating it.",
+        request=serializers.ExporterTestRequestSerializer,
+        responses=serializers.ExporterTestResponseSerializer,
+    )
+    @action(
+        detail=True, methods=["post"], url_path="test", pagination_class=None, filterset_class=None
+    )
+    def test(self, request, id):
+        hosts = request.data.get("hosts", [])
+        serializers.ExporterTestRequestSerializer(data={"hosts": hosts}, partial=True).is_valid(
+            raise_exception=True
+        )
+
+        if int(id) == 0:
+            if not request.data.get("hosts"):
+                raise ValidationError({"detail": "You must specify hosts to test a new exporter."})
+            serializer = serializers.ExporterTestRequestSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            exporter = models.Exporter(
+                scheme=serializer.validated_data["scheme"],
+                port=serializer.validated_data["port"],
+                path=serializer.validated_data["path"],
+            )
+        else:
+            exporter = self.get_object()
+            if not hosts:
+                if getattr(exporter.project, "farm", None) is None:
+                    raise ValidationError({"detail": "Project has no farm. Please specify hosts."})
+                else:
+                    farm = exporter.project.farm
+                    if farm.host_set.count() == 0:
+                        raise ValidationError(
+                            {"detail": "Project has no hosts. Please specify hosts."}
+                        )
+                    if farm.host_set.count() > settings.V2_API_MAX_HOSTS_PER_EXPORTER_TEST:
+                        raise ValidationError(
+                            {
+                                "detail": "Too many hosts available for the exporter to scrape. "
+                                "Please specify hosts."
+                            }
+                        )
+
+        try:
+            results = serializers.ExporterTestResponseSerializer(exporter.scrape(hosts=hosts))
+            return Response(results.data, status=HTTPStatus.OK)
+        except Exception as e:
+            return Response(
+                {"success": False, "message": str(e), "details": []},
+                status=HTTPStatus.OK,
+            )
+
 
 @extend_schema_view(
     list=extend_schema(summary="List URLs", description="Retrieve a list of all URLs."),
