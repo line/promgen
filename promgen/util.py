@@ -60,6 +60,13 @@ def scrape(url, params=None, **kwargs):
     return requests.get(url, params=params, **kwargs)
 
 
+def join_url(base, path):
+    """
+    Append a path to a base URL, keeping any path prefix of the base URL
+    """
+    return f"{base.removesuffix('/')}/{path.removeprefix('/')}"
+
+
 def setting(key, default=None, domain=None):
     """
     Settings helper based on saltstack's query

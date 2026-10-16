@@ -5,7 +5,6 @@ import concurrent.futures
 import json
 import logging
 from http import HTTPStatus
-from urllib.parse import urljoin
 
 import requests
 from django.http import HttpResponse, JsonResponse
@@ -47,7 +46,7 @@ class PrometheusProxy(View):
                 futures.append(
                     executor.submit(
                         util.get,
-                        urljoin(shard.url, request.get_full_path_info()),
+                        util.join_url(shard.url, request.get_full_path_info()),
                         headers=headers,
                     )
                 )
@@ -160,7 +159,7 @@ class ProxyQuery(PrometheusProxy):
 class ProxyAlerts(View):
     def get(self, request):
         try:
-            url = urljoin(util.setting("alertmanager:url"), "/api/v2/alerts")
+            url = util.join_url(util.setting("alertmanager:url"), "/api/v2/alerts")
             response = util.get(url)
         except requests.exceptions.ConnectionError:
             logger.error("Error connecting to %s", url)
@@ -270,7 +269,7 @@ def get_affected_obj_by_matchers(matchers):
 class ProxySilences(View):
     def get(self, request):
         try:
-            url = urljoin(util.setting("alertmanager:url"), "/api/v2/silences")
+            url = util.join_url(util.setting("alertmanager:url"), "/api/v2/silences")
             response = util.get(url, params={"silenced": False})
         except requests.exceptions.ConnectionError:
             logger.error("Error connecting to %s", url)
@@ -491,7 +490,7 @@ class ProxySilencesV2(APIView):
 
 class ProxyDeleteSilence(View):
     def delete(self, request, silence_id):
-        url = urljoin(util.setting("alertmanager:url"), f"/api/v2/silence/{silence_id}")
+        url = util.join_url(util.setting("alertmanager:url"), f"/api/v2/silence/{silence_id}")
         # First, check if the silence exists
         response = util.get(url)
         if response.status_code != 200:
