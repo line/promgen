@@ -687,3 +687,23 @@ class NotifierTestRequestSerializer(serializers.Serializer):
     value = serializers.CharField(
         help_text="The value to test with. Only required when the notifier ID is 0."
     )
+
+
+class RuleTestParamsSerializer(serializers.Serializer):
+    content_type = serializers.ChoiceField(
+        choices=["service", "project", "site"],
+        help_text="The content type of the object. Only required when rule ID is 0.",
+    )
+    object_id = serializers.IntegerField(
+        help_text="The ID of the object. Only required when rule ID is 0."
+    )
+    clause = serializers.CharField(
+        help_text="The clause to test against. Only required when rule ID is 0."
+    )
+
+
+class RuleTestResultSerializer(serializers.Serializer):
+    clause = serializers.CharField(read_only=True)
+    duration = serializers.DurationField(read_only=True)
+    firing = serializers.BooleanField(read_only=True)
+    errors = serializers.DictField(child=serializers.CharField(), read_only=True)
