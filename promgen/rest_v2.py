@@ -641,7 +641,7 @@ class RuleViewSet(
         responses=serializers.RuleTestResultSerializer,
     )
     @action(
-        detail=True, methods=["get"], url_path="/test", pagination_class=None, filterset_class=None
+        detail=True, methods=["get"], url_path="test", pagination_class=None, filterset_class=None
     )
     def test(self, request, id):
         if int(id) == 0:
