@@ -13,12 +13,22 @@ from drf_spectacular.utils import (
     OpenApiParameter,
     extend_schema,
     extend_schema_view,
+    inline_serializer,
 )
 from drf_spectacular.views import SpectacularAPIView
 from guardian.conf.settings import ANONYMOUS_USER_NAME
 from guardian.models import GroupObjectPermission
 from guardian.shortcuts import assign_perm, get_perms, remove_perm
-from rest_framework import exceptions, mixins, pagination, routers, viewsets
+from rest_framework import (
+    exceptions,
+    mixins,
+    pagination,
+    routers,
+    viewsets,
+)
+from rest_framework import (
+    serializers as drf_serializers,
+)
 from rest_framework.decorators import action
 from rest_framework.exceptions import MethodNotAllowed, NotFound, PermissionDenied, ValidationError
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -560,6 +570,15 @@ class NotifierViewSet(
         "The test result will be included in the response's body. "
         "Use 0 for the ID to test against a new notifier without creating it.",
         request=serializers.NotifierTestRequestSerializer,
+        responses={
+            200: inline_serializer(
+                name="NotifierTestResponseSerializer",
+                fields={
+                    "success": drf_serializers.BooleanField(),
+                    "message": drf_serializers.CharField(),
+                },
+            )
+        },
     )
     @action(
         detail=True, methods=["post"], url_path="test", pagination_class=None, filterset_class=None
@@ -638,7 +657,16 @@ class RuleViewSet(
         "The test result will be included in the response's body. "
         "Use 0 for the ID to test a new rule without creating it.",
         parameters=[serializers.RuleTestParamsSerializer],
-        responses=serializers.RuleTestResultSerializer,
+        responses={
+            200: inline_serializer(
+                name="RuleTestResponseSerializer",
+                fields={
+                    "success": drf_serializers.BooleanField(),
+                    "message": drf_serializers.CharField(),
+                    "details": serializers.RuleTestResultSerializer(),
+                },
+            )
+        },
     )
     @action(
         detail=True, methods=["get"], url_path="test", pagination_class=None, filterset_class=None
