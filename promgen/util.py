@@ -63,12 +63,8 @@ def scrape(url, params=None, **kwargs):
 def join_url(base, path):
     """
     Append a path to a base URL, keeping any path prefix of the base URL
-
-    urllib.parse.urljoin replaces the whole path of the base URL when the
-    second argument starts with "/", so a server running under a prefix
-    such as http://example.com/prometheus/ would lose its prefix.
     """
-    return base.rstrip("/") + "/" + path.lstrip("/")
+    return f"{base.removesuffix('/')}/{path.removeprefix('/')}"
 
 
 def setting(key, default=None, domain=None):
