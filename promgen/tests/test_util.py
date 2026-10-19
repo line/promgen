@@ -23,3 +23,28 @@ class UtilTest(SimpleTestCase):
         for error, expected in cases:
             with self.subTest(error=type(error).__name__, expected=expected):
                 self.assertEqual(util.categorize_error(error), expected)
+
+    def test_join_url(self):
+        cases = [
+            ("http://prometheus:9090", "/-/reload", "http://prometheus:9090/-/reload"),
+            ("http://prometheus:9090/", "/-/reload", "http://prometheus:9090/-/reload"),
+            (
+                "http://example.com/prometheus",
+                "/-/reload",
+                "http://example.com/prometheus/-/reload",
+            ),
+            (
+                "http://example.com/prometheus/",
+                "/api/v1/query?query=up",
+                "http://example.com/prometheus/api/v1/query?query=up",
+            ),
+            (
+                "http://example.com/alertmanager/",
+                "api/v2/silences",
+                "http://example.com/alertmanager/api/v2/silences",
+            ),
+        ]
+
+        for base, path, expected in cases:
+            with self.subTest(base=base, path=path):
+                self.assertEqual(util.join_url(base, path), expected)

@@ -6,7 +6,7 @@ import json
 import logging
 import subprocess
 import tempfile
-from urllib.parse import parse_qs, urljoin, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import yaml
 from dateutil import parser
@@ -335,7 +335,7 @@ def silence(*, labels, duration=None, **kwargs):
         ]
 
     logger.debug("Sending silence for %s", kwargs)
-    url = urljoin(util.setting("alertmanager:url"), "/api/v2/silences")
+    url = util.join_url(util.setting("alertmanager:url"), "/api/v2/silences")
     response = util.post(url, json=kwargs)
     response.raise_for_status()
     return response
