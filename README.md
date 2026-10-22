@@ -67,8 +67,11 @@ See the example settings files for proper configuration of Prometheus and AlertM
 Run Promgen using the following command.
 
 ```bash
-# Run Promgen web worker. This is typically balanced behind an NGINX instance
-docker run --rm -p 8000:8000 -v ~/.config/promgen:/etc/promgen/ line/promgen
+# Run Promgen web worker. This is typically balanced behind an NGINX instance.
+# For this sample command we just allow all hosts, but you should set the
+# ALLOWED_HOSTS variable properly. See:
+# https://docs.djangoproject.com/en/4.2/ref/settings/#allowed-hosts
+docker run --rm -p 8000:8000 -e ALLOWED_HOSTS=* -v ~/.config/promgen:/etc/promgen/ line/promgen
 
 # Run Promgen celery worker. Make sure to run it on the same machine as your Prometheus server to manage the config settings
 docker run --rm -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prometheus line/promgen worker
