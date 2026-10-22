@@ -689,7 +689,7 @@ class NotifierTestRequestSerializer(serializers.Serializer):
     )
 
 
-class RuleTestParamsSerializer(serializers.Serializer):
+class RuleTestRequestSerializer(serializers.Serializer):
     content_type = serializers.ChoiceField(
         choices=["service", "project", "site"],
         help_text="The content type of the object. Only required when rule ID is 0.",
