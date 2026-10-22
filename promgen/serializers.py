@@ -707,3 +707,63 @@ class RuleTestResultSerializer(serializers.Serializer):
     duration = serializers.DurationField(read_only=True)
     firing = serializers.BooleanField(read_only=True)
     errors = serializers.DictField(child=serializers.CharField(), read_only=True)
+
+
+class ExporterTestRequestSerializer(serializers.Serializer):
+    scheme = serializers.ChoiceField(
+        choices=[("http", "http"), ("https", "https")],
+        default="http",
+        help_text="URL scheme to use when testing a new exporter (exporter ID is 0).",
+    )
+    port = serializers.IntegerField(
+        help_text="Port to test. Required when testing a new exporter (exporter ID is 0).",
+    )
+    path = serializers.CharField(
+        default="/metrics",
+        help_text="URL path to test for a new exporter (exporter ID is 0).",
+    )
+    hosts = serializers.ListField(
+        default=[],
+        child=serializers.CharField(),
+        help_text="(Optional) List of hosts to test the exporter against. "
+        "If not provided when testing an existing exporter, the test will be run against all hosts "
+        "of the exporter's project.",
+        max_length=settings.V2_API_MAX_HOSTS_PER_EXPORTER_TEST,
+    )
+
+
+class ExporterTestResultDetailSerializer(serializers.Serializer):
+    url = serializers.URLField(read_only=True)
+    status_code = serializers.IntegerField(read_only=True)
+    metric_count = serializers.IntegerField(read_only=True)
+    sample_count = serializers.IntegerField(read_only=True)
+    error = serializers.CharField(read_only=True)
+
+
+class ExporterTestResponseSerializer(serializers.Serializer):
+    success = serializers.BooleanField(
+        read_only=True,
+        default=True,
+        help_text="Indicates whether the scrape was successful for all URLs.",
+    )
+    message = serializers.CharField(read_only=True, default="Scrape completed.")
+    details = ExporterTestResultDetailSerializer(read_only=True, many=True)
+
+    def to_representation(self, results):
+        re = super().to_representation(results)
+        payload = []
+        for key, value in results.items():
+            payload.append(
+                {
+                    "url": key,
+                    "status_code": value.get("status_code"),
+                    "metric_count": value.get("metric_count"),
+                    "sample_count": value.get("sample_count"),
+                    "error": value.get("error"),
+                }
+            )
+            if value.get("status_code") not in range(200, 300):
+                re["success"] = False
+                re["message"] = "Scrape failed for some URLs."
+        re["details"] = ExporterTestResultDetailSerializer(payload, many=True).data
+        return re

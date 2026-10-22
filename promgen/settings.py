@@ -233,6 +233,7 @@ PROMGEN_EXPORTER_SCRAPE_TIMEOUT = env.int("PROMGEN_EXPORTER_SCRAPE_TIMEOUT", def
 
 # v2 API settings
 V2_API_LOGGING_ENABLED = env.bool("V2_API_LOGGING_ENABLED", default=True)
+V2_API_MAX_HOSTS_PER_EXPORTER_TEST = env.int("V2_API_MAX_HOSTS_PER_EXPORTER_TEST", default=50)
 
 # When set, Promgen will not allow the creation of API tokens with expiry greater than this setting.
 # None means unlimited.
