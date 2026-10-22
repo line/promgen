@@ -47,6 +47,14 @@ from promgen import (
     signals,
     validators,
 )
+from promgen.permissions import (
+    GROUP_MEMBER_AND_HIGHER_PERMS,
+    PROJECT_ADMIN_AND_HIGHER_PERMS,
+    PROJECT_EDITOR_AND_HIGHER_PERMS,
+    PROJECT_VIEWER_AND_HIGHER_PERMS,
+    SERVICE_EDITOR_AND_HIGHER_PERMS,
+    SERVICE_VIEWER_AND_HIGHER_PERMS,
+)
 from promgen.templatetags import promgen as shortcuts
 
 
@@ -516,6 +524,17 @@ class NotifierViewSet(
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
 
+    def get_action_permissions(self):
+        action_map = {
+            "update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "partial_update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "destroy": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "add_filter": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "delete_filter": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "test": PROJECT_VIEWER_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
+
     def get_queryset(self):
         if self.request.user.is_superuser or self.action != "list":
             return self.queryset
@@ -632,6 +651,16 @@ class RuleViewSet(
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
 
+    def get_action_permissions(self):
+        action_map = {
+            "retrieve": PROJECT_VIEWER_AND_HIGHER_PERMS,
+            "update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "partial_update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "destroy": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "test": PROJECT_VIEWER_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
+
     def get_serializer_class(self):
         if self.action in ["list"]:
             return serializers.RuleRetrieveSimpleSerializer
@@ -727,6 +756,20 @@ class FarmViewSet(
     lookup_field = "id"
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_action_permissions(self):
+        action_map = {
+            "retrieve": PROJECT_VIEWER_AND_HIGHER_PERMS,
+            "update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "partial_update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "destroy": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "hosts": PROJECT_VIEWER_AND_HIGHER_PERMS,
+            "register_host": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "delete_host": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "sync": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "convert_to_local_farm": PROJECT_EDITOR_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
 
     def get_queryset(self):
         if self.request.user.is_superuser or self.action != "list":
@@ -966,6 +1009,16 @@ class ExporterViewSet(
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
 
+    def get_action_permissions(self):
+        action_map = {
+            "retrieve": PROJECT_VIEWER_AND_HIGHER_PERMS,
+            "update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "partial_update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "destroy": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "test": PROJECT_VIEWER_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
+
     def get_queryset(self):
         if self.request.user.is_superuser or self.action != "list":
             return self.queryset
@@ -1042,6 +1095,12 @@ class URLViewSet(mixins.ListModelMixin, mixins.DestroyModelMixin, viewsets.Gener
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
 
+    def get_action_permissions(self):
+        action_map = {
+            "destroy": PROJECT_EDITOR_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
+
     def get_queryset(self):
         if self.request.user.is_superuser or self.action != "list":
             return self.queryset
@@ -1084,6 +1143,20 @@ class GroupViewSet(viewsets.ModelViewSet):
     lookup_field = "id"
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_action_permissions(self):
+        action_map = {
+            "retrieve": GROUP_MEMBER_AND_HIGHER_PERMS,
+            "update": ["group_admin"],
+            "partial_update": ["group_admin"],
+            "destroy": ["group_admin"],
+            "members": GROUP_MEMBER_AND_HIGHER_PERMS,
+            "add_members": ["group_admin"],
+            "update_member": ["group_admin"],
+            "remove_member": ["group_admin"],
+            "resources": GROUP_MEMBER_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
 
     def get_queryset(self):
         if self.request.user.is_superuser or self.action != "list":
@@ -1270,6 +1343,27 @@ class ProjectViewSet(
     lookup_field = "id"
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_action_permissions(self):
+        action_map = {
+            "retrieve": PROJECT_VIEWER_AND_HIGHER_PERMS,
+            "update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "partial_update": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "destroy": PROJECT_ADMIN_AND_HIGHER_PERMS,
+            "users": PROJECT_VIEWER_AND_HIGHER_PERMS,
+            "assign_user": PROJECT_ADMIN_AND_HIGHER_PERMS,
+            "remove_user": PROJECT_ADMIN_AND_HIGHER_PERMS,
+            "groups": PROJECT_VIEWER_AND_HIGHER_PERMS,
+            "assign_group": PROJECT_ADMIN_AND_HIGHER_PERMS,
+            "remove_group": PROJECT_ADMIN_AND_HIGHER_PERMS,
+            "register_exporter": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "register_farm": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "register_url": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "register_notifier": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "register_rule": PROJECT_EDITOR_AND_HIGHER_PERMS,
+            "override_rule": PROJECT_EDITOR_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
 
     def get_queryset(self):
         if self.request.user.is_superuser or self.action != "list":
@@ -1502,6 +1596,25 @@ class ServiceViewSet(
     lookup_field = "id"
     pagination_class = PromgenPagination
     permission_classes = [permissions.PromgenGuardianRestPermission]
+
+    def get_action_permissions(self):
+        action_map = {
+            "retrieve": SERVICE_VIEWER_AND_HIGHER_PERMS,
+            "update": SERVICE_EDITOR_AND_HIGHER_PERMS,
+            "partial_update": SERVICE_EDITOR_AND_HIGHER_PERMS,
+            "destroy": ["service_admin"],
+            "users": SERVICE_VIEWER_AND_HIGHER_PERMS,
+            "assign_user": ["service_admin"],
+            "remove_user": ["service_admin"],
+            "groups": SERVICE_VIEWER_AND_HIGHER_PERMS,
+            "assign_group": ["service_admin"],
+            "remove_group": ["service_admin"],
+            "register_project": SERVICE_EDITOR_AND_HIGHER_PERMS,
+            "register_notifier": SERVICE_EDITOR_AND_HIGHER_PERMS,
+            "register_rule": SERVICE_EDITOR_AND_HIGHER_PERMS,
+            "override_rule": SERVICE_EDITOR_AND_HIGHER_PERMS,
+        }
+        return action_map.get(self.action, [])
 
     def get_queryset(self):
         if self.request.user.is_superuser or self.action != "list":
