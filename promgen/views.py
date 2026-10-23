@@ -497,7 +497,14 @@ class NotifierDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class NotifierTest(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = [
+        "service_admin",
+        "service_editor",
+        "service_viewer",
+        "project_admin",
+        "project_editor",
+        "project_viewer",
+    ]
 
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
