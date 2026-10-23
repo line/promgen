@@ -689,7 +689,7 @@ class NotifierTestRequestSerializer(serializers.Serializer):
     )
 
 
-class RuleTestParamsSerializer(serializers.Serializer):
+class RuleTestRequestSerializer(serializers.Serializer):
     content_type = serializers.ChoiceField(
         choices=["service", "project", "site"],
         help_text="The content type of the object. Only required when rule ID is 0.",
@@ -700,6 +700,17 @@ class RuleTestParamsSerializer(serializers.Serializer):
     clause = serializers.CharField(
         help_text="The clause to test against. Only required when rule ID is 0."
     )
+
+    def validate(self, attrs):
+        content_type_obj = ContentType.objects.get(
+            model=attrs.get("content_type"), app_label="promgen"
+        )
+        try:
+            content_type_obj.get_object_for_this_type(pk=attrs.get("object_id"))
+        except content_type_obj.model_class().DoesNotExist:
+            raise serializers.ValidationError({"object_id": "Object does not exist."})
+
+        return attrs
 
 
 class RuleTestResultSerializer(serializers.Serializer):
