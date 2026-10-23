@@ -100,7 +100,7 @@ class AuditFilter(django_filters.rest_framework.FilterSet):
         help_text="Filter by exact object ID. Example: object_id=123",
     )
     content_type = django_filters.ChoiceFilter(
-        field_name="content_type",
+        field_name="content_type_name",
         choices=[
             ("exporter", "Exporter"),
             ("farm", "Farm"),
@@ -154,7 +154,7 @@ class NotifierFilter(django_filters.rest_framework.FilterSet):
         help_text="Filter by exact object ID. Example: object_id=123",
     )
     content_type = django_filters.ChoiceFilter(
-        field_name="content_type",
+        field_name="content_type_name",
         choices=[
             ("service", "Service"),
             ("project", "Project"),
@@ -200,7 +200,7 @@ class RuleFilterV2(django_filters.rest_framework.FilterSet):
         help_text="Filter by exact object ID. Example: object_id=123",
     )
     content_type = django_filters.ChoiceFilter(
-        field_name="content_type",
+        field_name="content_type_name",
         choices=[
             ("service", "Service"),
             ("project", "Project"),
