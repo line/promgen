@@ -1783,7 +1783,14 @@ class RuleTest(LoginRequiredMixin, View):
         else:
             rule = get_object_or_404(models.Rule, id=pk)
 
-        result = rule.test(request.POST["query"])
+        try:
+            result = rule.test(request.POST["query"])
+        except Exception as e:
+            result = {
+                "status": "error",
+                "errors": {"server_error": str(e)},
+                "severity": "danger",
+            }
 
         return JsonResponse(
             {request.POST["target"]: render_to_string("promgen/ajax_clause_check.html", result)}

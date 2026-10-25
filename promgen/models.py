@@ -741,7 +741,14 @@ class Rule(models.Model):
 
         logger.debug("Querying %s with %s", url, query)
         start = time.time()
-        result = util.get(url, {"query": query}).json()
+        response = util.get(url, {"query": query})
+        # The response may have meaningful information even if the status code is not 200, so we
+        # try to parse the JSON response first. If parsing fails, we raise an exception to indicate
+        # that the request was unsuccessful.
+        try:
+            result = response.json()
+        except Exception:
+            response.raise_for_status()
         result["duration"] = datetime.timedelta(seconds=(time.time() - start))
         result["query"] = query
 
