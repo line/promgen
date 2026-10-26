@@ -9,6 +9,38 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from promgen import models
 
+PROJECT_VIEWER_AND_HIGHER_PERMS = [
+    "project_viewer",
+    "project_editor",
+    "project_admin",
+    "service_viewer",
+    "service_editor",
+    "service_admin",
+]
+PROJECT_EDITOR_AND_HIGHER_PERMS = [
+    "project_editor",
+    "project_admin",
+    "service_editor",
+    "service_admin",
+]
+PROJECT_ADMIN_AND_HIGHER_PERMS = [
+    "project_admin",
+    "service_admin",
+]
+SERVICE_VIEWER_AND_HIGHER_PERMS = [
+    "service_viewer",
+    "service_editor",
+    "service_admin",
+]
+SERVICE_EDITOR_AND_HIGHER_PERMS = [
+    "service_editor",
+    "service_admin",
+]
+GROUP_MEMBER_AND_HIGHER_PERMS = [
+    "group_member",
+    "group_admin",
+]
+
 
 class PromgenModelPermissions(BasePermission):
     """
@@ -200,36 +232,19 @@ def get_highest_role(user: User, obj):
 
 
 class PromgenGuardianRestPermission(BasePermission):
-    PERMISSION_MANAGEMENT_ACTIONS = ["assign_user", "remove_user", "assign_group", "remove_group"]
-
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated)
 
     def has_object_permission(self, request, view, obj):
-        if view.action in self.PERMISSION_MANAGEMENT_ACTIONS:
-            perms = ["project_admin", "service_admin"]
-        elif request.method == "DELETE" and isinstance(obj, (models.Project, models.Service)):
-            perms = ["project_admin", "service_admin"]
-        elif request.method not in SAFE_METHODS:
-            perms = [
-                "project_editor",
-                "project_admin",
-                "service_editor",
-                "service_admin",
-                "group_admin",
-            ]
-        else:
-            # Always allow user to view the site rule
-            if isinstance(obj, models.Rule) and isinstance(obj.content_object, models.Site):
-                return True
-            perms = [
-                "project_viewer",
-                "project_editor",
-                "project_admin",
-                "service_viewer",
-                "service_editor",
-                "service_admin",
-                "group_member",
-                "group_admin",
-            ]
+        # Always allow user to view the site rule
+        if (
+            request.method in SAFE_METHODS
+            and isinstance(obj, models.Rule)
+            and isinstance(obj.content_object, models.Site)
+        ):
+            return True
+
+        perms = []
+        if hasattr(view, "get_action_permissions"):
+            perms = view.get_action_permissions()
         return has_perm(request.user, perms, obj)
