@@ -266,7 +266,7 @@ class RestAPITest(tests.PromgenTest):
 
         # Test a non-existing Rule
         assign_perm("project_viewer", user, models.Project.objects.get(id=1))
-        response = self.client.get(
+        response = self.client.post(
             reverse("api-v2:rule-test", kwargs={"id": 0}),
             {"content_type": "project", "object_id": 1, "clause": "up == 0"},
             HTTP_AUTHORIZATION=f"Token {user_token}",
@@ -276,7 +276,7 @@ class RestAPITest(tests.PromgenTest):
 
         # Test an existing Project's Rule
         assign_perm("project_viewer", user, models.Project.objects.get(id=1))
-        response = self.client.get(
+        response = self.client.post(
             reverse("api-v2:rule-test", kwargs={"id": 2}),
             HTTP_AUTHORIZATION=f"Token {user_token}",
         )
@@ -285,7 +285,7 @@ class RestAPITest(tests.PromgenTest):
 
         # Test an existing Service's Rule
         assign_perm("service_viewer", user, models.Service.objects.get(id=1))
-        response = self.client.get(
+        response = self.client.post(
             reverse("api-v2:rule-test", kwargs={"id": 1}),
             HTTP_AUTHORIZATION=f"Token {user_token}",
         )
@@ -294,7 +294,7 @@ class RestAPITest(tests.PromgenTest):
 
         # Test an existing Site's Rule
         admin_token = "admin_token"
-        response = self.client.get(
+        response = self.client.post(
             reverse("api-v2:rule-test", kwargs={"id": 3}),
             HTTP_AUTHORIZATION=f"Token {admin_token}",
         )

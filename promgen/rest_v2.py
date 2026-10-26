@@ -685,7 +685,7 @@ class RuleViewSet(
         description="Attempt to test an alerting Rule. "
         "The test result will be included in the response's body. "
         "Use 0 for the ID to test a new rule without creating it.",
-        parameters=[serializers.RuleTestParamsSerializer],
+        request=serializers.RuleTestRequestSerializer,
         responses={
             200: inline_serializer(
                 name="RuleTestResponseSerializer",
@@ -698,11 +698,11 @@ class RuleViewSet(
         },
     )
     @action(
-        detail=True, methods=["get"], url_path="test", pagination_class=None, filterset_class=None
+        detail=True, methods=["post"], url_path="test", pagination_class=None, filterset_class=None
     )
     def test(self, request, id):
         if int(id) == 0:
-            serializer = serializers.RuleTestParamsSerializer(data=request.query_params)
+            serializer = serializers.RuleTestRequestSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             rule = models.Rule()
             rule.pk = 0
