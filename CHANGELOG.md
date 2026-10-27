@@ -1,5 +1,23 @@
 # Changelog
 
+# v0.75.0 - 2026-10-27
+
+[INTERNAL] Bump docker/login-action from 4.6.0 to 4.7.0 #813
+[INTERNAL] Bump actions/setup-python from 7.0.0 to 7.1.0 #812
+[IMPROVEMENT] Validate content object when testing a new Rule #811
+[IMPROVEMENT] Change method of Rule test API to POST #810
+[IMPROVEMENT] Specify required permissions for each API #807
+[IMPROVEMENT] Allow Viewer to test a Notifier #808
+[BUGFIX] Incorrect type for content_type field in API filters #809
+[IMPROVEMENT] More user-friendly messages for test Rule API #805
+[IMPROVEMENT] Add ALLOWED_HOSTS to sample command #319
+[IMPROVEMENT] Add v2 API for testing Exporters #802
+[BUGFIX] Prometheus or Alertmanager path prefix dropped #799
+[BUGFIX] DRF Spectacular renders wrong API Specification for test APIs #804
+[IMPROVEMENT] Remove leading slash from rule test API endpoint #803
+[IMPROVEMENT] Allow testing rules through API #801
+[IMPROVEMENT] Allow testing notifiers through API #800
+
 # v0.74.1 - 2026-10-01
 
 [IMPROVEMENT] Add number of Samples to the result of ExporterScrape #797
