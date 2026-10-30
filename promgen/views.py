@@ -376,7 +376,7 @@ class AuditList(LoginRequiredMixin, ListView):
 
 
 class ServiceDetail(PromgenGuardianPermissionMixin, DetailView):
-    permission_required = ["service_admin", "service_editor", "service_viewer"]
+    permission_required = permissions.SERVICE_VIEWER_AND_HIGHER_PERMS
     queryset = models.Service.objects.prefetch_related(
         "rule_set",
         "notifiers",
@@ -412,7 +412,7 @@ class ServiceDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class ProjectDelete(PromgenGuardianPermissionMixin, DeleteView):
-    permission_required = ["service_admin", "project_admin"]
+    permission_required = permissions.PROJECT_ADMIN_AND_HIGHER_PERMS
     model = models.Project
 
     def get_success_url(self):
@@ -433,7 +433,7 @@ class ProjectDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class NotifierUpdate(PromgenGuardianPermissionMixin, UpdateView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Sender
     form_class = forms.NotifierUpdate
 
@@ -485,7 +485,7 @@ class NotifierUpdate(PromgenGuardianPermissionMixin, UpdateView):
 
 
 class NotifierDelete(PromgenGuardianPermissionMixin, DeleteView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Sender
 
     def get_success_url(self):
@@ -497,14 +497,7 @@ class NotifierDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class NotifierTest(PromgenGuardianPermissionMixin, View):
-    permission_required = [
-        "service_admin",
-        "service_editor",
-        "service_viewer",
-        "project_admin",
-        "project_editor",
-        "project_viewer",
-    ]
+    permission_required = permissions.PROJECT_VIEWER_AND_HIGHER_PERMS
 
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
@@ -526,7 +519,7 @@ class NotifierTest(PromgenGuardianPermissionMixin, View):
 
 
 class ExporterDelete(PromgenGuardianPermissionMixin, DeleteView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Exporter
 
     def get_success_url(self):
@@ -534,7 +527,7 @@ class ExporterDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class ExporterToggle(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
 
     def post(self, request, pk):
         exporter = get_object_or_404(models.Exporter, id=pk)
@@ -552,7 +545,7 @@ class ExporterToggle(PromgenGuardianPermissionMixin, View):
 
 
 class NotifierToggle(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
 
     def post(self, request, pk):
         sender = get_object_or_404(models.Sender, id=pk)
@@ -570,7 +563,7 @@ class NotifierToggle(PromgenGuardianPermissionMixin, View):
 
 
 class RuleDelete(PromgenGuardianPermissionMixin, DeleteView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Rule
 
     def get_permission_denied_message(self):
@@ -591,7 +584,7 @@ class RuleDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class RuleToggle(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Rule
 
     def get_permission_denied_message(self):
@@ -612,7 +605,7 @@ class RuleToggle(PromgenGuardianPermissionMixin, SingleObjectMixin, View):
 
 
 class HostDelete(PromgenGuardianPermissionMixin, DeleteView):
-    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Host
 
     def get_success_url(self):
@@ -620,14 +613,7 @@ class HostDelete(PromgenGuardianPermissionMixin, DeleteView):
 
 
 class ProjectDetail(PromgenGuardianPermissionMixin, DetailView):
-    permission_required = [
-        "service_admin",
-        "service_editor",
-        "service_viewer",
-        "project_admin",
-        "project_editor",
-        "project_viewer",
-    ]
+    permission_required = permissions.PROJECT_VIEWER_AND_HIGHER_PERMS
     queryset = models.Project.objects.prefetch_related(
         "rule_set",
         "rule_set__parent",
@@ -672,14 +658,7 @@ class FarmList(LoginRequiredMixin, ListView):
 
 
 class FarmDetail(PromgenGuardianPermissionMixin, DetailView):
-    permission_required = [
-        "project_admin",
-        "service_admin",
-        "project_editor",
-        "service_editor",
-        "project_viewer",
-        "service_viewer",
-    ]
+    permission_required = permissions.PROJECT_VIEWER_AND_HIGHER_PERMS
     model = models.Farm
 
     def get_context_data(self, **kwargs):
@@ -689,7 +668,7 @@ class FarmDetail(PromgenGuardianPermissionMixin, DetailView):
 
 
 class FarmUpdate(PromgenGuardianPermissionMixin, UpdateView):
-    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Farm
     button_label = _("Update Farm")
     template_name = "promgen/farm_update.html"
@@ -710,7 +689,7 @@ class FarmUpdate(PromgenGuardianPermissionMixin, UpdateView):
 
 
 class FarmDelete(PromgenGuardianPermissionMixin, RedirectView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     pattern_name = "farm-detail"
 
     def post(self, request, pk):
@@ -724,7 +703,7 @@ class FarmDelete(PromgenGuardianPermissionMixin, RedirectView):
 
 
 class UnlinkFarm(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
 
     def post(self, request, pk):
         project = get_object_or_404(models.Project, id=pk)
@@ -786,7 +765,7 @@ class RulesList(LoginRequiredMixin, ListView, mixins.ServiceMixin):
 
 
 class RulesOverride(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
 
     def post(self, request, pk):
         original = get_object_or_404(models.Rule, id=pk)
@@ -824,7 +803,7 @@ class FarmRefresh(LoginRequiredMixin, RedirectView):
 
 
 class FarmConvert(PromgenGuardianPermissionMixin, RedirectView):
-    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     pattern_name = "farm-detail"
 
     def post(self, request, pk):
@@ -853,7 +832,7 @@ class FarmConvert(PromgenGuardianPermissionMixin, RedirectView):
 
 
 class FarmLink(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
 
     def get(self, request, pk, source):
         if source == discovery.FARM_DEFAULT:
@@ -890,7 +869,7 @@ class FarmLink(PromgenGuardianPermissionMixin, View):
 
 
 class ExporterRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Exporter
     template_name = "promgen/exporter_form.html"
     form_class = forms.ExporterForm
@@ -935,7 +914,7 @@ class ExporterScrape(LoginRequiredMixin, View):
 
 
 class URLRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.URL
     form_class = forms.URLForm
 
@@ -954,7 +933,7 @@ class URLRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin)
 
 
 class URLDelete(PromgenGuardianPermissionMixin, DeleteView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.URL
 
     def get_success_url(self):
@@ -979,7 +958,7 @@ class URLList(LoginRequiredMixin, ListView):
 
 
 class ProjectRegister(PromgenGuardianPermissionMixin, CreateView):
-    permission_required = ["service_admin", "service_editor"]
+    permission_required = permissions.SERVICE_EDITOR_AND_HIGHER_PERMS
     button_label = _("Register Project")
     model = models.Project
     form_class = forms.ProjectRegister
@@ -1013,7 +992,7 @@ class ProjectRegister(PromgenGuardianPermissionMixin, CreateView):
 
 
 class ProjectUpdate(PromgenGuardianPermissionMixin, UpdateView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Project
     button_label = _("Project Update")
     template_name = "promgen/project_form.html"
@@ -1045,7 +1024,7 @@ class ProjectUpdate(PromgenGuardianPermissionMixin, UpdateView):
 
 
 class ServiceUpdate(PromgenGuardianPermissionMixin, UpdateView):
-    permission_required = ["service_admin", "service_editor"]
+    permission_required = permissions.SERVICE_EDITOR_AND_HIGHER_PERMS
     button_label = _("Update Service")
     form_class = forms.ServiceUpdate
     model = models.Service
@@ -1062,14 +1041,7 @@ class ServiceUpdate(PromgenGuardianPermissionMixin, UpdateView):
 
 
 class RuleDetail(PromgenGuardianPermissionMixin, DetailView):
-    permission_required = [
-        "service_admin",
-        "service_editor",
-        "service_viewer",
-        "project_admin",
-        "project_editor",
-        "project_viewer",
-    ]
+    permission_required = permissions.PROJECT_VIEWER_AND_HIGHER_PERMS
 
     def get_queryset(self):
         overrides = models.Rule.objects.filter(parent_id=self.kwargs["pk"])
@@ -1112,7 +1084,7 @@ class RuleDetail(PromgenGuardianPermissionMixin, DetailView):
 
 
 class RuleUpdate(PromgenGuardianPermissionMixin, UpdateView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
 
     queryset = models.Rule.objects.prefetch_related(
         "content_object", "overrides", "overrides__content_object"
@@ -1171,7 +1143,7 @@ class RuleUpdate(PromgenGuardianPermissionMixin, UpdateView):
 
 
 class AlertRuleRegister(PromgenGuardianPermissionMixin, mixins.RuleFormMixin, FormView):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Rule
     template_name = "promgen/rule_register.html"
     form_class = forms.AlertRuleForm
@@ -1229,7 +1201,7 @@ class ServiceRegister(LoginRequiredMixin, CreateView):
 
 
 class FarmRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Farm
     button_label = _("Register Farm")
     template_name = "promgen/farm_register.html"
@@ -1266,7 +1238,7 @@ class FarmRegister(PromgenGuardianPermissionMixin, FormView, mixins.ProjectMixin
 class ProjectNotifierRegister(
     PromgenGuardianPermissionMixin, mixins.NotifierFormMixin, mixins.ProjectMixin
 ):
-    permission_required = ["service_admin", "service_editor", "project_admin", "project_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Sender
     template_name = "promgen/notifier_form.html"
 
@@ -1291,7 +1263,7 @@ class ProjectNotifierRegister(
 class ServiceNotifierRegister(
     PromgenGuardianPermissionMixin, mixins.NotifierFormMixin, mixins.ServiceMixin
 ):
-    permission_required = ["service_admin", "service_editor"]
+    permission_required = permissions.SERVICE_EDITOR_AND_HIGHER_PERMS
     model = models.Sender
     template_name = "promgen/notifier_form.html"
 
@@ -1351,7 +1323,7 @@ class Profile(LoginRequiredMixin, mixins.NotifierFormMixin):
 
 
 class HostRegister(PromgenGuardianPermissionMixin, FormView):
-    permission_required = ["project_admin", "service_admin", "project_editor", "service_editor"]
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     model = models.Host
     template_name = "promgen/host_form.html"
     form_class = forms.HostForm
@@ -1845,7 +1817,7 @@ class ProfileTokenDelete(LoginRequiredMixin, View):
 
 
 class PermissionAssign(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "project_admin"]
+    permission_required = permissions.PROJECT_ADMIN_AND_HIGHER_PERMS
 
     def post(self, request):
         obj = self.get_object()
@@ -1891,7 +1863,7 @@ class PermissionAssign(PromgenGuardianPermissionMixin, View):
 
 
 class PermissionDelete(PromgenGuardianPermissionMixin, View):
-    permission_required = ["service_admin", "project_admin"]
+    permission_required = permissions.PROJECT_ADMIN_AND_HIGHER_PERMS
 
     def post(self, request):
         obj = self.get_object()
@@ -2012,7 +1984,7 @@ class GroupList(LoginRequiredMixin, ListView):
 
 
 class GroupDetail(PromgenGuardianPermissionMixin, DetailView):
-    permission_required = ["group_admin", "group_member"]
+    permission_required = permissions.GROUP_MEMBER_AND_HIGHER_PERMS
     model = models.Group
 
     def get_context_data(self, **kwargs):
