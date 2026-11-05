@@ -281,4 +281,16 @@ $(document).ready(function() {
   // Set the user's current timezone for forms
   $("#id_user_timezone").attr("value", luxon.DateTime.local().zoneName);
 
+  // Set the min and max expiration date for API tokens DatePicker
+  const tokenExpirationDatePicker = $('input[type="date"][name="expiration"]');
+  const today = luxon.DateTime.local();
+  tokenExpirationDatePicker.attr("min", today.toISODate());
+  const max = tokenExpirationDatePicker.attr("max_expiration_in_days");
+  if (max) {
+    const days = parseInt(max, 10);
+    if (Number.isFinite(days)) {
+      tokenExpirationDatePicker.attr("max", today.plus({ days }).toISODate());
+    }
+  }
+
 });

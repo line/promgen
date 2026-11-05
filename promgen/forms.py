@@ -458,7 +458,9 @@ class TokenGenerationForm(forms.Form):
     user_timezone = forms.CharField(required=False, widget=forms.HiddenInput())
     expiration = forms.DateTimeField(
         required=bool(settings.API_TOKEN_TTL_DAYS),
-        widget=forms.DateInput(attrs={"type": "date"}),
+        widget=forms.DateInput(
+            attrs={"type": "date", "max_expiration_in_days": settings.API_TOKEN_TTL_DAYS}
+        ),
     )
 
     def __init__(self, *args, **kwargs):
