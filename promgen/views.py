@@ -1438,7 +1438,8 @@ class AlertList(LoginRequiredMixin, ListView):
         return qs
 
 
-class AlertDetail(LoginRequiredMixin, DetailView):
+class AlertDetail(PromgenGuardianPermissionMixin, DetailView):
+    permission_required = permissions.PROJECT_VIEWER_AND_HIGHER_PERMS
     model = models.Alert
 
     def get_context_data(self, **kwargs):
@@ -1451,6 +1452,16 @@ class AlertDetail(LoginRequiredMixin, DetailView):
         data["redirects"] = ["service", "project"]
 
         return data
+
+    def get_check_permission_object(self):
+        alert = self.get_object()
+        routable, _ = alert.expand()
+        if routable.get("project"):
+            return routable["project"]
+        elif routable.get("service"):
+            return routable["service"]
+        else:
+            return None
 
 
 class Metrics(View):

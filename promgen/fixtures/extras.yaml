@@ -17,7 +17,7 @@
   pk: 1
   fields:
     created: 2022-06-06
-    body: "{}"
+    body: "{\"commonLabels\":{\"service\":\"test-service\"}}"
 - model: promgen.host
   pk: 1
   fields:
