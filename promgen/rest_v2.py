@@ -580,7 +580,7 @@ class NotifierViewSet(
     def delete_filter(self, request, id, filter_id):
         notifier = self.get_object()
         if notifier:
-            models.Filter.objects.filter(pk=filter_id).delete()
+            models.Filter.objects.filter(pk=filter_id, sender=notifier).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
 
     @extend_schema(
