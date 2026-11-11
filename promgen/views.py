@@ -2115,15 +2115,6 @@ class GroupRegister(LoginRequiredMixin, CreateView):
         assign_perm("group_admin", self.request.user, group)
         return response
 
-    def get_success_url(self):
-        if self.request.GET.get("next"):
-            messages.success(
-                self.request,
-                _("Group {group} created successfully.").format(group=self.object.name),
-            )
-            return self.request.GET["next"]
-        return super().get_success_url()
-
 
 class GroupUpdate(PromgenGuardianPermissionMixin, UpdateView):
     permission_required = ["group_admin"]
