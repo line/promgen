@@ -785,7 +785,8 @@ class RulesOverride(PromgenGuardianPermissionMixin, View):
         return model_class.objects.get(pk=self.request.POST["object_id"])
 
 
-class FarmRefresh(LoginRequiredMixin, RedirectView):
+class FarmRefresh(PromgenGuardianPermissionMixin, RedirectView):
+    permission_required = permissions.PROJECT_EDITOR_AND_HIGHER_PERMS
     pattern_name = "farm-detail"
 
     def post(self, request, pk):
@@ -800,6 +801,9 @@ class FarmRefresh(LoginRequiredMixin, RedirectView):
         # If we don't have an explicit redirect, we can redirect to the farm
         # itself
         return redirect(farm)
+
+    def get_check_permission_object(self):
+        return get_object_or_404(models.Farm, id=self.kwargs["pk"])
 
 
 class FarmConvert(PromgenGuardianPermissionMixin, RedirectView):
