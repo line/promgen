@@ -87,7 +87,16 @@ class WebTests(PromgenTest):
         # so we expect this page to redirect to 302
         ("import", views.Import, {"status_code": 302}),
         ("alert-list", views.AlertList, {}),
-        ("alert-detail", views.AlertDetail, {"pk": 1}),
+        (
+            "alert-detail",
+            views.AlertDetail,
+            {
+                "pk": 1,
+                "permission": "service_viewer",
+                "model": models.Service,
+                "permission_object_pk": 1,
+            },
+        ),
         ("metrics", views.Metrics, {}),
     ]
 
