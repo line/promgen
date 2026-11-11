@@ -448,8 +448,9 @@ class NotifierUpdate(PromgenGuardianPermissionMixin, UpdateView):
         return s.replace("[", "\[").replace("]", "\]")
 
     def post(self, request, pk):
+        obj = self.get_object()
         if "filter.pk" in request.POST:
-            f = models.Filter.objects.get(pk=request.POST["filter.pk"])
+            f = models.Filter.objects.get(pk=request.POST["filter.pk"], sender=obj)
             f.delete()
             messages.success(
                 request,
@@ -459,7 +460,6 @@ class NotifierUpdate(PromgenGuardianPermissionMixin, UpdateView):
                 ),
             )
         if "filter.name" in request.POST:
-            obj = self.get_object()
             f, created = obj.filter_set.get_or_create(
                 name=request.POST["filter.name"], value=request.POST["filter.value"]
             )
