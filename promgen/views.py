@@ -42,7 +42,6 @@ from promgen import (
     plugins,
     prometheus,
     signals,
-    tasks,
     util,
 )
 from promgen.forms import GroupMemberForm, UserPermissionForm
@@ -1365,61 +1364,6 @@ class HostRegister(PromgenGuardianPermissionMixin, FormView):
 
     def get_check_permission_object(self):
         return get_object_or_404(models.Farm, id=self.kwargs["pk"])
-
-
-class ApiConfig(View):
-    def get(self, request):
-        return HttpResponse(prometheus.render_config(), content_type="application/json")
-
-    def post(self, request, *args, **kwargs):
-        try:
-            body = json.loads(request.body.decode("utf-8"))
-
-            prometheus.import_config(body, self.request.user, **kwargs)
-        except Exception as e:
-            return HttpResponse(e, status=400)
-
-        return HttpResponse("Success", status=202)
-
-
-class ApiQueue(View):
-    def post(self, request):
-        signals.trigger_write_config.send(request)
-        signals.trigger_write_rules.send(request)
-        signals.trigger_write_urls.send(request)
-        return HttpResponse("OK", status=202)
-
-
-class _ExportRules(View):
-    def format(self, rules=None, name="promgen"):
-        content = prometheus.render_rules(rules)
-        response = HttpResponse(content)
-        response["Content-Type"] = "application/x-yaml"
-        response["Content-Disposition"] = "attachment; filename=%s.rule.yml" % name
-        return response
-
-
-class RulesConfig(_ExportRules):
-    def get(self, request):
-        return self.format()
-
-
-class RuleExport(_ExportRules):
-    def get(self, request, content_type, object_id):
-        ct = ContentType.objects.get(
-            app_label="promgen", model=content_type
-        ).get_object_for_this_type(pk=object_id)
-        rules = models.Rule.objects.filter(obj=ct)
-        return self.format(rules)
-
-
-class URLConfig(View):
-    def get(self, request):
-        return HttpResponse(prometheus.render_urls(), content_type="application/json")
-
-    def post(self, request):
-        tasks.write_urls()
-        return HttpResponse("OK", status=202)
 
 
 class AlertList(LoginRequiredMixin, ListView):
