@@ -769,6 +769,23 @@ class RulesOverride(PromgenGuardianPermissionMixin, View):
 
     def post(self, request, pk):
         original = get_object_or_404(models.Rule, id=pk)
+        destination_object = self.get_check_permission_object()
+        if isinstance(destination_object, models.Service) and not isinstance(
+            original.content_object, models.Site
+        ):
+            messages.error(request, "Service Rule must be inherited from a Site Rule.")
+            return HttpResponseRedirect(destination_object.get_absolute_url() + "#rules")
+
+        if isinstance(destination_object, models.Project) and not (
+            isinstance(original.content_object, models.Site)
+            or original.content_object == destination_object.service
+        ):
+            messages.error(
+                request,
+                "Project Rule must be inherited from a Site Rule or its parent Service Rule.",
+            )
+            return HttpResponseRedirect(destination_object.get_absolute_url() + "#rules")
+
         form = forms.RuleOverrideForm(request.POST)
 
         if form.is_valid():
