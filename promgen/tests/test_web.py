@@ -1,5 +1,8 @@
 # Copyright (c) 2022 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+from unittest.mock import patch
+
+from django.contrib.messages import ERROR, get_messages
 from django.urls import reverse
 from guardian.shortcuts import assign_perm, remove_perm
 
@@ -427,3 +430,53 @@ class WebTests(PromgenTest):
             ).exists(),
             "Required custom label value should be deleted within the service deletion process",
         )
+
+    @patch("promgen.signals.prometheus.check_rules")
+    def test_rule_override_invalid_inheritance(self, mock_check_rules):
+        service = models.Service.objects.get(pk=1)
+        project = models.Project.objects.get(pk=1)
+        assign_perm("service_editor", self.user, service)
+        service_rule = models.Rule.objects.create(
+            name="Service Rule", clause="up == 0", duration="1m", content_object=service
+        )
+        project_rule = models.Rule.objects.get(pk=2)
+        other_service_rule = models.Rule.objects.create(
+            name="Other Service Rule",
+            clause="up == 0",
+            duration="1m",
+            content_object=models.Service.objects.get(pk=2),
+        )
+        other_project_rule = models.Rule.objects.create(
+            name="Other Project Rule",
+            clause="up == 0",
+            duration="1m",
+            content_object=models.Project.objects.get(pk=2),
+        )
+        service_error = "Service Rule must be inherited from a Site Rule."
+        project_error = (
+            "Project Rule must be inherited from a Site Rule or its parent Service Rule."
+        )
+        for original, destination, error in (
+            (service_rule, service, service_error),
+            (other_service_rule, service, service_error),
+            (project_rule, service, service_error),
+            (other_service_rule, project, project_error),
+            (project_rule, project, project_error),
+            (other_project_rule, project, project_error),
+        ):
+            with self.subTest(original=original.name, destination=destination.name):
+                count = models.Rule.objects.count()
+                self.client.cookies.pop("messages", None)
+                response = self.client.post(
+                    reverse("rule-override", kwargs={"pk": original.pk}),
+                    {"content_type": destination._meta.model_name, "object_id": destination.pk},
+                )
+                self.assertEqual(response.status_code, 302)
+                self.assertEqual(response["Location"], destination.get_absolute_url() + "#rules")
+                errors = [
+                    str(message)
+                    for message in get_messages(response.wsgi_request)
+                    if message.level == ERROR
+                ]
+                self.assertEqual(errors, [error])
+                self.assertEqual(models.Rule.objects.count(), count)
