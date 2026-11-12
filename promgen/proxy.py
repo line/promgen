@@ -7,9 +7,9 @@ import logging
 from http import HTTPStatus
 
 import requests
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext as _
-from django.views.generic import View
 from django.views.generic.base import TemplateView
 from requests.exceptions import HTTPError
 from rest_framework import permissions
@@ -21,7 +21,8 @@ from promgen import permissions as promgen_permissions
 logger = logging.getLogger(__name__)
 
 
-class PrometheusProxy(View):
+class PrometheusProxy(APIView):
+    permission_classes = [permissions.IsAuthenticated]
     proxy_headers = {"HTTP_REFERER": "Referer"}
 
     @property
@@ -53,7 +54,7 @@ class PrometheusProxy(View):
             yield from concurrent.futures.as_completed(futures)
 
 
-class ProxyGraph(TemplateView):
+class ProxyGraph(LoginRequiredMixin, TemplateView):
     template_name = "promgen/graph.html"
 
     def get_context_data(self, **kwargs):
@@ -156,7 +157,9 @@ class ProxyQuery(PrometheusProxy):
         )
 
 
-class ProxyAlerts(View):
+class ProxyAlerts(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
         try:
             url = util.join_url(util.setting("alertmanager:url"), "/api/v2/alerts")
@@ -266,7 +269,9 @@ def get_affected_obj_by_matchers(matchers):
     return affected_projects, affected_services
 
 
-class ProxySilences(View):
+class ProxySilences(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request):
         try:
             url = util.join_url(util.setting("alertmanager:url"), "/api/v2/silences")
@@ -407,7 +412,7 @@ def get_uneditable_for_user(affected_projects, affected_services, user):
 
 
 class ProxySilencesV2(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.SilenceSerializer(
@@ -503,7 +508,9 @@ class ProxySilencesV2(APIView):
         )
 
 
-class ProxyDeleteSilence(View):
+class ProxyDeleteSilence(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def delete(self, request, silence_id):
         url = util.join_url(util.setting("alertmanager:url"), f"/api/v2/silence/{silence_id}")
         # First, check if the silence exists

@@ -86,7 +86,12 @@ const app = Vue.createApp({
             tgt.classList.toggle('collapse');
         },
         expireSilence(id) {
-            fetch(`/proxy/v1/silences/${id}`, { method: 'DELETE' })
+            fetch(`/proxy/v1/silences/${id}`, {
+                method: 'DELETE',
+                headers: {
+                  "X-CSRFToken": document.querySelector('input[name="csrf_token"]').value,
+                },
+            })
                 .then(response => {
                     if (response.ok) {
                         location.reload();
