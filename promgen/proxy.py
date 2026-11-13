@@ -519,6 +519,19 @@ class ProxyDeleteSilence(View):
             affected_projects, affected_services = get_affected_obj_by_matchers(
                 silence.get("matchers", [])
             )
+
+            if not affected_projects.exists() and not affected_services.exists():
+                return JsonResponse(
+                    {
+                        "messages": [
+                            {
+                                "class": "alert alert-warning",
+                                "message": _("You do not have permission to delete this silence."),
+                            }
+                        ]
+                    },
+                    status=HTTPStatus.FORBIDDEN,
+                )
             uneditable_projects, uneditable_services = get_uneditable_for_user(
                 affected_projects, affected_services, request.user
             )
