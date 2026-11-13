@@ -45,6 +45,7 @@ from promgen import (
     serializers,
     settings,
     signals,
+    util,
     validators,
 )
 from promgen.permissions import (
@@ -609,6 +610,16 @@ class NotifierViewSet(
             notifier = models.Sender(
                 sender=serializer.validated_data["sender"], value=serializer.validated_data["value"]
             )
+            # A notifier test with ID 0 skips the object-level permission check, so any
+            # authenticated user can reach this path. For the webhook sender the value is an
+            # attacker-controlled URL that the server fetches, which would otherwise allow
+            # SSRF to internal or cloud-metadata endpoints. Reject non-public targets here.
+            if notifier.sender == "promgen.notification.webhook" and not util.is_public_url(
+                notifier.value
+            ):
+                raise ValidationError(
+                    {"value": "URL must resolve to a public, non-internal address."}
+                )
         else:
             notifier = self.get_object()
 
