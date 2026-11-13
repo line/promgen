@@ -2,6 +2,7 @@
 # These sources are released under the terms of the MIT license: see LICENSE
 
 import logging
+import os
 import warnings
 
 from django.apps import AppConfig
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 def default_admin(sender, interactive, **kwargs):
     # Have to import here to ensure that the apps are already registered and
     # we get a real model instead of __fake__.User
+
     from django.contrib.auth.models import User
 
     if User.objects.filter(is_superuser=True).count() == 0:
@@ -20,12 +22,12 @@ def default_admin(sender, interactive, **kwargs):
             print("  Adding default admin user")
         User.objects.create_user(
             username="admin",
-            password="admin",
+            password=os.getenv("PROMGEN_ADMIN_PASSWORD", "admin"),
             is_staff=True,
             is_active=True,
             is_superuser=True,
         )
-        if interactive:
+        if interactive and "PROMGEN_ADMIN_PASSWORD" not in os.environ:
             print("BE SURE TO UPDATE THE PASSWORD!!!")
 
 
