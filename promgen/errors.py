@@ -18,3 +18,6 @@ class SilenceError(ValidationErrorEnum):
     STARTENDMISMATCH = _("Start time and end time are mismatched.")
     NOMATCHER = _("Missing matchers for silence.")
     NOSERVICEORPROJECTMATCHER = _("Silence must include a service or project matcher.")
+    NO_MEANINGFUL_SERVICE_OR_PROJECT_MATCHER = _(
+        "Either meaningful service or project matchers are required."
+    )
