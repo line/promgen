@@ -3,7 +3,9 @@
 
 import argparse
 import hashlib
+import ipaddress
 import math
+import socket
 from urllib.parse import urlsplit
 
 import requests
@@ -58,6 +60,31 @@ def scrape(url, params=None, **kwargs):
     # https://github.com/prometheus/prometheus/blob/2b55017379786873dc00315ffe65e22ad7026abb/scrape/target.go#L375-L387
     headers["Host"] = urlsplit(url).netloc
     return requests.get(url, params=params, **kwargs)
+
+
+def is_public_url(url):
+    """
+    Return True only if every address the URL host resolves to is globally
+    routable. Used to guard user-supplied webhook targets against SSRF to
+    loopback, link-local (cloud metadata) and private-network endpoints.
+    """
+    host = urlsplit(url).hostname
+    if not host:
+        return False
+    try:
+        addrinfo = socket.getaddrinfo(host, None)
+    except socket.gaierror:
+        return False
+    if not addrinfo:
+        return False
+    for family, _type, _proto, _canon, sockaddr in addrinfo:
+        try:
+            ip = ipaddress.ip_address(sockaddr[0])
+        except ValueError:
+            return False
+        if not ip.is_global:
+            return False
+    return True
 
 
 def join_url(base, path):
