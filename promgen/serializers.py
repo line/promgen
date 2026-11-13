@@ -155,6 +155,17 @@ class SilenceSerializer(serializers.Serializer):
         if not any(matcher["name"] in ["service", "project"] for matcher in data["matchers"]):
             raise errors.SilenceError.NOSERVICEORPROJECTMATCHER.error()
 
+        # Either meaningful service or project matchers are required
+        meaningful_service_matcher = False
+        meaningful_project_matcher = False
+        for matcher in data["matchers"]:
+            if matcher["name"] == "service" and matcher["value"] not in [".*", ".+", ""]:
+                meaningful_service_matcher = True
+            if matcher["name"] == "project" and matcher["value"] not in [".*", ".+", ""]:
+                meaningful_project_matcher = True
+        if not (meaningful_service_matcher or meaningful_project_matcher):
+            raise errors.SilenceError.NO_MEANINGFUL_SERVICE_OR_PROJECT_MATCHER.error()
+
         if data.get("duration"):
             # No further validation is required if only duration is set
             return data

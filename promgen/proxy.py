@@ -385,9 +385,7 @@ class ProxySilences(View):
         )
 
 
-def get_uneditable_obj_by_silence_matchers(matchers, user):
-    affected_projects, affected_services = get_affected_obj_by_matchers(matchers)
-
+def get_uneditable_for_user(affected_projects, affected_services, user):
     uneditable_projects = models.Project.objects.none()
     uneditable_services = models.Service.objects.none()
 
@@ -429,8 +427,25 @@ class ProxySilencesV2(APIView):
 
         # Check if the user has permission to silence the alert
         if not request.user.is_superuser:
-            uneditable_projects, uneditable_services = get_uneditable_obj_by_silence_matchers(
-                serializer.data["matchers"], request.user
+            affected_projects, affected_services = get_affected_obj_by_matchers(
+                serializer.data["matchers"]
+            )
+
+            if not affected_projects.exists() and not affected_services.exists():
+                return JsonResponse(
+                    {
+                        "messages": [
+                            {
+                                "class": "alert alert-warning",
+                                "message": _("Silence affects no projects or services."),
+                            }
+                        ]
+                    },
+                    status=HTTPStatus.FORBIDDEN,
+                )
+
+            uneditable_projects, uneditable_services = get_uneditable_for_user(
+                affected_projects, affected_services, request.user
             )
             messages = []
             for objs, label in [
@@ -501,8 +516,11 @@ class ProxyDeleteSilence(View):
         # Check if the user has permission to delete the silence
         if not request.user.is_superuser:
             silence = response.json()
-            uneditable_projects, uneditable_services = get_uneditable_obj_by_silence_matchers(
-                silence.get("matchers", []), request.user
+            affected_projects, affected_services = get_affected_obj_by_matchers(
+                silence.get("matchers", [])
+            )
+            uneditable_projects, uneditable_services = get_uneditable_for_user(
+                affected_projects, affected_services, request.user
             )
             messages = []
             for objs, label in [
