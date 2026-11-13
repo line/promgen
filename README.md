@@ -25,6 +25,13 @@ If you believe you have discovered a vulnerability or have an issue related to s
 
 Initialize Promgen using Docker.
 
+During migration, Promgen creates an `admin` superuser if no superuser exists.
+Set `PROMGEN_ADMIN_PASSWORD` in your environment to a strong password before
+running migration or the Docker Compose bootstrap, and pass it to the container.
+If the variable is unset, the password defaults to `admin`; change it immediately.
+This variable only applies when the account is created: changing it later does
+not update the password.
+
 ```bash
 # Create promgen setting directory.
 mkdir -p ~/.config/promgen
@@ -38,7 +45,7 @@ chmod 777 ~/.config/promgen
 docker run --rm -it -v ~/.config/promgen:/etc/promgen/ line/promgen docker-compose-bootstrap
 
 # Apply database updates
-docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen migrate
+docker run --rm -e PROMGEN_ADMIN_PASSWORD=my-secret-pw -v ~/.config/promgen:/etc/promgen/ line/promgen migrate
 
 # You can then check your configuration to ensure everything correct
 docker run --rm -v ~/.config/promgen:/etc/promgen/ line/promgen check
@@ -79,7 +86,7 @@ docker run --rm -v ~/.config/promgen:/etc/promgen/ -v /etc/prometheus:/etc/prome
 # If you are using docker compose, you can spin up a demo environment
 docker-compose up -d
 # Database migration to populate with initial data
-docker-compose run web docker-compose-bootstrap
+docker-compose run -e PROMGEN_ADMIN_PASSWORD=my-secret-pw web docker-compose-bootstrap
 # If you want to create a different admin user
 docker-compose run web createsuperuser
 # Now you should be able to open the demo environment in your browser
