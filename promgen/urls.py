@@ -132,11 +132,11 @@ urlpatterns = [
     path("", include("django.contrib.auth.urls")),
     path("", include("social_django.urls", namespace="social")),
     # Legacy API
-    path("api/v1/config", csrf_exempt(views.ApiConfig.as_view())),
+    path("api/v1/config", csrf_exempt(rest.ApiConfig.as_view())),
     path("api/", include((router.urls, "api"), namespace="old-api")),
-    path("api/v1/rules", csrf_exempt(views.RulesConfig.as_view())),
-    path("api/v1/targets", csrf_exempt(views.ApiConfig.as_view()), name="config-targets"),
-    path("api/v1/urls", csrf_exempt(views.URLConfig.as_view()), name="config-urls"),
+    path("api/v1/rules", csrf_exempt(rest.RulesConfig.as_view())),
+    path("api/v1/targets", csrf_exempt(rest.ApiConfig.as_view()), name="config-targets"),
+    path("api/v1/urls", csrf_exempt(rest.URLConfig.as_view()), name="config-urls"),
     path("api/v1/alerts", csrf_exempt(rest.AlertReceiver.as_view()), name="alert"),
     path("api/v1/host/<slug>", views.HostDetail.as_view()),
     # Prometheus Proxy

@@ -42,6 +42,11 @@ class Site(django.contrib.sites.models.Site):
 
     class Meta:
         proxy = True
+        permissions = [
+            ("read_config", "Can read Prometheus config"),
+            ("reload_config", "Can reload Prometheus config"),
+            ("import_config", "Can import Prometheus config"),
+        ]
 
 
 class Group(Group):

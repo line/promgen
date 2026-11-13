@@ -1,7 +1,9 @@
 # Copyright (c) 2019 LINE Corporation
 # These sources are released under the terms of the MIT license: see LICENSE
+import json
 from itertools import chain
 
+from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from requests.exceptions import HTTPError
 from rest_framework import viewsets
@@ -9,7 +11,17 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from promgen import filters, models, permissions, prometheus, renderers, serializers, tasks, util
+from promgen import (
+    filters,
+    models,
+    permissions,
+    prometheus,
+    renderers,
+    serializers,
+    signals,
+    tasks,
+    util,
+)
 from promgen.permissions import PromgenModelPermissions
 
 
@@ -219,3 +231,85 @@ class FarmViewSet(viewsets.ModelViewSet):
         hosts_data = serializers.HostSerializer(hosts, many=True).data
         farm_detail = {**farm_data, "hosts": hosts_data}
         return Response(farm_detail)
+
+
+class ApiConfig(APIView):
+    permission_classes = [PromgenModelPermissions]
+    any_perm = True
+
+    def get_permissions(self):
+        self.permissions_required = {
+            "GET": ["promgen.read_config"],
+            "POST": ["promgen.import_config"],
+        }.get(self.request.method, [])
+        return super().get_permissions()
+
+    def get(self, request):
+        return HttpResponse(prometheus.render_config(), content_type="application/json")
+
+    def post(self, request, *args, **kwargs):
+        try:
+            body = json.loads(request.body.decode("utf-8"))
+
+            prometheus.import_config(body, self.request.user, **kwargs)
+        except Exception as e:
+            return HttpResponse(e, status=400)
+
+        return HttpResponse("Success", status=202)
+
+
+class ApiQueue(APIView):
+    permission_classes = [PromgenModelPermissions]
+    permissions_required = ["promgen.reload_config"]
+    any_perm = True
+
+    def post(self, request):
+        signals.trigger_write_config.send(request)
+        signals.trigger_write_rules.send(request)
+        signals.trigger_write_urls.send(request)
+        return HttpResponse("OK", status=202)
+
+
+class _ExportRules(APIView):
+    permission_classes = [PromgenModelPermissions]
+    permissions_required = ["promgen.read_config"]
+    any_perm = True
+
+    def format(self, rules=None, name="promgen"):
+        content = prometheus.render_rules(rules)
+        response = HttpResponse(content)
+        response["Content-Type"] = "application/x-yaml"
+        response["Content-Disposition"] = "attachment; filename=%s.rule.yml" % name
+        return response
+
+
+class RulesConfig(_ExportRules):
+    def get(self, request):
+        return self.format()
+
+
+class RuleExport(_ExportRules):
+    def get(self, request, content_type, object_id):
+        ct = ContentType.objects.get(
+            app_label="promgen", model=content_type
+        ).get_object_for_this_type(pk=object_id)
+        rules = models.Rule.objects.filter(obj=ct)
+        return self.format(rules)
+
+
+class URLConfig(APIView):
+    permission_classes = [PromgenModelPermissions]
+
+    def get_permissions(self):
+        self.permissions_required = {
+            "GET": ["promgen.read_config"],
+            "POST": ["promgen.reload_config"],
+        }.get(self.request.method, [])
+        return super().get_permissions()
+
+    def get(self, request):
+        return HttpResponse(prometheus.render_urls(), content_type="application/json")
+
+    def post(self, request):
+        tasks.write_urls()
+        return HttpResponse("OK", status=202)
