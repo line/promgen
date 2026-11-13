@@ -234,6 +234,16 @@ class FarmViewSet(viewsets.ModelViewSet):
 
 
 class ApiConfig(APIView):
+    permission_classes = [PromgenModelPermissions]
+    any_perm = True
+
+    def get_permissions(self):
+        self.permissions_required = {
+            "GET": ["promgen.read_config"],
+            "POST": ["promgen.import_config"],
+        }.get(self.request.method, [])
+        return super().get_permissions()
+
     def get(self, request):
         return HttpResponse(prometheus.render_config(), content_type="application/json")
 
@@ -249,6 +259,10 @@ class ApiConfig(APIView):
 
 
 class ApiQueue(APIView):
+    permission_classes = [PromgenModelPermissions]
+    permissions_required = ["promgen.reload_config"]
+    any_perm = True
+
     def post(self, request):
         signals.trigger_write_config.send(request)
         signals.trigger_write_rules.send(request)
@@ -257,6 +271,10 @@ class ApiQueue(APIView):
 
 
 class _ExportRules(APIView):
+    permission_classes = [PromgenModelPermissions]
+    permissions_required = ["promgen.read_config"]
+    any_perm = True
+
     def format(self, rules=None, name="promgen"):
         content = prometheus.render_rules(rules)
         response = HttpResponse(content)
@@ -280,6 +298,15 @@ class RuleExport(_ExportRules):
 
 
 class URLConfig(APIView):
+    permission_classes = [PromgenModelPermissions]
+
+    def get_permissions(self):
+        self.permissions_required = {
+            "GET": ["promgen.read_config"],
+            "POST": ["promgen.reload_config"],
+        }.get(self.request.method, [])
+        return super().get_permissions()
+
     def get(self, request):
         return HttpResponse(prometheus.render_urls(), content_type="application/json")
 

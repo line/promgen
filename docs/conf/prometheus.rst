@@ -43,15 +43,21 @@ In this case, Promgne's pull mode can be used by trigging a small script running
 or any other job framework. This only requires the server where Prometheus is running,
 to be able to access Promgen over HTTP.
 
+.. important::
+
+    Create a Promgen user as a service account with the appropriate permissions, then
+    generate an API token to access the API endpoints.
+
 .. code-block:: bash
 
     #!/bin/sh
     set -e
     # Download all the targets from Promgen to a temporary file
-    curl http://promgen/api/v1/targets --output /etc/prometheus/targets.tmp
-    # Optionally you could download from a specific service or project
-    # curl http://promgen/service/123/targets -o /etc/prometheus/targets.tmp
-    # curl http://promgen/project/456/targets -o /etc/prometheus/targets.tmp
+    # Permission required: "promgen.read_config"
+    curl -H "Authorization: Token $PROMGEN_TOKEN" http://promgen/api/v1/targets --output /etc/prometheus/targets.tmp
+    # Optionally you could download from a specific service or project if you have at least VIEWER permissions on that service or project.
+    # curl -H "Authorization: Token $PROMGEN_TOKEN" http://promgen/service/123/targets -o /etc/prometheus/targets.tmp
+    # curl -H "Authorization: Token $PROMGEN_TOKEN" http://promgen/project/456/targets -o /etc/prometheus/targets.tmp
     # Move our file to make it more atomic
     mv /etc/prometheus/targets.tmp /etc/prometheus/targets.json
     # Tell Prometheus to reload

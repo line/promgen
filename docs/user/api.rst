@@ -18,6 +18,9 @@ Prometheus nodes. See the `Prometheus API <https://prometheus.io/docs/prometheus
 Promgen API
 ===========
 
+Promgen provides APIs to manage the configuration of Prometheus. They require authentication and the
+appropriate permissions to access them.
+
 .. http:post:: /api/v1/alerts
 
 .. http:get:: /api/v1/targets

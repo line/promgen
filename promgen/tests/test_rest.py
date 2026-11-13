@@ -7,16 +7,66 @@ from django.apps import apps as django_apps
 from django.contrib.auth.models import Permission, User
 from django.db.models.signals import post_delete, post_save
 from django.test import override_settings
-from django.urls import reverse
+from django.urls import resolve, reverse
 from guardian.models import UserObjectPermission
 from guardian.shortcuts import assign_perm, remove_perm
 from requests import Response
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 from promgen import models, plugins, rest, settings, signals, tests
 from promgen.notification.email import NotificationEmail
 
 
 class RestAPITest(tests.PromgenTest):
+    @override_settings(PROMGEN=tests.SETTINGS)
+    def test_legacy_api_permissions(self):
+        cases = (
+            ("get", "/api/v1/config", None, 403),
+            ("get", "/api/v1/config", "read_config", 200),
+            ("post", "/api/v1/config", None, 403),
+            ("post", "/api/v1/config", "read_config", 403),
+            ("post", "/api/v1/config", "import_config", 202),
+            ("get", "/api/v1/targets", None, 403),
+            ("get", "/api/v1/targets", "read_config", 200),
+            ("post", "/api/v1/targets", None, 403),
+            ("post", "/api/v1/targets", "read_config", 403),
+            ("post", "/api/v1/targets", "import_config", 202),
+            ("get", "/api/v1/rules", None, 403),
+            ("get", "/api/v1/rules", "read_config", 200),
+            ("get", "/api/v1/urls", None, 403),
+            ("get", "/api/v1/urls", "read_config", 200),
+            ("post", "/api/v1/urls", None, 403),
+            ("post", "/api/v1/urls", "read_config", 403),
+            ("post", "/api/v1/urls", "reload_config", 202),
+        )
+        with (
+            # mock the renderers to focus on permission testing and not the actual rendering logic
+            mock.patch.multiple(
+                "promgen.rest.prometheus",
+                render_config=mock.DEFAULT,
+                import_config=mock.DEFAULT,
+                render_rules=mock.DEFAULT,
+                render_urls=mock.DEFAULT,
+            ) as renderers,
+            mock.patch("promgen.rest.tasks.write_urls"),
+        ):
+            for name in ("render_config", "render_rules", "render_urls"):
+                renderers[name].return_value = ""
+            for method, path, permission, expected_status in cases:
+                with self.subTest(method=method, path=path, permission=permission):
+                    user = User.objects.get(username="demo")
+                    user.user_permissions.clear()
+                    if permission:
+                        user.user_permissions.add(
+                            Permission.objects.get(
+                                content_type__app_label="promgen", codename=permission
+                            )
+                        )
+                    request = getattr(APIRequestFactory(), method)(path, data={}, format="json")
+                    force_authenticate(request, user=user)
+                    response = resolve(path).func(request)
+                    self.assertEqual(response.status_code, expected_status)
+
     def _run_rest_test(self, case):
         def _parse_case_json(value, default):
             if not value:
